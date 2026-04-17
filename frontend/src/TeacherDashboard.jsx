@@ -48,59 +48,59 @@ export default function TeacherDashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
         <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #4a90e2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', cursor: 'pointer' }}>
-            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Total Enrolled</div>
+          <div style={{ background: '#063970', color: '#fff', padding: '15px', borderRadius: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', cursor: 'pointer', border: 'none' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Total Enrolled</div>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.total}</div>
-            <div style={{ fontSize: '0.75rem', color: '#888' }}>Active children</div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Active children</div>
           </div>
         </a>
         <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd', height: '100%', cursor: 'pointer' }}>
-            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Today's Attendance</div>
+          <div style={{ background: '#063970', color: '#fff', padding: '15px', borderRadius: '10px', height: '100%', cursor: 'pointer', border: 'none' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Today's Attendance</div>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-            <div style={{ fontSize: '0.75rem', color: '#888' }}>{stats.absent} absent today</div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>{stats.absent} absent today</div>
           </div>
         </a>
         <a href="/behavior/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #e74a3b', height: '100%', cursor: 'pointer' }}>
-            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Children at Risk</div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#e74a3b' }}>0</div>
-            <div style={{ fontSize: '0.75rem', color: '#888' }}>Require attention</div>
+          <div style={{ background: '#063970', color: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #e74a3b', height: '100%', cursor: 'pointer' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Children at Risk</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800 }}>0</div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Require attention</div>
           </div>
         </a>
         <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd', height: '100%', cursor: 'pointer' }}>
-            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Milestone Progress</div>
+          <div style={{ background: '#063970', color: '#fff', padding: '15px', borderRadius: '10px', height: '100%', cursor: 'pointer', border: 'none' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Milestone Progress</div>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>71.3%</div>
-            <div style={{ fontSize: '0.75rem', color: '#888' }}>Overall completion</div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>Overall completion</div>
           </div>
         </a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-        <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+        <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '10px', border: 'none' }}>
           <div style={{ fontWeight: 600, marginBottom: '20px' }}>Behavior Distribution (30 Days)</div>
           <div style={{ height: '200px', display: 'flex', justifyContent: 'center' }}>
-            <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+            <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { legend: { labels: { color: '#fff' } } } }} />
           </div>
         </div>
-        <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+        <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '10px', border: 'none' }}>
           <div style={{ fontWeight: 600, marginBottom: '20px' }}>Average Nutrition Intake (7 Days)</div>
           <div style={{ height: '200px' }}>
-            <Line data={lineData} options={{ maintainAspectRatio: false }} />
+            <Line data={lineData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }, y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } } }, plugins: { legend: { labels: { color: '#fff' } } } }} />
           </div>
         </div>
       </div>
 
       <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
-        <h4 style={{ margin: '0 0 10px 0' }}>System Status & Automation</h4>
+        <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>System Status & Automation</h4>
         <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Real-time monitoring systems</p>
         <div style={{ display: 'flex', gap: '15px' }}>
           {['Access Control', 'Attendance Monitor', 'Behavior Analysis', 'Nutrition Tracking'].map(sys => (
             <div key={sys} style={{ flex: 1, border: '1px solid #ddd', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ color: '#1cc88a' }}>✓</div>
               <div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{sys}</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#333' }}>{sys}</div>
                 <div style={{ fontSize: '0.7rem', color: '#888' }}>Active</div>
               </div>
             </div>
