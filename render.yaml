@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: bmv3-childcare-system
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "cd backend && gunicorn config.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: "config.settings.prod"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bmv3-db
+          property: connectionString
+
+databases:
+  - name: bmv3-db
+    databaseName: bmv3_childcare
+    user: bmv3_user
+    plan: free
