@@ -8,26 +8,19 @@ export default function TeacherDashboard() {
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0 });
 
   useEffect(() => {
-    // Load data from prototype local storage
-    const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    const mockDatabase = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
-    
-    const todayStr = new Date().toISOString().split('T')[0];
-    let presentCount = 0;
-    let absentCount = 0;
-
-    if (mockDatabase[todayStr]) {
-      studentsMaster.forEach(st => {
-        if (mockDatabase[todayStr][st.id] === 'present') presentCount++;
-        else if (mockDatabase[todayStr][st.id] === 'absent') absentCount++;
-      });
-    }
-    
-    setStats({ 
-      total: studentsMaster.length, 
-      present: presentCount,
-      absent: absentCount
-    });
+    fetch('/api/teacher/dashboard/')
+      .then(res => {
+        if(res.ok) return res.json();
+        throw new Error('Network response was not ok.');
+      })
+      .then(data => {
+        setStats({
+          total: data.total_children || 0,
+          present: data.attendance?.present || 0,
+          absent: data.attendance?.absent || 0
+        });
+      })
+      .catch(error => console.error('Error fetching dashboard stats:', error));
   }, []);
 
   const pieData = {
@@ -54,26 +47,34 @@ export default function TeacherDashboard() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
-        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #4a90e2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Total Enrolled</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.total}</div>
-          <div style={{ fontSize: '0.75rem', color: '#888' }}>Active children</div>
-        </div>
-        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd' }}>
-          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Today's Attendance</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-          <div style={{ fontSize: '0.75rem', color: '#888' }}>{stats.absent} absent today</div>
-        </div>
-        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #e74a3b' }}>
-          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Children at Risk</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#e74a3b' }}>0</div>
-          <div style={{ fontSize: '0.75rem', color: '#888' }}>Require attention</div>
-        </div>
-        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd' }}>
-          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Milestone Progress</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>71.3%</div>
-          <div style={{ fontSize: '0.75rem', color: '#888' }}>Overall completion</div>
-        </div>
+        <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #4a90e2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', cursor: 'pointer' }}>
+            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Total Enrolled</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.total}</div>
+            <div style={{ fontSize: '0.75rem', color: '#888' }}>Active children</div>
+          </div>
+        </a>
+        <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd', height: '100%', cursor: 'pointer' }}>
+            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Today's Attendance</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
+            <div style={{ fontSize: '0.75rem', color: '#888' }}>{stats.absent} absent today</div>
+          </div>
+        </a>
+        <a href="/behavior/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #e74a3b', height: '100%', cursor: 'pointer' }}>
+            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Children at Risk</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#e74a3b' }}>0</div>
+            <div style={{ fontSize: '0.75rem', color: '#888' }}>Require attention</div>
+          </div>
+        </a>
+        <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd', height: '100%', cursor: 'pointer' }}>
+            <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Milestone Progress</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800 }}>71.3%</div>
+            <div style={{ fontSize: '0.75rem', color: '#888' }}>Overall completion</div>
+          </div>
+        </a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
