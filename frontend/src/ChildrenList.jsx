@@ -12,9 +12,67 @@ export default function ChildrenList() {
     allergies: '', guardianName: '', phone: '', email: '', address: ''
   });
 
+  const getDynamicStats = (students) => {
+    const attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+    const mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
+    const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
+    const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+    
+    return students.map(st => {
+      // 1. Attendance
+      let totalDays = 0, presentDays = 0;
+      Object.keys(attDB).forEach(date => {
+        if (attDB[date] && attDB[date][st.id]) {
+          totalDays++;
+          if (attDB[date][st.id] === 'present') presentDays++;
+        }
+      });
+      let calcAtt = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 100;
+
+      // 2. Milestones
+      let mRec = mileDB[st.id] || {};
+      let ach = 0;
+      Object.values(mRec).forEach(v => { if(v === 'achieved') ach++; });
+      let calcMile = Math.round((ach / 16) * 100);
+
+      // 3. Behavior
+      let bRec = behDB[st.id] || [];
+      let pos = 0, neg = 0, neu = 0;
+      bRec.forEach(r => {
+        if(r.type === 'positive') pos++;
+        else if(r.type === 'negative') neg++;
+        else if(r.type === 'neutral') neu++;
+      });
+      let totBehaviors = pos + neg + neu;
+      let calcBeh = 100;
+      if (totBehaviors > 0) {
+        calcBeh = Math.round(((pos + neu) / totBehaviors) * 100);
+      }
+
+      // 4. Nutrition
+      let nutRec = nutDB[st.id] || {};
+      let nDays = Object.keys(nutRec).length;
+      let totalNPct = 0;
+      Object.values(nutRec).forEach(day => {
+        let eaten = 0;
+        if(day.b === 'true' || day.b === true) eaten++;
+        if(day.s1 === 'true' || day.s1 === true) eaten++;
+        if(day.l === 'true' || day.l === true) eaten++;
+        if(day.s2 === 'true' || day.s2 === true) eaten++;
+        totalNPct += (eaten / 4) * 100;
+      });
+      let calcNut = nDays > 0 ? Math.round(totalNPct / nDays) : 80;
+
+      return {
+        ...st,
+        stats: { attendance: calcAtt, milestones: calcMile, behavior: calcBeh, nutrition: calcNut }
+      };
+    });
+  };
+
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    setChildren(saved);
+    setChildren(getDynamicStats(saved));
   }, []);
 
   const handleEnroll = () => {
@@ -39,9 +97,11 @@ export default function ChildrenList() {
       stats: { attendance: 100, milestones: 0, behavior: 100, nutrition: 80 }
     };
     
-    const updated = [...children, newEntry];
-    setChildren(updated);
-    localStorage.setItem('bmv3_students', JSON.stringify(updated));
+    let rawSaved = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    const updatedRaw = [...rawSaved, newEntry];
+    localStorage.setItem('bmv3_students', JSON.stringify(updatedRaw));
+    
+    setChildren(getDynamicStats(updatedRaw));
     setShowEnrollModal(false);
     setNewStudent({ firstName: '', lastName: '', age: '2 years', dob: '', doe: new Date().toISOString().split('T')[0], allergies: '', guardianName: '', phone: '', email: '', address: '' });
   };
@@ -53,7 +113,7 @@ export default function ChildrenList() {
   const getAgeCount = (age) => children.filter(c => Math.floor(c.age) === age).length;
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-in', fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ animation: 'fadeIn 0.5s ease-in', fontFamily: "'Montserrat', sans-serif" }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#333' }}>Children Directory</h2>
@@ -61,7 +121,7 @@ export default function ChildrenList() {
         </div>
         <button 
           onClick={() => setShowEnrollModal(true)}
-          style={{ background: '#1cc88a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px rgba(28,200,138,0.2)' }}
+          style={{ background: '#1cc88a', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px rgba(28,200,138,0.2)', fontFamily: "'Montserrat', sans-serif" }}
         >
           + Enroll Student
         </button>
@@ -93,7 +153,7 @@ export default function ChildrenList() {
           placeholder="🔍 Search by name..." 
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
         />
       </div>
 
@@ -112,30 +172,30 @@ export default function ChildrenList() {
 
             <div style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, color: '#555', marginBottom: '5px' }}>
-                <span>Attendance</span><span>{child.stats?.attendance || 100}%</span>
+                <span>Attendance</span><span>{child.stats?.attendance}%</span>
               </div>
-              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.attendance || 100}%`, height: '100%', background: '#4a90e2', borderRadius: '3px' }}></div></div>
+              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.attendance}%`, height: '100%', background: '#4a90e2', borderRadius: '3px' }}></div></div>
             </div>
             
             <div style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, color: '#555', marginBottom: '5px' }}>
-                <span>Milestones</span><span>{child.stats?.milestones || 0}%</span>
+                <span>Milestones</span><span>{child.stats?.milestones}%</span>
               </div>
-              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.milestones || 0}%`, height: '100%', background: '#9b59b6', borderRadius: '3px' }}></div></div>
+              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.milestones}%`, height: '100%', background: '#9b59b6', borderRadius: '3px' }}></div></div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, color: '#555', marginBottom: '5px' }}>
-                <span>Behavior Score</span><span>{child.stats?.behavior || 100}/100</span>
+                <span>Behavior Score</span><span>{child.stats?.behavior}/100</span>
               </div>
-              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.behavior || 100}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div></div>
+              <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.behavior}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div></div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {child.allergies ? (
                 <div style={{ color: '#e74a3b', fontSize: '0.8rem', fontWeight: 600 }}>⚠ {child.allergies}</div>
               ) : <div></div>}
-              <button onClick={() => { setSelectedChild(child); setShowProfileModal(true); }} style={{ padding: '8px 25px', background: 'transparent', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#333' }}>View Details</button>
+              <button onClick={() => { setSelectedChild(child); setShowProfileModal(true); }} style={{ padding: '8px 25px', background: 'transparent', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#333', fontFamily: "'Montserrat', sans-serif" }}>View Details</button>
             </div>
           </div>
         ))}
@@ -155,60 +215,60 @@ export default function ChildrenList() {
             <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Student First Name</label>
-                <input type="text" placeholder="e.g. Liam" value={newStudent.firstName} onChange={e => setNewStudent({...newStudent, firstName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="text" placeholder="e.g. Liam" value={newStudent.firstName} onChange={e => setNewStudent({...newStudent, firstName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Student Last Name</label>
-                <input type="text" placeholder="e.g. Chen" value={newStudent.lastName} onChange={e => setNewStudent({...newStudent, lastName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="text" placeholder="e.g. Chen" value={newStudent.lastName} onChange={e => setNewStudent({...newStudent, lastName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Age (Years)</label>
-                <select value={newStudent.age} onChange={e => setNewStudent({...newStudent, age: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                <select value={newStudent.age} onChange={e => setNewStudent({...newStudent, age: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontFamily: "'Montserrat', sans-serif" }}>
                   <option>1 year</option><option>2 years</option><option>3 years</option><option>4 years</option><option>5 years</option>
                 </select>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Date of Birth</label>
-                <input type="date" value={newStudent.dob} onChange={e => setNewStudent({...newStudent, dob: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="date" value={newStudent.dob} onChange={e => setNewStudent({...newStudent, dob: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Date of Enrollment</label>
-                <input type="date" value={newStudent.doe} onChange={e => setNewStudent({...newStudent, doe: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="date" value={newStudent.doe} onChange={e => setNewStudent({...newStudent, doe: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
             </div>
 
             <div style={{ marginBottom: '25px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Known Allergies / Medical Notes</label>
-              <input type="text" placeholder="e.g. Peanuts, Dairy (leave blank if none)" value={newStudent.allergies} onChange={e => setNewStudent({...newStudent, allergies: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+              <input type="text" placeholder="e.g. Peanuts, Dairy (leave blank if none)" value={newStudent.allergies} onChange={e => setNewStudent({...newStudent, allergies: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
             </div>
 
             <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '15px' }}>Guardian Contact Details</h4>
             
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Parent / Guardian Name</label>
-              <input type="text" placeholder="Full Name" value={newStudent.guardianName} onChange={e => setNewStudent({...newStudent, guardianName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+              <input type="text" placeholder="Full Name" value={newStudent.guardianName} onChange={e => setNewStudent({...newStudent, guardianName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Primary Phone</label>
-                <input type="text" placeholder="(555) 000-0000" value={newStudent.phone} onChange={e => setNewStudent({...newStudent, phone: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="text" placeholder="(555) 000-0000" value={newStudent.phone} onChange={e => setNewStudent({...newStudent, phone: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Email Address</label>
-                <input type="email" placeholder="parent@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}/>
+                <input type="email" placeholder="parent@email.com" value={newStudent.email} onChange={e => setNewStudent({...newStudent, email: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
               </div>
             </div>
 
             <div style={{ marginBottom: '25px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Home Address</label>
-              <textarea placeholder="Street layout" value={newStudent.address} onChange={e => setNewStudent({...newStudent, address: e.target.value})} rows="3" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}></textarea>
+              <textarea placeholder="Street layout" value={newStudent.address} onChange={e => setNewStudent({...newStudent, address: e.target.value})} rows="3" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}></textarea>
             </div>
 
-            <button onClick={handleEnroll} style={{ width: '100%', padding: '15px', background: '#4a90e2', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '1rem' }}>Complete Enrollment</button>
+            <button onClick={handleEnroll} style={{ width: '100%', padding: '15px', background: '#4a90e2', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: "'Montserrat', sans-serif" }}>Complete Enrollment</button>
           </div>
         </div>
       )}
@@ -253,23 +313,23 @@ export default function ChildrenList() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                   <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '0.85rem' }}>Attendance</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#4a90e2' }}>{selectedChild.stats?.attendance || 100}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.attendance || 100}%`, height: '100%', background: '#4a90e2' }}></div></div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#4a90e2' }}>{selectedChild.stats?.attendance}%</div>
+                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.attendance}%`, height: '100%', background: '#4a90e2' }}></div></div>
                 </div>
                 <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                   <div style={{ color: '#9b59b6', fontWeight: 700, fontSize: '0.85rem' }}>Milestones</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#9b59b6' }}>{selectedChild.stats?.milestones || 0}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.milestones || 0}%`, height: '100%', background: '#9b59b6' }}></div></div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#9b59b6' }}>{selectedChild.stats?.milestones}%</div>
+                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.milestones}%`, height: '100%', background: '#9b59b6' }}></div></div>
                 </div>
                 <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                   <div style={{ color: '#1cc88a', fontWeight: 700, fontSize: '0.85rem' }}>Behavior</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1cc88a' }}>{selectedChild.stats?.behavior || 100}/100</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.behavior || 100}%`, height: '100%', background: '#1cc88a' }}></div></div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1cc88a' }}>{selectedChild.stats?.behavior}/100</div>
+                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.behavior}%`, height: '100%', background: '#1cc88a' }}></div></div>
                 </div>
                 <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                   <div style={{ color: '#f6c23e', fontWeight: 700, fontSize: '0.85rem' }}>Nutrition</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f6c23e' }}>{selectedChild.stats?.nutrition || 80}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.nutrition || 80}%`, height: '100%', background: '#f6c23e' }}></div></div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f6c23e' }}>{selectedChild.stats?.nutrition}%</div>
+                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.nutrition}%`, height: '100%', background: '#f6c23e' }}></div></div>
                 </div>
               </div>
             </div>
