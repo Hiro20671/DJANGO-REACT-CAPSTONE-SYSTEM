@@ -18,11 +18,6 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: './src/main.jsx',
-      output: {
-        entryFileNames: 'js/main.js',
-        chunkFileNames: 'js/[name].js',
-        assetFileNames: 'css/[name].[ext]'
-      }
     }
   }
 })
