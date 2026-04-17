@@ -1,0 +1,200 @@
+{% extends "parents/base_parent.html" %}
+
+{% block content %}
+<style>
+/* Page Specific styling */
+.summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+.summary-card { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 20px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); border-color: #4a90e2; }
+.summary-title { font-size: 1.1rem; font-weight: 700; color: #444; margin-bottom: 15px; }
+.summary-value { font-size: 1.8rem; font-weight: 800; color: #000; }
+.summary-card.late-pickups .summary-value { color: #f39c12; }
+
+/* Content Sections */
+.content-section { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+.section-subtitle { font-size: 0.85rem; color: #777; margin-bottom: 20px; }
+
+/* List Item Styles */
+.list-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+.list-item:last-child { margin-bottom: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #e0f0ff; color: #4a90e2; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.1rem; overflow: hidden; }
+.item-details { flex-grow: 1; }
+.item-name { font-weight: 700; color: #333; font-size: 0.95rem; }
+.item-sub { font-size: 0.8rem; color: #777; margin-top: 3px; }
+.pill { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+.pill.success { background-color: #d4edda; color: #155724; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 40px; color: #888; }
+
+@media (max-width: 900px) {
+    .summary-container { grid-template-columns: repeat(2, 1fr); }
+    .main-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 600px) {
+    .summary-container { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="page-header" style="margin-bottom:25px;">
+    <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Monitor</h2>
+    <p style="font-size: 0.95rem; color: #777; margin: 5px 0 0 0;">View current classroom verification status and authorized contacts</p>
+</div>
+
+<!-- ================= DASHBOARD VIEW ================= -->
+<div>
+    <!-- Summary Cards -->
+    <div class="summary-container">
+        <div class="summary-card">
+            <div class="summary-title">Class Checked In</div>
+            <div class="summary-value" id="kpi-checked-in">0</div>
+        </div>
+        <div class="summary-card late-pickups">
+            <div class="summary-title">System Late Flags</div>
+            <div class="summary-value" id="kpi-late">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Authorized Individuals</div>
+            <div class="summary-value" id="kpi-guardians">0</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:30px;">
+        
+        <!-- Left Column: Status Lists -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            <div class="content-section" style="margin-bottom: 0;">
+                <div class="section-title">Today's Check-In Status</div>
+                <div class="section-subtitle">Real-time status of presence within the center</div>
+                <div id="checkedin-preview-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <div class="content-section" style="margin-bottom: 0;">
+                <div class="section-title">Authorized Check Out List</div>
+                <div class="section-subtitle">Individuals cleared for pickup</div>
+                <div id="modal-guardians-body" style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Security QR Pass -->
+        <div class="content-section" style="background-color: #043263; color: white; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 0; padding: 40px 25px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color: #70e086; margin-bottom: 15px;"></i>
+            <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">Digital ID Pass</div>
+            <p style="font-size: 0.9rem; color: #a4ceeb; margin-bottom: 35px; line-height: 1.5;">Present this secure QR code to the teacher's scanner for instant drop-off and pickup authorization.</p>
+            
+            <div style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 30px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BMV3-AUTH-{{ request.user.username }}" alt="Secure QR Auth" style="width: 200px; height: 200px;">
+            </div>
+            
+            <div style="font-size: 0.75rem; color: #a4ceeb; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;">Authorization Token</div>
+            <div style="font-size: 1.2rem; font-weight: 800; letter-spacing: 3px; margin-top: 5px;">BMV3-{{ request.user.username|upper }}</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    
+    // ISOLATION FIX
+    const cUser = "{{ request.user.username }}";
+    let linkedId = null;
+    let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
+    if(pStr) linkedId = JSON.parse(pStr).child_id;
+    if(linkedId) {
+        studentsMaster = studentsMaster.filter(st => st.id === linkedId);
+    } else {
+        studentsMaster = [];
+    }
+    let extraGuardiansDB = JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {};
+    let checkinDB = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; 
+
+    // UI Updates
+    function calculateDash() {
+        let checkedInCount = 0;
+        let totalGuardians = 0;
+
+        let previewHtml = '';
+        let guardiansModalHtml = '';
+
+        if(studentsMaster.length === 0) {
+            document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">No students tracking enabled.</div>`;
+            document.getElementById('modal-guardians-body').innerHTML = `<div class="empty-state">No records found.</div>`;
+            return;
+        }
+
+        studentsMaster.forEach(st => {
+            // Count standard parents + extra ones
+            let studentGuardiansCount = 0;
+            let gHtml = '';
+            if(st.mother_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_name} (Mother)</div>`; }
+            if(st.father_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_name} (Father)</div>`; }
+            
+            if(extraGuardiansDB[st.id]) {
+                extraGuardiansDB[st.id].forEach(eg => {
+                    studentGuardiansCount++;
+                    gHtml += `<div class="item-sub">${eg.name} (${eg.rel})</div>`;
+                });
+            }
+            totalGuardians += studentGuardiansCount;
+
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+
+            guardiansModalHtml += `
+            <div class="list-item" style="background:#fff;">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details">
+                    <div class="item-name">${st.name}</div>
+                    ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
+                </div>
+            </div>`;
+
+            // Check In List
+            let cState = checkinDB[st.id];
+            if (cState && cState.status === 'checked-in') {
+                checkedInCount++;
+                let html = `
+                <div class="list-item">
+                    <div class="avatar">${avatarHtml}</div>
+                    <div class="item-details">
+                        <div class="item-name">${st.name}</div>
+                        <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
+                    </div>
+                    <span class="pill success">Present</span>
+                </div>`;
+                previewHtml += html;
+            } else if (cState && cState.status === 'picked-up') {
+                let html = `
+                <div class="list-item">
+                    <div class="avatar">${avatarHtml}</div>
+                    <div class="item-details">
+                        <div class="item-name">${st.name}</div>
+                        <div class="item-sub" style="color:#856404;">Picked up at ${cState.time} by ${cState.guardian}</div>
+                    </div>
+                </div>`;
+                previewHtml += html;
+            }
+        });
+
+        document.getElementById('kpi-checked-in').innerText = checkedInCount;
+        document.getElementById('kpi-guardians').innerText = totalGuardians;
+
+        if (!previewHtml) {
+            previewHtml = `<div class="empty-state">No children currently checked in.</div>`;
+        }
+
+        document.getElementById('checkedin-preview-container').innerHTML = previewHtml;
+        document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
+    }
+
+    calculateDash();
+
+</script>
+
+{% endblock content %}

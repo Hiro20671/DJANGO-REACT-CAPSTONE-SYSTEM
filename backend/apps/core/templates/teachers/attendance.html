@@ -1,0 +1,331 @@
+{% extends "teachers/base_teacher.html" %}
+
+{% block content %}
+<style>
+/* Page Specific styling */
+.summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+.summary-card { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 20px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+.summary-title { font-size: 1.0rem; font-weight: 700; color: #555; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+.card-absences .summary-card:hover { border-color: #777; }
+.card-poor .summary-card:hover { border-color: #f6c23e; }
+.card-late .summary-card:hover { border-color: #e74a3b; }
+.summary-value { font-size: 1.8rem; font-weight: 800; color: #000; transition: color 0.3s; }
+.card-poor .summary-value { color: #f6c23e; }
+.card-late .summary-value { color: #e74a3b; }
+.summary-sub { font-size: 0.75rem; color: #888; margin-top: 5px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.tab { font-weight: 700; color: #888; cursor: pointer; font-size: 0.95rem; padding-bottom: 8px; border-bottom: 3px solid transparent; }
+.tab.active { color: #4a90e2; border-bottom: 3px solid #4a90e2; }
+
+/* Base Sections */
+.content-section { background-color: #f8f9fa; border: 1px solid #dcdcdc; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: #333; }
+.section-subtitle { font-size: 0.85rem; color: #777; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.date-picker { padding: 5px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; color: #333; font-weight: 600; }
+
+/* List Item Styles */
+.student-list { display: flex; flex-direction: column; gap: 12px; }
+.list-item { background-color: #fff; padding: 15px; border: 1px solid #dcdcdc; border-radius: 8px; display: flex; align-items: center; gap: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+.list-item.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-color: #ccc; cursor: pointer; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #e0f0ff; color: #4a90e2; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.1rem; overflow: hidden; }
+.item-details { flex-grow: 1; }
+.item-name { font-weight: 700; color: #333; font-size: 0.95rem; }
+.item-sub { font-size: 0.8rem; color: #777; margin-top: 3px; }
+
+.attendance-stats { text-align: right; margin-right: 20px; }
+.attendance-stats .days { font-size: 0.9rem; font-weight: 700; color: #333; }
+.attendance-stats .rate { font-size: 0.75rem; color: #777; }
+.status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: white; }
+.status-badge.excellent { background-color: #1cc88a; }
+.status-badge.warning { background-color: #f6c23e; }
+.status-badge.poor { background-color: #e74a3b; }
+
+/* Toggle Buttons */
+.attendance-action-area { display: flex; align-items: center; gap: 15px; }
+.attendance-toggles { display: flex; gap: 5px; }
+.btn-toggle { border: 1px solid #ccc; background-color: #f8f9fa; color: #555; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-toggle:hover { background-color: #eee; }
+.btn-toggle.present.active { background-color: #1cc88a; border-color: #1cc88a; color: white; }
+.btn-toggle.late.active { background-color: #f6c23e; border-color: #f6c23e; color: white; }
+.btn-toggle.absent.active { background-color: #e74a3b; border-color: #e74a3b; color: white; }
+.btn-confirm { background-color: #4a90e2; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.btn-confirm:hover { background-color: #357abd; }
+
+/* Automation Grid */
+.auto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.auto-card { border: 1px solid #dcdcdc; border-radius: 8px; padding: 15px; background-color: #fff; }
+.auto-card .title { font-weight: 700; font-size: 0.9rem; color: #333; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.auto-card .title i { color: #1cc88a; }
+.auto-card .desc { font-size: 0.75rem; color: #777; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
+.empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
+
+/* Modals */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay.active { display: flex; }
+.modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
+.btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
+.modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
+.pill { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+.pill.success { background-color: #d4edda; color: #155724; }
+.pill.warning { background-color: #fff3cd; color: #856404; }
+.pill.danger { background-color: #fdf2f2; color: #d9534f; }
+</style>
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2>Attendance Monitoring</h2>
+        <p>Track attendance patterns and identify trends</p>
+    </div>
+</div>
+
+<!-- Summary Cards (Clickable) -->
+<div class="summary-container">
+    <div class="card-absences" onclick="openModal('absencesModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#777;">🕘 Consecutive Absences</div>
+            <div class="summary-value" id="val-absences">0</div>
+            <div class="summary-sub">3+ days absent</div>
+        </div>
+    </div>
+    <div class="card-poor" onclick="openModal('poorAttendanceModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#f6c23e;">📉 Poor Attendance</div>
+            <div class="summary-value" id="val-poor">0</div>
+            <div class="summary-sub">&lt;80% attendance</div>
+        </div>
+    </div>
+    <div class="card-late" onclick="openModal('lateModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#e74a3b;">⏱️ Frequent Late Arrivals</div>
+            <div class="summary-value" id="val-late">0</div>
+            <div class="summary-sub">3+ late arrivals</div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW SECTION: Daily Attendance Checklist -->
+<div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;">
+    <div class="section-title" style="color: #4a90e2;">Daily Checklist</div>
+    <div class="section-subtitle">
+        Take attendance for class date: 
+        <input type="date" id="attendanceDate" class="date-picker">
+    </div>
+    
+    <div class="student-list" id="daily-checklist-container">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<div class="tabs">
+    <div class="tab active" id="tab-all" onclick="switchTab('all')">All Children</div>
+    <div class="tab" id="tab-alerts" onclick="switchTab('alerts')">Alerts Only</div>
+</div>
+
+<!-- Attendance Overview -->
+<div class="content-section">
+    <div class="section-title">Attendance Overview</div>
+    <div class="section-subtitle">Lifetime attendance records</div>
+    
+    <!-- All Children View -->
+    <div class="student-list" id="overview-all">
+        <!-- Rendered by JS -->
+    </div>
+    
+    <!-- Alerts Only View -->
+    <div class="student-list" id="overview-alerts" style="display: none;">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<!-- Automated Monitoring -->
+<div class="content-section">
+    <div class="section-title">Automated Monitoring</div>
+    <div class="auto-grid">
+        <div class="auto-card">
+            <div class="title"><i>✓</i> Auto-Detection</div>
+            <div class="desc">System automatically flags 3+ consecutive absences</div>
+        </div>
+        <div class="auto-card">
+            <div class="title"><i>✓</i> Pattern Analysis</div>
+            <div class="desc">Identifies irregular attendance and late arrival trends</div>
+        </div>
+        <div class="auto-card">
+            <div class="title"><i>✓</i> Summary Generation</div>
+            <div class="desc">Auto-generates attendance reports for parents</div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS (Simple placeholders for prototype) -->
+<div class="modal-overlay" id="absencesModal"><div class="modal-container"><div class="modal-header"><h3>Consecutive Absences</h3><button class="btn-close" onclick="closeModal('absencesModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ consecutive absences right now.</p></div></div></div>
+<div class="modal-overlay" id="poorAttendanceModal"><div class="modal-container"><div class="modal-header"><h3>Poor Attendance</h3><button class="btn-close" onclick="closeModal('poorAttendanceModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have &lt;80% attendance.</p></div></div></div>
+<div class="modal-overlay" id="lateModal"><div class="modal-container"><div class="modal-header"><h3>Frequent Late Arrivals</h3><button class="btn-close" onclick="closeModal('lateModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ late arrivals.</p></div></div></div>
+
+<script>
+    // Universal memory arrays
+    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    let mockDatabase = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+
+    const datePicker = document.getElementById('attendanceDate');
+    datePicker.value = new Date().toISOString().split('T')[0];
+    
+    let tempSelections = {};
+
+    function renderChecklistForDate(date) {
+        const container = document.getElementById('daily-checklist-container');
+        container.innerHTML = '';
+
+        if(studentsMaster.length === 0) {
+            container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to take attendance.</p></div>`;
+            return;
+        }
+
+        studentsMaster.forEach(st => {
+            let status = (mockDatabase[date] && mockDatabase[date][st.id]) ? mockDatabase[date][st.id] : null;
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let badgeHtml = '';
+            let toggleHtml = '';
+
+            if (status) {
+                let bn = status === 'present' ? 'Excellent' : (status==='late'?'Warning':'Poor');
+                let bc = status === 'present' ? 'excellent' : (status==='late'?'warning':'poor');
+                let t = status.charAt(0).toUpperCase() + status.slice(1);
+                badgeHtml = `<span class="status-badge ${bc}">${t}</span>`;
+            } else {
+                toggleHtml = `
+                <div class="attendance-action-area" id="action-area-${st.id}">
+                    <div class="attendance-toggles">
+                        <button class="btn-toggle present" onclick="selectAttendance('${st.id}', 'present')">Present</button>
+                        <button class="btn-toggle absent" onclick="selectAttendance('${st.id}', 'absent')">Absent</button>
+                        <button class="btn-toggle late" onclick="selectAttendance('${st.id}', 'late')">Late</button>
+                    </div>
+                    <button class="btn-confirm" id="confirm-btn-${st.id}" style="display:none;" onclick="confirmAttendance('${st.id}')">Confirm</button>
+                </div>
+                `;
+            }
+
+            container.innerHTML += `
+            <div class="list-item">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details"><div class="item-name">${st.name}</div></div>
+                ${toggleHtml}
+                <div class="attendance-result">${badgeHtml}</div>
+            </div>`;
+        });
+        tempSelections = {};
+    }
+
+    function renderOverview() {
+        const overviewAll = document.getElementById('overview-all');
+        const overviewAlerts = document.getElementById('overview-alerts');
+        overviewAll.innerHTML = '';
+        overviewAlerts.innerHTML = '';
+
+        if(studentsMaster.length === 0) {
+            document.getElementById('val-absences').innerText = '-';
+            document.getElementById('val-poor').innerText = '-';
+            document.getElementById('val-late').innerText = '-';
+            overviewAll.innerHTML = `<div class="empty-state"><h3>No records to display.</h3></div>`;
+            return;
+        }
+
+        let totalDates = Object.keys(mockDatabase).length || 5; 
+        let poorCount = 0;
+        let lateCount = 0;
+
+        studentsMaster.forEach(st => {
+            let daysP = 0;
+            let daysL = 0;
+            Object.keys(mockDatabase).forEach(d => { 
+                if(mockDatabase[d][st.id] === 'present') daysP++; 
+                if(mockDatabase[d][st.id] === 'late') daysL++; 
+            });
+            let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
+            
+            let badgeClass = 'excellent';
+            let badgeText = 'Excellent';
+            if(attPct < 80) { badgeClass = 'warning'; badgeText = 'Warning'; poorCount++; }
+            if(daysL >= 3) { badgeClass = 'poor'; badgeText = 'Frequent Late'; lateCount++; }
+
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let html = `
+            <div class="list-item">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details">
+                    <div class="item-name">${st.name}</div>
+                    <div class="item-sub">${st.age} years old</div>
+                </div>
+                <div class="attendance-stats">
+                    <div class="days"><span class="range-num">${daysP}/${totalDates}</span> days</div>
+                    <div class="rate">${attPct}% attendance</div>
+                </div>
+                <div class="status-badge ${badgeClass}">${badgeText}</div>
+            </div>`;
+
+            overviewAll.innerHTML += html;
+            if (badgeClass !== 'excellent') {
+                overviewAlerts.innerHTML += html;
+            }
+        });
+
+        document.getElementById('val-absences').innerText = '0'; // placeholder logic
+        document.getElementById('val-poor').innerText = poorCount;
+        document.getElementById('val-late').innerText = lateCount;
+    }
+
+    datePicker.addEventListener('change', function() {
+        renderChecklistForDate(this.value);
+    });
+
+    function selectAttendance(studentId, status) {
+        const row = document.getElementById('action-area-' + studentId);
+        row.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+        row.querySelector('.btn-toggle.' + status).classList.add('active');
+        
+        tempSelections[studentId] = status;
+        document.getElementById('confirm-btn-' + studentId).style.display = 'block';
+    }
+
+    function confirmAttendance(studentId) {
+        const date = datePicker.value;
+        const status = tempSelections[studentId];
+        
+        if (!mockDatabase[date]) mockDatabase[date] = {};
+        mockDatabase[date][studentId] = status;
+        
+        localStorage.setItem('bmv3_attendance', JSON.stringify(mockDatabase));
+        renderChecklistForDate(date);
+        renderOverview();
+    }
+
+    function switchTab(tabName) {
+        document.getElementById('tab-all').classList.remove('active');
+        document.getElementById('tab-alerts').classList.remove('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+
+        if (tabName === 'all') {
+            document.getElementById('overview-all').style.display = 'flex';
+            document.getElementById('overview-alerts').style.display = 'none';
+        } else {
+            document.getElementById('overview-all').style.display = 'none';
+            document.getElementById('overview-alerts').style.display = 'flex';
+        }
+    }
+
+    function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    // Init
+    renderChecklistForDate(datePicker.value);
+    renderOverview();
+
+</script>
+{% endblock content %}

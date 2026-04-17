@@ -1,0 +1,696 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - BMV3 Child Development Center</title>
+
+    <!-- Pre-load theme to prevent flash -->
+    <script>
+        if (localStorage.getItem('bmv3_theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5%;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-logo img {
+            height: 60px;
+        }
+
+        .nav-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-title h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #000;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .nav-title span {
+            font-size: 0.65rem;
+            color: #333;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-right a:not(.btn-dashboard) {
+            text-decoration: none;
+            color: #444;
+            font-weight: 700;
+            font-size: 0.90rem;
+            transition: color 0.3s;
+        }
+
+        .nav-right a:not(.btn-dashboard):hover {
+            color: #4a90e2;
+        }
+
+        .burger-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px;
+        }
+
+        .burger-menu span {
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        .menu-container {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 220px;
+            display: none;
+            /* hidden by default */
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .dropdown-menu.active {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #444;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #4a90e2;
+        }
+
+        .dropdown-item.logout {
+            color: #d9534f;
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: #fdf2f2;
+            color: #c9302c;
+        }
+
+        .welcome-text {
+            color: #666;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 2px solid #eee;
+        }
+
+        .btn-dashboard {
+            text-decoration: none;
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background-color: #357abd;
+        }
+
+        .btn-logout {
+            background-color: #d9534f;
+        }
+
+        .btn-logout:hover {
+            background-color: #c9302c;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            background: url('{% static "core/image/bmv3_background.png" %}') center/cover no-repeat;
+            min-height: 550px;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 20, 30, 0.7);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .hero-text {
+            flex: 1;
+            color: white;
+            max-width: 600px;
+        }
+
+        .hero-text h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            color: #ddd;
+            font-weight: 500;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .hero-btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            color: #000;
+            background-color: #e2e2e2;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .hero-btn:hover {
+            background-color: #cfcfcf;
+            transform: translateY(-2px);
+        }
+
+        .hero-pic {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .dashboard-pic-placeholder {
+            width: 100%;
+            max-width: 550px;
+            height: 350px;
+            background-color: #d9d9d9;
+            border: 3px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #000;
+            text-transform: uppercase;
+        }
+
+        /* Common Section Styles */
+        .section-container {
+            padding: 80px 5%;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        .section-container.alt-bg {
+            background-color: #f9fbfe;
+            /* slightly blueish white */
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: #666;
+            margin-bottom: 50px;
+            font-weight: 500;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+
+        /* Feature Grid / Cards */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 35px 25px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #000;
+            line-height: 1.3;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* About Section Extras */
+        .about-text {
+            max-width: 900px;
+            margin: 0 auto 50px auto;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #555;
+            text-align: center;
+        }
+
+        .beneficiary-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: left;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .beneficiary-card h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        .beneficiary-card ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Modules Section Specifics */
+        .module-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .module-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .module-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4a90e2;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #fff;
+            padding: 40px 10% 20px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 6px solid #6fa8dc;
+            color: #555;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-left {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo img {
+            height: 40px;
+        }
+
+        .footer-logo-text h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #333;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .footer-logo-text span {
+            font-size: 0.65rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .footer-desc {
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            max-width: 350px;
+        }
+
+        .footer-copy {
+            font-size: 0.7rem;
+            color: #777;
+        }
+
+        .footer-links,
+        .footer-contact {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .footer-links h3,
+        .footer-contact h3 {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: #555;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #6fa8dc;
+        }
+
+        .footer-contact p {
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        /* Media Queries */
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .hero-text {
+                max-width: 100%;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-pic {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 5%;
+            }
+
+            .nav-right {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .hero-text h2 {
+                font-size: 2.2rem;
+            }
+
+            footer {
+                flex-direction: column;
+            }
+        }
+        
+        /* --- Dark Mode Styles --- */
+        html.dark-mode body { background-color: #121212; color: #e0e0e0; }
+        html.dark-mode .sidebar { background-color: #1a1a1a; border-right-color: #333; }
+        html.dark-mode .sidebar-header { border-bottom-color: #333; }
+        html.dark-mode .sidebar-footer { border-top-color: #333; color: #888; }
+        html.dark-mode .logo-text h1 { color: #f0f0f0; }
+        html.dark-mode .logo-text span { color: #aaa; }
+        html.dark-mode .menu-item { color: #ccc; }
+        html.dark-mode .menu-item:hover { background-color: #333; color: #4a90e2; }
+        html.dark-mode .card, html.dark-mode .settings-panel, html.dark-mode .settings-sidebar, html.dark-mode .content-section, html.dark-mode .summary-card, html.dark-mode .form-group input, html.dark-mode .form-group select { background-color: #1a1a1a; border-color: #333; color: #e0e0e0; }
+        html.dark-mode .page-header h2, html.dark-mode .panel-header h3 { color: #f0f0f0; }
+        html.dark-mode .page-header p, html.dark-mode .panel-header p { color: #aaa; }
+        html.dark-mode .burger-menu span { background-color: #e0e0e0; }
+        html.dark-mode .dropdown-menu { background-color: #222; border-color: #444; }
+        html.dark-mode .dropdown-item { color: #ccc; border-bottom-color: #333; }
+        html.dark-mode .dropdown-item:hover { background-color: #333; color: #4a90e2; }
+        html.dark-mode .modal-container { background-color: #1a1a1a; color: #e0e0e0; }
+        html.dark-mode .modal-header { border-bottom-color: #333; }
+        html.dark-mode .modal-header h3 { color: #f0f0f0; }
+        html.dark-mode .list-item, html.dark-mode .archive-box, html.dark-mode .archived-student-item { border-color: #333; }
+        html.dark-mode .item-name, html.dark-mode .year-title { color: #e0e0e0; }
+        html.dark-mode .btn-action, html.dark-mode .form-group input, html.dark-mode .form-group select, html.dark-mode .scanner-help { background-color: #222; }
+        html.dark-mode .settings-menu-item:hover { background-color: #333; }
+        html.dark-mode .settings-menu-item.active { background-color: #2a3b4c; }
+        html.dark-mode .kpi-title { color: #ccc; }
+        html.dark-mode .kpi-value { color: #f0f0f0; }
+        html.dark-mode .chart-title { color: #f0f0f0; }
+        html.dark-mode .status-pill { background-color: #222; border-color:#333; }
+        html.dark-mode .status-pill-title { color: #e0e0e0; }
+        /* Home page specifics */
+        html.dark-mode .navbar, html.dark-mode nav { background-color: #1a1a1a; border-bottom-color:#333; }
+        html.dark-mode .nav-title h1 { color: #e0e0e0; }
+        html.dark-mode .nav-title span { color: #aaa; }
+        html.dark-mode .nav-right a { color: #ccc; }
+        html.dark-mode .nav-right a:not(.btn-dashboard):hover { color: #4a90e2; }
+        html.dark-mode .welcome-text { color: #aaa; border-color: #333;}
+        html.dark-mode .section-container { background-color: #121212; }
+        html.dark-mode .section-container.alt-bg { background-color: #1a1a1a; }
+        html.dark-mode .section-title { color: #f0f0f0; }
+        html.dark-mode .section-subtitle { color: #aaa; }
+        html.dark-mode .card h3 { color: #e0e0e0; }
+        html.dark-mode .card p { color: #999; }
+        html.dark-mode footer { background-color: #1a1a1a; color: #aaa; border-top-color: #4a90e2;}
+        html.dark-mode .footer-logo-text h2 { color: #f0f0f0; }
+        html.dark-mode .footer-logo-text span { color: #888; }
+        html.dark-mode .footer-links h3, html.dark-mode .footer-contact h3 { color: #f0f0f0; }
+        html.dark-mode .footer-links a { color: #999; }
+        html.dark-mode .footer-links a:hover { color: #4a90e2; }
+        html.dark-mode .beneficiary-card { background-color: #222; border-color:#333; }
+        html.dark-mode .beneficiary-card h4 { color: #e0e0e0; }
+        html.dark-mode .beneficiary-card ul { color: #aaa; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-left">
+            <div class="nav-logo">
+                <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3 Logo">
+            </div>
+            <div class="nav-title">
+                <h1>BMV3</h1>
+                <span>Child Development Center</span>
+            </div>
+            {% if request.user.is_authenticated %}
+            <span class="welcome-text">Welcome, {{ request.user.username }}!</span>
+            {% endif %}
+        </div>
+        <div class="nav-right">
+            <a href="{% url 'teacher_dashboard' %}" class="btn-dashboard">View Dashboard</a>
+
+            <div class="menu-container">
+                <div class="burger-menu" id="burgerToggle" title="Profile Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="{% url 'teacher_settings' %}" class="dropdown-item">⚙️ Settings</a>
+                    <a href="{% url 'login' %}" class="dropdown-item logout">🔐 Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Wrapper -->
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-left">
+            <div class="footer-logo">
+                <img src="{% static 'core/image/bmv3_logo.png' %}" alt="Logo">
+                <div class="footer-logo-text">
+                    <h2>BMV3</h2>
+                    <span>Child Development Center</span>
+                </div>
+            </div>
+            <p class="footer-desc">Integrated Smart Child Monitoring and Operational Intelligence System</p>
+            <p class="footer-copy">&copy; 2026 BMV3 Child Development Center. All rights reserved.</p>
+        </div>
+        <div class="footer-links">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+            </ul>
+        </div>
+        <div class="footer-contact">
+            <h3>Contact</h3>
+            <p>BMV3 Child Development Center</p>
+            <p>info@bmv3cdc.edu</p>
+            <p>+1 (555) 123-4567</p>
+        </div>
+    </footer>
+
+    <!-- Dropdown Toggle Script -->
+    <script>
+        const burgerToggle = document.getElementById('burgerToggle');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        burgerToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,479 @@
+{% extends "teachers/base_teacher.html" %}
+
+{% block content %}
+<style>
+/* Page Specific styling */
+.summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+.summary-card { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 20px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); border-color: #4a90e2; }
+.summary-title { font-size: 1.1rem; font-weight: 700; color: #444; margin-bottom: 15px; }
+.summary-value { font-size: 1.8rem; font-weight: 800; color: #000; }
+.summary-card.late-pickups .summary-value { color: #f39c12; }
+
+/* Tabs */
+.tabs { display: flex; gap: 20px; border-bottom: 2px solid #eaeaea; margin-bottom: 25px; }
+.tab { padding: 10px 5px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-size: 0.95rem; }
+.tab:hover { color: #555; }
+.tab.active { color: #4a90e2; border-bottom: 3px solid #4a90e2; }
+
+/* Scanner Section */
+.content-section { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+.section-subtitle { font-size: 0.85rem; color: #777; margin-bottom: 20px; }
+
+.scanner-input-group { display: flex; gap: 15px; margin-bottom: 15px; }
+.scanner-input-group input { flex-grow: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+.btn-verify { background-color: #4a90e2; color: white; border: none; border-radius: 8px; padding: 0 25px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
+.btn-verify:hover { background-color: #357abd; }
+.btn-verify.scanning { background-color: #888; cursor: not-allowed; }
+.btn-action { background-color: #fff; color: #333; border: 1px solid #ccc; border-radius: 8px; padding: 0 15px; font-weight: 600; cursor: pointer; }
+.scanner-help { padding: 12px 15px; background-color: #f9fbfe; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.85rem; color: #555; display: flex; align-items: center; gap: 10px; }
+
+/* Forms */
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+.form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; font-family: 'Montserrat', sans-serif; box-sizing: border-box; }
+.btn-submit { background-color: #4a90e2; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 700; font-size: 1.1rem; cursor: pointer; width: 100%; transition: 0.2s; }
+.btn-submit:hover { background-color: #357abd; }
+
+/* List Item Styles */
+.list-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+.list-item:last-child { margin-bottom: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #e0f0ff; color: #4a90e2; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.1rem; overflow: hidden; }
+.item-details { flex-grow: 1; }
+.item-name { font-weight: 700; color: #333; font-size: 0.95rem; }
+.item-sub { font-size: 0.8rem; color: #777; margin-top: 3px; }
+.pill { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+.pill.success { background-color: #d4edda; color: #155724; }
+.pill.warning { background-color: #fff3cd; color: #856404; }
+
+/* Modals */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay.active { display: flex; }
+.modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
+.btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
+.modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
+
+.empty-state { text-align: center; padding: 40px; color: #888; }
+
+/* Toast logic */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+.toast { background-color: #333; color: #fff; padding: 15px 25px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.3s; font-weight: 600; }
+.toast.show { opacity: 1; }
+.toast-success { border-left: 5px solid #28a745; }
+.toast-error { border-left: 5px solid #d9534f; }
+</style>
+
+<div class="page-header" style="margin-bottom:25px;">
+    <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Management</h2>
+    <p style="font-size: 0.95rem; color: #777; margin: 5px 0 0 0;">Smart access control and guardian verification</p>
+</div>
+
+<div class="tabs">
+    <div class="tab active" id="tab-scanner" onclick="switchTab('scanner')">Authorization Scanner</div>
+    <div class="tab" id="tab-guardian" onclick="switchTab('guardian')">Register Guardian</div>
+</div>
+
+<!-- ================= SCANNER VIEW ================= -->
+<div id="content-scanner">
+    <!-- Summary Cards -->
+    <div class="summary-container">
+        <div class="summary-card" onclick="openModal('checkedInModal')">
+            <div class="summary-title">Currently Checked In</div>
+            <div class="summary-value" id="kpi-checked-in">0</div>
+        </div>
+        <div class="summary-card late-pickups" onclick="openModal('latePickupsModal')">
+            <div class="summary-title">Late Pickups</div>
+            <div class="summary-value" id="kpi-late">0</div>
+        </div>
+        <div class="summary-card" onclick="openModal('guardiansModal')">
+            <div class="summary-title">Authorized Guardians</div>
+            <div class="summary-value" id="kpi-guardians">0</div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Section -->
+    <div class="content-section">
+        <div class="section-title">QR Code Authorization</div>
+        <div class="section-subtitle">Scan guardian QR code for check-in or check-out verification</div>
+        
+        <div class="scanner-input-group">
+            <button class="btn-action" style="background-color: #f8f9fa; border: 1px solid #ccc; display: flex; align-items: center; gap: 8px;" onclick="startRealCamera()" type="button">
+                📷 Scan QR Code
+            </button>
+            <span style="display:flex; align-items:center; color:#888; font-size:0.9rem;">or</span>
+            <input type="text" id="qrInput" placeholder="Enter code manually (e.g., Mother's Contact No.)" autocomplete="off">
+            <select class="btn-action" id="authAction">
+                <option value="dropoff">Drop-Off</option>
+                <option value="pickup">Pick-Up</option>
+            </select>
+            <button class="btn-verify" id="btnVerify" onclick="simulateScan()" type="button">
+                <span>📱</span> Verify
+            </button>
+        </div>
+        <div class="scanner-help">
+            <i style="color:#4a90e2; font-weight:bold;">✓</i> System automatically validates guardian authorization and logs all access attempts.
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div class="section-title">Currently Checked In</div>
+        <div class="section-subtitle">Children present at the center today</div>
+        <div id="checkedin-preview-container">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<!-- ================= REGISTER GUARDIAN VIEW ================= -->
+<div id="content-guardian" style="display:none;">
+    <div class="content-section" style="max-width: 600px; margin: 0 auto;">
+        <div class="section-title">Register Authorized Guardian</div>
+        <div class="section-subtitle">Add trusted individuals who can drop-off or pick-up specific children.</div>
+
+        <div class="form-group">
+            <label>Child</label>
+            <select id="guardStudent">
+                <!-- Dynamically populated -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Guardian Name</label>
+            <input type="text" id="guardName" placeholder="Full Legal Name">
+        </div>
+
+        <div class="form-group">
+            <label>Relationship to Child</label>
+            <select id="guardRel">
+                <option value="Mother">Mother</option>
+                <option value="Father">Father</option>
+                <option value="Grandparent">Grandparent</option>
+                <option value="Aunt/Uncle">Aunt/Uncle</option>
+                <option value="Nanny/Sitter">Nanny / Sitter</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Number (Used as QR Manual ID fallback)</label>
+            <input type="text" id="guardContact" placeholder="+1-555-0100">
+        </div>
+
+        <div class="form-group">
+            <label>Emergency Contact?</label>
+            <select id="guardEmerg">
+                <option value="yes">Yes - Can be contacted in emergencies</option>
+                <option value="no">No - Only authorized for transport</option>
+            </select>
+        </div>
+
+        <button class="btn-submit" onclick="registerGuardian()">Add Authorized Guardian +</button>
+    </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Checked In Modal -->
+<div class="modal-overlay" id="checkedInModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Currently Checked In</h3>
+            <button class="btn-close" onclick="closeModal('checkedInModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-checkedin-body">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<!-- Late Pickups Modal -->
+<div class="modal-overlay" id="latePickupsModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Late Pickups</h3>
+            <button class="btn-close" onclick="closeModal('latePickupsModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-late-body">
+            <div class="empty-state">🎉<br>No late pickups currently!</div>
+        </div>
+    </div>
+</div>
+
+<!-- Authorized Guardians Modal -->
+<div class="modal-overlay" id="guardiansModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Authorized Guardians Master List</h3>
+            <button class="btn-close" onclick="closeModal('guardiansModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-guardians-body">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<!-- Real Camera Modal -->
+<div class="modal-overlay" id="cameraModal">
+    <div class="modal-container" style="width: 500px;">
+        <div class="modal-header">
+            <h3>📷 Scan QR Code</h3>
+            <button class="btn-close" onclick="stopRealCamera()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <div id="qr-reader" style="width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    let extraGuardiansDB = JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {};
+    // Database for today's checkin tracking. Key: studentId -> val: { status: 'checked-in'/'picked-up', time: '...', guardian: '...' }
+    let checkinDB = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; 
+
+    // Start-Up Setup
+    const guardStudentDropdown = document.getElementById('guardStudent');
+    if (studentsMaster.length === 0) {
+        guardStudentDropdown.innerHTML = '<option value="" disabled selected>No students enrolled yet</option>';
+        guardStudentDropdown.disabled = true;
+        document.querySelector('.btn-submit').disabled = true;
+        document.querySelector('.btn-submit').style.background = '#888';
+    } else {
+        studentsMaster.forEach(st => {
+            guardStudentDropdown.innerHTML += `<option value="${st.id}">${st.name}</option>`;
+        });
+    }
+
+    // Tabs
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.getElementById('content-scanner').style.display = 'none';
+        document.getElementById('content-guardian').style.display = 'none';
+        document.getElementById('content-' + tabId).style.display = 'block';
+    }
+
+    // Modals
+    function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if(e.target === overlay) {
+                if (overlay.id === 'cameraModal') stopRealCamera();
+                else overlay.classList.remove('active');
+            }
+        });
+    });
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function registerGuardian() {
+        const studentId = document.getElementById('guardStudent').value;
+        const name = document.getElementById('guardName').value;
+        const rel = document.getElementById('guardRel').value;
+        const contact = document.getElementById('guardContact').value;
+        
+        if(!studentId || !name || !contact) {
+            alert('Please fill out Guardian Name and Contact Number');
+            return;
+        }
+
+        if(!extraGuardiansDB[studentId]) extraGuardiansDB[studentId] = [];
+        extraGuardiansDB[studentId].push({ name, rel, contact });
+        localStorage.setItem('bmv3_extra_guardians', JSON.stringify(extraGuardiansDB));
+
+        alert("Authorized Guardian successfully added!");
+        document.getElementById('guardName').value = "";
+        document.getElementById('guardContact').value = "";
+
+        // Reload data
+        calculateDash();
+        switchTab('scanner');
+    }
+
+    // Find guardian by contact info or exact full name matches.
+    // For demo/prototype we assume input manual code = their phone number or name.
+    function locateGuardianAuth(inputText) {
+        let auth = null;
+        let authStudent = null;
+
+        for (let st of studentsMaster) {
+            // Check primary parents
+            if(st.mother_contact === inputText || st.mother_name.includes(inputText)) {
+                return { guardian: `${st.mother_name} (Mother)`, student: st };
+            }
+            if(st.father_contact === inputText || st.father_name.includes(inputText)) {
+                return { guardian: `${st.father_name} (Father)`, student: st };
+            }
+            // Check extra guardians
+            if(extraGuardiansDB[st.id]) {
+                for(let eg of extraGuardiansDB[st.id]) {
+                    if (eg.contact === inputText || eg.name.includes(inputText)) {
+                        return { guardian: `${eg.name} (${eg.rel})`, student: st };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    function simulateScan() {
+        const inputStr = document.getElementById('qrInput').value.trim();
+        const action = document.getElementById('authAction').value;
+        const btn = document.getElementById('btnVerify');
+        
+        if(!inputStr) {
+            showToast('Please enter manual override code or scan', 'error');
+            return;
+        }
+        
+        btn.classList.add('scanning');
+        btn.innerHTML = '<span>⏳</span> Verifying...';
+        
+        setTimeout(() => {
+            btn.classList.remove('scanning');
+            btn.innerHTML = '<span>📱</span> Verify';
+            
+            const match = locateGuardianAuth(inputStr);
+            if (!match) {
+                showToast('Authorization Denied. Guardian record not found.', 'error');
+                return;
+            }
+
+            // Perform Action
+            showToast(`Verified: ${match.guardian}. Action: ${action} for ${match.student.name}`, 'success');
+            
+            let timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            if(action === 'dropoff') {
+                checkinDB[match.student.id] = { status: 'checked-in', time: timeStr, guardian: match.guardian };
+            } else {
+                checkinDB[match.student.id] = { status: 'picked-up', time: timeStr, guardian: match.guardian };
+            }
+            localStorage.setItem('bmv3_checkin', JSON.stringify(checkinDB));
+
+            document.getElementById('qrInput').value = ''; // clear
+            
+            calculateDash();
+        }, 800);
+    }
+    
+    let html5QrcodeScanner = null;
+    function startRealCamera() {
+        openModal('cameraModal');
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+            function onScanSuccess(decodedText) {
+                document.getElementById('qrInput').value = decodedText;
+                stopRealCamera();
+                simulateScan();
+            }
+            html5QrcodeScanner.render(onScanSuccess);
+        }
+    }
+    function stopRealCamera() {
+        closeModal('cameraModal');
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(e => console.error(e));
+            html5QrcodeScanner = null;
+        }
+    }
+    document.getElementById('qrInput').addEventListener('keypress', function(e) { if(e.key === 'Enter') simulateScan(); });
+
+    // UI Updates
+    function calculateDash() {
+        let checkedInCount = 0;
+        let totalGuardians = 0;
+
+        let previewHtml = '';
+        let modalHtml = '';
+        let guardiansModalHtml = '';
+
+        if(studentsMaster.length === 0) {
+            document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">No students enrolled system-wide.</div>`;
+            document.getElementById('modal-guardians-body').innerHTML = `<div class="empty-state">No records found.</div>`;
+            document.getElementById('modal-checkedin-body').innerHTML = `<div class="empty-state">No children currently checked in.</div>`;
+            return;
+        }
+
+        studentsMaster.forEach(st => {
+            // Count standard parents + extra ones
+            let studentGuardiansCount = 0;
+            let gHtml = '';
+            if(st.mother_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_name} &bull; Mother (${st.mother_contact})</div>`; }
+            if(st.father_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_name} &bull; Father (${st.father_contact})</div>`; }
+            
+            if(extraGuardiansDB[st.id]) {
+                extraGuardiansDB[st.id].forEach(eg => {
+                    studentGuardiansCount++;
+                    gHtml += `<div class="item-sub">${eg.name} &bull; ${eg.rel} (${eg.contact})</div>`;
+                });
+            }
+            totalGuardians += studentGuardiansCount;
+
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+
+            guardiansModalHtml += `
+            <div class="list-item">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details">
+                    <div class="item-name">${st.name}</div>
+                    ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
+                </div>
+                ${gHtml ? '<span class="pill success">✓ Authorized</span>' : ''}
+            </div>`;
+
+            // Check In List
+            let cState = checkinDB[st.id];
+            if (cState && cState.status === 'checked-in') {
+                checkedInCount++;
+                let html = `
+                <div class="list-item">
+                    <div class="avatar">${avatarHtml}</div>
+                    <div class="item-details">
+                        <div class="item-name">${st.name}</div>
+                        <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
+                    </div>
+                    <span class="pill success">Present</span>
+                </div>`;
+                previewHtml += html;
+                modalHtml += html;
+            }
+        });
+
+        document.getElementById('kpi-checked-in').innerText = checkedInCount;
+        document.getElementById('kpi-guardians').innerText = totalGuardians;
+
+        if (checkedInCount === 0) {
+            previewHtml = `<div class="empty-state">No children currently checked in.</div>`;
+            modalHtml = `<div class="empty-state">No children currently checked in.</div>`;
+        }
+
+        document.getElementById('checkedin-preview-container').innerHTML = previewHtml;
+        document.getElementById('modal-checkedin-body').innerHTML = modalHtml;
+        document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
+    }
+
+    calculateDash();
+
+</script>
+
+{% endblock content %}

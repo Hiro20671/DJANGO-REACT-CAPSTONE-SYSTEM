@@ -1,0 +1,526 @@
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - BMV3 CDC</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        background-color: #f7f9fa;
+        color: #333;
+    }
+
+    .split-container {
+        display: flex;
+        flex: 1;
+        width: 100%;
+    }
+
+    .left-panel {
+        flex: 1;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url("{% static 'core/image/background_pic.png' %}") no-repeat center center / cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem;
+        color: white;
+    }
+
+    .left-panel-content {
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+
+    .left-panel h1 {
+        font-size: 3.4rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+    }
+
+    .left-panel p.desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #e0e0e0;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .feature-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .right-panel {
+        flex: 1;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem;
+        position: relative;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .greeting-info {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .greeting-info h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1b3b5c;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .register-title {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    form p {
+        margin: 0;
+    }
+
+    form label {
+        display: none;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.8rem 0;
+        border: none;
+        border-bottom: 1px solid #aaa;
+        font-size: 0.85rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.3s;
+        margin-bottom: 0.8rem;
+        background: transparent;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-bottom: 2px solid #1b3b5c;
+    }
+
+    .submit-btn {
+        width: 100%;
+        max-width: 150px;
+        margin: 1.5rem auto 0;
+        display: block;
+        padding: 0.8rem;
+        border: 1px solid #1b3b5c;
+        background: transparent;
+        color: #1b3b5c;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background: #1b3b5c;
+        color: white;
+    }
+
+    .login-link {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 1.5rem;
+    }
+
+    .login-link a {
+        color: #333;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    .footer-text {
+        position: absolute;
+        bottom: 20px;
+        text-align: center;
+        width: 100%;
+        left: 0;
+        font-size: 0.7rem;
+        color: #1b3b5c;
+        font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+        .split-container {
+            flex-direction: column;
+        }
+
+        .left-panel,
+        .right-panel {
+            padding: 3rem 2rem;
+        }
+
+        .footer-text {
+            position: relative;
+            margin-top: 3rem;
+            bottom: 0;
+        }
+    }
+</style>
+
+<div class="split-container">
+    <div class="left-panel">
+        <div class="left-panel-content">
+            <h1>Child Care Management</h1>
+            <p class="desc">A digital platform designed to digitize attendance, track developmental milestones, monitor
+                health and nutrition, and strengthen parent communication for the Barangay Market View 3 Child
+                Development Center.</p>
+            <ul class="feature-list">
+                <li>📅 QR-based drop-off & pick-up authorization</li>
+                <li>🔔 Parent notification</li>
+                <li>👶 Developmental milestone tracking</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="right-panel">
+            <div class="form-wrapper">
+                <div class="greeting-info">
+                    <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3 Logo" style="height: 80px; margin-bottom: 15px;">
+                    <h2 id="reg-title">CREATE PARENT ACCOUNT</h2>
+                </div>
+    
+                <!-- Show Django errors if any -->
+                {% if form.errors %}
+                    <div style="color: #d9534f; font-size:0.85rem; margin-bottom: 15px; padding: 10px; background: #fdf2f2; border: 1px solid #d9534f; border-radius: 8px;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+    
+                <form method="POST" id="mainForm" novalidate>
+                    {% csrf_token %}
+                    <!-- We keep the real Django form hidden, and populate it via JS right before submit -->
+                    <div id="djangoFormArea" style="display:none;">
+                        {{ form.as_p }}
+                    </div>
+    
+                    <!-- STEP 1: PARENT INFO -->
+                    <div class="step-pane active" id="step1">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 1: Account Details</p>
+                        <input type="text" id="js-username" placeholder="Choose a Username" required>
+                        <input type="email" id="js-email" placeholder="Email Address" required>
+                        <input type="password" id="js-pass1" placeholder="Password" required>
+                        <input type="password" id="js-pass2" placeholder="Confirm Password" required>
+                        
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 20px; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="show-pass-register" onclick="toggleRegisterPassword()" style="width: auto; margin: 0;">
+                            <label for="show-pass-register" style="display: inline; cursor: pointer;">Show Passwords</label>
+                        </div>
+                        
+                        <input type="text" id="js-fullname" placeholder="Parent's Full Name" required>
+                        <input type="text" id="js-contact" placeholder="Contact Number">
+    
+                        <button type="button" class="submit-btn" onclick="nextStep(1)">Next Step: Verification</button>
+                    </div>
+    
+                    <!-- STEP 2: CHILD VERIFICATION -->
+                    <div class="step-pane" id="step2" style="display:none; flex-direction:column;">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 2: Child Verification</p>
+                        <p style="font-size:0.8rem; color:#666; text-align:center; margin-bottom:15px; line-height:1.4;">
+                            For high security, you must exactly match a registered child in the teacher's enrollment database to proceed.
+                        </p>
+                        <input type="text" id="js-childname" placeholder="Enrolled Child's Full Name" required autocomplete="off">
+                        <button type="button" class="submit-btn" style="max-width:100%; border-radius:8px; margin-top:5px; margin-bottom:15px; background:white; color:#1b3b5c; border:1px solid #1b3b5c;" onclick="verifyChild()">Verify Child Record</button>
+                        
+                        <div id="verify-error" style="color:#d9534f; font-size:0.85rem; text-align:center; display:none; background:#fdf2f2; padding:10px; border-radius:8px; margin-bottom:15px;">
+                            No match found. Please check spelling or contact the teacher.
+                        </div>
+                        
+                        <div id="childMatchCard" style="display:none; background:#eef5fc; border:1px dashed #4a90e2; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;">
+                            <div style="font-size:0.85rem; color:#28a745; font-weight:800; margin-bottom:5px;">✓ AUTHORIZED LINK</div>
+                            <div id="verifiedChildName" style="font-weight:800; color:#1b3b5c; font-size:1.1rem;"></div>
+                            <div id="verifiedChildAge" style="font-size:0.8rem; color:#666; margin-top:3px;"></div>
+                        </div>
+    
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <button type="button" class="submit-btn" style="background:#e0e0e0; color:#333; border:none; margin-top:0;" onclick="prevStep(2)">Back</button>
+                            <button type="button" class="submit-btn" id="btn-next-2" style="opacity:0.5; pointer-events:none; margin-top:0;" onclick="nextStep(2)">Next Step: Photos</button>
+                        </div>
+                    </div>
+    
+                    <!-- STEP 3: PHOTO UPLOADS & FINALIZE -->
+                    <div class="step-pane" id="step3" style="display:none; flex-direction:column;">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 3: Setup Profiles</p>
+                        
+                        <div style="display:flex; justify-content:center; gap:20px; margin-bottom:20px;">
+                            <div style="text-align:center; flex:1;">
+                                <div style="border:2px dashed #ccc; padding:20px; border-radius:12px; cursor:pointer; font-size:0.8rem; color:#666; transition:0.3s;" onclick="document.getElementById('parentPic').click()" id="parentBtn">
+                                    <i class="fa-solid fa-user" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
+                                    Parent Photo
+                                </div>
+                                <img id="parentPreview" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto 0; border:3px solid #1b3b5c;">
+                                <input type="file" id="parentPic" accept="image/*" style="display:none;" onchange="readImage(this, 'parentPreview', 'parentBtn', 'parentImgData')">
+                                <input type="hidden" id="parentImgData">
+                            </div>
+                            <div style="text-align:center; flex:1;">
+                                <div style="border:2px dashed #ccc; padding:20px; border-radius:12px; cursor:pointer; font-size:0.8rem; color:#666; transition:0.3s;" onclick="document.getElementById('childPic').click()" id="childBtn">
+                                    <i class="fa-solid fa-child" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
+                                    Child Photo
+                                </div>
+                                <img id="childPreview" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto 0; border:3px solid #1b3b5c;">
+                                <input type="file" id="childPic" accept="image/*" style="display:none;" onchange="readImage(this, 'childPreview', 'childBtn', 'childImgData')">
+                                <input type="hidden" id="childImgData">
+                            </div>
+                        </div>
+    
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <button type="button" class="submit-btn" style="background:#e0e0e0; color:#333; border:none; margin-top:0;" onclick="prevStep(3)">Back</button>
+                            <button type="button" class="submit-btn" style="background:#28a745; color:white; border:none; margin-top:0;" onclick="finalizeRegistration()">Create Account</button>
+                        </div>
+                    </div>
+                </form>
+    
+                <div class="login-link">
+                    Created an account already? <a href="{% url 'login' %}">Go back to login</a>
+                </div>
+            </div>
+
+        <div class="footer-text">
+            Child Care Management<br>Barangay Market View 3 Child Development Center
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    let validChildId = null;
+
+    function nextStep(current) {
+        if(current === 1) {
+            // Basic validation
+            let u = document.getElementById('js-username').value;
+            let p1 = document.getElementById('js-pass1').value;
+            let p2 = document.getElementById('js-pass2').value;
+            let fn = document.getElementById('js-fullname').value;
+            if(!u || !p1 || !p2 || !fn) {
+                alert("Please fill all required fields in Step 1."); return;
+            }
+            if(p1 !== p2) {
+                alert("Passwords do not match."); return;
+            }
+
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
+        } else if (current === 2) {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'flex';
+        }
+    }
+
+    function prevStep(current) {
+        if(current === 2) {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'flex';
+        } else if (current === 3) {
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
+        }
+    }
+
+    function toggleRegisterPassword() {
+        var p1 = document.getElementById("js-pass1");
+        var p2 = document.getElementById("js-pass2");
+        if (p1.type === "password") {
+            p1.type = "text";
+            p2.type = "text";
+        } else {
+            p1.type = "password";
+            p2.type = "password";
+        }
+    }
+
+    function verifyChild() {
+        const inputName = document.getElementById('js-childname').value.trim().toLowerCase();
+        if(!inputName) return;
+
+        // Search in local storage prototype DB
+        let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+        let match = studentsMaster.find(st => st.name.toLowerCase() === inputName);
+
+        if(match) {
+            validChildId = match.id;
+            document.getElementById('verify-error').style.display = 'none';
+            document.getElementById('childMatchCard').style.display = 'block';
+            document.getElementById('verifiedChildName').innerText = match.name;
+            document.getElementById('verifiedChildAge').innerText = "Student ID: " + match.id + " | Age: " + match.age;
+            
+            // Enable next
+            document.getElementById('btn-next-2').style.opacity = '1';
+            document.getElementById('btn-next-2').style.pointerEvents = 'all';
+        } else {
+            validChildId = null;
+            document.getElementById('verify-error').style.display = 'block';
+            document.getElementById('childMatchCard').style.display = 'none';
+            
+            // Disable next
+            document.getElementById('btn-next-2').style.opacity = '0.5';
+            document.getElementById('btn-next-2').style.pointerEvents = 'none';
+        }
+    }
+
+    function readImage(input, previewId, btnId, dataId) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                // Create an image element to draw onto canvas
+                let img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('react-2d') || canvas.getContext('2d');
+                    
+                    // Max constraints for compression
+                    const MAX_WIDTH = 300;
+                    const MAX_HEIGHT = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Export as highly compressed JPEG
+                    let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    document.getElementById(previewId).src = compressedBase64;
+                    document.getElementById(previewId).style.display = 'block';
+                    document.getElementById(btnId).style.display = 'none';
+                    document.getElementById(dataId).value = compressedBase64;
+                };
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function finalizeRegistration() {
+        try {
+            // Sync JS inputs to hidden Django inputs
+            const dFormFields = document.getElementById('djangoFormArea').querySelectorAll('input');
+            
+            let d_uname = null, d_email = null, d_pass1 = null, d_pass2 = null;
+            dFormFields.forEach(inp => {
+                if(inp.name === 'username') d_uname = inp;
+                if(inp.name === 'email') d_email = inp;
+                if(inp.name === 'password1') d_pass1 = inp;
+                if(inp.name === 'password2') d_pass2 = inp;
+            });
+
+            if(d_uname) d_uname.value = document.getElementById('js-username').value;
+            if(d_email) d_email.value = document.getElementById('js-email').value;
+            if(d_pass1) d_pass1.value = document.getElementById('js-pass1').value;
+            if(d_pass2) d_pass2.value = document.getElementById('js-pass2').value;
+
+            // Set LocalStorage linking data for Prototype Use Later
+            const username = document.getElementById('js-username').value;
+            
+            let parentProfile = {
+                name: document.getElementById('js-fullname').value,
+                contact: document.getElementById('js-contact').value,
+                email: document.getElementById('js-email').value,
+                child_id: validChildId,
+                child_name: document.getElementById('verifiedChildName').innerText || "Verified",
+                parent_img: document.getElementById('parentImgData') ? document.getElementById('parentImgData').value : "",
+                child_img: document.getElementById('childImgData') ? document.getElementById('childImgData').value : ""
+            };
+
+            // Save exactly to the specific username to support multiple accounts
+            localStorage.setItem('bmv3_parent_profile_' + username, JSON.stringify(parentProfile));
+            
+            // Also set the current data to the global 'bmv3_parent_profile_data' so immediately on dashboard it has it
+            localStorage.setItem('bmv3_parent_profile_data', JSON.stringify({
+                name: parentProfile.name,
+                email: parentProfile.email,
+                contact: parentProfile.contact,
+                child: parentProfile.child_name,
+                child_id: parentProfile.child_id
+            }));
+            
+            if(parentProfile.parent_img) {
+                localStorage.setItem('bmv3_parent_profile_img', parentProfile.parent_img);
+            }
+
+            // Submit physical django form to create actual user
+            // We use HTMLFormElement.prototype.submit.call to bypass any input named submit just in case
+            HTMLFormElement.prototype.submit.call(document.getElementById('mainForm'));
+            
+        } catch (error) {
+            alert("Sorry, an error occurred: " + error.message);
+            console.error(error);
+        }
+    }
+</script>
+</body>
+</html>
+{% endblock %}

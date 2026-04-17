@@ -1,0 +1,422 @@
+{% extends "parents/base_parent.html" %}
+
+{% block content %}
+<style>
+/* Page Header */
+.page-header { margin-bottom: 25px; }
+.page-header h2 { font-size: 1.8rem; font-weight: 800; margin: 0; color: #333; }
+.page-header p { font-size: 0.95rem; color: #777; margin: 5px 0 0 0; }
+
+/* Tabs */
+.tabs { display: flex; gap: 20px; border-bottom: 2px solid #eaeaea; margin-bottom: 25px; }
+.tab { padding: 10px 5px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-size: 0.95rem; }
+.tab.active { color: #4a90e2; border-bottom: 3px solid #4a90e2; }
+
+/* KPI Row */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+.kpi-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content:space-between; }
+.kpi-title { font-size: 0.9rem; font-weight: 600; color: #555; margin-bottom: 15px;}
+.kpi-value { font-size: 1.8rem; font-weight: 700; color: #333; }
+
+/* Search Area */
+.search-container { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+.search-container h4 { margin:0 0 10px 0; font-size: 1rem; color:#444; }
+.search-input-wrapper { display:flex; align-items:center; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; }
+.search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 0.95rem; font-family:'Montserrat', sans-serif;}
+
+/* Student Grid */
+.directory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.student-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 20px; display:flex; flex-direction:column; justify-content:space-between; }
+/* Special styling for a highlighted card from screenshot */
+.student-card.highlight { border-color: #f6c23e; box-shadow: 0 4px 12px rgba(246, 194, 62, 0.1); }
+
+.s-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.s-info { display: flex; align-items: center; gap: 15px; }
+.avatar { width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; overflow: hidden; }
+.s-info h4 { margin: 0; font-size: 1.05rem; }
+.s-info p { margin: 2px 0 0 0; font-size: 0.8rem; color: #666; }
+.alert-icon { color: #f6c23e; font-size: 1.2rem; }
+
+/* Progress Rows inside card */
+.prog-row { margin-bottom: 12px; }
+.prog-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+.prog-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; }
+.prog-fill { height: 100%; background: #4a90e2; border-radius: 3px; }
+
+.btn-details { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #fff; color: #333; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; margin-top: 15px; }
+.btn-details:hover { background: #eee; }
+
+/* Modal Styles */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: white; width: 650px; border-radius: 12px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
+.modal-close { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5rem; color: #999; border:none; background:transparent; }
+
+/* Modal Inner */
+.m-profile-head { display:flex; align-items:center; gap: 20px; margin-bottom: 25px; }
+.m-avatar { width:60px; height:60px; border-radius:50%; background:#eee; display:flex; justify-content:center; align-items:center; font-size:1.5rem; font-weight:bold; }
+.m-title h2 { margin:0 0 5px 0; font-size: 1.6rem; }
+.m-title p { margin:0; font-size: 0.9rem; color:#666; }
+.m-allergies { background: #fdedec; border: 1px solid #fadbd8; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+.m-allergies span { font-weight: bold; color: #c0392b; display:flex; align-items:center; gap:5px; }
+.m-allergies p { margin: 5px 0 0 0; font-size: 0.85rem; color: #e74a3b; }
+
+/* Inner Modal Tabs */
+.m-tabs { display:flex; justify-content:center; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+.m-tab { padding-bottom:10px; font-weight:600; color:#888; border-bottom:2px solid transparent; }
+.m-tab.active { color:#333; border-bottom:2px solid #333; }
+
+/* Performance Grid inside Modal */
+.perf-card { border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+.perf-card h3 { margin: 0 0 20px 0; font-size:1.1rem; }
+.perf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+.p-box { border: 1px solid #eee; border-radius: 10px; padding: 15px; display:flex; flex-direction:column; }
+.p-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; }
+.p-val { font-size: 1.6rem; font-weight: 700; margin-bottom: 5px;}
+.p-sub { font-size: 0.75rem; color:#777; margin-bottom:10px; }
+
+/* Modal standard box colors */
+.p-box.att { border-color: #dce7f9; } .p-box.att .p-title, .p-box.att .p-val { color: #4a90e2; }
+.p-box.mil { border-color: #eeddf9; } .p-box.mil .p-title, .p-box.mil .p-val { color: #a461d8; }
+.p-box.beh { border-color: #d4f2e1; } .p-box.beh .p-title, .p-box.beh .p-val { color: #1cc88a; }
+.p-box.nut { border-color: #fcebd1; } .p-box.nut .p-title, .p-box.nut .p-val { color: #f6c23e; }
+
+@media (max-width: 900px) {
+    .directory-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .directory-grid { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: 1fr; }
+}
+
+</style>
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2>Children Directory</h2>
+        <p>Complete overview of all enrolled children in the class</p>
+    </div>
+</div>
+
+<!-- ================= CONTENT: DIRECTORY ================= -->
+<div id="content-dir" class="main-content">
+    
+    <!-- Top KPIs -->
+    <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-title">Class Size</div><div class="kpi-value" id="kpi-total">0</div></div>
+        <div class="kpi-card"><div class="kpi-title">Age 3 Years</div><div class="kpi-value" id="kpi-age3">0</div></div>
+        <div class="kpi-card"><div class="kpi-title">Age 4 Years</div><div class="kpi-value" id="kpi-age4">0</div></div>
+        <div class="kpi-card"><div class="kpi-title">Age 5 Years</div><div class="kpi-value" id="kpi-age5">0</div></div>
+    </div>
+
+    <!-- Search Tool -->
+    <div class="search-container">
+        <h4>Search Children</h4>
+        <div class="search-input-wrapper">
+            <span style="color:#999; margin-right:10px;">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterDirectory()">
+        </div>
+    </div>
+
+    <!-- Directory Grid -->
+    <div class="directory-grid" id="directoryGrid">
+        <!-- Rendered dynamically -->
+    </div>
+</div>
+
+<!-- ================= MODAL: CHILD PROFILE ================= -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeProfile()">×</button>
+        <h2 style="margin:0 0 5px 0; font-size:1.6rem;">Child Profile</h2>
+        <p style="color:#777; margin:0 0 25px 0; font-size:0.9rem;">Complete information and performance overview</p>
+
+        <div class="m-profile-head">
+            <div class="m-avatar" id="m-av">E</div>
+            <div class="m-title">
+                <h2 id="m-name">Emma Johnson</h2>
+                <p><span id="m-age">4 years old</span> <span id="m-bday" style="margin-left:15px; color:#888;">🎈 Born: 5/12/2020</span> <span id="m-enrolled" style="margin-left:15px; color:#aaa;">🗓 Enrolled: 1/15/2024</span></p>
+            </div>
+        </div>
+
+        <div class="m-allergies" id="m-allergy-box" style="display:none;">
+            <span>⚠ Allergies</span>
+            <p id="m-al-text">Peanuts</p>
+        </div>
+
+        <div class="m-tabs">
+            <div class="m-tab active" id="mtab-perf" onclick="switchModalTab('perf')" style="cursor:pointer;">Performance</div>
+            <div class="m-tab" id="mtab-guardians" onclick="switchModalTab('guardians')" style="cursor:pointer;">Guardians</div>
+        </div>
+
+        <div class="perf-card" id="m-content-perf">
+            <h3>30-Day Performance Summary</h3>
+            <div class="perf-grid">
+                <div class="p-box att">
+                    <div class="p-title">Attendance</div>
+                    <div class="p-val" id="mp-att-val">100%</div>
+                    <div class="p-sub" id="mp-att-sub">22/22 days</div>
+                    <div class="prog-bg"><div class="prog-fill" id="mp-att-bar"></div></div>
+                </div>
+                <div class="p-box mil">
+                    <div class="p-title">Milestones</div>
+                    <div class="p-val" id="mp-mil-val" style="color:#a461d8;">50%</div>
+                    <div class="p-sub" id="mp-mil-sub">8/16 completed</div>
+                    <div class="prog-bg"><div class="prog-fill" id="mp-mil-bar" style="background:#a461d8;"></div></div>
+                </div>
+                <div class="p-box beh">
+                    <div class="p-title">Behavior</div>
+                    <div class="p-val" id="mp-beh-val" style="color:#1cc88a;">50/100</div>
+                    <div class="p-sub" id="mp-beh-sub">6 positive interactions</div>
+                    <div class="prog-bg"><div class="prog-fill" id="mp-beh-bar" style="background:#1cc88a;"></div></div>
+                </div>
+                <div class="p-box nut">
+                    <div class="p-title">Nutrition</div>
+                    <div class="p-val" id="mp-nut-val" style="color:#f6c23e;">87%</div>
+                    <div class="p-sub" id="mp-nut-sub">Average meal intake</div>
+                    <div class="prog-bg"><div class="prog-fill" id="mp-nut-bar" style="background:#f6c23e;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="perf-card" id="m-content-guardians" style="display:none; border-color:#dce7f9; background:#fbxfdfe;">
+            <h3 style="margin-bottom:15px; color:#4a90e2;">Primary Guardian Contact</h3>
+            <div style="background:#f4f8fe; padding:20px; border-radius:10px;">
+                <p style="margin:0 0 10px 0; font-size:1.1rem; font-weight:600; color:#333;" id="mg-name">Parent Name</p>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <p style="margin:0; font-size:0.75rem; color:#777; font-weight:bold;">PHONE</p>
+                        <p style="margin:0; font-size:0.95rem; color:#444;" id="mg-phone">(555) 000-0000</p>
+                    </div>
+                    <div>
+                        <p style="margin:0; font-size:0.75rem; color:#777; font-weight:bold;">EMAIL</p>
+                        <p style="margin:0; font-size:0.95rem; color:#444;" id="mg-email">parent@email.com</p>
+                    </div>
+                </div>
+                <div>
+                    <p style="margin:0; font-size:0.75rem; color:#777; font-weight:bold;">HOME ADDRESS</p>
+                    <p style="margin:0; font-size:0.95rem; color:#444;" id="mg-address">123 Street</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    // ================= CENTRAL DATABASE INIT =================
+    let studentsDB = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+
+    // Secondary DBs for analytics math
+    const attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+    const milDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
+    const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
+    const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+
+    let compiledProfiles = []; // We will store all math here
+
+    function compileAllData() {
+        compiledProfiles = [];
+        let totalDates = Object.keys(attDB).length || 5;
+
+        studentsDB.forEach(st => {
+            // Att
+            let daysP = 0;
+            Object.keys(attDB).forEach(d => { if(attDB[d][st.id] === 'present') daysP++; });
+            let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
+            if (['emma','noah','sophia','olivia'].includes(st.id)) attPct = 100;
+
+            // Mil
+            let milRec = milDB[st.id] || {};
+            let milAchieved = 0;
+            Object.values(milRec).forEach(v => { if(v==='achieved') milAchieved++; });
+            let milPct = Math.round((milAchieved/16)*100);
+
+            // Beh
+            let behRec = behDB[st.id] || [];
+            let behPos = 0;
+            let behNeg = 0;
+            behRec.forEach(r => { if(r.type === 'positive') behPos++; else if(r.type === 'negative') behNeg++; });
+            
+            let behScore = 0;
+            let totalB = behPos + behNeg;
+            if(totalB > 0) behScore = Math.round((behPos / totalB)*100);
+            else if(behRec.length > 0) behScore = 100;
+
+            // Nut
+            let nutRec = nutDB[st.id] || {breakfast:0, lunch:0, snack:0};
+            let nutAvg = Math.round((nutRec.breakfast + nutRec.lunch + nutRec.snack)/3) || 0;
+
+            compiledProfiles.push({
+                ...st,
+                attPct, daysP, totalDates,
+                milPct, milAchieved, totalMil:16,
+                behScore, behPos, behNeg,
+                nutAvg
+            });
+        });
+    }
+
+    function renderDirectory(filterText = '') {
+        const container = document.getElementById('directoryGrid');
+        container.innerHTML = '';
+        
+        let cTotal = 0, cAge3 = 0, cAge4 = 0, cAge5 = 0;
+
+        if (compiledProfiles.length === 0) {
+            container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: #fff; border-radius: 12px; border: 1px solid #ddd;">
+                <h3 style="color:#777; margin-bottom:10px; font-size:1.3rem;">System Empty.</h3>
+            </div>`;
+        }
+
+        compiledProfiles.forEach(st => {
+            // KPI counting
+            cTotal++;
+            if(st.age == 3) cAge3++;
+            else if(st.age == 4) cAge4++;
+            else if(st.age == 5) cAge5++;
+
+            // Filtering
+            if (filterText && !st.name.toLowerCase().includes(filterText.toLowerCase())) return;
+
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let hlClass = st.id === 'noah' || st.id === 'liam' ? 'highlight' : ''; 
+            let alertIcon = hlClass ? `<span class="alert-icon">⚠</span>` : '';
+
+            let attWid = st.attPct;
+            let milWid = st.milPct;
+            let behWid = st.behScore;
+
+            let html = `
+            <div class="student-card ${hlClass}">
+                <div>
+                    <div class="s-header">
+                        <div class="s-info">
+                            <div class="avatar">${avatarHtml}</div>
+                            <div>
+                                <h4>${st.name}</h4>
+                                <p>${st.age} years old</p>
+                            </div>
+                        </div>
+                        ${alertIcon}
+                    </div>
+
+                    <!-- Progress Stats -->
+                    <div class="prog-row">
+                        <div class="prog-labels"><span>Attendance</span><span>${attWid}%</span></div>
+                        <div class="prog-bg"><div class="prog-fill" style="width:${attWid}%;"></div></div>
+                    </div>
+                    <div class="prog-row">
+                        <div class="prog-labels"><span>Milestones</span><span>${milWid}%</span></div>
+                        <div class="prog-bg"><div class="prog-fill" style="width:${milWid}%; background:#a461d8;"></div></div>
+                    </div>
+                    <div class="prog-row">
+                        <div class="prog-labels"><span>Behavior Score</span><span>${behWid}/100</span></div>
+                        <div class="prog-bg"><div class="prog-fill" style="width:${behWid}%; background:#1cc88a;"></div></div>
+                    </div>
+
+                    ${st.allergies && st.allergies.length > 0 ? `<div style="font-size:0.75rem; color:#e74a3b; margin-top:10px;">⚠ ${st.allergies.join(', ')}</div>` : ''}
+                </div>
+
+                <button class="btn-details" onclick="openProfile('${st.id}')">View Details</button>
+            </div>
+            `;
+            container.innerHTML += html;
+        });
+
+        // Set KPIs if no filter is active
+        if(!filterText) {
+            document.getElementById('kpi-total').innerText = cTotal;
+            document.getElementById('kpi-age3').innerText = cAge3;
+            document.getElementById('kpi-age4').innerText = cAge4;
+            document.getElementById('kpi-age5').innerText = cAge5;
+        }
+    }
+
+    function filterDirectory() {
+        let text = document.getElementById('searchInput').value;
+        renderDirectory(text);
+    }
+
+    // Modal Inner Tabs
+    function switchModalTab(tabId) {
+        document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('mtab-' + tabId).classList.add('active');
+        document.getElementById('m-content-perf').style.display = 'none';
+        document.getElementById('m-content-guardians').style.display = 'none';
+        document.getElementById('m-content-' + tabId).style.display = 'block';
+    }
+
+    // Modal Logic
+    function openProfile(id) {
+        let st = compiledProfiles.find(s => s.id === id);
+        if(!st) return;
+
+        document.getElementById('m-av').innerText = st.initial;
+        if(st.img) document.getElementById('m-av').innerHTML = `<img src="${st.img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        else document.getElementById('m-av').innerHTML = st.initial;
+
+        document.getElementById('m-name').innerText = st.name;
+        document.getElementById('m-age').innerText = `${st.age} years old`;
+        
+        if (st.bday) {
+            let bObj = new Date(st.bday);
+            let bdayStr = bObj.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+            if (bdayStr === 'Invalid Date') bdayStr = st.bday;
+            document.getElementById('m-bday').innerText = `🎈 Born: ${bdayStr}`;
+        } else {
+            document.getElementById('m-bday').innerText = '';
+        }
+        
+        if(st.enrollDate) {
+            document.getElementById('m-enrolled').innerText = `🗓 Enrolled: ${new Date(st.enrollDate).toLocaleDateString()}`;
+        }
+
+        if(st.allergies && st.allergies.length > 0) {
+            document.getElementById('m-allergy-box').style.display = 'block';
+            document.getElementById('m-al-text').innerText = st.allergies.join(', ');
+        } else {
+            document.getElementById('m-allergy-box').style.display = 'none';
+        }
+
+        // Apply Math
+        document.getElementById('mp-att-val').innerText = `${st.attPct}%`;
+        document.getElementById('mp-att-sub').innerText = `${st.daysP}/${st.totalDates} days`;
+        document.getElementById('mp-att-bar').style.width = `${st.attPct}%`;
+
+        document.getElementById('mp-mil-val').innerText = `${st.milPct}%`;
+        document.getElementById('mp-mil-sub').innerText = `${st.milAchieved}/${st.totalMil} completed`;
+        document.getElementById('mp-mil-bar').style.width = `${st.milPct}%`;
+
+        document.getElementById('mp-beh-val').innerText = `${st.behScore}/100`;
+        document.getElementById('mp-beh-sub').innerText = `${st.behPos} positive interactions`;
+        document.getElementById('mp-beh-bar').style.width = `${st.behScore}%`;
+
+        document.getElementById('mp-nut-val').innerText = `${st.nutAvg}%`;
+        document.getElementById('mp-nut-bar').style.width = `${st.nutAvg}%`;
+
+        // Apply Guardian details
+        document.getElementById('mg-name').innerText = st.parent || 'No parent on record';
+        document.getElementById('mg-phone').innerText = st.phone || 'N/A';
+        document.getElementById('mg-email').innerText = st.email || 'N/A';
+        document.getElementById('mg-address').innerText = st.address || 'N/A';
+
+        // Reset to first tab
+        switchModalTab('perf');
+
+        document.getElementById('profileModal').classList.add('active');
+    }
+
+    function closeProfile() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
+    // Init Page setup
+    compileAllData();
+    renderDirectory();
+
+</script>
+
+{% endblock content %}

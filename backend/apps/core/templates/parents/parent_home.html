@@ -1,0 +1,201 @@
+{% extends "parents/base_parent_home.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+/* Slider Styles */
+.hero-slider-container {
+    width: 100%;
+    max-width: 500px;
+    height: 320px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #063970;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.slider-track {
+    display: flex;
+    width: 300%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+    width: 33.333%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.slide-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+}
+
+.slide h4 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.slide .kpi-val {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #8FB977;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.slide p {
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: #063970;
+    transform: scale(1.2);
+}
+
+html.dark-mode .hero-slider-container { background: rgba(30, 30, 30, 0.95); border-color:#555; }
+html.dark-mode .slide h4 { color: #f0f0f0; }
+html.dark-mode .slide p { color: #aaa; }
+html.dark-mode .slide .kpi-val { color: #8FB977; }
+</style>
+
+<!-- Hero Section -->
+<section class="hero" id="hero">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h2>Empowering Parents,<br>Connecting Care</h2>
+            <p>Track your child's milestones, attendance, behavior, and nutrition in real-time. Ensure their
+                well-being and stay effortlessly updated with the BMV3 Child Development Parent Portal.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'parent_dashboard' %}" class="hero-btn"
+                    style="background-color:#063970; color:white;">Go to Dashboard</a>
+            </div>
+        </div>
+        <div class="hero-pic">
+            <!-- Dynamic Slider Widget -->
+            <div class="hero-slider-container">
+                <div class="slider-track" id="heroSliderTrackP">
+                    
+                    <div class="slide">
+                        <div class="slide-icon">📊</div>
+                        <h4>Present Attendance</h4>
+                        <div class="kpi-val">95%</div>
+                        <p>Average weekly class attendance</p>
+                    </div>
+                    
+                    <div class="slide">
+                        <div class="slide-icon">🏆</div>
+                        <h4>Milestones Met</h4>
+                        <div class="kpi-val">12/16</div>
+                        <p>Average cognitive skills achieved</p>
+                    </div>
+                    
+                    <div class="slide">
+                        <div class="slide-icon">🍎</div>
+                        <h4>Nutrition Target</h4>
+                        <div class="kpi-val">92%</div>
+                        <p>Average daily caloric completion</p>
+                    </div>
+
+                </div>
+                
+                <div class="slider-dots">
+                    <div class="dot active" onclick="goToSlideP(0)"></div>
+                    <div class="dot" onclick="goToSlideP(1)"></div>
+                    <div class="dot" onclick="goToSlideP(2)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="section-container alt-bg" id="modules">
+    <h2 class="section-title">Explore Daily Tracking</h2>
+    <p class="section-subtitle">A transparent reflection of what the teachers log every day.</p>
+
+    <div class="grid-container">
+        <div class="card">
+            <h3>✅ Real-Time Attendance</h3>
+            <p>Receive notifications and review exact drop-off and pick-up times recorded securely via QR code
+                scanning algorithms.</p>
+        </div>
+        <div class="card">
+            <h3>🏆 Milestone Tracking</h3>
+            <p>Celebrate your child's achievements as teachers log cognitive, emotional, and physical
+                progression metrics to their specific profile.</p>
+        </div>
+        <div class="card">
+            <h3>🍎 Nutrition Logs</h3>
+            <p>Review their daily caloric intake and feeding habits directly synced from the teacher’s
+                operational log to your portal.</p>
+        </div>
+        <div class="card">
+            <h3>🧠 Behavior Insights</h3>
+            <p>Keep a close eye on behavioral incidents and disciplinary notes logged securely to help build a
+                consistent support structure at home.</p>
+        </div>
+        <div class="card">
+            <h3>📨 Classroom Inbox</h3>
+            <p>Receive auto-compiled weekly performance digests and read urgent milestone delays or positive behavioral observations securely.</p>
+        </div>
+        <div class="card">
+            <h3>⚙️ Parent Controls</h3>
+            <p>Manage your portal footprint, upload a display photo, review archived historical school years, and toggle System Dark Mode.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    let currentSlideP = 0;
+    const totalSlidesP = 3;
+    const trackP = document.getElementById('heroSliderTrackP');
+    const dotsP = document.querySelectorAll('.hero-slider-container .dot');
+
+    function goToSlideP(index) {
+        currentSlideP = index;
+        trackP.style.transform = `translateX(-${currentSlideP * 33.333}%)`;
+        dotsP.forEach(d => d.classList.remove('active'));
+        dotsP[currentSlideP].classList.add('active');
+    }
+
+    setInterval(() => {
+        let nextSlide = (currentSlideP + 1) % totalSlidesP;
+        goToSlideP(nextSlide);
+    }, 4000);
+</script>
+
+{% endblock content %}

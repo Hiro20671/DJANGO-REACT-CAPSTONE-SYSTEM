@@ -1,0 +1,200 @@
+{% extends "teachers/base_teacher_home.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+/* Slider Styles */
+.hero-slider-container {
+    width: 100%;
+    max-width: 500px;
+    height: 320px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #063970;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.slider-track {
+    display: flex;
+    width: 300%; /* 3 slides */
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+    width: 33.333%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.slide-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+}
+
+.slide h4 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.slide .kpi-val {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #8FB977;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.slide p {
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: #063970;
+    transform: scale(1.2);
+}
+
+html.dark-mode .hero-slider-container { background: rgba(30, 30, 30, 0.95); border-color:#555; }
+html.dark-mode .slide h4 { color: #f0f0f0; }
+html.dark-mode .slide p { color: #aaa; }
+html.dark-mode .slide .kpi-val { color: #8FB977; }
+</style>
+
+<!-- HOME SECTION -->
+<section id="home">
+    <div class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Child Care Management</h2>
+                <p>A digital platform designed to digitize attendance, track developmental milestones, monitor health
+                    and nutrition, and strengthen parent communication for the Barangay Market View 3 Child Development
+                    Center.</p>
+                <div class="hero-buttons">
+                    <a href="{% url 'teacher_dashboard' %}" class="hero-btn" style="background-color:#063970; color:white;">View My Dashboard</a>
+                </div>
+            </div>
+            <div class="hero-pic">
+                
+                <!-- Dynamic Slider Widget -->
+                <div class="hero-slider-container">
+                    <div class="slider-track" id="heroSliderTrackT">
+                        
+                        <div class="slide">
+                            <div class="slide-icon">📊</div>
+                            <h4>Real-Time Attendance</h4>
+                            <div class="kpi-val">95%</div>
+                            <p>Average weekly class attendance</p>
+                        </div>
+                        
+                        <div class="slide">
+                            <div class="slide-icon">🏆</div>
+                            <h4>Milestone Progress</h4>
+                            <div class="kpi-val">12/16</div>
+                            <p>Average cognitive skills achieved</p>
+                        </div>
+                        
+                        <div class="slide">
+                            <div class="slide-icon">🍎</div>
+                            <h4>Nutrition Tracking</h4>
+                            <div class="kpi-val">92%</div>
+                            <p>Average daily caloric completion</p>
+                        </div>
+
+                    </div>
+                    
+                    <div class="slider-dots">
+                        <div class="dot active" onclick="goToSlideT(0)"></div>
+                        <div class="dot" onclick="goToSlideT(1)"></div>
+                        <div class="dot" onclick="goToSlideT(2)"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="section-container alt-bg">
+        <h2 class="section-title">Monitoring Features</h2>
+        <p class="section-subtitle">6 features that is in our system to ensure the best care for every child</p>
+
+        <div class="grid-container">
+            <div class="card">
+                <h3>Smart Drop-Off & Pick-Up<br>Authorization</h3>
+                <p>QR code-based authorization system to verify guardians and log attendance in real time</p>
+            </div>
+            <div class="card">
+                <h3>Life Skills Milestone Tracker</h3>
+                <p>Monitor children's motor, social, and cognitive developmental progress digitally</p>
+            </div>
+            <div class="card">
+                <h3>Digital Health & Nutrition</h3>
+                <p>Record daily health status, meals, allergies, and nutritional intake for each child</p>
+            </div>
+            <div class="card">
+                <h3>Parent Notification System</h3>
+                <p>Automated alerts and summaries sent to parents via email or SMS</p>
+            </div>
+            <div class="card">
+                <h3>Operational Analytics Dashboard</h3>
+                <p>Visual reports and attendance trends to support data-driven daycare management</p>
+            </div>
+            <div class="card">
+                <h3>Centralized Records Management</h3>
+                <p>Replace paper-based files with a secure, organized digital record system</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    let currentSlideT = 0;
+    const totalSlidesT = 3;
+    const trackT = document.getElementById('heroSliderTrackT');
+    const dotsT = document.querySelectorAll('.hero-slider-container .dot');
+
+    function goToSlideT(index) {
+        currentSlideT = index;
+        trackT.style.transform = `translateX(-${currentSlideT * 33.333}%)`;
+        dotsT.forEach(d => d.classList.remove('active'));
+        dotsT[currentSlideT].classList.add('active');
+    }
+
+    setInterval(() => {
+        let nextSlide = (currentSlideT + 1) % totalSlidesT;
+        goToSlideT(nextSlide);
+    }, 4000);
+</script>
+
+{% endblock content %}

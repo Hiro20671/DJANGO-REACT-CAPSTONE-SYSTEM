@@ -1,0 +1,111 @@
+import React, { useState, useEffect } from 'react';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement } from 'chart.js';
+import { Bar, Pie, Line } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
+
+export default function TeacherDashboard() {
+  const [stats, setStats] = useState({ total: 0, present: 0, absent: 0 });
+
+  useEffect(() => {
+    // Load data from prototype local storage
+    const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    const mockDatabase = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+    let presentCount = 0;
+    let absentCount = 0;
+
+    if (mockDatabase[todayStr]) {
+      studentsMaster.forEach(st => {
+        if (mockDatabase[todayStr][st.id] === 'present') presentCount++;
+        else if (mockDatabase[todayStr][st.id] === 'absent') absentCount++;
+      });
+    }
+    
+    setStats({ 
+      total: studentsMaster.length, 
+      present: presentCount,
+      absent: absentCount
+    });
+  }, []);
+
+  const pieData = {
+    labels: ['Positive', 'Neutral', 'Negative'],
+    datasets: [{ data: [18, 11, 2], backgroundColor: ['#1cc88a', '#6c757d', '#e74a3b'] }]
+  };
+
+  const lineData = {
+    labels: ['Mar 18', 'Mar 19', 'Mar 20', 'Mar 21', 'Mar 22', 'Mar 23', 'Mar 24'],
+    datasets: [{
+      label: 'Average Nutrition Intake (%)',
+      data: [90, 92, 90, 0, 0, 88, 88],
+      borderColor: '#f6c23e', fill: false, tension: 0.4
+    }]
+  };
+
+  return (
+    <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#333' }}>Operational Dashboard</h2>
+          <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Real-time monitoring and analytics • {new Date().toLocaleDateString()}</p>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
+        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #4a90e2', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Total Enrolled</div>
+          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.total}</div>
+          <div style={{ fontSize: '0.75rem', color: '#888' }}>Active children</div>
+        </div>
+        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd' }}>
+          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Today's Attendance</div>
+          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
+          <div style={{ fontSize: '0.75rem', color: '#888' }}>{stats.absent} absent today</div>
+        </div>
+        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '2px solid #e74a3b' }}>
+          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Children at Risk</div>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#e74a3b' }}>0</div>
+          <div style={{ fontSize: '0.75rem', color: '#888' }}>Require attention</div>
+        </div>
+        <div style={{ background: '#fff', padding: '15px', borderRadius: '10px', border: '1px solid #ddd' }}>
+          <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem' }}>Milestone Progress</div>
+          <div style={{ fontSize: '2rem', fontWeight: 800 }}>71.3%</div>
+          <div style={{ fontSize: '0.75rem', color: '#888' }}>Overall completion</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+        <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+          <div style={{ fontWeight: 600, marginBottom: '20px' }}>Behavior Distribution (30 Days)</div>
+          <div style={{ height: '200px', display: 'flex', justifyContent: 'center' }}>
+            <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+          </div>
+        </div>
+        <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+          <div style={{ fontWeight: 600, marginBottom: '20px' }}>Average Nutrition Intake (7 Days)</div>
+          <div style={{ height: '200px' }}>
+            <Line data={lineData} options={{ maintainAspectRatio: false }} />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+        <h4 style={{ margin: '0 0 10px 0' }}>System Status & Automation</h4>
+        <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Real-time monitoring systems</p>
+        <div style={{ display: 'flex', gap: '15px' }}>
+          {['Access Control', 'Attendance Monitor', 'Behavior Analysis', 'Nutrition Tracking'].map(sys => (
+            <div key={sys} style={{ flex: 1, border: '1px solid #ddd', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ color: '#1cc88a' }}>✓</div>
+              <div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{sys}</div>
+                <div style={{ fontSize: '0.7rem', color: '#888' }}>Active</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

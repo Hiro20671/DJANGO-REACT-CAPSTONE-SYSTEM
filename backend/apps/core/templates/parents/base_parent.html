@@ -1,0 +1,687 @@
+{% load static django_vite %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard - BMV3 CDC</title>
+
+    <!-- Chart.js for Dynamic Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% vite_hmr_client %}
+    {% vite_react_refresh %}
+
+    <!-- Pre-load theme to prevent flash -->
+    <script>
+        if (localStorage.getItem('bmv3_theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Sidebar Architecture */
+        .sidebar {
+            width: 250px;
+            background-color: #063970;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 30px 20px 20px 20px;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .menu-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 0 10px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-item {
+            padding: 12px 30px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.active {
+            background-color: #8FB977;
+            color: #fff !important;
+            border-radius: 20px;
+            margin: 5px 20px;
+            padding: 10px 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item.active i {
+            opacity: 1;
+        }
+
+        .menu-item.active:hover {
+            background-color: #7fa669;
+            transform: translateY(-1px);
+        }
+
+        .sidebar-footer {
+            padding: 30px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn i {
+            font-size: 1.1rem;
+        }
+
+        .logout-btn:hover {
+            color: #ff6b6b;
+        }
+
+        /* Main Content Wrapper */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px 40px;
+            flex-grow: 1;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s, width 0.3s;
+        }
+
+        /* Page Headers */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            font-size: 0.95rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Global Dashboard Grid Classes to be used in children templates */
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            border: 1px solid #dcdcdc;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-blue {
+            background-color: #063970;
+            color: #ffffff;
+            border: none;
+        }
+
+        .card-blue h3, .card-blue .chart-title, .card-blue .kpi-title, .card-blue .kpi-value {
+            color: #ffffff !important;
+        }
+
+        .card-blue .kpi-subtitle, .card-blue .chart-subtitle, .card-blue p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Top Nav inside Main Content */
+        .top-nav-right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .mobile-sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .burger-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .burger-menu span {
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        .menu-container {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .dropdown-menu.active {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #444;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #4a90e2;
+        }
+
+        .dropdown-item.logout {
+            color: #d9534f;
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: #fdf2f2;
+            color: #c9302c;
+        }
+
+        /* --- Responsive Design --- */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .menu-container {
+                display: none !important;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px;
+            }
+
+            .mobile-sidebar-toggle {
+                display: block;
+            }
+
+            .page-header h2 {
+                font-size: 1.8rem;
+            }
+
+            /* Global feature layout overrides for mobile */
+            .kpi-row,
+            .status-grid,
+            .auto-grid,
+            .meal-grid,
+            .intake-grid,
+            .mtype-grid,
+            .summary-container,
+            .overview-footer,
+            .directory-grid,
+            .perf-grid,
+            .stat-blocks,
+            .cards-container,
+            div[style*="display:grid"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+
+            .student-header,
+            .panel-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+
+            .btn-send,
+            .btn-action,
+            .btn-primary {
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            .modal-content {
+                width: 95% !important;
+                max-width: 95vw !important;
+                padding: 20px !important;
+            }
+
+            .kpi-card,
+            .auto-card,
+            .card,
+            .status-box {
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+        }
+
+        /* --- Dark Mode Styles --- */
+        html.dark-mode body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .sidebar {
+            background-color: #04254a;
+        }
+
+        html.dark-mode .sidebar-header {
+            border-bottom-color: rgba(255,255,255,0.1);
+        }
+
+        html.dark-mode .menu-item {
+            color: #ccc;
+        }
+
+        html.dark-mode .menu-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        html.dark-mode .card,
+        html.dark-mode .settings-panel,
+        html.dark-mode .settings-sidebar,
+        html.dark-mode .content-section,
+        html.dark-mode .summary-card,
+        html.dark-mode .form-group input,
+        html.dark-mode .form-group select {
+            background-color: #1a1a1a;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .page-header h2,
+        html.dark-mode .panel-header h3 {
+            color: #f0f0f0;
+        }
+
+        html.dark-mode .page-header p,
+        html.dark-mode .panel-header p {
+            color: #aaa;
+        }
+
+        html.dark-mode .burger-menu span {
+            background-color: #e0e0e0;
+        }
+
+        html.dark-mode .mobile-sidebar-toggle {
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .dropdown-menu {
+            background-color: #222;
+            border-color: #444;
+        }
+
+        html.dark-mode .dropdown-item {
+            color: #ccc;
+            border-bottom-color: #333;
+        }
+
+        html.dark-mode .dropdown-item:hover {
+            background-color: #333;
+            color: #4a90e2;
+        }
+
+        html.dark-mode .modal-container {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .modal-header {
+            border-bottom-color: #333;
+        }
+
+        html.dark-mode .modal-header h3 {
+            color: #f0f0f0;
+        }
+
+        html.dark-mode .list-item,
+        html.dark-mode .archive-box,
+        html.dark-mode .archived-student-item {
+            border-color: #333;
+        }
+
+        html.dark-mode .item-name,
+        html.dark-mode .year-title {
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .btn-action,
+        html.dark-mode .form-group input,
+        html.dark-mode .form-group select,
+        html.dark-mode .scanner-help {
+            background-color: #222;
+        }
+
+        html.dark-mode .settings-menu-item:hover {
+            background-color: #333;
+        }
+
+        html.dark-mode .settings-menu-item.active {
+            background-color: #2a3b4c;
+        }
+
+        html.dark-mode .kpi-title {
+            color: #ccc;
+        }
+
+        html.dark-mode .kpi-value {
+            color: #f0f0f0;
+        }
+
+        html.dark-mode .chart-title {
+            color: #f0f0f0;
+        }
+
+        html.dark-mode .status-pill {
+            background-color: #222;
+            border-color: #333;
+        }
+
+        html.dark-mode .status-pill-title {
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar" id="mainSidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar" id="sidebar-avatar">
+                <i class="fa-regular fa-user"></i>
+            </div>
+            <div class="user-info">
+                <h4 id="sidebar-name">{{ request.user.first_name|default:"Parent User" }}</h4>
+                <span>Parent</span>
+            </div>
+        </div>
+
+        <div class="sidebar-menu">
+            <p class="menu-label">MENU</p>
+            <a href="{% url 'parent_home' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+            <a href="{% url 'parent_dashboard' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_dashboard' %}active{% endif %}">
+                <i class="fa-solid fa-border-all"></i> Dashboard
+            </a>
+            <a href="{% url 'parent_dropoff_pickup' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}active{% endif %}">
+                <i class="fa-solid fa-car"></i> Drop-Off/Pick-Up
+            </a>
+            <a href="{% url 'parent_attendance' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_attendance' %}active{% endif %}">
+                <i class="fa-regular fa-calendar-check"></i> Attendance
+            </a>
+            <a href="{% url 'parent_milestones' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_milestones' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i> Milestones
+            </a>
+            <a href="{% url 'parent_behavior' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_behavior' %}active{% endif %}">
+                <i class="fa-solid fa-brain"></i> Behavior
+            </a>
+            <a href="{% url 'parent_engagement' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
+                <i class="fa-solid fa-envelope"></i> Message Inbox
+            </a>
+            <a href="{% url 'parent_nutrition' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_nutrition' %}active{% endif %}">
+                <i class="fa-solid fa-apple-whole"></i> Nutrition
+            </a>
+
+            <div style="margin-top: auto;"></div>
+
+            <div class="mobile-only" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <a href="{% url 'parent_settings' %}"
+                    class="menu-item {% if request.resolver_match.url_name == 'parent_settings' %}active{% endif %}">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+                <a href="{% url 'login' %}" class="logout-btn menu-item" style="color: #ff6b6b;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <p style="text-align: center; font-size: 0.70rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4;">Smart Monitoring System<br>v1.0.0 &copy; 2026 BMV3 CDC</p>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="top-nav-right">
+            <!-- Mobile Toggle -->
+            <button class="mobile-sidebar-toggle" id="sidebarToggle">☰</button>
+
+            <div class="menu-container">
+                <div class="burger-menu" id="burgerToggle" title="Profile Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="{% url 'parent_settings' %}" class="dropdown-item">⚙️ Settings</a>
+                    <a href="{% url 'login' %}" class="dropdown-item logout">🔐 Logout</a>
+                </div>
+            </div>
+        </div>
+
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- UI Scripts -->
+    <script>
+        const burgerToggle = document.getElementById('burgerToggle');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mainSidebar = document.getElementById('mainSidebar');
+
+        if (burgerToggle) {
+            burgerToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('active');
+            });
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mainSidebar.classList.toggle('active');
+            });
+        }
+
+        // Close dropdown / sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (dropdownMenu && burgerToggle && !dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+            if (mainSidebar && sidebarToggle && !mainSidebar.contains(e.target) && !sidebarToggle.contains(e.target) && window.innerWidth <= 768) {
+                mainSidebar.classList.remove('active');
+            }
+        });
+
+        // Load dynamic parent registration data based on User
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentUser = "{{ request.user.username }}";
+            if(currentUser) {
+                let profileDataStr = localStorage.getItem('bmv3_parent_profile_' + currentUser);
+                if(profileDataStr) {
+                    let profileData = JSON.parse(profileDataStr);
+                    
+                    // Update Name
+                    if(profileData.name) {
+                        let nameElem = document.getElementById('sidebar-name');
+                        if(nameElem) nameElem.innerText = profileData.name;
+                    }
+                    
+                    // Update Avatar
+                    if(profileData.parent_img) {
+                        let avatarElem = document.getElementById('sidebar-avatar');
+                        if(avatarElem) {
+                            avatarElem.innerHTML = `<img src="${profileData.parent_img}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+                            avatarElem.style.border = 'none';
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

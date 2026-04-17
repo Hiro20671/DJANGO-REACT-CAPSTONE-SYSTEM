@@ -1,0 +1,7 @@
+{% extends "teachers/base_teacher.html" %}
+{% load static django_vite %}
+
+{% block content %}
+<div id="react-children-root"></div>
+{% vite_asset 'src/main.jsx' %}
+{% endblock %}

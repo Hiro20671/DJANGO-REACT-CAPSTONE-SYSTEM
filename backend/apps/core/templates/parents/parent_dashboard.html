@@ -1,0 +1,7 @@
+{% extends "parents/base_parent.html" %}
+{% load static django_vite %}
+
+{% block content %}
+<div id="react-parent-dashboard-root"></div>
+{% vite_asset 'src/main.jsx' %}
+{% endblock %}

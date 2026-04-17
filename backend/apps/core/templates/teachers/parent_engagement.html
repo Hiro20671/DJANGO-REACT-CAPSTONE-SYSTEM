@@ -1,0 +1,511 @@
+{% extends "teachers/base_teacher.html" %}
+
+{% block content %}
+<style>
+/* Header matching */
+.page-header { margin-bottom: 25px; }
+.page-header h2 { font-size: 1.8rem; font-weight: 800; margin: 0; color: #333; }
+.page-header p { font-size: 0.95rem; color: #777; margin: 5px 0 0 0; }
+
+/* KPI Row */
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+.kpi-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.kpi-title { font-size: 0.9rem; font-weight: 600; color: #555; }
+.kpi-value { font-size: 1.8rem; font-weight: 700; color: #333; margin: 15px 0; }
+.kpi-btn-wrap { margin-top: auto; }
+.btn-kpi { background: #4a90e2; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.btn-kpi.outline { background: white; color: #444; border: 1px solid #ccc; }
+
+/* Tabs */
+.tabs { display: flex; gap: 20px; border-bottom: 2px solid #eaeaea; margin-bottom: 25px; }
+.tab { padding: 10px 5px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-size: 0.9rem; }
+.tab.active { color: #333; border-bottom: 3px solid #333; }
+
+/* Main Digest Section */
+.digest-section { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 25px; }
+.section-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #333; }
+.section-header p { margin: 5px 0 20px 0; font-size: 0.9rem; color: #777; }
+
+.student-row { border: 1px solid #bbb; border-radius: 10px; padding: 20px; margin-bottom: 15px; display: flex; flex-direction: column; }
+.student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.student-info { display: flex; align-items: center; gap: 15px; }
+.avatar { width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; overflow: hidden; }
+.student-info h4 { margin: 0; font-size: 1.05rem; }
+.student-info p { margin: 2px 0 0 0; font-size: 0.8rem; color: #888; }
+.btn-send { background: #4a90e2; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+
+/* 4 Colored Status Boxes */
+.status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.status-box { border: 1px solid #eee; border-radius: 6px; padding: 15px; display: flex; flex-direction: column; }
+.status-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; }
+.status-val { font-size: 1.1rem; font-weight: bold; color: #333; }
+.status-sub { font-size: 0.7rem; color: #888; margin-top: 2px; }
+
+/* Box Colors matching mockups */
+.box-att { background: #f4f8fe; border-color: #dce7f9; }
+.box-att .status-title { color: #4a90e2; }
+.box-mile { background: #fbf5ff; border-color: #eeddf9; }
+.box-mile .status-title { color: #a461d8; }
+.box-beh { background: #f2fcf6; border-color: #d4f2e1; }
+.box-beh .status-title { color: #1cc88a; }
+.box-nut { background: #fffcf2; border-color: #fcebd1; }
+.box-nut .status-title { color: #f6c23e; }
+
+/* Automation Grid Bottom */
+.auto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+.auto-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }
+.auto-card .title { font-weight: 600; color: #1cc88a; font-size: 0.9rem; margin-bottom: 5px; }
+.auto-card .desc { font-size: 0.75rem; color: #666; }
+
+/* Modal Styles */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: white; width: 500px; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
+.modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.5rem; color: #999; border:none; background:transparent; }
+.modal-header h2 { margin: 0 0 5px 0; font-size: 1.5rem; }
+.modal-header p { margin: 0 0 20px 0; font-size: 0.9rem; color: #777; }
+.report-preview { border: 1px solid #444; border-radius: 10px; padding: 20px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6; }
+.report-preview strong { color: #333; }
+.form-group textarea { width: 100%; border: 2px solid #555; border-radius: 10px; padding: 15px; font-family: inherit; font-size: 0.95rem; resize: vertical; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+.btn-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #444; background: white; cursor: pointer; font-weight: bold; }
+
+.empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
+.empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
+</style>
+
+<div class="page-header">
+    <h2>Parent Notification & Engagement</h2>
+    <p>Automated communication and performance summaries</p>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+    <div class="kpi-card" onclick="sendAllReports()">
+        <div class="kpi-title">Weekly Reports Ready</div>
+        <div class="kpi-value" id="reports-ready-val">0</div>
+        <div style="margin-top:auto; font-size:0.85rem; color:#4a90e2; font-weight:600;">Click to Send All ✉</div>
+    </div>
+    <div class="kpi-card" onclick="openAlertModal()">
+        <div class="kpi-title">Alerts Pending</div>
+        <div class="kpi-value" style="color:#e74a3b;" id="alerts-pending-val">0</div>
+        <div style="margin-top:auto; font-size:0.85rem; color:#e74a3b; font-weight:600;">Click to View Alerts ⚠</div>
+    </div>
+    <div class="kpi-card" onclick="openHistoryModal()">
+        <div class="kpi-title">Messages Sent (This Week)</div>
+        <div class="kpi-value" id="msg-sent-counter">0</div>
+        <div style="margin-top:auto; font-size:0.85rem; color:#888; font-weight:600;">Click to View History 💬</div>
+    </div>
+</div>
+
+<!-- Main Digest Section -->
+<div id="content-reports" class="e-content">
+<div class="digest-section">
+    <div class="section-header">
+        <h3>Weekly Performance Digest</h3>
+        <p>Auto-generated weekly summaries for parents</p>
+    </div>
+
+    <!-- Student Cards Container -->
+    <div id="digest-container">
+        <!-- Rendered by JS or Empty State -->
+    </div>
+</div>
+
+<!-- Automation Grid Bottom -->
+<div class="digest-section" style="margin-top:20px; padding:20px;">
+    <h3 style="font-size:1.1rem; margin:0 0 10px 0;">Communication Automation</h3>
+    <div class="auto-grid">
+        <div class="auto-card"><div class="title">✓ Auto-Compilation</div><div class="desc">System automatically compiles weekly performance data</div></div>
+        <div class="auto-card"><div class="title">✓ Smart Summaries</div><div class="desc">Generates intelligent summaries highlighting key points</div></div>
+        <div class="auto-card"><div class="title">✓ Scheduled Delivery</div><div class="desc">Auto-sends notifications at optimal times</div></div>
+    </div>
+</div>
+</div> <!-- End Reports Content -->
+
+<!-- Modal: Alerts -->
+<div class="modal-overlay" id="alertModal">
+    <div class="modal-content" style="max-height:80vh; overflow-y:auto; width:600px;">
+        <button class="modal-close" onclick="closeAlertModal()">×</button>
+        <div class="modal-header">
+            <h2>Pending Alerts</h2>
+            <p>Automated triggers requiring your attention</p>
+        </div>
+        <div id="dynamic-alerts-container">
+            <!-- Dynamically populated or Empty State -->
+        </div>
+        <div class="modal-actions" style="justify-content:center; margin-top:25px;">
+            <button class="btn-cancel" onclick="closeAlertModal()">Close Alerts</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: History -->
+<div class="modal-overlay" id="historyModal">
+    <div class="modal-content" style="max-height:80vh; overflow-y:auto; width:600px;">
+        <button class="modal-close" onclick="closeHistoryModal()">×</button>
+        <div class="modal-header">
+            <h2>Message History</h2>
+            <p>Log of all reports and messages sent to parents</p>
+        </div>
+        <div id="history-log-container">
+            <!-- Populated by JS -->
+        </div>
+        <div class="modal-actions" style="justify-content:center; margin-top:25px;">
+            <button class="btn-cancel" onclick="closeHistoryModal()">Close History</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Send Weekly Report -->
+<div class="modal-overlay" id="sendModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-header">
+            <h2>Send Weekly Report</h2>
+            <p>Review and customize the report before sending</p>
+        </div>
+        
+        <div class="report-preview" id="modal-preview-box">
+            <h3 style="margin-top:0; margin-bottom:15px; font-size:1.2rem;">Weekly Summary for <span id="m-name"></span></h3>
+            <div><strong>Attendance:</strong> <span id="m-att"></span></div>
+            <div style="margin-top:8px;"><strong>Developmental Progress:</strong> <span id="m-mile"></span></div>
+            <div style="margin-top:8px;"><strong>Behavior:</strong> <span id="m-beh"></span></div>
+            <div style="margin-top:8px;"><strong>Nutrition:</strong> <span id="m-nut"></span></div>
+        </div>
+
+        <div class="form-group">
+            <label style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:8px;">Additional Message (Optional)</label>
+            <textarea id="modal-msg-note" rows="3" placeholder="Add any additional notes or comments for the parents..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-send" style="padding: 10px 20px;" onclick="confirmSend()">✉ Send Report</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+
+let globalCompiledData = {};
+let dynamicAlertsCount = 0;
+
+function compileData() {
+    if(studentsMaster.length === 0) {
+        document.getElementById('reports-ready-val').innerText = '0';
+        return;
+    }
+
+    let attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+    let mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
+    let behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
+    let nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+    let sentCounter = parseInt(localStorage.getItem('bmv3_msgs_sent')) || 0;
+    
+    document.getElementById('reports-ready-val').innerText = studentsMaster.length;
+    document.getElementById('msg-sent-counter').innerText = sentCounter;
+
+    // Total days tracked for attendance
+    let allDates = Object.keys(attDB);
+    let totalTrackedDays = allDates.length;
+    
+    // Dynamic Alerts HTML
+    let alertsHtml = '';
+
+    studentsMaster.forEach(student => {
+        // Attendance logic
+        let daysPresent = 0;
+        let daysAbsent = 0;
+        let lateArrivals = 0;
+
+        allDates.forEach(date => {
+            if(attDB[date][student.id] === 'present') daysPresent++;
+            if(attDB[date][student.id] === 'absent') daysAbsent++;
+            if(attDB[date][student.id] === 'late') lateArrivals++;
+        });
+
+        // Milestones Logic
+        let mileRecords = mileDB[student.id] || {};
+        let skillsAchieved = 0;
+        Object.values(mileRecords).forEach(status => {
+            if(status === 'achieved') skillsAchieved++;
+        });
+        let totalSkills = 16;
+        let milePct = Math.round((skillsAchieved / totalSkills) * 100);
+
+        // Behavior Logic
+        let behRecords = behDB[student.id] || [];
+        let posCount = 0;
+        let negCount = 0;
+        behRecords.forEach(r => { 
+            if(r.type === 'positive') posCount++; 
+            if(r.type === 'negative') negCount++; 
+        });
+
+        // Nutrition Logic
+        let nd = nutDB[student.id] || { breakfast:0, lunch:0, snack:0 };
+        let nutAvg = Math.round((nd.breakfast + nd.lunch + nd.snack) / 3);
+
+        globalCompiledData[student.id] = {
+            name: student.name,
+            initial: student.initial,
+            img: student.img,
+            attStr: `${daysPresent}/${totalTrackedDays > 0 ? totalTrackedDays : 0}`,
+            daysPresent: daysPresent,
+            totalDays: totalTrackedDays > 0 ? totalTrackedDays : 0,
+            lateArrivals: lateArrivals,
+            milePct: milePct,
+            skillsAchieved: skillsAchieved,
+            totalSkills: totalSkills,
+            posBeh: posCount,
+            nutAvg: nutAvg
+        };
+
+        // ALERTS LOGIC
+        if (negCount > 2) {
+            alertsHtml += `<div style="border-left: 4px solid #e74a3b; padding:15px; margin-bottom:15px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
+                <div style="font-weight:bold; color:#e74a3b; margin-bottom:5px;">Behavior Warning</div>
+                ${student.name} has ${negCount} negative behavior incidents logged. <em>Recommendation: Reach out to parents to discuss.</em></div>`;
+            dynamicAlertsCount++;
+        }
+        if (milePct < 50 && totalSkills > 0) {
+            alertsHtml += `<div style="border-left: 4px solid #f6c23e; padding:15px; margin-bottom:15px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
+                <div style="font-weight:bold; color:#f6c23e; margin-bottom:5px;">Milestone Delay</div>
+                ${student.name} is tracking low on developmental milestones (${milePct}%).</div>`;
+            dynamicAlertsCount++;
+        }
+        if (lateArrivals >= 2) {
+            alertsHtml += `<div style="border-left: 4px solid #4a90e2; padding:15px; margin-bottom:10px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
+                <div style="font-weight:bold; color:#4a90e2; margin-bottom:5px;">Attendance Drop</div>
+                ${student.name} has ${lateArrivals} late arrivals this week, impacting morning routine stability.</div>`;
+            dynamicAlertsCount++;
+        }
+    });
+
+    const alertContainer = document.getElementById('dynamic-alerts-container');
+    if (dynamicAlertsCount === 0) {
+        alertContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No pending alerts for this week.</p>`;
+    } else {
+        alertContainer.innerHTML = alertsHtml;
+    }
+    document.getElementById('alerts-pending-val').innerText = dynamicAlertsCount;
+}
+
+function renderDigest() {
+    const container = document.getElementById('digest-container');
+    container.innerHTML = '';
+
+    if (studentsMaster.length === 0) {
+        container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to begin generating performance digests.</p></div>`;
+        return;
+    }
+
+    const weekLabel = "Current Week";
+
+    studentsMaster.forEach(student => {
+        let d = globalCompiledData[student.id];
+        let avatarHtml = d.img ? `<img src="${d.img}" style="width:100%; height:100%; object-fit:cover;">` : d.initial;
+
+        let lateHtml = d.lateArrivals > 0 ? `<div class="status-sub" style="color:#e74a3b;">${d.lateArrivals} late arrivals</div>` : `<div class="status-sub">On time average</div>`;
+
+        const html = `
+        <div class="student-row">
+            <div class="student-header">
+                <div class="student-info">
+                    <div class="avatar">${avatarHtml}</div>
+                    <div>
+                        <h4>${d.name}</h4>
+                        <p>Report for ${weekLabel}</p>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="openModal('${student.id}')">✉ Send Report</button>
+            </div>
+            
+            <div class="status-grid">
+                <div class="status-box box-att">
+                    <div class="status-title">Attendance</div>
+                    <div class="status-val">${d.attStr} days</div>
+                    ${lateHtml}
+                </div>
+                
+                <div class="status-box box-mile">
+                    <div class="status-title">Milestones</div>
+                    <div class="status-val">${d.milePct}% Complete</div>
+                    <div class="status-sub">${d.skillsAchieved}/${d.totalSkills} skills</div>
+                </div>
+                
+                <div class="status-box box-beh">
+                    <div class="status-title">Behavior</div>
+                    <div class="status-val">${d.posBeh} Positive</div>
+                    <div class="status-sub">recorded interactions</div>
+                </div>
+                
+                <div class="status-box box-nut">
+                    <div class="status-title">Nutrition</div>
+                    <div class="status-val">${d.nutAvg}% Avg</div>
+                    <div class="status-sub">Meal intake</div>
+                </div>
+            </div>
+        </div>`;
+        container.innerHTML += html;
+    });
+}
+
+// Modal Logic
+let currentActionStudentId = null;
+
+function openModal(studentId) {
+    let d = globalCompiledData[studentId];
+    currentActionStudentId = studentId;
+    
+    document.getElementById('m-name').innerText = d.name;
+    document.getElementById('m-att').innerText = `Present ${d.daysPresent} out of ${d.totalDays} tracked days`;
+    document.getElementById('m-mile').innerText = `${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)`;
+    document.getElementById('m-beh').innerText = `${d.posBeh} positive behaviors recorded`;
+    document.getElementById('m-nut').innerText = `Average meal intake of ${d.nutAvg}%`;
+    document.getElementById('modal-msg-note').value = ""; // clear previous note
+    
+    document.getElementById('sendModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('sendModal').classList.remove('active');
+    currentActionStudentId = null;
+}
+
+function openAlertModal() { document.getElementById('alertModal').classList.add('active'); }
+function closeAlertModal() { document.getElementById('alertModal').classList.remove('active'); }
+
+function openHistoryModal() { 
+    renderHistory();
+    document.getElementById('historyModal').classList.add('active'); 
+}
+function closeHistoryModal() { document.getElementById('historyModal').classList.remove('active'); }
+
+function confirmSend() {
+    if(!currentActionStudentId) return;
+
+    // Increment global counter
+    let count = parseInt(localStorage.getItem('bmv3_msgs_sent')) || 0;
+    count++;
+    localStorage.setItem('bmv3_msgs_sent', count);
+    document.getElementById('msg-sent-counter').innerText = count;
+    
+    let studentName = document.getElementById('m-name').innerText;
+    let optionalNote = document.getElementById('modal-msg-note').value;
+    
+    // BUILD THE REAL REPORT FOR PARENT
+    let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+    if(!reportsDB[currentActionStudentId]) reportsDB[currentActionStudentId] = [];
+
+    // Parse values purely for the string
+    let d_att = document.getElementById('m-att').innerText;
+    let d_mile = document.getElementById('m-mile').innerText;
+    let d_beh = document.getElementById('m-beh').innerText;
+    let d_nut = document.getElementById('m-nut').innerText;
+
+    reportsDB[currentActionStudentId].unshift({
+        title: "Weekly Performance Digest",
+        date: new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'}),
+        body: `Teacher's Weekly Performance Report\n\nAttendance: ${d_att}\nMilestones: ${d_mile}\nBehavior: ${d_beh}\nNutrition: ${d_nut}\n\nTeacher's Note:\n${optionalNote || "No additional comments."}`
+    });
+    localStorage.setItem('bmv3_reports', JSON.stringify(reportsDB));
+
+    // Also push to generic teacher history log
+    let reportHistory = JSON.parse(localStorage.getItem('bmv3_report_history')) || [];
+    let sentInfo = `Weekly Digest attached.`;
+    if(optionalNote.trim().length > 0) {
+        sentInfo += `<br><span style="color:#666; font-style:italic;">"${optionalNote}"</span>`;
+    }
+
+    reportHistory.unshift({ 
+        title: `Manual Report Sent to Parent of ${studentName}`, 
+        info: sentInfo,
+        date: new Date().toLocaleString() 
+    });
+    localStorage.setItem('bmv3_report_history', JSON.stringify(reportHistory));
+
+    closeModal();
+    alert("Weekly Report sent securely to parent's Message Inbox!");
+}
+
+function sendAllReports() {
+    if (studentsMaster.length === 0) {
+        alert("No students to send reports for.");
+        return;
+    }
+
+    let count = parseInt(localStorage.getItem('bmv3_msgs_sent')) || 0;
+    count += studentsMaster.length; 
+    localStorage.setItem('bmv3_msgs_sent', count);
+    document.getElementById('msg-sent-counter').innerText = count;
+
+    // SEND REPORTS TO ALL PARENTS
+    let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+    let dateStr = new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'});
+    
+    studentsMaster.forEach(st => {
+        let d = globalCompiledData[st.id];
+        if(!reportsDB[st.id]) reportsDB[st.id] = [];
+        
+        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)\nBehavior: ${d.posBeh} positive behaviors recorded\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
+        
+        reportsDB[st.id].unshift({
+            title: "Automated Weekly Report",
+            date: dateStr,
+            body: reportBody
+        });
+    });
+    localStorage.setItem('bmv3_reports', JSON.stringify(reportsDB));
+    
+    // Auto add to generic teacher history
+    let reportHistory = JSON.parse(localStorage.getItem('bmv3_report_history')) || [];
+    reportHistory.unshift({ 
+        title: `Auto Batch: ${studentsMaster.length} Reports Sent`, 
+        info: `System automatically dispatched weekly performance digests to all ${studentsMaster.length} currently enrolled students.`,
+        date: new Date().toLocaleString() 
+    });
+    localStorage.setItem('bmv3_report_history', JSON.stringify(reportHistory));
+
+    alert(`Awesome! All ${studentsMaster.length} Weekly Reports have been dispatched automatically to individual parent Inboxes.`);
+    document.getElementById('reports-ready-val').innerText = '0';
+    let cards = document.querySelectorAll('.kpi-card');
+    if(cards.length > 0) {
+        cards[0].style.pointerEvents = 'none';
+        cards[0].style.opacity = '0.6';
+    }
+}
+
+function renderHistory() {
+    let reportHistory = JSON.parse(localStorage.getItem('bmv3_report_history')) || [];
+    let container = document.getElementById('history-log-container');
+    if(!container) return;
+    
+    let html = '';
+    reportHistory.forEach(h => {
+        html += `<div style="padding:15px; border-bottom:1px solid #eee;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <strong style="color:#4a90e2;">${h.title}</strong>
+                <span style="color:#777; font-size:0.85rem;">${h.date}</span>
+            </div>
+            <div style="font-size:0.9rem; color:#444;">${h.info || ''}</div>
+        </div>`;
+    });
+    // Placeholder 
+    if (reportHistory.length === 0) {
+        html = `<p style="text-align:center; color:#888; padding:20px;">No messages sent yet.</p>`;
+    }
+    container.innerHTML = html;
+}
+
+// Initialize
+compileData();
+renderDigest();
+renderHistory();
+
+</script>
+
+{% endblock content %}
