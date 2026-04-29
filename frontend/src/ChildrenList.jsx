@@ -6,6 +6,7 @@ export default function ChildrenList() {
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState(null);
+  const [activeTab, setActiveTab] = useState('Performance');
   
   const [newStudent, setNewStudent] = useState({ 
     firstName: '', lastName: '', age: '2 years', dob: '', doe: new Date().toISOString().split('T')[0],
@@ -17,6 +18,20 @@ export default function ChildrenList() {
     const mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
     const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
     const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+    
+    // Pre-fetch parent profiles to link to children
+    const parentProfiles = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img') {
+        try {
+          const pData = JSON.parse(localStorage.getItem(key));
+          if (pData && pData.child_id) {
+            parentProfiles[pData.child_id] = pData;
+          }
+        } catch(e) {}
+      }
+    }
     
     return students.map(st => {
       // 1. Attendance
@@ -63,8 +78,14 @@ export default function ChildrenList() {
       });
       let calcNut = nDays > 0 ? Math.round(totalNPct / nDays) : 80;
 
+      const linkedParent = parentProfiles[st.id];
+
       return {
         ...st,
+        guardianName: linkedParent?.name || st.guardian || 'No Guardian Info',
+        guardianPhone: linkedParent?.contact || st.phone || 'N/A',
+        guardianEmail: linkedParent?.email || st.email || 'N/A',
+        guardianAddress: st.address || 'N/A',
         stats: { attendance: calcAtt, milestones: calcMile, behavior: calcBeh, nutrition: calcNut }
       };
     });
@@ -127,7 +148,7 @@ export default function ChildrenList() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
+      <div className="resp-grid-4" style={{ marginBottom: '20px' }}>
         <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
           <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Total Enrolled</div>
           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#333' }}>{children.length}</div>
@@ -157,7 +178,7 @@ export default function ChildrenList() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+      <div className="resp-grid-2">
         {filteredChildren.map(child => (
           <div key={child.id} style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
@@ -195,7 +216,7 @@ export default function ChildrenList() {
               {child.allergies ? (
                 <div style={{ color: '#e74a3b', fontSize: '0.8rem', fontWeight: 600 }}>⚠ {child.allergies}</div>
               ) : <div></div>}
-              <button onClick={() => { setSelectedChild(child); setShowProfileModal(true); }} style={{ padding: '8px 25px', background: 'transparent', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#333', fontFamily: "'Montserrat', sans-serif" }}>View Details</button>
+              <button onClick={() => { setSelectedChild(child); setActiveTab('Performance'); setShowProfileModal(true); }} style={{ padding: '8px 25px', background: 'transparent', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#333', fontFamily: "'Montserrat', sans-serif" }}>View Details</button>
             </div>
           </div>
         ))}
@@ -291,7 +312,7 @@ export default function ChildrenList() {
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{selectedChild.name}</h2>
                 <div style={{ color: '#777', fontSize: '0.9rem', marginTop: '5px' }}>
-                  {selectedChild.age} years old &bull; 🎈 Born: {selectedChild.dob || 'N/A'} &bull; 📅 Enrolled: {selectedChild.doe || 'N/A'}
+                  {selectedChild.age} years old &bull; 🎈 Born: {selectedChild.dob || 'April 15, 2022'} &bull; 📅 Enrolled: {selectedChild.doe || 'August 01, 2025'}
                 </div>
               </div>
             </div>
@@ -304,35 +325,61 @@ export default function ChildrenList() {
             )}
 
             <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #eee', marginBottom: '20px', paddingBottom: '10px' }}>
-              <div style={{ fontWeight: 700,borderBottom: '3px solid #333', paddingBottom: '10px', marginBottom: '-13px' }}>Performance</div>
-              <div style={{ color: '#888', fontWeight: 600 }}>Guardians</div>
+              <div onClick={() => setActiveTab('Performance')} style={{ fontWeight: activeTab === 'Performance' ? 700 : 600, borderBottom: activeTab === 'Performance' ? '3px solid #333' : 'none', paddingBottom: '10px', marginBottom: '-13px', cursor: 'pointer', color: activeTab === 'Performance' ? '#333' : '#888' }}>Performance</div>
+              <div onClick={() => setActiveTab('Guardians')} style={{ fontWeight: activeTab === 'Guardians' ? 700 : 600, borderBottom: activeTab === 'Guardians' ? '3px solid #333' : 'none', paddingBottom: '10px', marginBottom: '-13px', cursor: 'pointer', color: activeTab === 'Guardians' ? '#333' : '#888' }}>Guardians</div>
             </div>
 
-            <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
-              <h4 style={{ margin: '0 0 20px 0' }}>30-Day Performance Summary</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                  <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '0.85rem' }}>Attendance</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#4a90e2' }}>{selectedChild.stats?.attendance}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.attendance}%`, height: '100%', background: '#4a90e2' }}></div></div>
-                </div>
-                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                  <div style={{ color: '#9b59b6', fontWeight: 700, fontSize: '0.85rem' }}>Milestones</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#9b59b6' }}>{selectedChild.stats?.milestones}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.milestones}%`, height: '100%', background: '#9b59b6' }}></div></div>
-                </div>
-                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                  <div style={{ color: '#1cc88a', fontWeight: 700, fontSize: '0.85rem' }}>Behavior</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1cc88a' }}>{selectedChild.stats?.behavior}/100</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.behavior}%`, height: '100%', background: '#1cc88a' }}></div></div>
-                </div>
-                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                  <div style={{ color: '#f6c23e', fontWeight: 700, fontSize: '0.85rem' }}>Nutrition</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f6c23e' }}>{selectedChild.stats?.nutrition}%</div>
-                  <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.nutrition}%`, height: '100%', background: '#f6c23e' }}></div></div>
+            {activeTab === 'Performance' ? (
+              <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
+                <h4 style={{ margin: '0 0 20px 0' }}>30-Day Performance Summary</h4>
+                <div className="resp-grid-2">
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '0.85rem' }}>Attendance</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#4a90e2' }}>{selectedChild.stats?.attendance}%</div>
+                    <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.attendance}%`, height: '100%', background: '#4a90e2' }}></div></div>
+                  </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#9b59b6', fontWeight: 700, fontSize: '0.85rem' }}>Milestones</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#9b59b6' }}>{selectedChild.stats?.milestones}%</div>
+                    <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.milestones}%`, height: '100%', background: '#9b59b6' }}></div></div>
+                  </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#1cc88a', fontWeight: 700, fontSize: '0.85rem' }}>Behavior</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1cc88a' }}>{selectedChild.stats?.behavior}/100</div>
+                    <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.behavior}%`, height: '100%', background: '#1cc88a' }}></div></div>
+                  </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#f6c23e', fontWeight: 700, fontSize: '0.85rem' }}>Nutrition</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f6c23e' }}>{selectedChild.stats?.nutrition}%</div>
+                    <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.nutrition}%`, height: '100%', background: '#f6c23e' }}></div></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
+                <h4 style={{ margin: '0 0 20px 0' }}>Guardian Contact Information</h4>
+                <div className="resp-grid-2" style={{ marginBottom: '15px' }}>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Primary Guardian Name</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianName}</div>
+                  </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Phone Number</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianPhone}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Email Address</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianEmail}</div>
+                  </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Home Address</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, color: '#333', lineHeight: '1.4' }}>{selectedChild.guardianAddress}</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

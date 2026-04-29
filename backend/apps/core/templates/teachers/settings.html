@@ -640,6 +640,16 @@ input:checked + .slider:before { transform: translateX(26px); }
         localStorage.setItem('bmv3_msgs_sent', '0');
         localStorage.setItem('bmv3_report_history', '[]');
 
+        // Remove all parent profiles so they are logged out for the new year
+        let keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            if (key.startsWith('bmv3_parent_profile_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+
         document.getElementById('archiveName').value = '';
         loadArchives();
         showToast("System successfully reset for the new academic year!", "success");

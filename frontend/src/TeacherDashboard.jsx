@@ -128,8 +128,8 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-in', fontFamily: "'Montserrat', sans-serif" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+    <div className="resp-fade-in">
+      <div className="resp-flex-between" style={{ marginBottom: '25px' }}>
         <div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#333' }}>Operational Dashboard</h2>
           <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Real-time monitoring and analytics • {new Date().toLocaleDateString()}</p>
@@ -137,75 +137,75 @@ export default function TeacherDashboard() {
       </div>
 
       {/* KPI Cards Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
+      <div className="resp-grid-4" style={{ marginBottom: '25px' }}>
         <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#063970', color: '#fff', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: 'none', position: 'relative' }}>
+          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
             <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Total Enrolled</div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', color: 'rgba(255,255,255,0.7)', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
+            <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#777', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
             <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 'auto' }}>Active children</div>
+            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Active children</div>
           </div>
         </a>
         <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#063970', color: '#fff', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: 'none', position: 'relative' }}>
+          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
             <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Today's Attendance</div>
             <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-calendar-check"></i></div>
             <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 'auto' }}>{stats.absent} absent today, {Math.max(0, stats.total - (stats.present + stats.absent))} untracked</div>
+            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.absent} absent today, {Math.max(0, stats.total - (stats.present + stats.absent))} untracked</div>
           </div>
         </a>
         <a href="/behavior/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#063970', color: '#fff', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: '2px solid ' + (stats.risk > 0 ? '#e74a3b' : 'transparent'), height: '100%', cursor: 'pointer', position: 'relative' }}>
+          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.risk > 0 ? '2px solid #e74a3b' : '1px solid #000', height: '100%', cursor: 'pointer', position: 'relative' }}>
             <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Children at Risk</div>
             <div style={{ position: 'absolute', top: '15px', right: '20px', color: stats.risk > 0 ? '#e74a3b' : '#f6c23e', fontSize: '1rem' }}><i className="fa-solid fa-triangle-exclamation"></i></div>
             <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.risk}</div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 'auto' }}>{stats.risk > 0 ? 'Require attention' : 'All clear'}</div>
+            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.risk > 0 ? 'Require attention' : 'All clear'}</div>
           </div>
         </a>
         <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#063970', color: '#fff', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: 'none', position: 'relative' }}>
+          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
             <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Milestone Progress</div>
             <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-chart-line"></i></div>
             <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.milestonePct}%</div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 'auto' }}>Overall completion</div>
+            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Overall completion</div>
           </div>
         </a>
       </div>
 
       {/* Row 2: Attendance Trend (Wide) + Behavior Distribution (Narrow) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)', gap: '15px', marginBottom: '20px' }}>
-        <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '8px', border: 'none' }}>
+      <div className="resp-grid-2-ratio" style={{ marginBottom: '20px' }}>
+        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
           <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
-          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Daily attendance tracking</p>
+          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
           <div style={{ height: '220px' }}>
-            <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: 'rgba(255,255,255,0.8)', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: 'rgba(255,255,255,0.8)', font: { family: 'Montserrat' } }, grid: { color: 'rgba(255,255,255,0.1)' } } }, plugins: { legend: { display: false } } }} />
+            <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
           </div>
         </div>
         
-        <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '8px', border: 'none' }}>
+        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
           <div style={{ fontWeight: 600, marginBottom: '5px' }}>Behavior Distribution (All Time)</div>
-           <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Behavioral patterns analysis</p>
+           <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Behavioral patterns analysis</p>
           <div style={{ height: '220px', display: 'flex', justifyContent: 'center' }}>
-            <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff', boxWidth: 15, font: { family: 'Montserrat', size: 10 } } } } }} />
+            <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#333', boxWidth: 15, font: { family: 'Montserrat', size: 10 } } } } }} />
           </div>
         </div>
       </div>
 
       {/* Row 3: Nutrition (Wide Big Number) + Risk Alerts (Narrow) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1fr)', gap: '15px', marginBottom: '20px' }}>
-         <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '8px', border: 'none', display: 'flex', flexDirection: 'column' }}>
+      <div className="resp-grid-2-ratio" style={{ marginBottom: '20px' }}>
+         <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontWeight: 600, marginBottom: '5px' }}>Average Nutrition Intake (Last Recorded)</div>
-          <p style={{ margin: '0 0 auto 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Meal consumption percentage</p>
+          <p style={{ margin: '0 0 auto 0', fontSize: '0.8rem', color: '#777' }}>Meal consumption percentage</p>
           
           <div style={{ alignSelf: 'center', textAlign: 'center', marginBottom: '30px' }}>
               <div style={{ fontSize: '4.5rem', fontWeight: 900, color: '#f6c23e', lineHeight: '1' }}>{stats.nutritionPct}%</div>
-              <div style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: '10px' }}>Class Average Intake</div>
+              <div style={{ fontSize: '1rem', color: '#777', fontWeight: 600, marginTop: '10px' }}>Class Average Intake</div>
           </div>
         </div>
 
-        <div style={{ background: '#063970', color: '#fff', padding: '20px', borderRadius: '8px', border: 'none', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontWeight: 600, marginBottom: '10px' }}>Risk Alerts Status</div>
-          <p style={{ margin: '0 0 auto 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>System intelligence monitoring</p>
+          <p style={{ margin: '0 0 auto 0', fontSize: '0.8rem', color: '#777' }}>System intelligence monitoring</p>
           
           <div style={{ alignSelf: 'center', textAlign: 'center', marginBottom: '20px', display:'flex', flexDirection:'column', alignItems:'center' }}>
             {stats.risk === 0 ? (
@@ -223,22 +223,7 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Row 4: System Status */}
-      <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #ddd' }}>
-        <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>System Status & Automation</h4>
-        <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Real-time monitoring systems</p>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          {['Access Control', 'Attendance Monitor', 'Behavior Analysis', 'Nutrition Tracking'].map(sys => (
-            <div key={sys} style={{ flex: 1, border: '1px solid #ddd', padding: '15px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <div style={{ color: '#1cc88a', fontSize: '1.2rem' }}><i className="fa-regular fa-circle-check"></i></div>
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#333' }}>{sys}</div>
-                <div style={{ fontSize: '0.75rem', color: '#1cc88a', fontWeight: 600 }}>Active</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
     </div>
   );
 }

@@ -47,11 +47,7 @@
 .stat-block.neutral { background: #fdfdfd; border-color: #b8daff; }
 .stat-block.neutral .stat-title, .stat-block.neutral .stat-val { color: #4a90e2; }
 
-/* Automated Filters */
-.auto-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
-.auto-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }
-.auto-card .title { font-weight: 600; color: #1cc88a; font-size: 0.9rem; margin-bottom: 5px; }
-.auto-card .desc { font-size: 0.75rem; color: #666; }
+
 
 /* Empty State */
 .empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
@@ -61,12 +57,10 @@
 @media (max-width: 900px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
     .stat-blocks { grid-template-columns: repeat(2, 1fr); }
-    .auto-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 500px) {
     .kpi-row { grid-template-columns: 1fr; }
     .stat-blocks { grid-template-columns: 1fr; }
-    .auto-grid { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -110,16 +104,7 @@
         </div>
     </div>
 
-    <!-- Pattern Recognition Bottom -->
-    <div class="behavior-section" style="margin-top:20px;">
-        <h3 style="font-size:1.1rem; margin:0 0 10px 0;">Automated System Features</h3>
-        <div class="auto-grid">
-            <div class="auto-card"><div class="title">✓ Objective Logs</div><div class="desc">Teachers log behaviors directly into secure system</div></div>
-            <div class="auto-card"><div class="title">✓ Streak Analytics</div><div class="desc">Pattern algorithms highlight consistent positive behavior</div></div>
-            <div class="auto-card"><div class="title">✓ Stability Scoring</div><div class="desc">Formula calculates objective overall behavior score</div></div>
-            <div class="auto-card"><div class="title">✓ Read-Only Safety</div><div class="desc">Parents receive purely transparent logs</div></div>
-        </div>
-    </div>
+
 </div>
 
 <script>

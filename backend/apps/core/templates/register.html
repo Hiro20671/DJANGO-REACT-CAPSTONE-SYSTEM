@@ -399,8 +399,35 @@
         let match = studentsMaster.find(st => st.name.toLowerCase() === inputName);
 
         if(match) {
+            // Enforce max 2 parent accounts per child
+            let parentCount = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img' && key !== 'bmv3_parent_profile_data') {
+                    try {
+                        let pData = JSON.parse(localStorage.getItem(key));
+                        if (pData && pData.child_id === match.id) {
+                            parentCount++;
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            if (parentCount >= 2) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: This child already has the maximum of 2 parent accounts (e.g., Mother and Father) linked.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
             validChildId = match.id;
-            document.getElementById('verify-error').style.display = 'none';
+            let errDiv = document.getElementById('verify-error');
+            errDiv.innerText = "No match found. Please check spelling or contact the teacher."; // reset to default
+            errDiv.style.display = 'none';
             document.getElementById('childMatchCard').style.display = 'block';
             document.getElementById('verifiedChildName').innerText = match.name;
             document.getElementById('verifiedChildAge').innerText = "Student ID: " + match.id + " | Age: " + match.age;
@@ -410,7 +437,9 @@
             document.getElementById('btn-next-2').style.pointerEvents = 'all';
         } else {
             validChildId = null;
-            document.getElementById('verify-error').style.display = 'block';
+            let errDiv = document.getElementById('verify-error');
+            errDiv.innerText = "No match found. Please check spelling or contact the teacher.";
+            errDiv.style.display = 'block';
             document.getElementById('childMatchCard').style.display = 'none';
             
             // Disable next

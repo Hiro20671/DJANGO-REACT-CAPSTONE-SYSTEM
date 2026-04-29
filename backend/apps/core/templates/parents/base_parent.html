@@ -234,8 +234,13 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            padding: 15px 0;
             margin-bottom: 20px;
             gap: 15px;
+            position: sticky;
+            top: 0;
+            background-color: #f4f7f6;
+            z-index: 99;
         }
 
         .mobile-sidebar-toggle {
@@ -410,14 +415,9 @@
         }
 
         /* --- Dark Mode Styles --- */
-        html.dark-mode body {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-
-        html.dark-mode .sidebar {
-            background-color: #04254a;
-        }
+        html.dark-mode body { background-color: #121212; color: #e0e0e0; }
+        html.dark-mode .top-nav-right { background-color: #121212; }
+        html.dark-mode .sidebar { background-color: #04254a; }
 
         html.dark-mode .sidebar-header {
             border-bottom-color: rgba(255,255,255,0.1);
