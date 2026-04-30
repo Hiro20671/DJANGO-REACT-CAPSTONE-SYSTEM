@@ -70,9 +70,7 @@
         <p>Review real-time meal intake and eating patterns</p>
     </div>
     <div>
-        <select style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block; margin-right:10px;">
-            <option>Last Recorded</option>
-        </select>
+        <input type="date" id="overviewDate" onchange="renderDashboard()" style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block; margin-right:10px;">
     </div>
 </div>
 
@@ -116,15 +114,20 @@
     
     // ISOLATION FIX
     const cUser = "{{ request.user.username }}";
-    let linkedId = null;
-    let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
-    if(pStr) linkedId = JSON.parse(pStr).child_id;
+    let linkedId = localStorage.getItem('linked_child_id');
+    if (linkedId) {
+        linkedId = parseInt(linkedId);
+    } else {
+        let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
+        if(pStr) linkedId = JSON.parse(pStr).child_id;
+    }
     if(linkedId) {
         studentsMaster = studentsMaster.filter(st => st.id === linkedId);
     } else {
         studentsMaster = [];
     }
     let nutritionDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+    let growthDB = JSON.parse(localStorage.getItem('bmv3_growth')) || {};
 
     function renderDashboard() {
         const container = document.getElementById('student-list-container');
@@ -143,8 +146,13 @@
         let concerns = 0;
         let totalAllergies = 0;
 
+        const overviewDate = document.getElementById('overviewDate').value;
+
         studentsMaster.forEach(st => {
-            let data = nutritionDB[st.id] || { breakfast:0, lunch:0, snack:0 };
+            let data = { breakfast: 0, lunch: 0, snack: 0 };
+            if (nutritionDB[st.id] && nutritionDB[st.id][overviewDate]) {
+                data = nutritionDB[st.id][overviewDate];
+            }
             
             // Calc overall
             let avg = Math.round((data.breakfast + data.lunch + data.snack) / 3);
@@ -188,8 +196,35 @@
                         <div class="meal-name">🍎 Snack</div>
                         <div class="meal-pct">${data.snack}%</div>
                     </div>
+                </div>`;
+
+            // Append BMI row if available
+            const growth = growthDB[st.id];
+            if(growth && growth.height && growth.weight) {
+                const hMeters = growth.height / 100;
+                const bmi = (growth.weight / (hMeters * hMeters)).toFixed(1);
+                let badgeClass = 'ontrack'; // We'll borrow the css pill classes
+                let badgeText = 'Normal Health';
+                let col = '#1cc88a';
+                if(bmi < 15) { badgeClass = 'support'; badgeText = 'Underweight / Malnourished'; col = '#e74a3b'; }
+                else if (bmi > 19) { badgeClass = 'delayed'; badgeText = 'Overweight'; col = '#f6c23e'; }
+
+                html += `
+                <div style="background:#fdfdfd; padding:15px; border-radius:8px; border:1px solid #eee; display:flex; justify-content:space-between; align-items:center; margin-top: 15px;">
+                    <div>
+                        <div style="font-size:0.9rem; font-weight:700; color:#333; margin-bottom:5px;">Physical Growth & BMI</div>
+                        <div style="font-size:0.8rem; color:#777;">Height: ${growth.height} cm &bull; Weight: ${growth.weight} kg</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:1.6rem; font-weight:800; color:${col};">${bmi}</div>
+                        <div style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid ${col}; color:${col}; margin-top:5px; display:inline-block;">${badgeText}</div>
+                    </div>
                 </div>
-            </div>`;
+                </div>`;
+            } else {
+                html += `</div>`;
+            }
+
             container.innerHTML += html;
         });
 
@@ -201,6 +236,8 @@
     }
 
     // Startup
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('overviewDate').value = todayStr;
     renderDashboard();
 
 </script>

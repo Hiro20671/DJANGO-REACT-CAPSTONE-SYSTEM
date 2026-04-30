@@ -10,106 +10,113 @@ export default function TeacherDashboard() {
   const [attendanceChart, setAttendanceChart] = useState({ labels: [], data: [] });
 
   useEffect(() => {
-    // Read all feature databases from prototype storage
-    const students = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    const attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
-    const mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
-    const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
-    const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
+    // Fetch students and attendance from API, read the rest from prototype localStorage
+    Promise.all([
+      fetch('/api/children/').then(r => r.json()),
+      fetch('/api/attendance/').then(r => r.json())
+    ]).then(([students, attRecords]) => {
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isToday = (dStr) => dStr === todayStr || (dStr && dStr.startsWith(todayStr));
+      
+      const mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
+      const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
+      const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
 
-    // 1. Attendance & Total
-    const todayStr = new Date().toISOString().split('T')[0];
-    let presentCount = 0, absentCount = 0;
-    if (attDB[todayStr]) {
+      // 1. Attendance & Total
+      let presentCount = 0, absentCount = 0;
       students.forEach(st => {
-        if (attDB[todayStr][st.id] === 'present') presentCount++;
-        else if (attDB[todayStr][st.id] === 'absent') absentCount++;
+        const todayAtt = attRecords.find(a => a.child === st.id && isToday(a.date));
+        if (todayAtt) {
+          if (todayAtt.status.toLowerCase() === 'present') presentCount++;
+          else if (todayAtt.status.toLowerCase() === 'absent') absentCount++;
+        }
       });
-    }
 
-    // 2. Milestones & Risk Analysis
-    let riskCount = 0;
-    let totalAchieved = 0;
-    const TOTAL_POSSIBLE = 16;
-    
-    students.forEach(st => {
-      let isRisk = false;
+      // 2. Milestones & Risk Analysis
+      let riskCount = 0;
+      let totalAchieved = 0;
+      const TOTAL_POSSIBLE = 16;
       
-      let mRecs = mileDB[st.id] || {};
-      let ach = 0;
-      Object.keys(mRecs).forEach(k => { if (mRecs[k] === 'achieved') ach++; });
-      totalAchieved += ach;
-      if (ach / TOTAL_POSSIBLE < 0.6) isRisk = true;
-      
-      let bRecs = behDB[st.id] || [];
-      let negCount = 0, posCount = 0;
-      bRecs.forEach(r => {
-        if(r.type === 'negative') negCount++;
-        else if (r.type === 'positive') posCount++;
+      students.forEach(st => {
+        let isRisk = false;
+        
+        let mStudent = mileDB[st.id] || {};
+        let ach = 0;
+        Object.values(mStudent).forEach(dateRecord => {
+           let dailyAch = 0;
+           Object.values(dateRecord).forEach(v => { if (v === 'achieved') dailyAch++; });
+           if (dailyAch > ach) ach = dailyAch;
+        });
+        totalAchieved += ach;
+        if (ach / TOTAL_POSSIBLE < 0.6) isRisk = true;
+        
+        let bRecs = behDB[st.id] || [];
+        let negCount = 0, posCount = 0;
+        bRecs.forEach(r => {
+          if(r.type === 'negative') negCount++;
+          else if (r.type === 'positive') posCount++;
+        });
+        if (negCount > posCount && negCount > 0) isRisk = true;
+
+        if (isRisk) riskCount++;
       });
-      if (negCount > posCount && negCount > 0) isRisk = true;
 
-      if (isRisk) riskCount++;
-    });
+      let avgMilestone = students.length > 0 ? Math.round((totalAchieved / (students.length * TOTAL_POSSIBLE)) * 100) : 0;
 
-    let avgMilestone = students.length > 0 ? Math.round((totalAchieved / (students.length * TOTAL_POSSIBLE)) * 100) : 0;
-
-    // 3. Behavior Distribution Chart
-    let gPos = 0, gNeu = 0, gNeg = 0;
-    Object.values(behDB).forEach(records => {
-      records.forEach(r => {
-        if(r.type === 'positive') gPos++;
-        else if(r.type === 'neutral') gNeu++;
-        else if(r.type === 'negative') gNeg++;
+      // 3. Behavior Distribution Chart
+      let gPos = 0, gNeu = 0, gNeg = 0;
+      Object.values(behDB).forEach(bRecs => {
+        bRecs.forEach(r => {
+          if(r.type === 'positive') gPos++;
+          else if(r.type === 'neutral') gNeu++;
+          else if(r.type === 'negative') gNeg++;
+        });
       });
-    });
-    setBehaviorChart([gPos || 18, gNeu || 11, gNeg || 2]); // fallback mockup data if completely empty
+      setBehaviorChart([gPos, gNeu, gNeg]);
 
-    // 4. Attendance Trend Bar Chart (Last 7 Days)
-    let attLabels = [];
-    let attData = [];
-    let hasAttData = false;
-    for (let i = 6; i >= 0; i--) {
-      let d = new Date();
-      d.setDate(d.getDate() - i);
-      let ds = d.toISOString().split('T')[0];
-      attLabels.push(ds);
+      // 4. Attendance Trend Bar Chart (Last 7 Days)
+      let attLabels = [];
+      let attData = [];
       
-      let presentOnDay = 0;
-      if (attDB[ds]) {
-        students.forEach(st => {
-           if (attDB[ds][st.id] === 'present') {
+      const isSameDay = (d1, d2Str) => {
+        const d2 = new Date(d2Str);
+        return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+      };
+
+      for (let i = 6; i >= 0; i--) {
+        let d = new Date();
+        d.setDate(d.getDate() - i);
+        let ds = d.toISOString().split('T')[0];
+        attLabels.push(ds);
+        
+        let presentOnDay = 0;
+        attRecords.forEach(a => {
+           if (isSameDay(d, a.date) && a.status.toLowerCase() === 'present') {
                presentOnDay++;
-               hasAttData = true;
            }
         });
+        attData.push(presentOnDay);
       }
-      attData.push(presentOnDay);
-    }
-    
-    if(!hasAttData) {
-        attData = [2, 2, 2, 0, 0, 1, 2]; // fallback pattern
-    }
-    setAttendanceChart({ labels: attLabels, data: attData });
+      
+      setAttendanceChart({ labels: attLabels, data: attData });
 
-    // 5. Average Nutrition Intake Number (Latest)
-    let classNutritionPct = 0;
-    let studentsRated = 0;
-    students.forEach(st => {
-        if (nutDB[st.id] && nutDB[st.id][todayStr]) {
-            let mealObj = nutDB[st.id][todayStr];
-            let eaten = 0;
-            if (mealObj.b === 'true' || mealObj.b === true) eaten++;
-            if (mealObj.s1 === 'true' || mealObj.s1 === true) eaten++;
-            if (mealObj.l === 'true' || mealObj.l === true) eaten++;
-            if (mealObj.s2 === 'true' || mealObj.s2 === true) eaten++;
-            classNutritionPct += (eaten / 4) * 100;
-            studentsRated++;
-        }
-    });
-    let avgNut = studentsRated > 0 ? Math.round(classNutritionPct / studentsRated) : 55; // default fallback 55 like mockup
+      // 5. Average Nutrition Intake Number (Latest)
+      let classNutritionPct = 0;
+      let studentsRated = 0;
+      students.forEach(st => {
+          const nStudent = nutDB[st.id] || {};
+          const todayNut = nStudent[todayStr];
+          if (todayNut) {
+              let pct = Math.round(( (todayNut.breakfast || 0) + (todayNut.lunch || 0) + (todayNut.snack || 0) ) / 3);
+              classNutritionPct += pct;
+              studentsRated++;
+          }
+      });
+      let avgNut = studentsRated > 0 ? Math.round(classNutritionPct / studentsRated) : 0;
 
-    setStats({ total: students.length, present: presentCount, absent: absentCount, risk: riskCount, milestonePct: avgMilestone, nutritionPct: avgNut });
+      setStats({ total: students.length, present: presentCount, absent: absentCount, risk: riskCount, milestonePct: avgMilestone, nutritionPct: avgNut });
+    }).catch(err => console.error(err));
   }, []);
 
   const pieData = {
@@ -177,7 +184,7 @@ export default function TeacherDashboard() {
         <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
           <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
           <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
-          <div style={{ height: '220px' }}>
+          <div style={{ height: '220px', position: 'relative', width: '100%' }}>
             <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
           </div>
         </div>
@@ -185,7 +192,7 @@ export default function TeacherDashboard() {
         <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
           <div style={{ fontWeight: 600, marginBottom: '5px' }}>Behavior Distribution (All Time)</div>
            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Behavioral patterns analysis</p>
-          <div style={{ height: '220px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ height: '220px', display: 'flex', justifyContent: 'center', position: 'relative', width: '100%' }}>
             <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#333', boxWidth: 15, font: { family: 'Montserrat', size: 10 } } } } }} />
           </div>
         </div>

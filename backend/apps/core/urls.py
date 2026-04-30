@@ -1,6 +1,14 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views, api_views
+
+router = DefaultRouter()
+router.register(r'children', api_views.ChildViewSet, basename='child')
+router.register(r'attendance', api_views.AttendanceRecordViewSet, basename='attendance')
+router.register(r'milestones', api_views.MilestoneRecordViewSet, basename='milestone')
+router.register(r'behavior', api_views.BehaviorRecordViewSet, basename='behavior')
+router.register(r'nutrition', api_views.NutritionRecordViewSet, basename='nutrition')
 
 urlpatterns = [
     path('', views.login_view, name='login'),
@@ -30,7 +38,9 @@ urlpatterns = [
     path('settings/', views.teacher_settings, name='teacher_settings'),
     
     # API Endpoints
+    path('api/parent/history/', api_views.ParentHistoryAPIView.as_view(), name='api_parent_history'),
+    # Existing API endpoints
     path('api/teacher/dashboard/', api_views.TeacherDashboardStatsAPIView.as_view(), name='api_teacher_dashboard'),
     path('api/parent/dashboard/', api_views.ParentDashboardStatsAPIView.as_view(), name='api_parent_dashboard'),
-    path('api/children/', api_views.ChildListAPIView.as_view(), name='api_children_list'),
+    path('api/', include(router.urls)),
 ]

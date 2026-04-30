@@ -2,6 +2,10 @@
 {% load static django_vite %}
 
 {% block content %}
+<script>
+  window.CURRENT_USER_USERNAME = "{{ request.user.username }}";
+  window.CURRENT_USER_NAME = "{{ request.user.first_name }} {{ request.user.last_name }}".trim() || "{{ request.user.username }}";
+</script>
 <div id="react-parent-dashboard-root"></div>
 {% vite_asset 'src/main.jsx' %}
 {% endblock %}

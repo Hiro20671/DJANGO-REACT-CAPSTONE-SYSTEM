@@ -64,6 +64,14 @@
 .toast.show { opacity: 1; }
 .toast-success { border-left: 5px solid #28a745; }
 .toast-error { border-left: 5px solid #d9534f; }
+
+@media (max-width: 768px) {
+    .summary-container { grid-template-columns: 1fr; }
+    .scanner-input-group { flex-direction: column; }
+    .scanner-input-group span { display: none !important; }
+    .btn-verify { padding: 12px 25px; justify-content: center; }
+    .btn-action { padding: 12px 15px; }
+}
 </style>
 
 <div class="page-header" style="margin-bottom:25px;">

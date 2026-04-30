@@ -104,9 +104,13 @@
     
     // ISOLATION FIX
     const cUser = "{{ request.user.username }}";
-    let linkedId = null;
-    let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
-    if(pStr) linkedId = JSON.parse(pStr).child_id;
+    let linkedId = localStorage.getItem('linked_child_id');
+    if (linkedId) {
+        linkedId = parseInt(linkedId);
+    } else {
+        let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
+        if(pStr) linkedId = JSON.parse(pStr).child_id;
+    }
     if(linkedId) {
         studentsMaster = studentsMaster.filter(st => st.id === linkedId);
     } else {

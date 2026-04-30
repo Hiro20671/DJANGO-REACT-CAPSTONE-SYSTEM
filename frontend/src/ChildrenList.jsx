@@ -10,122 +10,131 @@ export default function ChildrenList() {
   
   const [newStudent, setNewStudent] = useState({ 
     firstName: '', lastName: '', age: '2 years', dob: '', doe: new Date().toISOString().split('T')[0],
-    allergies: '', guardianName: '', phone: '', email: '', address: ''
+    allergies: '', motherName: '', fatherName: '', otherGuardianName: '', phone: '', email: '', address: ''
   });
 
-  const getDynamicStats = (students) => {
-    const attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
-    const mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
-    const behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
-    const nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
-    
-    // Pre-fetch parent profiles to link to children
-    const parentProfiles = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img') {
-        try {
-          const pData = JSON.parse(localStorage.getItem(key));
-          if (pData && pData.child_id) {
-            parentProfiles[pData.child_id] = pData;
-          }
-        } catch(e) {}
-      }
-    }
-    
-    return students.map(st => {
-      // 1. Attendance
-      let totalDays = 0, presentDays = 0;
-      Object.keys(attDB).forEach(date => {
-        if (attDB[date] && attDB[date][st.id]) {
-          totalDays++;
-          if (attDB[date][st.id] === 'present') presentDays++;
-        }
-      });
-      let calcAtt = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 100;
-
-      // 2. Milestones
-      let mRec = mileDB[st.id] || {};
-      let ach = 0;
-      Object.values(mRec).forEach(v => { if(v === 'achieved') ach++; });
-      let calcMile = Math.round((ach / 16) * 100);
-
-      // 3. Behavior
-      let bRec = behDB[st.id] || [];
-      let pos = 0, neg = 0, neu = 0;
-      bRec.forEach(r => {
-        if(r.type === 'positive') pos++;
-        else if(r.type === 'negative') neg++;
-        else if(r.type === 'neutral') neu++;
-      });
-      let totBehaviors = pos + neg + neu;
-      let calcBeh = 100;
-      if (totBehaviors > 0) {
-        calcBeh = Math.round(((pos + neu) / totBehaviors) * 100);
-      }
-
-      // 4. Nutrition
-      let nutRec = nutDB[st.id] || {};
-      let nDays = Object.keys(nutRec).length;
-      let totalNPct = 0;
-      Object.values(nutRec).forEach(day => {
-        let eaten = 0;
-        if(day.b === 'true' || day.b === true) eaten++;
-        if(day.s1 === 'true' || day.s1 === true) eaten++;
-        if(day.l === 'true' || day.l === true) eaten++;
-        if(day.s2 === 'true' || day.s2 === true) eaten++;
-        totalNPct += (eaten / 4) * 100;
-      });
-      let calcNut = nDays > 0 ? Math.round(totalNPct / nDays) : 80;
-
-      const linkedParent = parentProfiles[st.id];
-
-      return {
-        ...st,
-        guardianName: linkedParent?.name || st.guardian || 'No Guardian Info',
-        guardianPhone: linkedParent?.contact || st.phone || 'N/A',
-        guardianEmail: linkedParent?.email || st.email || 'N/A',
-        guardianAddress: st.address || 'N/A',
-        stats: { attendance: calcAtt, milestones: calcMile, behavior: calcBeh, nutrition: calcNut }
-      };
-    });
-  };
-
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    setChildren(getDynamicStats(saved));
+    fetch('/api/children/')
+      .then(res => res.json())
+      .then(data => {
+        // Data coming from API already has stats from the SerializerMethodField!
+        const formattedChildren = data.map(st => {
+          // Look for child image uploaded by parent in local storage prototype DB
+          let localImg = null;
+          for (let i = 0; i < localStorage.length; i++) {
+              let key = localStorage.key(i);
+              if (key.startsWith('bmv3_parent_profile_') && !key.endsWith('_img') && !key.endsWith('_data')) {
+                  try {
+                      let pData = JSON.parse(localStorage.getItem(key));
+                      if (pData && pData.child_id === st.id && pData.child_img) {
+                          localImg = pData.child_img;
+                      }
+                  } catch(e) {}
+              }
+          }
+
+          return {
+            ...st,
+            img: localImg || st.img, // Override with parent-uploaded image if exists
+            name: `${st.first_name} ${st.last_name}`,
+            initial: (st.first_name[0] + st.last_name[0]).toUpperCase(),
+            motherName: st.mother_name || 'No Info',
+            fatherName: st.father_name || 'No Info',
+            otherGuardianName: st.other_guardian_name || 'No Info',
+            guardianPhone: st.phone || 'N/A',
+            guardianEmail: st.email || 'N/A',
+            guardianAddress: st.address || 'N/A'
+          };
+        });
+        setChildren(formattedChildren);
+      })
+      .catch(err => console.error(err));
   }, []);
 
   const handleEnroll = () => {
     if(!newStudent.firstName || !newStudent.lastName) return;
     
-    const initials = newStudent.firstName[0] + newStudent.lastName[0];
-    const newEntry = {
-      id: 'st_' + Date.now(),
-      name: `${newStudent.firstName} ${newStudent.lastName}`,
-      first_name: newStudent.firstName,
-      last_name: newStudent.lastName,
-      age: parseInt(newStudent.age),
-      dob: newStudent.dob,
-      doe: newStudent.doe,
-      initial: initials.toUpperCase(),
-      status: 'Active',
-      allergies: newStudent.allergies,
-      guardian: newStudent.guardianName,
-      phone: newStudent.phone,
-      email: newStudent.email,
-      address: newStudent.address,
-      stats: { attendance: 100, milestones: 0, behavior: 100, nutrition: 80 }
-    };
-    
-    let rawSaved = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    const updatedRaw = [...rawSaved, newEntry];
-    localStorage.setItem('bmv3_students', JSON.stringify(updatedRaw));
-    
-    setChildren(getDynamicStats(updatedRaw));
-    setShowEnrollModal(false);
-    setNewStudent({ firstName: '', lastName: '', age: '2 years', dob: '', doe: new Date().toISOString().split('T')[0], allergies: '', guardianName: '', phone: '', email: '', address: '' });
+      const payload = {
+        first_name: newStudent.firstName,
+        last_name: newStudent.lastName,
+        age: parseInt(newStudent.age),
+        dob: newStudent.dob || null,
+        doe: newStudent.doe || null,
+        allergies: newStudent.allergies,
+        mother_name: newStudent.motherName,
+        father_name: newStudent.fatherName,
+        other_guardian_name: newStudent.otherGuardianName,
+        phone: newStudent.phone,
+        email: newStudent.email,
+        address: newStudent.address,
+        attendance_status: 'Present'
+      };
+
+      fetch('/api/children/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        const initials = newStudent.firstName[0] + newStudent.lastName[0];
+        const newEntry = {
+          ...data,
+          name: `${data.first_name} ${data.last_name}`,
+          initial: initials.toUpperCase(),
+          motherName: data.mother_name || 'No Info',
+          fatherName: data.father_name || 'No Info',
+          otherGuardianName: data.other_guardian_name || 'No Info',
+          guardianPhone: data.phone || 'N/A',
+          guardianEmail: data.email || 'N/A',
+          guardianAddress: data.address || 'N/A'
+        };
+        
+        // Also update local storage prototype DB for registration verification
+        let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+        const fullNewStudent = {
+            id: data.id,
+            name: `${data.first_name} ${data.last_name}`,
+            age: data.age,
+            dob: data.dob,
+            doe: data.doe,
+            allergies: data.allergies,
+            mother_name: data.mother_name,
+            father_name: data.father_name,
+            other_guardian_name: data.other_guardian_name,
+            phone: data.phone,
+            email: data.email,
+            address: data.address,
+            img: data.img
+        };
+        studentsMaster.push(fullNewStudent);
+        localStorage.setItem('bmv3_students', JSON.stringify(studentsMaster));
+
+        setChildren([...children, newEntry]);
+        setShowEnrollModal(false);
+        setNewStudent({ firstName: '', lastName: '', age: '2 years', dob: '', doe: new Date().toISOString().split('T')[0], allergies: '', motherName: '', fatherName: '', otherGuardianName: '', phone: '', email: '', address: '' });
+    })
+    .catch(err => console.error(err));
   };
+
+  // Helper for CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
 
   const filteredChildren = children.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -182,8 +191,12 @@ export default function ChildrenList() {
         {filteredChildren.map(child => (
           <div key={child.id} style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-              <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800 }}>
-                {child.initial}
+              <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800, overflow: 'hidden' }}>
+                {child.img ? (
+                  <img src={child.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
+                ) : (
+                  <span>{child.initial}</span>
+                )}
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#333' }}>{child.name}</h3>
@@ -268,9 +281,20 @@ export default function ChildrenList() {
 
             <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '15px' }}>Guardian Contact Details</h4>
             
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Father's Full Name</label>
+                <input type="text" placeholder="e.g. Jake Vento" value={newStudent.fatherName} onChange={e => setNewStudent({...newStudent, fatherName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Mother's Full Name</label>
+                <input type="text" placeholder="e.g. Sarah Vento" value={newStudent.motherName} onChange={e => setNewStudent({...newStudent, motherName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
+              </div>
+            </div>
+            
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Parent / Guardian Name</label>
-              <input type="text" placeholder="Full Name" value={newStudent.guardianName} onChange={e => setNewStudent({...newStudent, guardianName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Other Guardian/Relative Name (Optional)</label>
+              <input type="text" placeholder="e.g. Jane Doe (Aunt)" value={newStudent.otherGuardianName} onChange={e => setNewStudent({...newStudent, otherGuardianName: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}/>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
@@ -306,8 +330,12 @@ export default function ChildrenList() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800 }}>
-                {selectedChild.initial}
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800, overflow: 'hidden' }}>
+                {selectedChild.img ? (
+                  <img src={selectedChild.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
+                ) : (
+                  <span>{selectedChild.initial}</span>
+                )}
               </div>
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{selectedChild.name}</h2>
@@ -360,23 +388,35 @@ export default function ChildrenList() {
                 <h4 style={{ margin: '0 0 20px 0' }}>Guardian Contact Information</h4>
                 <div className="resp-grid-2" style={{ marginBottom: '15px' }}>
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Primary Guardian Name</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianName}</div>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Mother's Name</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.motherName}</div>
                   </div>
+                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Father's Name</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.fatherName}</div>
+                  </div>
+                </div>
+                
+                {selectedChild.otherGuardianName && selectedChild.otherGuardianName !== 'No Info' && (
+                <div style={{ marginBottom: '15px', padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Other Guardian / Relative Name</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.otherGuardianName}</div>
+                </div>
+                )}
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                     <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Phone Number</div>
                     <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianPhone}</div>
                   </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                     <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Email Address</div>
                     <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{selectedChild.guardianEmail}</div>
                   </div>
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                    <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Home Address</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 600, color: '#333', lineHeight: '1.4' }}>{selectedChild.guardianAddress}</div>
-                  </div>
+                </div>
+                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ color: '#777', fontWeight: 600, fontSize: '0.85rem', marginBottom: '5px' }}>Home Address</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 600, color: '#333', lineHeight: '1.4' }}>{selectedChild.guardianAddress}</div>
                 </div>
               </div>
             )}

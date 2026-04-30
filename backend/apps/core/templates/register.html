@@ -269,6 +269,12 @@
                         </div>
                         
                         <input type="text" id="js-fullname" placeholder="Parent's Full Name" required>
+                        <select id="js-relationship" required style="margin-bottom: 0.8rem; background: transparent; padding: 0.8rem 0; width: 100%; border: none; border-bottom: 1px solid #aaa; font-family: inherit; font-size: 0.85rem; outline: none; transition: border-color 0.3s;">
+                            <option value="" disabled selected>Relationship to Child</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Other Guardian">Other Guardian / Relative</option>
+                        </select>
                         <input type="text" id="js-contact" placeholder="Contact Number">
     
                         <button type="button" class="submit-btn" onclick="nextStep(1)">Next Step: Verification</button>
@@ -353,7 +359,8 @@
             let p1 = document.getElementById('js-pass1').value;
             let p2 = document.getElementById('js-pass2').value;
             let fn = document.getElementById('js-fullname').value;
-            if(!u || !p1 || !p2 || !fn) {
+            let rel = document.getElementById('js-relationship').value;
+            if(!u || !p1 || !p2 || !fn || !rel) {
                 alert("Please fill all required fields in Step 1."); return;
             }
             if(p1 !== p2) {
@@ -399,8 +406,45 @@
         let match = studentsMaster.find(st => st.name.toLowerCase() === inputName);
 
         if(match) {
-            // Enforce max 2 parent accounts per child
+            // Strict identity validation based on relationship
+            let pName = document.getElementById('js-fullname').value.trim().toLowerCase();
+            let relationship = document.getElementById('js-relationship').value;
+            let mName = (match.mother_name || "").trim().toLowerCase();
+            let fName = (match.father_name || "").trim().toLowerCase();
+            let oName = (match.other_guardian_name || "").trim().toLowerCase();
+            
+            if (relationship === "Mother" && pName !== mName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Mother for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            } else if (relationship === "Father" && pName !== fName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Father for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            } else if (relationship === "Other Guardian" && pName !== oName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Other Guardian for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
+            // Enforce max 1 account per relationship type
             let parentCount = 0;
+            let relationshipExists = false;
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
                 if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img' && key !== 'bmv3_parent_profile_data') {
@@ -408,15 +452,29 @@
                         let pData = JSON.parse(localStorage.getItem(key));
                         if (pData && pData.child_id === match.id) {
                             parentCount++;
+                            if (pData.relationship === relationship) {
+                                relationshipExists = true;
+                            }
                         }
                     } catch(e) {}
                 }
             }
 
-            if (parentCount >= 2) {
+            if (relationshipExists) {
                 validChildId = null;
                 let errDiv = document.getElementById('verify-error');
-                errDiv.innerText = "Registration blocked: This child already has the maximum of 2 parent accounts (e.g., Mother and Father) linked.";
+                errDiv.innerText = `Registration blocked: A ${relationship} account has already been registered for this child.`;
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
+            if (parentCount >= 3) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: This child already has the maximum of 3 parent/guardian accounts linked.";
                 errDiv.style.display = 'block';
                 document.getElementById('childMatchCard').style.display = 'none';
                 document.getElementById('btn-next-2').style.opacity = '0.5';
@@ -517,6 +575,7 @@
             
             let parentProfile = {
                 name: document.getElementById('js-fullname').value,
+                relationship: document.getElementById('js-relationship').value,
                 contact: document.getElementById('js-contact').value,
                 email: document.getElementById('js-email').value,
                 child_id: validChildId,

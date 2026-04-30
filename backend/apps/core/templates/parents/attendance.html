@@ -227,9 +227,13 @@
     }
 
     @media (max-width: 800px) {
-    .cal-card { flex-direction: column; align-items: flex-start; gap: 40px; }
-    .legend-box { margin-left: 0; flex-direction: row; flex-wrap: wrap; }
-    .stats-row { gap: 20px; flex-wrap: wrap; }
+    .cal-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
+    .legend-box { margin-left: 0; flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
+    .stats-row { gap: 15px; grid-template-columns: 1fr; margin-top: 20px; margin-bottom: 20px; }
+    .cal-grid { gap: 5px; }
+    .cal-cell { font-size: 0.9rem; max-height: 40px; border-radius: 6px; }
+    .cal-day-label { font-size: 0.7rem; }
+    .history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 </style>
 
@@ -308,157 +312,148 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    
+
+  document.addEventListener("DOMContentLoaded", function() {
     // Core Date logic
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-11
-    
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const monthTitle = `${monthNames[currentMonth]} ${currentYear}`;
-    
     document.getElementById('ui-current-month').innerText = monthTitle;
     document.getElementById('cal-month-title').innerText = monthTitle;
-
     // Database logic
-    const currentUser = "{{ request.user.username }}";
-    const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    const attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
-
     let linkedChildId = null;
-    let childName = "No Child Linked";
+    let attDB = {};
+    const getLinkedChildIdFromStorage = () => {
+      const linked = localStorage.getItem('linked_child_id');
+      if (linked) return parseInt(linked);
 
-    if(currentUser) {
-        let pDataStr = localStorage.getItem('bmv3_parent_profile_' + currentUser);
-        if(!pDataStr) pDataStr = localStorage.getItem('bmv3_parent_profile_data'); // fallback
-        if(pDataStr) {
-            let pData = JSON.parse(pDataStr);
-            if(pData.child_id) linkedChildId = pData.child_id;
+      let pStr = localStorage.getItem('bmv3_parent_profile_data');
+      if (!pStr) {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img') {
+            pStr = localStorage.getItem(key);
+            break;
+          }
         }
-    }
-
-    if(linkedChildId) {
-        let childObj = studentsMaster.find(st => st.id === linkedChildId);
-        if(childObj) childName = childObj.name;
-    }
-
-    document.getElementById('ui-child-name').innerText = childName;
-
-    // Generate Calendar Grid
-    // 1. Find days in month
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-    // 2. Find starting day of week for the 1st
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0(Sun) - 6(Sat)
-
-    const grid = document.getElementById('calendar-grid');
-    
-    let htmlContent = '';
-    
-    let daysPresentCount = 0;
-    let daysAbsentCount = 0;
-    let totalSchoolDaysInMonth = 0;
-
-    // Add empty grey offset cells before the 1st
-    for(let i=0; i<firstDay; i++) {
-        htmlContent += `<div class="cal-cell cell-grey">0</div>`;
-    }
-
-    // Add actual days
-    for(let day=1; day<=daysInMonth; day++) {
-        // Construct YYYY-MM-DD
-        let m = (currentMonth + 1).toString().padStart(2, '0');
-        let d = day.toString().padStart(2, '0');
-        let dateKey = `${currentYear}-${m}-${d}`;
-        
-        let cellClass = 'cell-white';
-        let isFuture = (new Date(currentYear, currentMonth, day) > today);
-        let currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
-
-        // Let's say all weekdays (1-5) are valid school days.
-        if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) {
-            totalSchoolDaysInMonth++;
+      }
+      if (pStr) {
+        try {
+          const parsed = JSON.parse(pStr);
+          if (parsed.child_id) return parsed.child_id;
+        } catch (e) {}
+      }
+      return null;
+    };
+    const storedChildId = getLinkedChildIdFromStorage();
+    fetch('/api/children/', { credentials: 'include' })
+      .then(res => res.json())
+      .then(children => {
+        if (children && children.length > 0) {
+          let child = children[0];
+          if (storedChildId) {
+            const matched = children.find(c => c.id === storedChildId);
+            if (matched) child = matched;
+          }
+          linkedChildId = child.id;
+          document.getElementById('ui-child-name').innerText = child.first_name + ' ' + child.last_name;
+          return fetch('/api/attendance/', { credentials: 'include' });
+        } else {
+          document.getElementById('ui-child-name').innerText = 'No Child Linked';
+          throw new Error("No child linked");
         }
-
-        if(linkedChildId && attDB[dateKey]) {
-            let status = attDB[dateKey][linkedChildId];
-            if(status === 'present' || status === 'late') {
-                cellClass = 'cell-green';
-                daysPresentCount++;
-            } else if (status === 'absent') {
-                cellClass = 'cell-red';
-                daysAbsentCount++;
-            }
-        }
-
-        htmlContent += `<div class="cal-cell ${cellClass}">${day}</div>`;
-    }
-
-    // Add empty grey offset cells after the last day to fill out the grid (make it a multiple of 7)
-    let totalCells = firstDay + daysInMonth;
-    let remainder = totalCells % 7;
-    if(remainder !== 0) {
-        let trailingCells = 7 - remainder;
-        for(let i=0; i<trailingCells; i++) {
-            htmlContent += `<div class="cal-cell cell-grey">0</div>`;
-        }
-    }
-
-    grid.insertAdjacentHTML('beforeend', htmlContent);
-
-    // Build History Log
-    const historyContainer = document.getElementById('ui-history-log');
-    let historyHtml = '';
-    
-    // Sort attDB keys (dates) descending to get most recent first
-    let allDates = Object.keys(attDB).sort((a,b) => new Date(b) - new Date(a));
-    let recordsRendered = 0;
-
-    if(linkedChildId) {
-        allDates.forEach(dt => {
-            if(recordsRendered >= 5) return; // Show max 5 recent logs
-            let status = attDB[dt][linkedChildId];
-            if(status) {
-                // Formatting Date
-                let formattedDate = new Date(dt).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'});
-                
-                let pillClass = status === 'absent' ? 'status-pill-red' : 'status-pill-green';
-                
-                // Simulate time/guardian data based on status since mock doesn't strictly have times inside attendance
-                let timeText = status === 'absent' ? '--:--' : '08:00 AM Dropped Off';
-                let guardianText = status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`;
-
-                historyHtml += `
-                <div class="history-item">
-                    <div class="history-info-left">
-                        <div class="legend-color" style="background-color: ${status==='absent'? '#dd6a6a' : '#70e086'}; align-self: center;"></div>
-                        <div>
-                            <div class="history-date">${formattedDate}</div>
-                            <div class="history-time">${timeText}</div>
-                            <div class="history-guardian"><i class="fa-solid fa-user-lock" style="font-size:0.75rem;"></i> ${guardianText}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="${pillClass}" style="padding:6px 15px; border-radius:20px; color:white; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${status}</span>
-                    </div>
-                </div>`;
-                recordsRendered++;
-            }
+      })
+      .then(res => res.json())
+      .then(attData => {
+        attData.forEach(record => {
+          if (record.child === linkedChildId) {
+            attDB[record.date] = record.status.toLowerCase();
+          }
         });
-    }
-
-    if(recordsRendered === 0) {
-        historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
-    } else {
-        historyContainer.innerHTML = historyHtml;
-    }
-
-    // Update KPIs
-    document.getElementById('stat-present').innerText = daysPresentCount;
-    document.getElementById('stat-absent').innerText = daysAbsentCount;
-    document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
-
-});
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const grid = document.getElementById('calendar-grid');
+        let htmlContent = '';
+        let daysPresentCount = 0;
+        let daysAbsentCount = 0;
+        let totalSchoolDaysInMonth = 0;
+        for (let i = 0; i < firstDay; i++) {
+          htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const m = (currentMonth + 1).toString().padStart(2, '0');
+          const d = day.toString().padStart(2, '0');
+          const dateKey = `${currentYear}-${m}-${d}`;
+          let cellClass = 'cell-white';
+          const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+          if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) {
+            totalSchoolDaysInMonth++;
+          }
+          if (attDB[dateKey]) {
+            const status = attDB[dateKey];
+            if (status === 'present' || status === 'late') {
+              cellClass = 'cell-green';
+              daysPresentCount++;
+            } else if (status === 'absent') {
+              cellClass = 'cell-red';
+              daysAbsentCount++;
+            }
+          }
+          htmlContent += `<div class="cal-cell ${cellClass}">${day}</div>`;
+        }
+        const totalCells = firstDay + daysInMonth;
+        const remainder = totalCells % 7;
+        if (remainder !== 0) {
+          const trailingCells = 7 - remainder;
+          for (let i = 0; i < trailingCells; i++) {
+            htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+          }
+        }
+        grid.insertAdjacentHTML('beforeend', htmlContent);
+        const historyContainer = document.getElementById('ui-history-log');
+        let historyHtml = '';
+        const allDates = Object.keys(attDB).sort((a, b) => new Date(b) - new Date(a));
+        let recordsRendered = 0;
+        allDates.forEach(dt => {
+          if (recordsRendered >= 5) return;
+          const status = attDB[dt];
+          if (status) {
+            const formattedDate = new Date(dt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const pillClass = status === 'absent' ? 'status-pill-red' : 'status-pill-green';
+            const recordObj = attData.find(a => a.child === linkedChildId && a.date === dt);
+            const timeText = recordObj && recordObj.dropoff_time ? recordObj.dropoff_time : (status === 'absent' ? '--:--' : '08:00 AM Dropped Off');
+            const guardianText = recordObj && recordObj.authorized_guardian ? `Confirmed by ${recordObj.authorized_guardian}` : (status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`);
+            historyHtml += `
+            <div class="history-item">
+              <div class="history-info-left">
+                <div class="legend-color" style="background-color: ${status==='absent'? '#dd6a6a' : '#70e086'}; align-self: center;"></div>
+                <div>
+                  <div class="history-date">${formattedDate}</div>
+                  <div class="history-time">${timeText}</div>
+                  <div class="history-guardian"><i class="fa-solid fa-user-lock" style="font-size:0.75rem;"></i> ${guardianText}</div>
+                </div>
+              </div>
+              <div>
+                <span class="${pillClass}" style="padding:6px 15px; border-radius:20px; color:white; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${status}</span>
+              </div>
+            </div>`;
+            recordsRendered++;
+          }
+        });
+        if (recordsRendered === 0) {
+          historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
+        } else {
+          historyContainer.innerHTML = historyHtml;
+        }
+        document.getElementById('stat-present').innerText = daysPresentCount;
+        document.getElementById('stat-absent').innerText = daysAbsentCount;
+        document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  });
 </script>
 {% endblock %}

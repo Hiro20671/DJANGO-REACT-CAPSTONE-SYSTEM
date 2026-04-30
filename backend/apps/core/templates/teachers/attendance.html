@@ -72,6 +72,18 @@
 .pill.success { background-color: #d4edda; color: #155724; }
 .pill.warning { background-color: #fff3cd; color: #856404; }
 .pill.danger { background-color: #fdf2f2; color: #d9534f; }
+
+@media (max-width: 768px) {
+    .summary-container { grid-template-columns: 1fr; }
+    .list-item { flex-direction: column; align-items: flex-start; }
+    .attendance-action-area { flex-wrap: wrap; width: 100%; }
+    .attendance-toggles { flex-wrap: wrap; width: 100%; gap: 10px; }
+    .btn-toggle { flex: 1; text-align: center; }
+    .attendance-stats { text-align: left; margin-right: 0; margin-top: 10px; }
+    .status-badge { align-self: flex-start; margin-top: 5px; }
+    .section-subtitle { flex-direction: column; align-items: flex-start; }
+    .date-picker { width: 100%; margin-top: 5px; }
+}
 </style>
 
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -148,14 +160,51 @@
 <div class="modal-overlay" id="lateModal"><div class="modal-container"><div class="modal-header"><h3>Frequent Late Arrivals</h3><button class="btn-close" onclick="closeModal('lateModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ late arrivals.</p></div></div></div>
 
 <script>
-    // Universal memory arrays
-    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    let mockDatabase = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
+    let studentsMaster = [];
+    let attendanceRecords = [];
 
     const datePicker = document.getElementById('attendanceDate');
     datePicker.value = new Date().toISOString().split('T')[0];
     
     let tempSelections = {};
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function fetchData() {
+        try {
+            const [stdRes, attRes] = await Promise.all([
+                fetch('/api/children/'),
+                fetch('/api/attendance/')
+            ]);
+            studentsMaster = await stdRes.json();
+            attendanceRecords = await attRes.json();
+            
+            // Reformat records into dictionary by date
+            window.mockDatabase = {};
+            attendanceRecords.forEach(a => {
+                if(!mockDatabase[a.date]) mockDatabase[a.date] = {};
+                mockDatabase[a.date][a.child] = a.status;
+            });
+
+            renderChecklistForDate(datePicker.value);
+            renderOverview();
+        } catch (e) {
+            console.error('Error fetching data', e);
+        }
+    }
 
     function renderChecklistForDate(date) {
         const container = document.getElementById('daily-checklist-container');
@@ -167,8 +216,8 @@
         }
 
         studentsMaster.forEach(st => {
-            let status = (mockDatabase[date] && mockDatabase[date][st.id]) ? mockDatabase[date][st.id] : null;
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let status = (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) ? window.mockDatabase[date][st.id] : null;
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
             let badgeHtml = '';
             let toggleHtml = '';
 
@@ -193,7 +242,7 @@
             container.innerHTML += `
             <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
-                <div class="item-details"><div class="item-name">${st.name}</div></div>
+                <div class="item-details"><div class="item-name">${st.first_name} ${st.last_name}</div></div>
                 ${toggleHtml}
                 <div class="attendance-result">${badgeHtml}</div>
             </div>`;
@@ -215,16 +264,16 @@
             return;
         }
 
-        let totalDates = Object.keys(mockDatabase).length || 5; 
+        let totalDates = Object.keys(window.mockDatabase || {}).length || 5; 
         let poorCount = 0;
         let lateCount = 0;
 
         studentsMaster.forEach(st => {
             let daysP = 0;
             let daysL = 0;
-            Object.keys(mockDatabase).forEach(d => { 
-                if(mockDatabase[d][st.id] === 'present') daysP++; 
-                if(mockDatabase[d][st.id] === 'late') daysL++; 
+            Object.keys(window.mockDatabase || {}).forEach(d => { 
+                if(window.mockDatabase[d][st.id] === 'present') daysP++; 
+                if(window.mockDatabase[d][st.id] === 'late') daysL++; 
             });
             let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
             
@@ -233,12 +282,12 @@
             if(attPct < 80) { badgeClass = 'warning'; badgeText = 'Warning'; poorCount++; }
             if(daysL >= 3) { badgeClass = 'poor'; badgeText = 'Frequent Late'; lateCount++; }
 
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
             let html = `
             <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
-                    <div class="item-name">${st.name}</div>
+                    <div class="item-name">${st.first_name} ${st.last_name}</div>
                     <div class="item-sub">${st.age} years old</div>
                 </div>
                 <div class="attendance-stats">
@@ -272,16 +321,29 @@
         document.getElementById('confirm-btn-' + studentId).style.display = 'block';
     }
 
-    function confirmAttendance(studentId) {
+    async function confirmAttendance(studentId) {
         const date = datePicker.value;
         const status = tempSelections[studentId];
         
-        if (!mockDatabase[date]) mockDatabase[date] = {};
-        mockDatabase[date][studentId] = status;
-        
-        localStorage.setItem('bmv3_attendance', JSON.stringify(mockDatabase));
-        renderChecklistForDate(date);
-        renderOverview();
+        const payload = {
+            child: parseInt(studentId),
+            date: date,
+            status: status
+        };
+
+        try {
+            await fetch('/api/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+            fetchData(); // Reload data
+        } catch(e) {
+            console.error('Error saving attendance', e);
+        }
     }
 
     function switchTab(tabName) {
@@ -302,8 +364,7 @@
     function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
 
     // Init
-    renderChecklistForDate(datePicker.value);
-    renderOverview();
+    fetchData();
 
 </script>
 {% endblock content %}

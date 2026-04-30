@@ -69,6 +69,9 @@
         <h2>Behavioral Intelligence</h2>
         <p>Monitor class-wide behavioral consistency and patterns</p>
     </div>
+    <div>
+        <input type="date" id="overviewDate" onchange="calculateAndRenderDashboard()" style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block;">
+    </div>
 </div>
 
 <!-- ================= OVERVIEW TAB ================= -->
@@ -113,9 +116,13 @@
     
     // ISOLATION FIX
     const cUser = "{{ request.user.username }}";
-    let linkedId = null;
-    let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
-    if(pStr) linkedId = JSON.parse(pStr).child_id;
+    let linkedId = localStorage.getItem('linked_child_id');
+    if (linkedId) {
+        linkedId = parseInt(linkedId);
+    } else {
+        let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
+        if(pStr) linkedId = JSON.parse(pStr).child_id;
+    }
     if(linkedId) {
         studentsMaster = studentsMaster.filter(st => st.id === linkedId);
     } else {
@@ -147,33 +154,46 @@
             const studentId = info.id;
             const records = behaviorDB[studentId] || [];
             
-            let posCount = 0;
-            let negCount = 0;
-            let neuCount = 0;
+            let posCountAll = 0;
+            let negCountAll = 0;
+            let neuCountAll = 0;
             let currentStreak = 0;
 
             // Simple ascending sort by date to calculate current streak accurately
             records.sort((a,b) => new Date(a.date) - new Date(b.date));
 
             records.forEach(rec => {
-                if(rec.type === 'positive') { posCount++; currentStreak++; globalPos++; }
-                else if(rec.type === 'neutral') { neuCount++; currentStreak++; } // keeps streak alive
-                else if(rec.type === 'negative') { negCount++; currentStreak = 0; globalNeg++; } // resets chunk
+                if(rec.type === 'positive') { posCountAll++; currentStreak++; }
+                else if(rec.type === 'neutral') { neuCountAll++; currentStreak++; } // keeps streak alive
+                else if(rec.type === 'negative') { negCountAll++; currentStreak = 0; } // resets chunk
             });
 
             if (currentStreak > highestStreakEver) highestStreakEver = currentStreak;
 
-            let totalValid = posCount + negCount;
+            let totalValid = posCountAll + negCountAll;
             let stabilityScore = 0;
-            if(totalValid > 0 || neuCount > 0) {
+            if(totalValid > 0 || neuCountAll > 0) {
                 // Calculation: Ratio of non-negative relative to all interactions (weighted)
-                let totalActions = posCount + negCount + neuCount;
+                let totalActions = posCountAll + negCountAll + neuCountAll;
                 if(totalActions > 0) {
-                    stabilityScore = Math.round(((posCount + neuCount) / totalActions) * 100);
+                    stabilityScore = Math.round(((posCountAll + neuCountAll) / totalActions) * 100);
                 }
                 totalStabilityScored += stabilityScore;
                 scoredStudentsCount++;
             }
+
+            // DATE SPECIFIC FILTER
+            const overviewDate = document.getElementById('overviewDate') ? document.getElementById('overviewDate').value : new Date().toISOString().split('T')[0];
+            const dateRecords = records.filter(r => r.date === overviewDate);
+            
+            let posCount = 0;
+            let negCount = 0;
+            let neuCount = 0;
+            dateRecords.forEach(rec => {
+                if(rec.type === 'positive') { posCount++; globalPos++; }
+                else if(rec.type === 'neutral') neuCount++;
+                else if(rec.type === 'negative') { negCount++; globalNeg++; }
+            });
 
             let avatarHtml = info.img ? `<img src="${info.img}" style="width:100%; height:100%; object-fit:cover;">` : info.initial;
 
@@ -184,7 +204,7 @@
                         <div class="avatar">${avatarHtml}</div>
                         <div>
                             <h4>${info.name}</h4>
-                            <p>${records.length} behavior records</p>
+                            <p>${dateRecords.length} records today (${records.length} total)</p>
                         </div>
                     </div>
                     <div class="stability-score">
@@ -229,6 +249,7 @@
     }
 
     // Initial render
+    document.getElementById('overviewDate').value = new Date().toISOString().split('T')[0];
     calculateAndRenderDashboard();
 
 </script>

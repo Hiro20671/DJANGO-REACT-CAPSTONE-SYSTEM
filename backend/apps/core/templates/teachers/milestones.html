@@ -94,6 +94,9 @@
         <h2>Life Skills Milestone Tracker</h2>
         <p>Track developmental readiness and age-appropriate skills</p>
     </div>
+    <div>
+        <input type="date" id="overviewDate" onchange="refreshAll()" style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block;">
+    </div>
 </div>
 
 <div class="summary-container">
@@ -300,10 +303,35 @@
 
     const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
     let milestoneDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Auto-migrate structure if needed
+    if (Object.keys(milestoneDB).length > 0) {
+        let firstKey = Object.keys(milestoneDB)[0];
+        if (milestoneDB[firstKey] && typeof milestoneDB[firstKey] === 'object' && !Object.keys(milestoneDB[firstKey])[0].match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Old format without dates detected, reset
+            milestoneDB = {};
+            localStorage.setItem('bmv3_milestones', JSON.stringify(milestoneDB));
+        }
+    }
 
     const TASKSList = ['self-1','self-2','self-3','self-4', 'comm-1','comm-2','comm-3','comm-4', 'soc-1','soc-2','soc-3','soc-4', 'mot-1','mot-2','mot-3','mot-4'];
 
     const studentSelect = document.getElementById('studentSelect');
+
+    function initDateDB(dateStr) {
+        let changed = false;
+        studentsMaster.forEach(st => {
+            if(!milestoneDB[st.id]) { milestoneDB[st.id] = {}; changed = true; }
+            if(!milestoneDB[st.id][dateStr]) {
+                milestoneDB[st.id][dateStr] = {};
+                TASKSList.forEach(t => milestoneDB[st.id][dateStr][t] = 'none');
+                changed = true;
+            }
+        });
+        if(changed) localStorage.setItem('bmv3_milestones', JSON.stringify(milestoneDB));
+    }
 
     if(studentsMaster.length === 0) {
         studentSelect.innerHTML = '<option value="all">No students enrolled</option>';
@@ -311,12 +339,14 @@
     } else {
         studentsMaster.forEach(st => {
             studentSelect.innerHTML += `<option value="${st.id}">${st.name}</option>`;
-            if(!milestoneDB[st.id]) {
-                milestoneDB[st.id] = {};
-                TASKSList.forEach(t => milestoneDB[st.id][t] = 'none');
-            }
         });
-        localStorage.setItem('bmv3_milestones', JSON.stringify(milestoneDB));
+    }
+
+    function refreshAll() {
+        const dStr = document.getElementById('overviewDate').value;
+        if(studentsMaster.length > 0) initDateDB(dStr);
+        renderOverviewDashboard();
+        toggleGradingFlow();
     }
 
     function renderOverviewDashboard() {
@@ -328,10 +358,12 @@
             return;
         }
 
+        const overviewDate = document.getElementById('overviewDate').value;
+
         studentsMaster.forEach(st => {
             let sc=0, co=0, so=0, mo=0;
             let achievedCount = 0;
-            const dbEntry = milestoneDB[st.id];
+            const dbEntry = milestoneDB[st.id][overviewDate] || {};
 
             TASKSList.forEach(task => {
                 if(dbEntry[task] === 'achieved') {
@@ -344,8 +376,8 @@
             });
 
             let pct = Math.round((achievedCount / 16) * 100);
-            let pillClass = pct >= 75 ? 'ontrack' : (pct >= 50 ? 'support' : 'delayed');
-            let pillText = pct >= 75 ? 'On Track' : (pct >= 50 ? 'Needs Support' : 'Delayed');
+            let pillClass = pct >= 75 ? 'ontrack' : (pct >= 60 ? 'support' : 'delayed');
+            let pillText = pct >= 75 ? 'On Track' : (pct >= 60 ? 'Needs Support' : 'Delayed');
             if(pct === 0) { pillClass = 'empty'; pillText = 'Not Started'; }
 
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
@@ -385,6 +417,8 @@
     function toggleGradingFlow() {
         currentStudent = document.getElementById('studentSelect').value;
 
+        const overviewDate = document.getElementById('overviewDate').value;
+
         if (currentStudent === 'all' || studentsMaster.length === 0) {
             document.querySelectorAll('.grading-toggles').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.grading-result').forEach(el => el.style.display = 'none');
@@ -396,7 +430,7 @@
                 let completions = 0;
                 let totalStudents = studentsMaster.length;
                 studentsMaster.forEach(st => {
-                    if (milestoneDB[st.id][taskId] === 'achieved') completions++;
+                    if (milestoneDB[st.id][overviewDate] && milestoneDB[st.id][overviewDate][taskId] === 'achieved') completions++;
                 });
                 document.getElementById('stat_' + taskId).innerText = totalStudents > 0 ? `Completed by: ${completions}/${totalStudents} children` : '--';
             });
@@ -404,7 +438,7 @@
             document.querySelectorAll('.static-status').forEach(el => el.style.display = 'none');
             
             TASKSList.forEach(taskId => {
-                const status = milestoneDB[currentStudent][taskId];
+                const status = milestoneDB[currentStudent][overviewDate] ? milestoneDB[currentStudent][overviewDate][taskId] : 'none';
                 renderTaskState(taskId, status);
             });
         }
@@ -454,7 +488,11 @@
         const val = tempSelections[taskId];
         if(!val) return;
         
-        milestoneDB[currentStudent][taskId] = val;
+        const overviewDate = document.getElementById('overviewDate').value;
+        if(!milestoneDB[currentStudent]) milestoneDB[currentStudent] = {};
+        if(!milestoneDB[currentStudent][overviewDate]) initDateDB(overviewDate);
+
+        milestoneDB[currentStudent][overviewDate][taskId] = val;
         localStorage.setItem('bmv3_milestones', JSON.stringify(milestoneDB));
         
         renderTaskState(taskId, val);
@@ -498,7 +536,7 @@
             let pct = Math.round((achievedCount / 16) * 100);
             
             if(pct >= 75) onTrackStudents.push(st.name);
-            else if(pct >= 50) supportStudents.push(st.name);
+            else if(pct >= 60) supportStudents.push(st.name);
             else delayedStudents.push(st.name);
             
             if(pct < 60) {
@@ -557,7 +595,7 @@
         openModal('interventionModal');
     }
 
-    renderOverviewDashboard();
-    toggleGradingFlow(); // Initializes class-wide static task text
+    document.getElementById('overviewDate').value = new Date().toISOString().split('T')[0];
+    refreshAll();
 </script>
 {% endblock content %}
