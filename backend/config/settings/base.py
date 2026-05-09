@@ -83,6 +83,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
@@ -104,3 +107,12 @@ DJANGO_VITE = {
 }
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / 'apps' / 'core' / 'static' / 'react'
 DJANGO_VITE_DEV_MODE = False
+
+# Email Configuration (Brevo SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+# TODO: Update these with your actual Brevo SMTP credentials
+EMAIL_HOST_USER = 'aab8fd001@smtp-brevo.com' 
+EMAIL_HOST_PASSWORD = 'YOUR_BREVO_SMTP_KEY_HERE'

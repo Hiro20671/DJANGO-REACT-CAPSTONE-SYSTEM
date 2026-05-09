@@ -57,7 +57,7 @@
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
 
 @media (max-width: 900px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 500px) {
     .kpi-row { grid-template-columns: 1fr; }
@@ -76,20 +76,16 @@
 
 <div class="kpi-row">
     <div class="kpi-card">
-        <div class="kpi-title">Avg Class Intake</div>
-        <div class="kpi-value" id="kpi-avg">0%</div>
+        <div class="kpi-title">Snacks Finished (Weekly)</div>
+        <div class="kpi-value green" id="kpi-naubos">0</div>
     </div>
     <div class="kpi-card">
-        <div class="kpi-title">Active Health Directives</div>
-        <div class="kpi-value orange" id="kpi-concerns">0</div>
+        <div class="kpi-title">Partially Consumed (Weekly)</div>
+        <div class="kpi-value orange" id="kpi-maytira">0</div>
     </div>
     <div class="kpi-card">
-        <div class="kpi-title">Allergies Evaluated</div>
-        <div class="kpi-value" id="kpi-allergies">0</div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-title">Nutrition System</div>
-        <div class="kpi-value green">Active</div>
+        <div class="kpi-title">Not Consumed (Weekly)</div>
+        <div class="kpi-value" id="kpi-hindi" style="color:#e74a3b;">0</div>
     </div>
 </div>
 
@@ -109,136 +105,99 @@
 </div>
 
 <script>
-    // System Master
-    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    
-    // ISOLATION FIX
-    const cUser = "{{ request.user.username }}";
-    let linkedId = localStorage.getItem('linked_child_id');
-    if (linkedId) {
-        linkedId = parseInt(linkedId);
-    } else {
-        let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
-        if(pStr) linkedId = JSON.parse(pStr).child_id;
-    }
-    if(linkedId) {
-        studentsMaster = studentsMaster.filter(st => st.id === linkedId);
-    } else {
-        studentsMaster = [];
-    }
-    let nutritionDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
-    let growthDB = JSON.parse(localStorage.getItem('bmv3_growth')) || {};
+    let childData = null;
+    let allNutrition = [];
 
     function renderDashboard() {
+        if(!childData) return;
+        const myChildId = childData.id;
+
         const container = document.getElementById('student-list-container');
-        container.innerHTML = '';
-
-        if(studentsMaster.length === 0) {
-            container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>No children are enrolled or tracked.</p></div>`;
-            document.getElementById('kpi-avg').innerText = '-';
-            document.getElementById('kpi-concerns').innerText = '-';
-            document.getElementById('kpi-allergies').innerText = '-';
-            return;
-        }
-
-        let totalChildren = 0;
-        let globalAvgAcc = 0;
-        let concerns = 0;
-        let totalAllergies = 0;
+        container.innerHTML = '<div style="text-align:center; padding:20px;">Loading records...</div>';
 
         const overviewDate = document.getElementById('overviewDate').value;
 
-        studentsMaster.forEach(st => {
-            let data = { breakfast: 0, lunch: 0, snack: 0 };
-            if (nutritionDB[st.id] && nutritionDB[st.id][overviewDate]) {
-                data = nutritionDB[st.id][overviewDate];
-            }
+        // Fetch Analytics
+        fetch(`/api/nutrition-analytics/?child_id=${myChildId}`)
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('kpi-naubos').innerText = data.weekly['Finished'] || 0;
+                document.getElementById('kpi-maytira').innerText = data.weekly['Some Left'] || 0;
+                document.getElementById('kpi-hindi').innerText = data.weekly['Not Eaten'] || 0;
+            })
+            .catch(err => console.error(err));
+
+        const record = allNutrition.find(r => r.date === overviewDate);
+        const status = record && record.snack_status ? record.snack_status : 'No Data';
+
+        let color = '#777';
+        if (status === 'Finished') color = '#1cc88a';
+        else if (status === 'Some Left') color = '#f6c23e';
+        else if (status === 'Not Eaten') color = '#e74a3b';
+
+        let avatarHtml = childData.img ? `<img src="${childData.img}" style="width:100%; height:100%; object-fit:cover;">` : (childData.first_name[0] + childData.last_name[0]);
+        const notes = record && record.teacher_notes ? `<div style="margin-top:15px; font-size:0.85rem; color:#666; background:#f9f9f9; padding:10px; border-radius:5px; font-style:italic;"><strong>Teacher Notes:</strong> "${record.teacher_notes}"</div>` : '';
+
+        let bmiHtml = '';
+        if (childData.weight && childData.height) {
+            const heightM = childData.height / 100;
+            const bmi = (childData.weight / (heightM * heightM)).toFixed(1);
+            let category = "Overweight";
+            if (bmi < 14) category = "Underweight";
+            else if (bmi < 18) category = "Normal weight";
             
-            // Calc overall
-            let avg = Math.round((data.breakfast + data.lunch + data.snack) / 3);
-            if (avg < 50 && (data.breakfast > 0 || data.lunch > 0 || data.snack > 0)) concerns++; 
-
-            globalAvgAcc += avg;
-            totalChildren++;
-
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
-            let allergyStr = ''; 
-
-            let html = `
-            <div class="student-row">
-                <div class="student-header">
-                    <div class="student-info">
-                        <div class="avatar">${avatarHtml}</div>
-                        <div>
-                            <h4>${st.name}</h4>
-                            <p>${st.age} years old</p>
-                            ${allergyStr ? `<div class="allergies">${allergyStr}</div>` : ''}
-                        </div>
-                    </div>
-                    <div class="overall-avg">
-                        <h3>${avg}%</h3>
-                        <p>Avg Intake</p>
-                    </div>
+            bmiHtml = `
+            <div style="margin-top:15px; padding:15px; background:#e0f0ff; border-left:4px solid #4a90e2; border-radius:4px;">
+                <h4 style="margin:0 0 5px 0; font-size:1.05rem; color:#043263;">Current Health Profile</h4>
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#444;">
+                    <span><strong>Weight:</strong> ${childData.weight} kg</span>
+                    <span><strong>Height:</strong> ${childData.height} cm</span>
+                    <span><strong>BMI:</strong> ${bmi} (${category})</span>
                 </div>
+            </div>`;
+        }
 
-                <div class="progress-bg"><div class="progress-fill" style="width:${avg}%;"></div></div>
-
-                <div class="meal-grid">
-                    <div class="meal-block breakfast">
-                        <div class="meal-name">🥐 Breakfast</div>
-                        <div class="meal-pct">${data.breakfast}%</div>
-                    </div>
-                    <div class="meal-block lunch">
-                        <div class="meal-name">🥪 Lunch</div>
-                        <div class="meal-pct">${data.lunch}%</div>
-                    </div>
-                    <div class="meal-block snack">
-                        <div class="meal-name">🍎 Snack</div>
-                        <div class="meal-pct">${data.snack}%</div>
-                    </div>
-                </div>`;
-
-            // Append BMI row if available
-            const growth = growthDB[st.id];
-            if(growth && growth.height && growth.weight) {
-                const hMeters = growth.height / 100;
-                const bmi = (growth.weight / (hMeters * hMeters)).toFixed(1);
-                let badgeClass = 'ontrack'; // We'll borrow the css pill classes
-                let badgeText = 'Normal Health';
-                let col = '#1cc88a';
-                if(bmi < 15) { badgeClass = 'support'; badgeText = 'Underweight / Malnourished'; col = '#e74a3b'; }
-                else if (bmi > 19) { badgeClass = 'delayed'; badgeText = 'Overweight'; col = '#f6c23e'; }
-
-                html += `
-                <div style="background:#fdfdfd; padding:15px; border-radius:8px; border:1px solid #eee; display:flex; justify-content:space-between; align-items:center; margin-top: 15px;">
+        let html = `
+        <div class="student-row">
+            <div class="student-header" style="align-items:center;">
+                <div class="student-info">
+                    <div class="avatar">${avatarHtml}</div>
                     <div>
-                        <div style="font-size:0.9rem; font-weight:700; color:#333; margin-bottom:5px;">Physical Growth & BMI</div>
-                        <div style="font-size:0.8rem; color:#777;">Height: ${growth.height} cm &bull; Weight: ${growth.weight} kg</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:1.6rem; font-weight:800; color:${col};">${bmi}</div>
-                        <div style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid ${col}; color:${col}; margin-top:5px; display:inline-block;">${badgeText}</div>
+                        <h4>${childData.first_name} ${childData.last_name}</h4>
+                        <p>${childData.age} years old</p>
                     </div>
                 </div>
-                </div>`;
-            } else {
-                html += `</div>`;
-            }
-
-            container.innerHTML += html;
-        });
-
-        // Top KPIs
-        let globalAvg = totalChildren > 0 ? Math.round(globalAvgAcc / totalChildren) : 0;
-        document.getElementById('kpi-avg').innerText = `${globalAvg}%`;
-        document.getElementById('kpi-concerns').innerText = concerns;
-        document.getElementById('kpi-allergies').innerText = totalAllergies; // TBD if we add allergy to enroll form
+                <div class="overall-avg">
+                    <h3 style="color:${color}; font-size:1.4rem;">${status}</h3>
+                    <p>Snack Status</p>
+                </div>
+            </div>
+            ${bmiHtml}
+            ${notes}
+        </div>`;
+        
+        container.innerHTML = html;
     }
 
     // Startup
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('overviewDate').value = todayStr;
-    renderDashboard();
+
+    // Get linked child via new API
+    fetch('/api/parent/history/')
+        .then(res => res.json())
+        .then(data => {
+            if(data.detail || !data.child) {
+                document.getElementById('student-list-container').innerHTML = `<div class="empty-state"><h3>No Child Linked.</h3><p>Please contact the teacher to link your child to this account.</p></div>`;
+            } else {
+                childData = data.child;
+                allNutrition = data.nutrition || [];
+                renderDashboard();
+            }
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('student-list-container').innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Could not load records.</p></div>`;
+        });
 
 </script>
 

@@ -241,22 +241,32 @@
 
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
-    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+    let studentsMaster = [];
     let extraGuardiansDB = JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {};
     // Database for today's checkin tracking. Key: studentId -> val: { status: 'checked-in'/'picked-up', time: '...', guardian: '...' }
     let checkinDB = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; 
 
     // Start-Up Setup
-    const guardStudentDropdown = document.getElementById('guardStudent');
-    if (studentsMaster.length === 0) {
-        guardStudentDropdown.innerHTML = '<option value="" disabled selected>No students enrolled yet</option>';
-        guardStudentDropdown.disabled = true;
-        document.querySelector('.btn-submit').disabled = true;
-        document.querySelector('.btn-submit').style.background = '#888';
-    } else {
-        studentsMaster.forEach(st => {
-            guardStudentDropdown.innerHTML += `<option value="${st.id}">${st.name}</option>`;
-        });
+    function loadData() {
+        fetch('/api/children/')
+            .then(r => r.json())
+            .then(data => {
+                studentsMaster = data.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
+                
+                const guardStudentDropdown = document.getElementById('guardStudent');
+                guardStudentDropdown.innerHTML = '';
+                if (studentsMaster.length === 0) {
+                    guardStudentDropdown.innerHTML = '<option value="" disabled selected>No students enrolled yet</option>';
+                    guardStudentDropdown.disabled = true;
+                    document.querySelector('.btn-submit').disabled = true;
+                    document.querySelector('.btn-submit').style.background = '#888';
+                } else {
+                    studentsMaster.forEach(st => {
+                        guardStudentDropdown.innerHTML += `<option value="${st.id}">${st.first_name} ${st.last_name}</option>`;
+                    });
+                }
+                calculateDash();
+            });
     }
 
     // Tabs
@@ -321,16 +331,16 @@
     // Find guardian by contact info or exact full name matches.
     // For demo/prototype we assume input manual code = their phone number or name.
     function locateGuardianAuth(inputText) {
-        let auth = null;
-        let authStudent = null;
-
         for (let st of studentsMaster) {
             // Check primary parents
-            if(st.mother_contact === inputText || st.mother_name.includes(inputText)) {
-                return { guardian: `${st.mother_name} (Mother)`, student: st };
+            if(st.mother_phone === inputText || (st.mother_first_name && st.mother_first_name.includes(inputText))) {
+                return { guardian: `${st.mother_first_name} (Mother)`, student: st };
             }
-            if(st.father_contact === inputText || st.father_name.includes(inputText)) {
-                return { guardian: `${st.father_name} (Father)`, student: st };
+            if(st.father_phone === inputText || (st.father_first_name && st.father_first_name.includes(inputText))) {
+                return { guardian: `${st.father_first_name} (Father)`, student: st };
+            }
+            if(st.other_guardian_phone === inputText || (st.other_guardian_first_name && st.other_guardian_first_name.includes(inputText))) {
+                return { guardian: `${st.other_guardian_first_name} (Guardian)`, student: st };
             }
             // Check extra guardians
             if(extraGuardiansDB[st.id]) {
@@ -368,7 +378,7 @@
             }
 
             // Perform Action
-            showToast(`Verified: ${match.guardian}. Action: ${action} for ${match.student.name}`, 'success');
+            showToast(`Verified: ${match.guardian}. Action: ${action} for ${match.student.first_name} ${match.student.last_name}`, 'success');
             
             let timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             if(action === 'dropoff') {
@@ -426,8 +436,9 @@
             // Count standard parents + extra ones
             let studentGuardiansCount = 0;
             let gHtml = '';
-            if(st.mother_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_name} &bull; Mother (${st.mother_contact})</div>`; }
-            if(st.father_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_name} &bull; Father (${st.father_contact})</div>`; }
+            if(st.mother_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_first_name} ${st.mother_last_name || ''} &bull; Mother (${st.mother_phone || 'No Contact'})</div>`; }
+            if(st.father_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_first_name} ${st.father_last_name || ''} &bull; Father (${st.father_phone || 'No Contact'})</div>`; }
+            if(st.other_guardian_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.other_guardian_first_name} ${st.other_guardian_last_name || ''} &bull; Guardian (${st.other_guardian_phone || 'No Contact'})</div>`; }
             
             if(extraGuardiansDB[st.id]) {
                 extraGuardiansDB[st.id].forEach(eg => {
@@ -437,13 +448,13 @@
             }
             totalGuardians += studentGuardiansCount;
 
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]).toUpperCase();
 
             guardiansModalHtml += `
             <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
-                    <div class="item-name">${st.name}</div>
+                    <div class="item-name">${st.first_name} ${st.last_name}</div>
                     ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
                 </div>
                 ${gHtml ? '<span class="pill success">✓ Authorized</span>' : ''}
@@ -457,7 +468,7 @@
                 <div class="list-item">
                     <div class="avatar">${avatarHtml}</div>
                     <div class="item-details">
-                        <div class="item-name">${st.name}</div>
+                        <div class="item-name">${st.first_name} ${st.last_name}</div>
                         <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
                     </div>
                     <span class="pill success">Present</span>
@@ -480,7 +491,7 @@
         document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
     }
 
-    calculateDash();
+    loadData();
 
 </script>
 

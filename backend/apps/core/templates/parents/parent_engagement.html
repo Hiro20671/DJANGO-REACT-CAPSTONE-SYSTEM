@@ -38,10 +38,14 @@
 /* Message List */
 .msg-item { border: 1px solid #eee; border-radius: 10px; padding: 20px; margin-bottom: 15px; display:flex; flex-direction:column; gap:10px; background:#fff; cursor: pointer; transition: 0.2s; }
 .msg-item:hover { background: #f8f9fa; transform: translateX(5px); border-color: #4a90e2; }
+.msg-item.urgent { border: 2px solid #e74a3b; background: #fdf2f2; }
+.msg-item.urgent:hover { background: #faeaea; border-color: #c82333; }
 .msg-header { display:flex; justify-content:space-between; align-items:center; }
 .msg-title { font-weight:700; color:#333; font-size:1.05rem; }
+.msg-title.urgent-title { color: #e74a3b; }
 .msg-date { font-size:0.8rem; color:#888; }
 .msg-body-preview { font-size:0.9rem; color:#777; line-height:1.5; padding-top: 10px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.msg-item.urgent .msg-body-preview { color: #555; border-top-color: #f5c6cb; }
 
 /* Modal */
 .modal-overlay {
@@ -163,27 +167,37 @@
 </div>
 
 <script>
-    // ISOLATION FIX
-    const currentUser = "{{ request.user.username }}";
-    let linkedId = null;
-    let pStr = localStorage.getItem('bmv3_parent_profile_' + currentUser) || localStorage.getItem('bmv3_parent_profile_data');
-    if(pStr) linkedId = JSON.parse(pStr).child_id;
+    let myChildId = null;
 
-    function renderInbox() {
-        let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+    function fetchSystemData() {
+        Promise.all([
+            fetch('/api/parent/history/').then(res => res.json()),
+            fetch('/api/no-class-days/').then(res => res.json())
+        ])
+            .then(([data, noClassData]) => {
+                if(data.detail || !data.child) {
+                    document.getElementById('messages-container').innerHTML = `<div class="empty-state"><h3>No Child Linked.</h3><p>Please contact the teacher to link your child to this account.</p></div>`;
+                    throw new Error("No child linked");
+                }
+                renderInbox(data, noClassData);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    function renderInbox(history, noClassData) {
         let container = document.getElementById('messages-container');
         
-        let childReports = linkedId ? (reportsDB[linkedId] || []) : [];
-
-        document.getElementById('reports-received-val').innerText = childReports.length;
-        
-        if (childReports.length === 0) {
-            container.innerHTML = `<div class="empty-state"><h3>Your Inbox is Empty.</h3><p>Messages and progress reports sent by teachers will appear here securely.</p></div>`;
-            return;
-        }
-
         let html = '';
-        childReports.forEach(rep => {
+        let totalReports = 0;
+        
+        // Fetch actual reports from teacher instead of fake ones
+        let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+        let myReports = reportsDB[history.child.id] || [];
+
+        myReports.forEach(rep => {
+            totalReports++;
             const safeTitle = rep.title.replace(/'/g, "\\'");
             const safeBody = rep.body.replace(/'/g, "\\'").replace(/\n/g, "<br>");
             const safeDate = rep.date.replace(/'/g, "\\'");
@@ -199,13 +213,44 @@
                 </div>
             </div>`;
         });
+
+        // Process No Class Days into urgent messages
+        if (Array.isArray(noClassData) && noClassData.length > 0) {
+            noClassData.forEach(nc => {
+                totalReports++;
+                let dt = new Date(nc.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
+                let reason = nc.reason || "No reason provided.";
+                let body = `Dear Parents,\n\nPlease be informed that there will be NO CLASS on ${dt}.\n\nReason: ${reason}\n\nThank you,\nBMV3 Management`;
+                
+                const safeTitle = `URGENT: No Class on ${dt}`.replace(/'/g, "\\'");
+                const safeBody = body.replace(/'/g, "\\'").replace(/\n/g, "<br>");
+                const safeDate = new Date(nc.created_at).toLocaleDateString('en-US');
+                
+                html += `
+                <div class="msg-item urgent" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
+                    <div class="msg-header">
+                        <div class="msg-title urgent-title">⚠️ URGENT: No Class on ${dt}</div>
+                        <div class="msg-date">${safeDate}</div>
+                    </div>
+                    <div class="msg-body-preview">
+                        ${body}
+                    </div>
+                </div>`;
+            });
+        }
+
+        document.getElementById('reports-received-val').innerText = totalReports;
         
+        if (html === '') {
+            html = '<div class="empty-state"><h3>No Messages.</h3><p>Your inbox is currently empty.</p></div>';
+        }
+
         container.innerHTML = html;
     }
 
     function openReportModal(title, date, body) {
         document.getElementById('modalReportTitle').innerText = title;
-        document.getElementById('modalReportDate').innerText = "Logged on: " + date;
+        document.getElementById('modalReportDate').innerText = "Generated on: " + date;
         document.getElementById('modalReportBody').innerHTML = body;
         document.getElementById('reportModal').classList.add('active');
     }
@@ -218,7 +263,7 @@
         if(e.target === this) closeModal();
     });
 
-    renderInbox();
+    fetchSystemData();
 </script>
 
 {% endblock content %}

@@ -100,104 +100,76 @@
 </div>
 
 <script>
-    let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-    
-    // ISOLATION FIX
-    const cUser = "{{ request.user.username }}";
-    let linkedId = localStorage.getItem('linked_child_id');
-    if (linkedId) {
-        linkedId = parseInt(linkedId);
-    } else {
-        let pStr = localStorage.getItem('bmv3_parent_profile_' + cUser) || localStorage.getItem('bmv3_parent_profile_data');
-        if(pStr) linkedId = JSON.parse(pStr).child_id;
-    }
-    if(linkedId) {
-        studentsMaster = studentsMaster.filter(st => st.id === linkedId);
-    } else {
-        studentsMaster = [];
-    }
-    let extraGuardiansDB = JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {};
-    let checkinDB = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; 
+    fetch('/api/parent/history/')
+    .then(res => res.json())
+    .then(data => {
+        if (data.detail || !data.child) {
+            document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">No student linked to this account.</div>`;
+            document.getElementById('modal-guardians-body').innerHTML = `<div class="empty-state">No records found.</div>`;
+            return;
+        }
 
-    // UI Updates
-    function calculateDash() {
+        const child = data.child;
         let checkedInCount = 0;
         let totalGuardians = 0;
 
         let previewHtml = '';
         let guardiansModalHtml = '';
 
-        if(studentsMaster.length === 0) {
-            document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">No students tracking enabled.</div>`;
-            document.getElementById('modal-guardians-body').innerHTML = `<div class="empty-state">No records found.</div>`;
-            return;
-        }
+        // Count standard parents
+        let studentGuardiansCount = 0;
+        let gHtml = '';
+        if (child.mother_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.mother_first_name} ${child.mother_last_name} (Mother)</div>`; }
+        if (child.father_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.father_first_name} ${child.father_last_name} (Father)</div>`; }
+        if (child.other_guardian_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.other_guardian_first_name} ${child.other_guardian_last_name} (Other)</div>`; }
 
-        studentsMaster.forEach(st => {
-            // Count standard parents + extra ones
-            let studentGuardiansCount = 0;
-            let gHtml = '';
-            if(st.mother_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_name} (Mother)</div>`; }
-            if(st.father_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_name} (Father)</div>`; }
+        totalGuardians = studentGuardiansCount;
+
+        let avatarHtml = child.img ? `<img src="${child.img}" style="width:100%; height:100%; object-fit:cover;">` : (child.first_name[0] + child.last_name[0]);
+
+        guardiansModalHtml += `
+        <div class="list-item" style="background:#fff;">
+            <div class="avatar">${avatarHtml}</div>
+            <div class="item-details">
+                <div class="item-name">${child.first_name} ${child.last_name}</div>
+                ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
+            </div>
+        </div>`;
+
+        // Check In List - Get today's attendance
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todayAtt = (data.attendance || []).find(a => a.date.startsWith(todayStr));
+
+        if (todayAtt && todayAtt.status.toLowerCase() === 'present') {
+            checkedInCount++;
+            let timeText = todayAtt.dropoff_time || '08:00 AM';
+            let gText = todayAtt.authorized_guardian || 'System Tracker';
             
-            if(extraGuardiansDB[st.id]) {
-                extraGuardiansDB[st.id].forEach(eg => {
-                    studentGuardiansCount++;
-                    gHtml += `<div class="item-sub">${eg.name} (${eg.rel})</div>`;
-                });
-            }
-            totalGuardians += studentGuardiansCount;
-
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
-
-            guardiansModalHtml += `
-            <div class="list-item" style="background:#fff;">
+            previewHtml += `
+            <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
-                    <div class="item-name">${st.name}</div>
-                    ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
+                    <div class="item-name">${child.first_name} ${child.last_name}</div>
+                    <div class="item-sub">Dropped off at ${timeText} by ${gText}</div>
                 </div>
+                <span class="pill success">Present</span>
             </div>`;
-
-            // Check In List
-            let cState = checkinDB[st.id];
-            if (cState && cState.status === 'checked-in') {
-                checkedInCount++;
-                let html = `
-                <div class="list-item">
-                    <div class="avatar">${avatarHtml}</div>
-                    <div class="item-details">
-                        <div class="item-name">${st.name}</div>
-                        <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
-                    </div>
-                    <span class="pill success">Present</span>
-                </div>`;
-                previewHtml += html;
-            } else if (cState && cState.status === 'picked-up') {
-                let html = `
-                <div class="list-item">
-                    <div class="avatar">${avatarHtml}</div>
-                    <div class="item-details">
-                        <div class="item-name">${st.name}</div>
-                        <div class="item-sub" style="color:#856404;">Picked up at ${cState.time} by ${cState.guardian}</div>
-                    </div>
-                </div>`;
-                previewHtml += html;
-            }
-        });
+        }
 
         document.getElementById('kpi-checked-in').innerText = checkedInCount;
         document.getElementById('kpi-guardians').innerText = totalGuardians;
 
         if (!previewHtml) {
-            previewHtml = `<div class="empty-state">No children currently checked in.</div>`;
+            previewHtml = `<div class="empty-state">No child currently checked in.</div>`;
         }
 
         document.getElementById('checkedin-preview-container').innerHTML = previewHtml;
         document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
-    }
-
-    calculateDash();
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">Error loading data.</div>`;
+    });
 
 </script>
 

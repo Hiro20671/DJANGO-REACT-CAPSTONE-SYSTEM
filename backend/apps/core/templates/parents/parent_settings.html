@@ -270,6 +270,7 @@ input:checked + .slider:before { transform: translateX(26px); }
             
             <div class="sub-tabs">
                 <div class="sub-tab active" id="tab-profile" onclick="switchSub('profile')">Edit Profile</div>
+                <div class="sub-tab" id="tab-child" onclick="switchSub('child')">Child Profile</div>
                 <div class="sub-tab" id="tab-password" onclick="switchSub('password')">Change Password</div>
             </div>
 
@@ -285,8 +286,16 @@ input:checked + .slider:before { transform: translateX(26px); }
                 </div>
 
                 <div class="form-group">
-                    <label>Guardian Full Name</label>
-                    <input type="text" value="Parent Profile" id="profName">
+                    <label>Username</label>
+                    <input type="text" id="profUsername">
+                </div>
+                <div class="form-group">
+                    <label>Guardian First Name</label>
+                    <input type="text" id="profFirstName">
+                </div>
+                <div class="form-group">
+                    <label>Guardian Last Name</label>
+                    <input type="text" id="profLastName">
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
@@ -296,10 +305,54 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <label>Contact Number</label>
                     <input type="text" placeholder="+1-555-0000" id="profContact">
                 </div>
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Address Details</h4>
                 <div class="form-group">
-                    <label>Home Address</label>
-                    <input type="text" placeholder="House No., Street, City" id="profAddress">
+                    <label>Address Line 1 (Street/House) *</label>
+                    <input type="text" id="profAddressLine1">
                 </div>
+                <div class="form-group">
+                    <label>Barangay *</label>
+                    <select id="profBarangay">
+                        <option value="">Select Barangay</option>
+                        <option value="Market View">Market View</option>
+                        <option value="Ilayang Dupay">Ilayang Dupay</option>
+                        <option value="Ibabang Dupay">Ibabang Dupay</option>
+                        <option value="Cotta">Cotta</option>
+                        <option value="Gulang-Gulang">Gulang-Gulang</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>City/Municipality *</label>
+                    <select id="profCity">
+                        <option value="">Select City/Municipality</option>
+                        <option value="Lucena City">Lucena City</option>
+                        <option value="Tayabas City">Tayabas City</option>
+                        <option value="Pagbilao">Pagbilao</option>
+                        <option value="Sariaya">Sariaya</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Province *</label>
+                    <select id="profProvince">
+                        <option value="">Select Province</option>
+                        <option value="Quezon">Quezon Province</option>
+                        <option value="Laguna">Laguna</option>
+                        <option value="Batangas">Batangas</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Region *</label>
+                    <select id="profRegion">
+                        <option value="">Select Region</option>
+                        <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+                        <option value="NCR">NCR</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Linked Child</h4>
                 <div class="form-group">
                     <label>Enrolled Child's Name</label>
                     <input type="text" placeholder="Child's Full Name" id="profChild">
@@ -307,21 +360,72 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
             </div>
 
+            <!-- Child Sub -->
+            <div class="sub-panel" id="sub-child">
+                <input type="hidden" id="childId">
+                <p id="noChildMsg" style="display:none; color:#888;">No child is currently linked to this account.</p>
+                <div id="childEditForm">
+                    <div class="form-group">
+                        <label>Child's First Name</label>
+                        <input type="text" id="childFirstName">
+                    </div>
+                    <div class="form-group">
+                        <label>Child's Last Name</label>
+                        <input type="text" id="childLastName">
+                    </div>
+                    <div class="form-group">
+                        <label>Child's Allergies</label>
+                        <select id="childAllergies">
+                            <option value="">None</option>
+                            <option value="Peanuts">Peanuts</option>
+                            <option value="Dairy / Milk">Dairy / Milk</option>
+                            <option value="Seafood / Shellfish">Seafood / Shellfish</option>
+                            <option value="Eggs">Eggs</option>
+                            <option value="Soy">Soy</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Tree Nuts">Tree Nuts</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Other Health Conditions</label>
+                        <input type="text" id="childHealthConditions" placeholder="e.g. Asthma">
+                    </div>
+                    <button class="btn-primary" onclick="saveChildProfile()">Save Child Profile</button>
+                </div>
+            </div>
+
             <!-- Password Sub -->
             <div class="sub-panel" id="sub-password">
-                <div class="form-group">
-                    <label>Current Password</label>
-                    <input type="password" id="pwCurr" placeholder="••••••••">
+                <div id="otp-request-section">
+                    <p>To change your password, you must first verify your email address.</p>
+                    <button class="btn-primary" onclick="requestOTP()" id="btnRequestOTP">Verify Email</button>
+                    <div id="otp-message" style="margin-top:10px; font-weight:600; color:#28a745;"></div>
                 </div>
-                <div class="form-group">
-                    <label>New Password</label>
-                    <input type="password" id="pwNew" placeholder="Enter new password">
+                <div id="otp-verify-section" style="display:none; margin-top:20px;">
+                    <div class="form-group" id="otpInputGroup">
+                        <label>Verification Code (Sent to Email)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="otpCode" placeholder="Enter 6-digit code" style="flex: 1;">
+                            <button class="btn-primary" style="width: auto;" id="btnVerifyOTP" onclick="verifyOTPOnly()">Verify Code</button>
+                        </div>
+                        <div id="otpTimer" style="font-size: 0.85rem; color: #d9534f; margin-top: 5px; font-weight: bold;"></div>
+                        <button class="btn-primary" style="background: transparent; color: #4a90e2; border: 1px solid #4a90e2; padding: 8px 15px; margin-top: 10px; display: none; width: auto; font-size: 0.9rem;" id="btnResendOTP" onclick="requestOTP()">Resend Code</button>
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="pwNew" placeholder="Enter new password" disabled>
+                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">Must be at least 8 characters long.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="pwConf" placeholder="Confirm new password" disabled>
+                    </div>
+                    <button class="btn-primary" id="btnSubmitPassword" onclick="submitPasswordChange()" disabled>Change Password</button>
                 </div>
-                <div class="form-group">
-                    <label>Confirm New Password</label>
-                    <input type="password" id="pwConf" placeholder="Confirm new password">
-                </div>
-                <button class="btn-primary" onclick="changePassword()">Change Password</button>
             </div>
         </div>
 
@@ -416,40 +520,66 @@ input:checked + .slider:before { transform: translateX(26px); }
 
 <script>
     // PROFILE IMAGE LOGIC
-    window.addEventListener('load', () => {
-        const currentUserSettings = "{{ request.user.username }}";
-        let parentData = {};
-        
-        if(currentUserSettings) {
-            let userProfileRaw = localStorage.getItem('bmv3_parent_profile_' + currentUserSettings);
-            if(userProfileRaw) {
-                parentData = JSON.parse(userProfileRaw);
-            } else {
-                // Fallback for older global data
-                parentData = JSON.parse(localStorage.getItem('bmv3_parent_profile_data')) || {};
-                let fallbackImg = localStorage.getItem('bmv3_parent_profile_img');
-                if(fallbackImg) parentData.parent_img = fallbackImg;
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
+    }
 
-        if (parentData.parent_img) {
-            document.getElementById('profileImagePreview').innerHTML = `<img src="${parentData.parent_img}">`;
-            // also load it globally so image previews can share logic if needed
-            localStorage.setItem('bmv3_parent_profile_img', parentData.parent_img);
+    // LOAD SETTINGS FROM API
+    window.addEventListener('load', () => {
+        fetch('/api/user/settings/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('profUsername').value = data.username || '';
+                document.getElementById('profFirstName').value = data.first_name || '';
+                document.getElementById('profLastName').value = data.last_name || '';
+                document.getElementById('profEmail').value = data.email || '';
+                if(data.phone) document.getElementById('profContact').value = data.phone;
+                
+                if(data.address) {
+                    let parts = data.address.split(', ');
+                    if(parts.length > 0) document.getElementById('profAddressLine1').value = parts[0];
+                    if(parts.length > 1) document.getElementById('profBarangay').value = parts[1];
+                    if(parts.length > 2) document.getElementById('profCity').value = parts[2];
+                    if(parts.length > 3) document.getElementById('profProvince').value = parts[3];
+                    if(parts.length > 4) document.getElementById('profRegion').value = parts[4];
+                }
+
+                if (data.child_id) {
+                    document.getElementById('childId').value = data.child_id;
+                    document.getElementById('childFirstName').value = data.child_first_name || '';
+                    document.getElementById('childLastName').value = data.child_last_name || '';
+                    document.getElementById('childAllergies').value = data.child_allergies || '';
+                    document.getElementById('childHealthConditions').value = data.child_health_conditions || '';
+                    document.getElementById('profChild').value = data.child_first_name + ' ' + data.child_last_name;
+                    document.getElementById('profChild').disabled = true;
+                    document.getElementById('profChild').style.backgroundColor = '#f0f0f0';
+                    
+                    if (data.guardian_type) {
+                        window.parentGuardianType = data.guardian_type;
+                    }
+                } else {
+                    document.getElementById('childEditForm').style.display = 'none';
+                    document.getElementById('noChildMsg').style.display = 'block';
+                }
+            })
+            .catch(err => console.error("Error loading profile", err));
+
+        let fallbackImg = localStorage.getItem('bmv3_parent_profile_img');
+        if(fallbackImg) {
+            document.getElementById('profileImagePreview').innerHTML = `<img src="${fallbackImg}">`;
         }
 
-        // Load profile data
-        if (parentData.name) document.getElementById('profName').value = parentData.name;
-        if (parentData.email) document.getElementById('profEmail').value = parentData.email;
-        if (parentData.contact) document.getElementById('profContact').value = parentData.contact;
-        if (parentData.address) document.getElementById('profAddress').value = parentData.address;
-        if (parentData.child_name || parentData.child) document.getElementById('profChild').value = parentData.child_name || parentData.child;
-
-        // Make child name readonly since it's verified securely
-        document.getElementById('profChild').disabled = true;
-        document.getElementById('profChild').style.backgroundColor = '#f0f0f0';
-
-        // Apply theme selector correctly
         let currentTheme = localStorage.getItem('bmv3_theme') || 'light';
         document.getElementById('themeSelect').value = currentTheme;
     });
@@ -462,7 +592,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 let img = new Image();
                 img.onload = function() {
                     let canvas = document.createElement('canvas');
-                    let ctx = canvas.getContext('react-2d') || canvas.getContext('2d');
+                    let ctx = canvas.getContext('2d');
                     
                     const MAX_WIDTH = 300;
                     const MAX_HEIGHT = 300;
@@ -482,14 +612,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
                     localStorage.setItem('bmv3_parent_profile_img', compressedBase64);
                     document.getElementById('profileImagePreview').innerHTML = `<img src="${compressedBase64}">`;
-                    
-                    const currentUserSettings = "{{ request.user.username }}";
-                    if(currentUserSettings) {
-                        let d = JSON.parse(localStorage.getItem('bmv3_parent_profile_' + currentUserSettings) || "{}");
-                        d.parent_img = compressedBase64;
-                        localStorage.setItem('bmv3_parent_profile_' + currentUserSettings, JSON.stringify(d));
-                    }
-                    showToast("Profile image updated successfully", "success");
+                    showToast("Profile image updated locally", "success");
                 };
                 img.src = e.target.result;
             }
@@ -497,7 +620,6 @@ input:checked + .slider:before { transform: translateX(26px); }
         }
     }
 
-    // THEME LOGIC
     function toggleTheme(mode) {
         localStorage.setItem('bmv3_theme', mode);
         if (mode === 'dark') {
@@ -539,115 +661,270 @@ input:checked + .slider:before { transform: translateX(26px); }
     }
 
     function saveProfile() { 
-        const currentUserSettings = "{{ request.user.username }}";
-        let parentData = JSON.parse(localStorage.getItem('bmv3_parent_profile_' + currentUserSettings) || "{}");
-        
-        parentData.name = document.getElementById('profName').value;
-        parentData.email = document.getElementById('profEmail').value;
-        parentData.contact = document.getElementById('profContact').value;
-        parentData.address = document.getElementById('profAddress').value;
-        // Not touching child since it's disabled/verified
-        
-        localStorage.setItem('bmv3_parent_profile_' + currentUserSettings, JSON.stringify(parentData));
-        
-        // Update old mock variable
-        let oldData = JSON.parse(localStorage.getItem('bmv3_parent_profile_data') || "{}");
-        oldData.name = parentData.name;
-        oldData.email = parentData.email;
-        oldData.contact = parentData.contact;
-        oldData.address = parentData.address;
-        localStorage.setItem('bmv3_parent_profile_data', JSON.stringify(oldData));
+        const payload = {
+            username: document.getElementById('profUsername').value,
+            first_name: document.getElementById('profFirstName').value,
+            last_name: document.getElementById('profLastName').value,
+            email: document.getElementById('profEmail').value,
+            phone: document.getElementById('profContact').value,
+            address: [
+                document.getElementById('profAddressLine1').value,
+                document.getElementById('profBarangay').value,
+                document.getElementById('profCity').value,
+                document.getElementById('profProvince').value,
+                document.getElementById('profRegion').value
+            ].filter(Boolean).join(", "),
+            guardian_type: window.parentGuardianType || 'Mother'
+        };
 
-        showToast("Profile details updated successfully", "success"); 
-        
-        // Instantly update sidebar name
-        let sName = document.getElementById('sidebar-name');
-        if(sName) sName.innerText = parentData.name;
+        fetch('/api/user/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || 'Failed to update profile');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Profile updated successfully", "success");
+            let sName = document.getElementById('sidebar-name');
+            if(sName) sName.innerText = payload.first_name + ' ' + payload.last_name;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+        });
     }
 
-    function changePassword() {
-        let curr = document.getElementById('pwCurr').value;
+    function saveChildProfile() {
+        const childId = document.getElementById('childId').value;
+        if (!childId) return;
+        
+        const payload = {
+            first_name: document.getElementById('childFirstName').value,
+            last_name: document.getElementById('childLastName').value,
+            allergies: document.getElementById('childAllergies').value,
+            health_conditions: document.getElementById('childHealthConditions').value
+        };
+
+        fetch('/api/children/' + childId + '/update_profile/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async res => {
+            if(!res.ok) throw new Error('Failed to update child profile');
+            return res.json();
+        })
+        .then(data => {
+            showToast("Child profile updated", "success");
+        })
+        .catch(err => showToast(err.message, "error"));
+    }
+
+    let otpInterval;
+    function startOTPTimer() {
+        clearInterval(otpInterval);
+        let timeLeft = 300; // 5 minutes
+        const timerEl = document.getElementById('otpTimer');
+        const resendBtn = document.getElementById('btnResendOTP');
+        const verifyBtn = document.getElementById('btnVerifyOTP');
+        
+        resendBtn.style.display = 'none';
+        timerEl.style.display = 'block';
+        
+        otpInterval = setInterval(() => {
+            timeLeft--;
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerEl.innerText = `Code expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(otpInterval);
+                timerEl.innerText = "Verification code expired.";
+                resendBtn.style.display = 'inline-block';
+                verifyBtn.disabled = true;
+            }
+        }, 1000);
+    }
+
+    function requestOTP() {
+        document.getElementById('btnRequestOTP').disabled = true;
+        document.getElementById('btnRequestOTP').innerText = "Requesting...";
+        document.getElementById('btnVerifyOTP').disabled = false;
+        
+        fetch('/api/request-password-change/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to send verification code.');
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.dev_otp) {
+                document.getElementById('otp-message').innerHTML = `Verification code generated locally! Your code is: <strong style="color:#d9534f; font-size:1.1rem; letter-spacing:2px;">${data.dev_otp}</strong>`;
+            } else {
+                document.getElementById('otp-message').innerText = "Verification code sent to your email!";
+            }
+            document.getElementById('otp-request-section').style.display = 'none';
+            document.getElementById('otp-verify-section').style.display = 'block';
+            startOTPTimer();
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
+        });
+    }
+
+    function verifyOTPOnly() {
+        let otpCode = document.getElementById('otpCode').value;
+        if(!otpCode) { showToast("Please enter the verification code", "error"); return; }
+        
+        document.getElementById('btnVerifyOTP').disabled = true;
+        document.getElementById('btnVerifyOTP').innerText = "Verifying...";
+        
+        fetch('/api/verify-otp-only/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ otp_code: otpCode })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Email verified successfully!", "success");
+            clearInterval(otpInterval);
+            document.getElementById('otpTimer').style.display = 'none';
+            document.getElementById('btnVerifyOTP').innerText = "Verified";
+            document.getElementById('btnResendOTP').style.display = 'none';
+            
+            // Enable password inputs
+            document.getElementById('pwNew').disabled = false;
+            document.getElementById('pwConf').disabled = false;
+            document.getElementById('btnSubmitPassword').disabled = false;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnVerifyOTP').disabled = false;
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+        });
+    }
+
+    function submitPasswordChange() {
+        let otpCode = document.getElementById('otpCode').value;
         let pNew = document.getElementById('pwNew').value;
         let pConf = document.getElementById('pwConf').value;
 
-        if(!curr || !pNew || !pConf) { showToast("Please fill all password fields", "error"); return; }
+        if(!pNew || !pConf) { showToast("Please fill all fields", "error"); return; }
         if(pNew !== pConf) { showToast("New passwords do not match", "error"); return; }
+        if(pNew.length < 8) { showToast("Password must be at least 8 characters long", "error"); return; }
         
-        document.getElementById('pwCurr').value = '';
-        document.getElementById('pwNew').value = '';
-        document.getElementById('pwConf').value = '';
+        const btn = document.getElementById('btnSubmitPassword');
+        btn.disabled = true;
+        btn.innerText = "Changing...";
         
-        showToast("Password successfully changed", "success");
+        fetch('/api/verify-password-change/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                otp_code: otpCode,
+                new_password: pNew
+            })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Password successfully changed", "success");
+            document.getElementById('otpCode').value = '';
+            document.getElementById('pwNew').value = '';
+            document.getElementById('pwConf').value = '';
+            document.getElementById('pwNew').disabled = true;
+            document.getElementById('pwConf').disabled = true;
+            btn.disabled = true;
+            btn.innerText = "Change Password";
+            
+            document.getElementById('otp-request-section').style.display = 'block';
+            document.getElementById('otp-verify-section').style.display = 'none';
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
+            document.getElementById('otp-message').innerText = "";
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+            document.getElementById('btnVerifyOTP').disabled = false;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            btn.disabled = false;
+            btn.innerText = "Change Password";
+        });
     }
 
     // ARCHIVAL LOGIC
     function loadArchives() {
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        let cont = document.getElementById('archives-container');
-        
-        if (archives.length === 0) {
-            cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
-            return;
-        }
-        
-        let html = '';
-        archives.forEach((arc, i) => {
-            html += `
-            <div class="archive-box">
-                <div>
-                    <div class="year-title">${arc.name}</div>
-                    <div class="year-stats">Archived on: ${arc.date} &bull; ${arc.studentCount} Students in system</div>
-                </div>
-                <div>
-                    <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${i})">View Data</button>
-                </div>
-            </div>`;
-        });
-        cont.innerHTML = html;
-    }
-
-    function viewArchive(index) {
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        let arc = archives[index];
-        if(!arc) return;
-
-        document.getElementById('av-name').innerText = arc.name;
-        document.getElementById('av-meta').innerText = `Archived on: ${arc.date} | Class Size: ${arc.studentCount}`;
-
-        let studentHtml = '';
-        
-        if (arc.records && arc.records.students && arc.records.students.length > 0) {
-            arc.records.students.forEach(st => {
-                let initial = st.name.charAt(0).toUpperCase();
-                let imgHtml = st.img ? `<img src="${st.img}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div style="width:40px; height:40px; border-radius:50%; background:#e0f0ff; color:#4a90e2; display:flex; justify-content:center; align-items:center; font-weight:bold;">${initial}</div>`;
-                
-                let bCount = 0;
-                if(arc.records.behavior && arc.records.behavior[st.id]) bCount = arc.records.behavior[st.id].length;
-
-                studentHtml += `
-                <div class="archived-student-item">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        ${imgHtml}
-                        <div>
-                            <div style="font-weight:700; color:#333;">${st.name}</div>
-                            <div style="font-size:0.8rem; color:#777;">Age: ${st.age} &bull; Room: ${st.room}</div>
-                        </div>
+        fetch('/api/school-years/')
+        .then(res => res.json())
+        .then(archives => {
+            let cont = document.getElementById('archives-container');
+            let historical = archives.filter(a => !a.is_active);
+            
+            if (historical.length === 0) {
+                cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
+                return;
+            }
+            
+            let html = '';
+            historical.forEach((arc) => {
+                html += `
+                <div class="archive-box">
+                    <div>
+                        <div class="year-title">${arc.name}</div>
+                        <div class="year-stats">Status: Archived</div>
                     </div>
-                    <div style="font-size:0.8rem; color:#666; text-align:right;">
-                        Behavior Reports: ${bCount}
+                    <div>
+                        <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
                     </div>
                 </div>`;
             });
-        } else {
-            studentHtml = `<div style="color:#888; text-align:center; padding:20px;">No student records found in this batch.</div>`;
-        }
-        
-        document.getElementById('av-students').innerHTML = studentHtml;
-        document.getElementById('archiveViewModal').classList.add('active');
+            cont.innerHTML = html;
+        });
+    }
+
+    function viewArchive(id, name) {
+        sessionStorage.setItem('bmv3_archive_year_id', id);
+        sessionStorage.setItem('bmv3_archive_year_name', name);
+        window.location.href = "{% url 'parent_dashboard' %}";
     }
 
     function closeArchiveModal() {
-        document.getElementById('archiveViewModal').classList.remove('active');
+        // Obsolete
     }
 
     loadArchives();

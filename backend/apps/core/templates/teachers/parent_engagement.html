@@ -35,8 +35,8 @@
 .student-info p { margin: 2px 0 0 0; font-size: 0.8rem; color: #888; }
 .btn-send { background: #4a90e2; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
 
-/* 4 Colored Status Boxes */
-.status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+/* 3 Colored Status Boxes */
+.status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .status-box { border: 1px solid #eee; border-radius: 6px; padding: 15px; display: flex; flex-direction: column; }
 .status-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; }
 .status-val { font-size: 1.1rem; font-weight: bold; color: #333; }
@@ -159,7 +159,6 @@
             <h3 style="margin-top:0; margin-bottom:15px; font-size:1.2rem;">Weekly Summary for <span id="m-name"></span></h3>
             <div><strong>Attendance:</strong> <span id="m-att"></span></div>
             <div style="margin-top:8px;"><strong>Developmental Progress:</strong> <span id="m-mile"></span></div>
-            <div style="margin-top:8px;"><strong>Behavior:</strong> <span id="m-beh"></span></div>
             <div style="margin-top:8px;"><strong>Nutrition:</strong> <span id="m-nut"></span></div>
         </div>
 
@@ -176,71 +175,78 @@
 </div>
 
 <script>
-const studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-
+let studentsMaster = [];
 let globalCompiledData = {};
 let dynamicAlertsCount = 0;
 
-function compileData() {
+function fetchSystemData() {
+    Promise.all([
+        fetch('/api/children/').then(r => r.json()),
+        fetch('/api/attendance/').then(r => r.json()),
+        fetch('/api/milestones/').then(r => r.json()),
+        fetch('/api/engagement/').then(r => r.json()),
+        fetch('/api/nutrition/').then(r => r.json())
+    ]).then(([children, attendance, milestones, engagement, nutrition]) => {
+        studentsMaster = children.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
+        
+        compileData(attendance, milestones, engagement, nutrition);
+        renderDigest();
+        renderHistory();
+    }).catch(err => {
+        console.error("Error loading data:", err);
+    });
+}
+
+function compileData(attendance, milestones, engagement, nutrition) {
     if(studentsMaster.length === 0) {
         document.getElementById('reports-ready-val').innerText = '0';
         return;
     }
 
-    let attDB = JSON.parse(localStorage.getItem('bmv3_attendance')) || {};
-    let mileDB = JSON.parse(localStorage.getItem('bmv3_milestones')) || {};
-    let behDB = JSON.parse(localStorage.getItem('bmv3_behavior')) || {};
-    let nutDB = JSON.parse(localStorage.getItem('bmv3_nutrition')) || {};
     let sentCounter = parseInt(localStorage.getItem('bmv3_msgs_sent')) || 0;
     
     document.getElementById('reports-ready-val').innerText = studentsMaster.length;
     document.getElementById('msg-sent-counter').innerText = sentCounter;
 
-    // Total days tracked for attendance
-    let allDates = Object.keys(attDB);
-    let totalTrackedDays = allDates.length;
-    
-    // Dynamic Alerts HTML
     let alertsHtml = '';
+    dynamicAlertsCount = 0;
 
     studentsMaster.forEach(student => {
         // Attendance logic
-        let daysPresent = 0;
-        let daysAbsent = 0;
-        let lateArrivals = 0;
-
-        allDates.forEach(date => {
-            if(attDB[date][student.id] === 'present') daysPresent++;
-            if(attDB[date][student.id] === 'absent') daysAbsent++;
-            if(attDB[date][student.id] === 'late') lateArrivals++;
-        });
+        let stAtt = attendance.filter(a => a.child === student.id);
+        let daysPresent = stAtt.filter(a => a.status === 'present').length;
+        let daysAbsent = stAtt.filter(a => a.status === 'absent').length;
+        let lateArrivals = stAtt.filter(a => a.status === 'late').length;
+        let totalTrackedDays = stAtt.length;
 
         // Milestones Logic
-        let mileRecords = mileDB[student.id] || {};
+        let stMile = milestones.find(m => m.child === student.id);
+        let tasks = stMile && stMile.tasks ? stMile.tasks : {};
         let skillsAchieved = 0;
-        Object.values(mileRecords).forEach(status => {
+        Object.values(tasks).forEach(status => {
             if(status === 'achieved') skillsAchieved++;
         });
         let totalSkills = 16;
         let milePct = Math.round((skillsAchieved / totalSkills) * 100);
 
-        // Behavior Logic
-        let behRecords = behDB[student.id] || [];
-        let posCount = 0;
-        let negCount = 0;
-        behRecords.forEach(r => { 
-            if(r.type === 'positive') posCount++; 
-            if(r.type === 'negative') negCount++; 
-        });
-
         // Nutrition Logic
-        let nd = nutDB[student.id] || { breakfast:0, lunch:0, snack:0 };
-        let nutAvg = Math.round((nd.breakfast + nd.lunch + nd.snack) / 3);
+        let stNut = nutrition.filter(n => n.child === student.id);
+        let nutPct = 0;
+        if (stNut.length > 0) {
+            let totalScore = 0;
+            stNut.forEach(n => {
+                if(n.snack_status === 'Finished') totalScore += 100;
+                else if(n.snack_status === 'Some Left') totalScore += 50;
+            });
+            nutPct = Math.round(totalScore / stNut.length);
+        }
+        let nutAvg = nutPct;
+
+        let avatarHtml = student.img ? `<img src="${student.img}" style="width:100%; height:100%; object-fit:cover;">` : (student.first_name[0] + student.last_name[0]);
 
         globalCompiledData[student.id] = {
-            name: student.name,
-            initial: student.initial,
-            img: student.img,
+            name: `${student.first_name} ${student.last_name}`,
+            avatarHtml: avatarHtml,
             attStr: `${daysPresent}/${totalTrackedDays > 0 ? totalTrackedDays : 0}`,
             daysPresent: daysPresent,
             totalDays: totalTrackedDays > 0 ? totalTrackedDays : 0,
@@ -248,27 +254,20 @@ function compileData() {
             milePct: milePct,
             skillsAchieved: skillsAchieved,
             totalSkills: totalSkills,
-            posBeh: posCount,
             nutAvg: nutAvg
         };
 
         // ALERTS LOGIC
-        if (negCount > 2) {
-            alertsHtml += `<div style="border-left: 4px solid #e74a3b; padding:15px; margin-bottom:15px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
-                <div style="font-weight:bold; color:#e74a3b; margin-bottom:5px;">Behavior Warning</div>
-                ${student.name} has ${negCount} negative behavior incidents logged. <em>Recommendation: Reach out to parents to discuss.</em></div>`;
-            dynamicAlertsCount++;
-        }
         if (milePct < 50 && totalSkills > 0) {
             alertsHtml += `<div style="border-left: 4px solid #f6c23e; padding:15px; margin-bottom:15px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
                 <div style="font-weight:bold; color:#f6c23e; margin-bottom:5px;">Milestone Delay</div>
-                ${student.name} is tracking low on developmental milestones (${milePct}%).</div>`;
+                ${student.first_name} is tracking low on developmental milestones (${milePct}%).</div>`;
             dynamicAlertsCount++;
         }
         if (lateArrivals >= 2) {
             alertsHtml += `<div style="border-left: 4px solid #4a90e2; padding:15px; margin-bottom:10px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
                 <div style="font-weight:bold; color:#4a90e2; margin-bottom:5px;">Attendance Drop</div>
-                ${student.name} has ${lateArrivals} late arrivals this week, impacting morning routine stability.</div>`;
+                ${student.first_name} has ${lateArrivals} late arrivals logged, impacting morning routine stability.</div>`;
             dynamicAlertsCount++;
         }
     });
@@ -295,7 +294,6 @@ function renderDigest() {
 
     studentsMaster.forEach(student => {
         let d = globalCompiledData[student.id];
-        let avatarHtml = d.img ? `<img src="${d.img}" style="width:100%; height:100%; object-fit:cover;">` : d.initial;
 
         let lateHtml = d.lateArrivals > 0 ? `<div class="status-sub" style="color:#e74a3b;">${d.lateArrivals} late arrivals</div>` : `<div class="status-sub">On time average</div>`;
 
@@ -303,7 +301,7 @@ function renderDigest() {
         <div class="student-row">
             <div class="student-header">
                 <div class="student-info">
-                    <div class="avatar">${avatarHtml}</div>
+                    <div class="avatar">${d.avatarHtml}</div>
                     <div>
                         <h4>${d.name}</h4>
                         <p>Report for ${weekLabel}</p>
@@ -323,12 +321,6 @@ function renderDigest() {
                     <div class="status-title">Milestones</div>
                     <div class="status-val">${d.milePct}% Complete</div>
                     <div class="status-sub">${d.skillsAchieved}/${d.totalSkills} skills</div>
-                </div>
-                
-                <div class="status-box box-beh">
-                    <div class="status-title">Behavior</div>
-                    <div class="status-val">${d.posBeh} Positive</div>
-                    <div class="status-sub">recorded interactions</div>
                 </div>
                 
                 <div class="status-box box-nut">
@@ -352,7 +344,6 @@ function openModal(studentId) {
     document.getElementById('m-name').innerText = d.name;
     document.getElementById('m-att').innerText = `Present ${d.daysPresent} out of ${d.totalDays} tracked days`;
     document.getElementById('m-mile').innerText = `${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)`;
-    document.getElementById('m-beh').innerText = `${d.posBeh} positive behaviors recorded`;
     document.getElementById('m-nut').innerText = `Average meal intake of ${d.nutAvg}%`;
     document.getElementById('modal-msg-note').value = ""; // clear previous note
     
@@ -392,13 +383,12 @@ function confirmSend() {
     // Parse values purely for the string
     let d_att = document.getElementById('m-att').innerText;
     let d_mile = document.getElementById('m-mile').innerText;
-    let d_beh = document.getElementById('m-beh').innerText;
     let d_nut = document.getElementById('m-nut').innerText;
 
     reportsDB[currentActionStudentId].unshift({
         title: "Weekly Performance Digest",
         date: new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'}),
-        body: `Teacher's Weekly Performance Report\n\nAttendance: ${d_att}\nMilestones: ${d_mile}\nBehavior: ${d_beh}\nNutrition: ${d_nut}\n\nTeacher's Note:\n${optionalNote || "No additional comments."}`
+        body: `Teacher's Weekly Performance Report\n\nAttendance: ${d_att}\nMilestones: ${d_mile}\nNutrition: ${d_nut}\n\nTeacher's Note:\n${optionalNote || "No additional comments."}`
     });
     localStorage.setItem('bmv3_reports', JSON.stringify(reportsDB));
 
@@ -439,7 +429,7 @@ function sendAllReports() {
         let d = globalCompiledData[st.id];
         if(!reportsDB[st.id]) reportsDB[st.id] = [];
         
-        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)\nBehavior: ${d.posBeh} positive behaviors recorded\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
+        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
         
         reportsDB[st.id].unshift({
             title: "Automated Weekly Report",
@@ -490,9 +480,7 @@ function renderHistory() {
 }
 
 // Initialize
-compileData();
-renderDigest();
-renderHistory();
+fetchSystemData();
 
 </script>
 

@@ -311,19 +311,26 @@ input:checked + .slider:before { transform: translateX(26px); }
 
             <!-- Password Sub -->
             <div class="sub-panel" id="sub-password">
-                <div class="form-group">
-                    <label>Current Password</label>
-                    <input type="password" id="pwCurr" placeholder="••••••••">
+                <div id="otp-request-section">
+                    <p>To change your password, you must first verify your email address.</p>
+                    <button class="btn-primary" onclick="requestOTP()" id="btnRequestOTP">Request Verification Code</button>
+                    <div id="otp-message" style="margin-top:10px; font-weight:600; color:#28a745;"></div>
                 </div>
-                <div class="form-group">
-                    <label>New Password</label>
-                    <input type="password" id="pwNew" placeholder="Enter new password">
+                <div id="otp-verify-section" style="display:none; margin-top:20px;">
+                    <div class="form-group">
+                        <label>Verification Code (Sent to Email)</label>
+                        <input type="text" id="otpCode" placeholder="Enter 6-digit code">
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="pwNew" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="pwConf" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn-primary" onclick="verifyAndChangePassword()">Change Password</button>
                 </div>
-                <div class="form-group">
-                    <label>Confirm New Password</label>
-                    <input type="password" id="pwConf" placeholder="Confirm new password">
-                </div>
-                <button class="btn-primary" onclick="changePassword()">Change Password</button>
             </div>
         </div>
 
@@ -465,14 +472,35 @@ input:checked + .slider:before { transform: translateX(26px); }
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-    // PROFILE IMAGE LOGIC
+    // PROFILE LOGIC
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     window.addEventListener('load', () => {
+        fetch('/api/user/settings/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('profName').value = data.first_name + ' ' + data.last_name;
+                document.getElementById('profEmail').value = data.email || '';
+            })
+            .catch(err => console.error("Error loading profile", err));
+
         let savedImg = localStorage.getItem('bmv3_teacher_profile_img');
         if (savedImg) {
             document.getElementById('profileImagePreview').innerHTML = `<img src="${savedImg}">`;
         }
-        let savedName = localStorage.getItem('bmv3_teacher_profile_name');
-        if (savedName) document.getElementById('profName').value = savedName;
 
         // Apply theme selector correctly
         let currentTheme = localStorage.getItem('bmv3_theme') || 'light';
@@ -543,161 +571,167 @@ input:checked + .slider:before { transform: translateX(26px); }
     }
 
     function saveProfile() { 
-        let profName = document.getElementById('profName').value;
-        localStorage.setItem('bmv3_teacher_profile_name', profName);
-        let sName = document.getElementById('sidebar-name');
-        if(sName) sName.innerText = profName;
-        showToast("Profile details updated successfully", "success"); 
+        let profName = document.getElementById('profName').value.split(' ');
+        const payload = {
+            first_name: profName[0] || '',
+            last_name: profName.slice(1).join(' ') || '',
+            email: document.getElementById('profEmail').value
+        };
+
+        fetch('/api/user/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async res => {
+            if(!res.ok) throw new Error('Failed to update profile');
+            return res.json();
+        })
+        .then(data => {
+            showToast("Profile details updated successfully", "success"); 
+            let sName = document.getElementById('sidebar-name');
+            if(sName) sName.innerText = document.getElementById('profName').value;
+        })
+        .catch(err => showToast(err.message, "error"));
     }
 
-    function changePassword() {
-        let curr = document.getElementById('pwCurr').value;
+    function requestOTP() {
+        document.getElementById('btnRequestOTP').disabled = true;
+        document.getElementById('btnRequestOTP').innerText = "Requesting...";
+        
+        fetch('/api/request-password-change/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to send verification code.');
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.dev_otp) {
+                document.getElementById('otp-message').innerHTML = `Verification code generated locally! Your code is: <strong style="color:#d9534f; font-size:1.1rem; letter-spacing:2px;">${data.dev_otp}</strong>`;
+            } else {
+                document.getElementById('otp-message').innerText = "Verification code sent to your email!";
+            }
+            document.getElementById('otp-request-section').style.display = 'none';
+            document.getElementById('otp-verify-section').style.display = 'block';
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Request Verification Code";
+        });
+    }
+
+    function verifyAndChangePassword() {
+        let otpCode = document.getElementById('otpCode').value;
         let pNew = document.getElementById('pwNew').value;
         let pConf = document.getElementById('pwConf').value;
 
-        if(!curr || !pNew || !pConf) { showToast("Please fill all password fields", "error"); return; }
+        if(!otpCode || !pNew || !pConf) { showToast("Please fill all fields", "error"); return; }
         if(pNew !== pConf) { showToast("New passwords do not match", "error"); return; }
         
-        document.getElementById('pwCurr').value = '';
-        document.getElementById('pwNew').value = '';
-        document.getElementById('pwConf').value = '';
-        
-        showToast("Password successfully changed", "success");
+        fetch('/api/verify-password-change/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                otp_code: otpCode,
+                new_password: pNew
+            })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Password successfully changed", "success");
+            document.getElementById('otpCode').value = '';
+            document.getElementById('pwNew').value = '';
+            document.getElementById('pwConf').value = '';
+            document.getElementById('otp-request-section').style.display = 'block';
+            document.getElementById('otp-verify-section').style.display = 'none';
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Request Verification Code";
+            document.getElementById('otp-message').innerText = "";
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+        });
     }
 
     // ARCHIVAL LOGIC
     function loadArchives() {
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        let cont = document.getElementById('archives-container');
-        
-        if (archives.length === 0) {
-            cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
-            return;
-        }
-        
-        let html = '';
-        archives.forEach((arc, i) => {
-            html += `
-            <div class="archive-box">
-                <div>
-                    <div class="year-title">${arc.name}</div>
-                    <div class="year-stats">Archived on: ${arc.date} &bull; ${arc.studentCount} Students recorded</div>
-                </div>
-                <div>
-                    <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${i})">View Data</button>
-                    <button class="btn-danger" style="padding: 12px 15px;" onclick="deleteArchive(${i})">🗑</button>
-                </div>
-            </div>`;
+        fetch('/api/school-years/')
+        .then(res => res.json())
+        .then(archives => {
+            let cont = document.getElementById('archives-container');
+            let historical = archives.filter(a => !a.is_active);
+            
+            if (historical.length === 0) {
+                cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
+                return;
+            }
+            
+            let html = '';
+            historical.forEach((arc) => {
+                html += `
+                <div class="archive-box">
+                    <div>
+                        <div class="year-title">${arc.name}</div>
+                        <div class="year-stats">Status: Archived</div>
+                    </div>
+                    <div>
+                        <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                    </div>
+                </div>`;
+            });
+            cont.innerHTML = html;
         });
-        cont.innerHTML = html;
-    }
-
-    function deleteArchive(index) {
-        if(!confirm("Are you sure you want to permanently delete this academic year's historical data?")) return;
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        archives.splice(index, 1);
-        localStorage.setItem('bmv3_archive_years', JSON.stringify(archives));
-        loadArchives();
-        showToast("Archive deleted", "success");
     }
 
     function confirmReset() {
         let label = document.getElementById('archiveName').value.trim();
-        if(!label) { alert("Please provide an Archive Name before resetting."); return; }
+        if(!label) { alert("Please provide a name for the NEXT active School Year (e.g. 2026-2027) before resetting."); return; }
 
-        let currentStudents = JSON.parse(localStorage.getItem('bmv3_students')) || [];
-        if (currentStudents.length === 0) { alert("The current system is already empty. There are no students to archive."); return; }
-
-        let confirmed = confirm("WARNING: This will archive all current student data and wipe the active dashboards. This action represents the end of an academic year batch. Are you absolutely sure?");
+        let confirmed = confirm("WARNING: This will archive all current student data and start a fresh academic year. The old data will be accessible via the 'View Time Travel Dashboard' button. Are you sure?");
         if(!confirmed) return;
 
-        let package = {
-            name: label,
-            date: new Date().toLocaleDateString(),
-            studentCount: currentStudents.length,
-            records: {
-                students: currentStudents,
-                attendance: JSON.parse(localStorage.getItem('bmv3_attendance')) || {},
-                milestones: JSON.parse(localStorage.getItem('bmv3_milestones')) || {},
-                behavior: JSON.parse(localStorage.getItem('bmv3_behavior')) || {},
-                nutrition: JSON.parse(localStorage.getItem('bmv3_nutrition')) || {},
-                guardians: JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {}
-            }
-        };
-
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        archives.push(package);
-        localStorage.setItem('bmv3_archive_years', JSON.stringify(archives));
-
-        // WIPE ACTIVE LOCALSTORAGE FOR NEW YEAR
-        localStorage.setItem('bmv3_students', '[]');
-        localStorage.setItem('bmv3_attendance', '{}');
-        localStorage.setItem('bmv3_milestones', '{}');
-        localStorage.setItem('bmv3_behavior', '{}');
-        localStorage.setItem('bmv3_nutrition', '{}');
-        localStorage.setItem('bmv3_extra_guardians', '{}');
-        localStorage.setItem('bmv3_checkin', '{}');
-        localStorage.setItem('bmv3_msgs_sent', '0');
-        localStorage.setItem('bmv3_report_history', '[]');
-
-        // Remove all parent profiles so they are logged out for the new year
-        let keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i);
-            if (key.startsWith('bmv3_parent_profile_')) {
-                keysToRemove.push(key);
-            }
-        }
-        keysToRemove.forEach(k => localStorage.removeItem(k));
-
-        document.getElementById('archiveName').value = '';
-        loadArchives();
-        showToast("System successfully reset for the new academic year!", "success");
+        fetch('/api/school-years/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ name: label, is_active: true })
+        }).then(res => {
+            if(!res.ok) throw new Error("Could not create school year. Name might already exist.");
+            return res.json();
+        }).then(data => {
+            document.getElementById('archiveName').value = '';
+            loadArchives();
+            showToast("System successfully reset for the new academic year!", "success");
+        }).catch(err => {
+            showToast(err.message, "error");
+        });
     }
 
-    function viewArchive(index) {
-        let archives = JSON.parse(localStorage.getItem('bmv3_archive_years')) || [];
-        let arc = archives[index];
-        if(!arc) return;
-
-        document.getElementById('av-name').innerText = arc.name;
-        document.getElementById('av-meta').innerText = `Archived on: ${arc.date} | Total Students: ${arc.studentCount}`;
-
-        let studentHtml = '';
-        
-        if (arc.records && arc.records.students && arc.records.students.length > 0) {
-            arc.records.students.forEach(st => {
-                let initial = st.name.charAt(0).toUpperCase();
-                let imgHtml = st.img ? `<img src="${st.img}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div style="width:40px; height:40px; border-radius:50%; background:#e0f0ff; color:#4a90e2; display:flex; justify-content:center; align-items:center; font-weight:bold;">${initial}</div>`;
-                
-                // Behavior stats inside the archive
-                let bCount = 0;
-                if(arc.records.behavior && arc.records.behavior[st.id]) bCount = arc.records.behavior[st.id].length;
-
-                studentHtml += `
-                <div class="archived-student-item">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        ${imgHtml}
-                        <div>
-                            <div style="font-weight:700; color:#333;">${st.name}</div>
-                            <div style="font-size:0.8rem; color:#777;">Age: ${st.age} &bull; Room: ${st.room}</div>
-                        </div>
-                    </div>
-                    <div style="font-size:0.8rem; color:#666; text-align:right;">
-                        Behavior Reports: ${bCount}
-                    </div>
-                </div>`;
-            });
-        } else {
-            studentHtml = `<div style="color:#888; text-align:center; padding:20px;">No student records found in this batch.</div>`;
-        }
-        
-        document.getElementById('av-students').innerHTML = studentHtml;
-        document.getElementById('archiveViewModal').classList.add('active');
+    function viewArchive(id, name) {
+        sessionStorage.setItem('bmv3_archive_year_id', id);
+        sessionStorage.setItem('bmv3_archive_year_name', name);
+        window.location.href = "{% url 'teacher_dashboard' %}";
     }
 
     function closeArchiveModal() {
-        document.getElementById('archiveViewModal').classList.remove('active');
+        // Obsolete, modal is no longer used for Time Travel
     }
 
     loadArchives();

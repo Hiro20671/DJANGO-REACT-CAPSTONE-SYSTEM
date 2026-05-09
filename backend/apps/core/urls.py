@@ -1,26 +1,40 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views, api_views
+from . import views
+from .api_views import (
+    ChildViewSet, AttendanceRecordViewSet, MilestoneRecordViewSet, NutritionRecordViewSet,
+    SchoolYearViewSet, EngagementRecordViewSet,
+    ParentHistoryAPIView, UserSettingsAPIView, ParentDashboardStatsAPIView,
+    TeacherDashboardStatsAPIView, UpdateChildProfileAPIView, NutritionAnalyticsAPIView,
+    UpdateUsernameAPIView, RequestPasswordChangeAPIView, VerifyPasswordChangeAPIView,
+    GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
+    link_guardian_profile, NoClassDayViewSet,
+    ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet
+)
 
 router = DefaultRouter()
-router.register(r'children', api_views.ChildViewSet, basename='child')
-router.register(r'attendance', api_views.AttendanceRecordViewSet, basename='attendance')
-router.register(r'milestones', api_views.MilestoneRecordViewSet, basename='milestone')
-router.register(r'behavior', api_views.BehaviorRecordViewSet, basename='behavior')
-router.register(r'nutrition', api_views.NutritionRecordViewSet, basename='nutrition')
+router.register(r'children', ChildViewSet, basename='child')
+router.register(r'attendance', AttendanceRecordViewSet, basename='attendance')
+router.register(r'milestones', MilestoneRecordViewSet, basename='milestone')
+router.register(r'nutrition', NutritionRecordViewSet, basename='nutrition')
+router.register(r'engagement', EngagementRecordViewSet, basename='engagement')
+router.register(r'school-years', SchoolYearViewSet, basename='school_year')
+router.register(r'no-class-days', NoClassDayViewSet, basename='no_class_day')
+router.register(r'eccd-domains', ECCDDomainViewSet, basename='eccd_domain')
+router.register(r'eccd-milestones', ECCDMilestoneViewSet, basename='eccd_milestone')
+router.register(r'eccd-assessments', ECCDAssessmentViewSet, basename='eccd_assessment')
+router.register(r'eccd-scores', ECCDMilestoneScoreViewSet, basename='eccd_score')
 
 urlpatterns = [
     path('', views.login_view, name='login'),
 
-    path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('home/', views.home_view, name='home'),
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('dropoff-pickup/', views.teacher_dropoff_pickup, name='teacher_dropoff_pickup'),
     path('attendance/', views.teacher_attendance, name='teacher_attendance'),
     path('milestones/', views.teacher_milestones, name='teacher_milestones'),
-    path('behavior/', views.teacher_behavior, name='teacher_behavior'),
     path('engagement/', views.teacher_engagement, name='teacher_engagement'),
     path('nutrition/', views.teacher_nutrition, name='teacher_nutrition'),
     path('children/', views.teacher_children, name='teacher_children'),
@@ -30,17 +44,26 @@ urlpatterns = [
     path('parent/dropoff-pickup/', views.parent_dropoff_pickup, name='parent_dropoff_pickup'),
     path('parent/attendance/', views.parent_attendance, name='parent_attendance'),
     path('parent/milestones/', views.parent_milestones, name='parent_milestones'),
-    path('parent/behavior/', views.parent_behavior, name='parent_behavior'),
     path('parent/engagement/', views.parent_engagement, name='parent_engagement'),
     path('parent/nutrition/', views.parent_nutrition, name='parent_nutrition'),
     path('parent/children/', views.parent_children, name='parent_children'),
     path('parent/settings/', views.parent_settings, name='parent_settings'),
+    path('parent/force-password-change/', views.parent_force_password_change, name='force_password_change'),
     path('settings/', views.teacher_settings, name='teacher_settings'),
     
     # API Endpoints
-    path('api/parent/history/', api_views.ParentHistoryAPIView.as_view(), name='api_parent_history'),
+    path('api/parent/history/', ParentHistoryAPIView.as_view(), name='api_parent_history'),
     # Existing API endpoints
-    path('api/teacher/dashboard/', api_views.TeacherDashboardStatsAPIView.as_view(), name='api_teacher_dashboard'),
-    path('api/parent/dashboard/', api_views.ParentDashboardStatsAPIView.as_view(), name='api_parent_dashboard'),
+    path('api/teacher/dashboard/', TeacherDashboardStatsAPIView.as_view(), name='api_teacher_dashboard'),
+    path('api/parent/dashboard/', ParentDashboardStatsAPIView.as_view(), name='api_parent_dashboard'),
+    path('api/user/settings/', UserSettingsAPIView.as_view(), name='api_user_settings'),
+    path('api/children/<int:child_id>/update_profile/', UpdateChildProfileAPIView.as_view(), name='api_child_update_profile'),
+    path('api/nutrition-analytics/', NutritionAnalyticsAPIView.as_view(), name='api_nutrition_analytics'),
+    path('api/generate_parent_account/', GenerateParentAccountAPIView.as_view(), name='api_generate_parent_account'),
+    path('api/force-password-change/', ForcePasswordChangeAPIView.as_view(), name='api_force_password_change'),
+    path('api/request-password-change/', RequestPasswordChangeAPIView.as_view(), name='api_request_password_change'),
+    path('api/verify-password-change/', VerifyPasswordChangeAPIView.as_view(), name='api_verify_password_change'),
+    path('api/verify-otp-only/', VerifyOTPOnlyAPIView.as_view(), name='api_verify_otp_only'),
+    path('api/link_guardian/', link_guardian_profile, name='api_link_guardian'),
     path('api/', include(router.urls)),
 ]

@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Dashboard - BMV3 CDC</title>
+    <title>Parent Dashboard - BMV3 Child Care Management System</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
 
     <!-- Chart.js for Dynamic Analytics -->
@@ -23,6 +23,72 @@
         if (localStorage.getItem('bmv3_theme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
         }
+
+        // --- TIME TRAVEL ARCHIVE MODE CORE ---
+        (function() {
+            let archiveId = sessionStorage.getItem('bmv3_archive_year_id');
+            let archiveName = sessionStorage.getItem('bmv3_archive_year_name');
+
+            if (archiveId) {
+                // 1. Intercept Global Fetch
+                const originalFetch = window.fetch;
+                window.fetch = async function() {
+                    let args = arguments;
+                    if (typeof args[0] === 'string' && args[0].startsWith('/api/')) {
+                        let method = (args[1] && args[1].method) ? args[1].method.toUpperCase() : 'GET';
+                        
+                        // Block modifications
+                        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !args[0].includes('verify-otp') && !args[0].includes('request-password')) {
+                            alert("Action disabled in Read-Only Archive Mode.");
+                            return Promise.reject(new Error("Archive Mode Read-Only"));
+                        }
+
+                        // Force school_year query param on GET requests
+                        if (method === 'GET') {
+                            if (args[0].includes('school_year=')) {
+                                args[0] = args[0].replace(/school_year=\d+/, 'school_year=' + archiveId);
+                            } else {
+                                let separator = args[0].includes('?') ? '&' : '?';
+                                args[0] = args[0] + separator + 'school_year=' + archiveId;
+                            }
+                        }
+                    }
+                    return originalFetch.apply(this, args);
+                };
+
+                // 2. Inject Banner & Disable Buttons after DOM loads
+                document.addEventListener('DOMContentLoaded', () => {
+                    let banner = document.createElement('div');
+                    banner.style.cssText = 'background: #e74a3b; color: #fff; padding: 12px 25px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.05rem; letter-spacing: 0.5px;';
+                    banner.innerHTML = `
+                        <div><i class="fa-solid fa-clock-rotate-left"></i> &nbsp; VIEWING ARCHIVED DATA: ${archiveName} (Read-Only Mode)</div>
+                        <button onclick="exitArchiveMode()" style="background:#fff; color:#e74a3b; border:none; padding:8px 20px; border-radius:6px; font-weight:800; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">Exit Archive Mode</button>
+                    `;
+                    let mainContent = document.querySelector('.main-content');
+                    if(mainContent) {
+                        mainContent.insertBefore(banner, mainContent.firstChild);
+                    }
+
+                    // Repeatedly check for dynamic buttons to hide
+                    setInterval(() => {
+                        document.querySelectorAll('.btn-primary, .btn-action, button[type="submit"], .add-btn, .btn-send').forEach(btn => {
+                            if (btn.innerText !== 'Exit Archive Mode' && !btn.classList.contains('mobile-sidebar-toggle') && !btn.classList.contains('logout-btn') && !btn.closest('#otp-request-section') && !btn.closest('#otp-verify-section') && btn.id !== 'btnRequestOTP' && btn.id !== 'btnVerifyOTP' && btn.id !== 'btnSubmitPassword') {
+                                btn.style.display = 'none';
+                            }
+                        });
+                        document.querySelectorAll('input[type="text"]:not([id^="pw"]):not([id^="otp"]), input[type="date"], select, textarea').forEach(el => {
+                            el.disabled = true;
+                        });
+                    }, 1000);
+                });
+            }
+
+            window.exitArchiveMode = function() {
+                sessionStorage.removeItem('bmv3_archive_year_id');
+                sessionStorage.removeItem('bmv3_archive_year_name');
+                window.location.href = "{% url 'parent_dashboard' %}";
+            };
+        })();
     </script>
 
     <style>
@@ -574,10 +640,7 @@
                 class="menu-item {% if request.resolver_match.url_name == 'parent_milestones' %}active{% endif %}">
                 <i class="fa-solid fa-chart-line"></i> Milestones
             </a>
-            <a href="{% url 'parent_behavior' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_behavior' %}active{% endif %}">
-                <i class="fa-solid fa-brain"></i> Behavior
-            </a>
+
             <a href="{% url 'parent_engagement' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
                 <i class="fa-solid fa-envelope"></i> Message Inbox
@@ -601,7 +664,7 @@
         </div>
 
         <div class="sidebar-footer">
-            <p style="text-align: center; font-size: 0.70rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4;">Smart Monitoring System<br>v1.0.0 &copy; 2026 BMV3 CDC</p>
+            <p style="text-align: center; font-size: 0.70rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4;">BMV3 Child Care Management System<br>v1.0.0 &copy; 2026</p>
         </div>
     </nav>
 
@@ -660,28 +723,13 @@
 
         // Load dynamic parent registration data based on User
         document.addEventListener("DOMContentLoaded", function() {
-            const currentUser = "{{ request.user.username }}";
-            if(currentUser) {
-                let profileDataStr = localStorage.getItem('bmv3_parent_profile_' + currentUser);
-                if(profileDataStr) {
-                    let profileData = JSON.parse(profileDataStr);
-                    
-                    // Update Name
-                    if(profileData.name) {
-                        let nameElem = document.getElementById('sidebar-name');
-                        if(nameElem) nameElem.innerText = profileData.name;
-                    }
-                    
-                    // Update Avatar
-                    if(profileData.parent_img) {
-                        let avatarElem = document.getElementById('sidebar-avatar');
-                        if(avatarElem) {
-                            avatarElem.innerHTML = `<img src="${profileData.parent_img}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
-                            avatarElem.style.border = 'none';
-                        }
-                    }
+            {% if request.user.userprofile.profile_pic %}
+                let avatarElem = document.getElementById('sidebar-avatar');
+                if(avatarElem) {
+                    avatarElem.innerHTML = `<img src="{{ request.user.userprofile.profile_pic.url }}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+                    avatarElem.style.border = 'none';
                 }
-            }
+            {% endif %}
         });
     </script>
 </body>
