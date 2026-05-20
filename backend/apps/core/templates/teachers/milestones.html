@@ -94,6 +94,15 @@
     <div class="domain-grid" id="domainCardsContainer">
         <div style="text-align:center; width:100%; grid-column: 1/-1; padding:40px; color:#888;">Loading domains...</div>
     </div>
+    
+    <div id="scoringSummaryContainer" style="display:none; margin-top: 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">Overall Assessment Scoring</h3>
+        </div>
+        <div id="scoringSummaryContent" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <!-- Filled by JS -->
+        </div>
+    </div>
 </div>
 
 <!-- ASSESSMENT LOG -->
@@ -232,7 +241,58 @@ async function loadChildAssessment() {
         }
 
         renderDomainCards();
+        document.getElementById('scoringSummaryContainer').style.display = 'block';
+        loadScoringSummary();
     } catch(e) { console.error(e); }
+}
+
+async function loadScoringSummary() {
+    const container = document.getElementById('scoringSummaryContent');
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#888;">Calculating all periods...</div>`;
+    
+    const periods = ['1st', '2nd', '3rd'];
+    let finalHtml = '';
+    
+    for (let period of periods) {
+        const assessment = currentAssessments.find(a => a.assessment_period === period);
+        
+        finalHtml += `<div style="background: #fdfdfd; padding: 20px; border-radius: 10px; border: 2px solid #e0e0e0; text-align:center;">
+            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color:#043263;">${period} Assessment</h4>`;
+            
+        if (!assessment) {
+            finalHtml += `<div style="color:#888; margin-top: 20px;">No assessment record</div></div>`;
+            continue;
+        }
+        
+        try {
+            const res = await fetch(`/api/eccd-report/${assessment.id}/`);
+            const report = await res.json();
+            
+            if (report.detail) {
+                finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Error: ${report.detail}</div>`;
+            } else {
+                finalHtml += `
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Computed Age</div>
+                        <div style="font-size:1.2rem; color:#043263; font-weight:bold;">${report.age_years}y, ${report.age_months}m, ${report.age_days}d</div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Sum of Scaled Scores</div>
+                        <div style="font-size:2rem; color:#1cc88a; font-weight:900;">${report.sum_scaled_scores}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Standard Score</div>
+                        <div style="font-size:2rem; color:#e74a3b; font-weight:900;">${report.standard_score !== null ? report.standard_score : 'N/A'}</div>
+                    </div>
+                `;
+            }
+        } catch(e) {
+            finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Failed to calculate.</div>`;
+        }
+        finalHtml += `</div>`;
+    }
+    
+    container.innerHTML = finalHtml;
 }
 
 // ---------------------------
@@ -264,9 +324,10 @@ async function renderOverview() {
         const cAssIds = cAss.map(a => a.id);
         const cSco = allSco.filter(s => cAssIds.includes(s.assessment) && s.teacher_score === 1);
         
-        // Count unique milestones achieved across any period
-        const uniqueScored = new Set(cSco.map(s => s.milestone)).size;
-        const pct = totalPossibleMilestones === 0 ? 0 : Math.round((uniqueScored / totalPossibleMilestones) * 100);
+        // Count all milestones achieved across all periods (3 periods total)
+        const totalBoxes = totalPossibleMilestones * 3;
+        const uniqueScored = cSco.length;
+        const pct = totalBoxes === 0 ? 0 : Math.round((uniqueScored / totalBoxes) * 100);
 
         let color = pct >= 75 ? '#1cc88a' : (pct >= 50 ? '#f6c23e' : '#e74a3b');
 
@@ -303,14 +364,14 @@ function renderDomainCards() {
 
     domainsList.forEach(domain => {
         const dMilestones = milestonesList.filter(m => m.domain === domain.id);
-        const count = dMilestones.length;
+        const count = dMilestones.length * 3; // 3 periods
         totalMilestones += count;
 
         let scored = 0;
         if (currentAssessments.length > 0) {
             dMilestones.forEach(m => {
-                const s = currentScores.find(sc => sc.milestone === m.id && sc.teacher_score === 1);
-                if (s) scored++;
+                const s = currentScores.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+                scored += s.length;
             });
         }
         totalScored += scored;
@@ -472,92 +533,117 @@ async function saveObs(assessmentId, milestoneId, obsText) {
 
 
 
-function printECCDReport() {
-    if (!currentAssessment) {
+async function printECCDReport() {
+    if (!currentAssessments || currentAssessments.length === 0) {
         alert("Please select a child to print their ECCD Report.");
         return;
     }
 
     const childId = document.getElementById('childSelect').value;
     const child = childrenList.find(c => c.id == childId);
-    const period = document.getElementById('periodSelect').value;
     
-    // Create print window
-    let printWin = window.open('', '_blank');
-    let html = `
-    <html><head><title>ECCD Report - ${child.first_name} ${child.last_name}</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-        h1, h2, h3 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; font-size: 14px; }
-        th { background: #f2f2f2; text-align: left; }
-        .score-col { width: 100px; text-align: center; }
-        .header-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; }
-    </style>
-    </head><body>
-        <h2>PHILIPPINE EARLY CHILDHOOD CARE AND DEVELOPMENT (ECCD) CHECKLIST</h2>
-        <h3>Child's Record</h3>
+    let period = prompt("Enter assessment period to print (1st, 2nd, or 3rd):", "1st");
+    if (!['1st', '2nd', '3rd'].includes(period)) {
+        alert("Invalid period. Defaulting to 1st.");
+        period = "1st";
+    }
+    
+    const assessment = currentAssessments.find(a => a.assessment_period === period);
+    if (!assessment) {
+        alert("Assessment record not found for this period.");
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/api/eccd-report/${assessment.id}/`);
+        const report = await res.json();
         
-        <div class="header-info">
-            <div>
-                <strong>Name:</strong> ${child.first_name} ${child.last_name}<br>
-                <strong>Age:</strong> ${child.age} years old<br>
-                <strong>Gender:</strong> ${child.gender || 'Not Specified'}<br>
-            </div>
-            <div>
-                <strong>Assessment Period:</strong> ${period}<br>
-                <strong>Date Printed:</strong> ${new Date().toLocaleDateString()}<br>
-            </div>
-        </div>
-    `;
+        if (report.detail) {
+            alert(report.detail);
+            return;
+        }
 
-    domainsList.forEach(domain => {
-        const dMilestones = milestonesList.filter(m => m.domain === domain.id).sort((a,b) => a.order_number - b.order_number);
-        if (dMilestones.length === 0) return;
-
-        html += `<h3>${domain.name}</h3><table>
-            <tr>
-                <th style="width: 50px; text-align:center;">No.</th>
-                <th>Indicator</th>
-                <th class="score-col">Score (0-2)</th>
-            </tr>`;
-
-        let domainTotal = 0;
-        let count = 0;
-
-        dMilestones.forEach(m => {
-            const scoreObj = currentScores.find(s => s.milestone === m.id);
-            const score = scoreObj && scoreObj.teacher_score !== null ? scoreObj.teacher_score : '-';
-            if(score !== '-') { domainTotal += score; count++; }
+        // Create print window
+        let printWin = window.open('', '_blank');
+        let html = `
+        <html><head><title>ECCD Report - ${report.child_name}</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+            h1, h2, h3 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #000; padding: 8px; font-size: 14px; }
+            th { background: #f2f2f2; text-align: left; }
+            .score-col { width: 120px; text-align: center; }
+            .header-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 14px; }
+            .summary-box { border: 2px solid #000; padding: 15px; margin-top: 30px; border-radius: 8px; background: #fdfdfd; }
+            .summary-box h3 { margin-top: 0; }
+        </style>
+        </head><body>
+            <h2>PHILIPPINE EARLY CHILDHOOD CARE AND DEVELOPMENT (ECCD) CHECKLIST</h2>
+            <h3>Child's Record 2</h3>
             
-            html += `<tr>
-                <td style="text-align:center;">${m.order_number}</td>
-                <td>${m.action_description}</td>
-                <td style="text-align:center; font-weight:bold;">${score}</td>
-            </tr>`;
+            <div class="header-info">
+                <div>
+                    <strong>Name:</strong> ${report.child_name}<br>
+                    <strong>Computed Age:</strong> ${report.age_years} years, ${report.age_months} months, ${report.age_days} days<br>
+                    <strong>Age Group Used:</strong> ${report.age_group || 'N/A'}<br>
+                </div>
+                <div>
+                    <strong>Assessment Period:</strong> ${period}<br>
+                    <strong>Date Tested:</strong> ${new Date(report.date_tested).toLocaleDateString()}<br>
+                    <strong>Date Printed:</strong> ${new Date().toLocaleDateString()}<br>
+                </div>
+            </div>
+            
+            <h3>Domains Evaluation</h3>
+            <table>
+                <tr>
+                    <th>Domain</th>
+                    <th class="score-col">Raw Score</th>
+                    <th class="score-col">Scaled Score</th>
+                </tr>
+        `;
+        
+        report.domains.forEach(d => {
+            html += `
+                <tr>
+                    <td><strong>${d.domain_name}</strong></td>
+                    <td style="text-align:center; font-size: 1.1rem;">${d.raw_score}</td>
+                    <td style="text-align:center; font-size: 1.1rem; font-weight:bold; color: #043263;">${d.scaled_score}</td>
+                </tr>
+            `;
         });
-
-        html += `<tr><td colspan="2" style="text-align:right; font-weight:bold;">Domain Raw Score:</td>
-                 <td style="text-align:center; font-weight:bold;">${count > 0 ? domainTotal : '-'}</td></tr>`;
-        html += `</table>`;
-    });
-
-    html += `
-        <div style="margin-top: 50px; display:flex; justify-content: space-between;">
-            <div style="width: 45%; text-align:center; border-top: 1px solid #000; padding-top: 10px;">
-                Parent / Guardian Signature over Printed Name
+        
+        html += `
+            </table>
+            
+            <div class="summary-box">
+                <h3>Overall Scoring Summary</h3>
+                <div style="display:flex; justify-content:space-around; font-size:1.2rem;">
+                    <div><strong>Sum of Scaled Scores:</strong> <span style="font-size:1.4rem; color:#4a90e2;">${report.sum_scaled_scores}</span></div>
+                    <div><strong>Standard Score:</strong> <span style="font-size:1.4rem; color:#e74a3b;">${report.standard_score !== null ? report.standard_score : 'N/A'}</span></div>
+                </div>
             </div>
-            <div style="width: 45%; text-align:center; border-top: 1px solid #000; padding-top: 10px;">
-                Teacher / Child Development Worker
+            
+            <div style="margin-top: 50px; display:flex; justify-content: space-between;">
+                <div style="width: 45%; text-align:center; border-top: 1px solid #000; padding-top: 10px;">
+                    Parent / Guardian Signature over Printed Name
+                </div>
+                <div style="width: 45%; text-align:center; border-top: 1px solid #000; padding-top: 10px;">
+                    Teacher / Child Development Worker
+                </div>
             </div>
-        </div>
-    </body></html>`;
+        </body></html>`;
 
-    printWin.document.write(html);
-    printWin.document.close();
-    printWin.focus();
-    setTimeout(() => { printWin.print(); printWin.close(); }, 500);
+        printWin.document.write(html);
+        printWin.document.close();
+        printWin.focus();
+        setTimeout(() => { printWin.print(); printWin.close(); }, 500);
+        
+    } catch(e) {
+        console.error(e);
+        alert("An error occurred while generating the report.");
+    }
 }
 
 // START

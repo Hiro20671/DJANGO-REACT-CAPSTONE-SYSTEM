@@ -220,9 +220,14 @@ class ECCDDomainViewSet(viewsets.ModelViewSet):
 
 class ECCDMilestoneViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = ECCDMilestone.objects.all().order_by('domain__order', 'order_number')
     serializer_class = ECCDMilestoneSerializer
-    filterset_fields = ['domain']
+    
+    def get_queryset(self):
+        qs = ECCDMilestone.objects.all().order_by('domain__order', 'order_number')
+        domain = self.request.query_params.get('domain')
+        if domain:
+            qs = qs.filter(domain=domain)
+        return qs
 
 class ECCDAssessmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -248,9 +253,87 @@ class ECCDAssessmentViewSet(viewsets.ModelViewSet):
 
 class ECCDMilestoneScoreViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = ECCDMilestoneScore.objects.all()
     serializer_class = ECCDMilestoneScoreSerializer
-    filterset_fields = ['assessment', 'milestone']
+    
+    def get_queryset(self):
+        qs = ECCDMilestoneScore.objects.all()
+        assessment = self.request.query_params.get('assessment')
+        if assessment:
+            qs = qs.filter(assessment=assessment)
+        milestone = self.request.query_params.get('milestone')
+        if milestone:
+            qs = qs.filter(milestone=milestone)
+        return qs
+
+from .eccd_scoring import compute_age, get_age_group, get_scaled_score, get_standard_score
+from django.shortcuts import get_object_or_404
+from datetime import date
+
+class ECCDReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, assessment_id):
+        assessment = get_object_or_404(ECCDAssessment, id=assessment_id)
+        
+        # Security check
+        user = request.user
+        if hasattr(user, 'userprofile') and not user.userprofile.is_teacher:
+            if not assessment.child.parents.filter(id=user.userprofile.id).exists():
+                return Response({'detail': 'Not authorized'}, status=403)
+                
+        # 1. Compute Age
+        # Date tested could be the assessment created_at, or just today if it's not finished
+        date_tested = getattr(assessment, 'assessment_date', date.today())
+        if not date_tested: date_tested = date.today()
+        if type(date_tested) != date:
+            try:
+                date_tested = date_tested.date()
+            except:
+                pass
+            
+        dob = assessment.child.date_of_birth
+        years, months, days = compute_age(date_tested, dob)
+        age_group = get_age_group(years, months)
+        
+        # 2. Compute Raw Scores per Domain
+        domains = ECCDDomain.objects.all().order_by('order')
+        scores = ECCDMilestoneScore.objects.filter(assessment=assessment, teacher_score=1)
+        
+        domain_results = []
+        sum_scaled = 0
+        
+        for d in domains:
+            milestones = ECCDMilestone.objects.filter(domain=d)
+            raw_score = scores.filter(milestone__in=milestones).count()
+            
+            scaled_score = 0
+            if age_group:
+                ss = get_scaled_score(age_group, d.name, raw_score)
+                if ss: scaled_score = ss
+                
+            sum_scaled += scaled_score
+            
+            domain_results.append({
+                'domain_id': d.id,
+                'domain_name': d.name,
+                'raw_score': raw_score,
+                'scaled_score': scaled_score
+            })
+            
+        standard_score = get_standard_score(sum_scaled)
+        
+        return Response({
+            'child_name': f"{assessment.child.first_name} {assessment.child.last_name}",
+            'date_of_birth': dob,
+            'date_tested': date_tested,
+            'age_years': years,
+            'age_months': months,
+            'age_days': days,
+            'age_group': age_group,
+            'domains': domain_results,
+            'sum_scaled_scores': sum_scaled,
+            'standard_score': standard_score
+        })
 
 class NutritionAnalyticsAPIView(APIView):
     permission_classes = [IsAuthenticated]

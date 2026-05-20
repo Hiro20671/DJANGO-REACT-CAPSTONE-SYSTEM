@@ -10,7 +10,8 @@ from .api_views import (
     UpdateUsernameAPIView, RequestPasswordChangeAPIView, VerifyPasswordChangeAPIView,
     GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
     link_guardian_profile, NoClassDayViewSet,
-    ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet
+    ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet,
+    ECCDReportAPIView
 )
 
 router = DefaultRouter()
@@ -65,5 +66,6 @@ urlpatterns = [
     path('api/verify-password-change/', VerifyPasswordChangeAPIView.as_view(), name='api_verify_password_change'),
     path('api/verify-otp-only/', VerifyOTPOnlyAPIView.as_view(), name='api_verify_otp_only'),
     path('api/link_guardian/', link_guardian_profile, name='api_link_guardian'),
+    path('api/eccd-report/<int:assessment_id>/', ECCDReportAPIView.as_view(), name='api_eccd_report'),
     path('api/', include(router.urls)),
 ]

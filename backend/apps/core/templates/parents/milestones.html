@@ -110,6 +110,22 @@ let domainsList = [];
 let milestonesList = [];
 let allAss = []; 
 let allSco = [];
+let pendingScores = {};
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 function switchTab(tabId) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -127,20 +143,30 @@ function switchTab(tabId) {
 
 async function fetchSystemData() {
     try {
-        const [parentRes, domRes, msRes] = await Promise.all([
-            fetch('/api/parent/history/'),
+        const [childrenRes, domRes, msRes] = await Promise.all([
+            fetch('/api/children/'),
             fetch('/api/eccd-domains/'),
             fetch('/api/eccd-milestones/')
         ]);
         
-        const parentData = await parentRes.json();
-        if(parentData.detail || !parentData.child) {
+        const childrenList = await childrenRes.json();
+        const linkedId = localStorage.getItem('linked_child_id');
+        let selectedChild = null;
+        
+        if (linkedId) {
+            selectedChild = childrenList.find(c => c.id == linkedId);
+        }
+        if (!selectedChild && childrenList.length > 0) {
+            selectedChild = childrenList[0];
+        }
+
+        if(!selectedChild) {
             document.getElementById('domainCardsContainer').style.display = 'none';
             document.getElementById('noChildWarning').style.display = 'block';
             return;
         }
 
-        childData = parentData.child;
+        childData = selectedChild;
         domainsList = await domRes.json();
         milestonesList = await msRes.json();
 
@@ -195,17 +221,14 @@ function renderDomainCards() {
 
     domainsList.forEach(domain => {
         const dMilestones = milestonesList.filter(m => m.domain === domain.id);
-        const count = dMilestones.length;
+        const count = dMilestones.length * 3; // 3 periods
         totalMilestones += count;
 
         let scored = 0;
-        const ass1 = allAss.find(a => a.assessment_period === '1st');
-        if (ass1) {
-            dMilestones.forEach(m => {
-                const s = allSco.find(sc => sc.assessment === ass1.id && sc.milestone === m.id);
-                if (s && s.teacher_score === 1) scored++;
-            });
-        }
+        dMilestones.forEach(m => {
+            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+            scored += s.length;
+        });
         totalScored += scored;
 
         const pct = count === 0 ? 0 : Math.round((scored / count) * 100);
@@ -249,6 +272,7 @@ function openAssessment(domainId) {
 function renderAssessmentTable() {
     const tbody = document.getElementById('assessmentTbody');
     tbody.innerHTML = '';
+    pendingScores = {}; // Reset pending on render
     
     const ass1 = allAss.find(a => a.assessment_period === '1st');
     const ass2 = allAss.find(a => a.assessment_period === '2nd');
@@ -266,11 +290,10 @@ function renderAssessmentTable() {
         const s2 = ass2 ? allSco.find(s => s.assessment === ass2.id && s.milestone === m.id) : null;
         const s3 = ass3 ? allSco.find(s => s.assessment === ass3.id && s.milestone === m.id) : null;
 
-        const c1 = s1 && s1.teacher_score === 1 ? 'checked' : '';
+        const mAss1 = ass1 ? ass1.id : 'null';
+        const c1_attr = s1 && s1.teacher_score === 1 ? 'checked disabled' : `onchange="queueScore(${mAss1}, ${m.id}, this.checked)"`;
         const c2 = s2 && s2.teacher_score === 1 ? 'checked' : '';
         const c3 = s3 && s3.teacher_score === 1 ? 'checked' : '';
-
-        const mAss1 = ass1 ? ass1.id : 'null';
         
         let matProc = m.material_procedure ? m.material_procedure.replace(/\n/g, '<br>') : '';
 
@@ -279,7 +302,7 @@ function renderAssessmentTable() {
             <td style="text-align:center;"><strong>${m.order_number}</strong></td>
             <td><strong>${m.action_description}</strong><br><span style="font-size:0.8rem; color:#555;">${matProc}</span></td>
             <td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" style="transform:scale(1.5);" ${c1} onchange="saveScoreCheckbox(${mAss1}, ${m.id}, this.checked)">
+                <input type="checkbox" style="transform:scale(1.5);" ${c1_attr}>
             </td>
             <td style="text-align:center; vertical-align:middle;">
                 <input type="checkbox" style="transform:scale(1.5);" disabled ${c2}>
@@ -289,36 +312,75 @@ function renderAssessmentTable() {
             </td>
         </tr>`;
     });
+
+    // Add save button at the end
+    tbody.innerHTML += `
+        <tr>
+            <td colspan="5" style="text-align:center; padding: 20px;">
+                <button class="btn btn-primary" onclick="saveAllPending()">Save Changes</button>
+            </td>
+        </tr>
+    `;
 }
 
-async function saveScoreCheckbox(assessmentId, milestoneId, isChecked) {
+function queueScore(assessmentId, milestoneId, isChecked) {
     if (assessmentId === null) {
         alert("Wait for assessment record to be initialized.");
         return;
     }
-    const scoreVal = isChecked ? 1 : 0;
-    let scoreObj = allSco.find(s => s.milestone === milestoneId && s.assessment === assessmentId);
+    pendingScores[milestoneId] = {
+        assessmentId: assessmentId,
+        scoreVal: isChecked ? 1 : 0
+    };
+}
+
+async function saveAllPending() {
+    const keys = Object.keys(pendingScores);
+    if (keys.length === 0) {
+        alert("No changes to save.");
+        return;
+    }
     
-    if (scoreObj) {
-        const res = await fetch(`/api/eccd-scores/${scoreObj.id}/`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({ teacher_score: scoreVal })
-        });
-        const updated = await res.json();
-        scoreObj.teacher_score = updated.teacher_score;
-    } else {
-        const res = await fetch(`/api/eccd-scores/`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({
-                assessment: assessmentId,
-                milestone: milestoneId,
-                teacher_score: scoreVal
-            })
-        });
-        const created = await res.json();
-        allSco.push(created);
+    // Disable button during save
+    const btn = document.querySelector('.btn-primary');
+    if (btn) btn.innerText = 'Saving...';
+    
+    try {
+        for (let mId of keys) {
+            const data = pendingScores[mId];
+            let scoreObj = allSco.find(s => s.milestone == mId && s.assessment == data.assessmentId);
+            
+            if (scoreObj) {
+                const res = await fetch(`/api/eccd-scores/${scoreObj.id}/`, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                    body: JSON.stringify({ teacher_score: data.scoreVal })
+                });
+                const updated = await res.json();
+                scoreObj.teacher_score = updated.teacher_score;
+            } else {
+                const res = await fetch(`/api/eccd-scores/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                    body: JSON.stringify({
+                        assessment: data.assessmentId,
+                        milestone: parseInt(mId),
+                        teacher_score: data.scoreVal
+                    })
+                });
+                const created = await res.json();
+                allSco.push(created);
+            }
+        }
+        
+        pendingScores = {}; // clear
+        alert("Scores saved successfully!");
+        renderDomainCards(); // update progress bar on dashboard
+        renderAssessmentTable(); // re-render to lock checkboxes
+    } catch (e) {
+        console.error(e);
+        alert("An error occurred while saving.");
+        if (btn) btn.innerText = 'Save Changes';
     }
 }
 

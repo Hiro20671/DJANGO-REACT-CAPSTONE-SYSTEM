@@ -68,8 +68,19 @@ function ParentDashboard() {
         if (!window.CURRENT_USER_NAME && parsed.name) {
             setParentName(parsed.name);
         }
-        if (parsed.child_id) setLinkedChildId(parsed.child_id);
+        const savedLinkedId = localStorage.getItem('linked_child_id');
+        if (savedLinkedId) {
+            setLinkedChildId(parseInt(savedLinkedId));
+        } else if (parsed.child_id) {
+            setLinkedChildId(parsed.child_id);
+            localStorage.setItem('linked_child_id', parsed.child_id);
+        }
       } catch (e) { }
+    } else {
+        const savedLinkedId = localStorage.getItem('linked_child_id');
+        if (savedLinkedId) {
+            setLinkedChildId(parseInt(savedLinkedId));
+        }
     }
     
     // Fetch user settings for profile pic
@@ -91,15 +102,17 @@ function ParentDashboard() {
         setChildrenList(children);
         
         // If no child is linked yet, default to the first child
-        if (!linkedChildId && children.length > 0) {
+        let currentLinkedId = localStorage.getItem('linked_child_id');
+        if (!currentLinkedId && children.length > 0) {
             const firstChildId = children[0].id;
             setLinkedChildId(firstChildId);
             localStorage.setItem('linked_child_id', firstChildId);
+            currentLinkedId = firstChildId;
         }
         
         let myChild = null;
-        if (linkedChildId) {
-          myChild = children.find((c) => c.id === linkedChildId);
+        if (currentLinkedId) {
+          myChild = children.find((c) => c.id == currentLinkedId);
         }
         if (!myChild && children.length > 0) {
           myChild = children[0];
@@ -868,7 +881,7 @@ function ParentDashboard() {
             <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', position: 'relative' }}>
                 <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>ECCD Milestone Progress</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    {eccdProgress.length > 0 ? eccdProgress.slice(0,4).map((p, i) => (
+                    {eccdProgress.length > 0 ? eccdProgress.map((p, i) => (
                         <div key={i}>
                             <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.name}</div>
                             <div style={{ width: '100%', height: '6px', background: '#eee', borderRadius: '3px', marginTop: '5px' }}>
