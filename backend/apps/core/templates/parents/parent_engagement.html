@@ -118,19 +118,466 @@
 @media (max-width: 900px) {
     .kpi-row { grid-template-columns: 1fr; }
 }
+
+/* Dual Pane Layout */
+.dual-pane {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+@media (max-width: 1024px) {
+    .dual-pane {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chat-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    height: 550px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eaeaea;
+}
+
+.chat-bubble {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-bubble.parent {
+    align-self: flex-end;
+    background-color: #d2f4ea;
+    color: #0f5132;
+    border-top-right-radius: 2px;
+}
+
+.chat-bubble.teacher {
+    align-self: flex-start;
+    background-color: #043263;
+    color: #ffffff;
+    border-top-left-radius: 2px;
+}
+
+.chat-bubble.system-absent {
+    align-self: center;
+    background-color: #fdf2f2;
+    color: #d9534f;
+    border: 1px solid #fbe3e4;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: 90%;
+    max-width: 90%;
+    padding: 12px;
+    box-shadow: none;
+}
+
+.chat-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.chat-bubble.teacher .chat-time {
+    color: rgba(255,255,255,0.8);
+}
+
+.chat-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+    border-color: #4a90e2;
+}
+
+.btn-chat-send {
+    background-color: #043263;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+.btn-chat-send:hover {
+    background-color: #4a90e2;
+    transform: scale(1.05);
+}
+
+.btn-chat-send:active {
+    transform: scale(0.95);
+}
+
+.btn-absence-report {
+    background-color: #e74a3b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.btn-absence-report:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(231,74,59,0.3);
+}
+
+/* Modal Form Styles */
+.form-group-row {
+    margin-bottom: 15px;
+}
+.form-group-row label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #444;
+    text-align: left;
+}
+.form-group-row input, .form-group-row select, .form-group-row textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+.form-group-row input:focus, .form-group-row select:focus, .form-group-row textarea:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* Segmented Tab Switcher Bar */
+.engagement-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+}
+.eng-tab {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+.eng-tab:hover {
+    background: #f0f4f8;
+    color: #043263;
+}
+.eng-tab.active {
+    background: #043263;
+    color: white;
+    box-shadow: 0 4px 10px rgba(4, 50, 99, 0.2);
+}
+
+/* Tab Panels */
+.toggle-panel {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+.toggle-panel.active {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.full-width-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.teacher-chat-full {
+    display: flex;
+    flex-direction: column;
+    height: 550px;
+}
+
+/* Parent-to-Parent Community Messenger */
+.messenger-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    height: 580px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+@media (max-width: 768px) {
+    .messenger-container {
+        grid-template-columns: 1fr;
+    }
+    .messenger-sidebar {
+        display: flex !important;
+    }
+    .messenger-chat-workspace {
+        display: none !important;
+    }
+    .messenger-container.chat-active .messenger-sidebar {
+        display: none !important;
+    }
+    .messenger-container.chat-active .messenger-chat-workspace {
+        display: flex !important;
+    }
+}
+.messenger-sidebar {
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    background: #fafbfc;
+    height: 100%;
+}
+.messenger-sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+.messenger-sidebar-header h4 {
+    margin: 0 0 8px 0;
+    color: #043263;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+.messenger-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.85rem;
+}
+.messenger-parent-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.messenger-parent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.messenger-parent-item:hover {
+    background: #f0f4f8;
+}
+.messenger-parent-item.active {
+    background: #e1e9f0;
+}
+.messenger-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #043263;
+    color: white;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.messenger-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+.messenger-info h5 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.messenger-info p {
+    margin: 2px 0 0 0;
+    font-size: 0.72rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.messenger-chat-workspace {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+.messenger-chat-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+}
+.messenger-chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.messenger-chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f8f9fa;
+}
+.messenger-chat-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #fff;
+}
+.messenger-chat-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+.messenger-chat-send {
+    background-color: #043263;
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.messenger-chat-send:hover {
+    background-color: #4a90e2;
+    transform: scale(1.05);
+}
+.btn-back-sidebar {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: none;
+}
+@media (max-width: 768px) {
+    .btn-back-sidebar {
+        display: block;
+    }
+}
 </style>
 
 <div class="page-header">
     <h2>Messages & Inbox</h2>
-    <p>Read communication and structured reports sent securely by your teachers</p>
+    <p>Read communication, weekly digests, and chat directly with your child's teacher</p>
 </div>
 
 <!-- KPIs -->
 <div class="kpi-row">
-    <div class="kpi-card">
-        <div class="kpi-title">Unread Messages</div>
+    <div class="kpi-card" onclick="document.getElementById('chat-input-field').focus();">
+        <div class="kpi-title">Chat Activity</div>
         <div class="kpi-value" id="unread-val">0</div>
-        <div style="margin-top:auto; font-size:0.85rem; color:#4a90e2; font-weight:600;">System Up to date</div>
+        <div style="margin-top:auto; font-size:0.85rem; color:#4a90e2; font-weight:600;">Messages in thread</div>
     </div>
     <div class="kpi-card">
         <div class="kpi-title">Total Reports Received</div>
@@ -139,20 +586,84 @@
     </div>
 </div>
 
-<!-- Main Message Section -->
-<div class="digest-section">
-    <div class="section-header">
-        <h3>Classroom Inbox</h3>
-        <p>Your history of direct correspondence</p>
-    </div>
+<!-- Segmented Tab Switcher Bar -->
+<div class="engagement-tabs">
+    <button class="eng-tab active" id="tab-inbox" onclick="switchEngageTab('inbox')">
+        <i class="fa-solid fa-envelope"></i> Classroom Inbox
+    </button>
+    <button class="eng-tab" id="tab-teacher-chat" onclick="switchEngageTab('teacher-chat')">
+        <i class="fa-solid fa-chalkboard-user"></i> Teacher Chat
+    </button>
+    <button class="eng-tab" id="tab-parents-chat" onclick="switchEngageTab('parents-chat')">
+        <i class="fa-solid fa-comments"></i> Parent Messenger
+    </button>
+</div>
 
-    <!-- Message Container -->
-    <div id="messages-container">
-        <!-- Rendered by JS or Empty State -->
+<!-- PANEL 1: Classroom Inbox -->
+<div id="panel-inbox" class="toggle-panel active">
+    <div class="full-width-section">
+        <div class="section-header" style="border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:15px;">
+            <h3 style="margin:0; font-size:1.2rem; color:#043263;"><i class="fa-solid fa-envelope-open-text"></i> Classroom Inbox</h3>
+            <p style="margin:5px 0 0 0; color:#666; font-size:0.85rem;">Your history of direct correspondence, reports, and system notices</p>
+        </div>
+        <div id="messages-container">
+            <!-- Rendered by JS -->
+        </div>
     </div>
 </div>
 
-<!-- Modal Structure -->
+<!-- PANEL 2: Teacher Chat -->
+<div id="panel-teacher-chat" class="toggle-panel">
+    <div class="full-width-section teacher-chat-full">
+        <div class="chat-header">
+            <h3 style="margin:0; font-size:1.2rem; color:#043263;"><i class="fa-solid fa-comments"></i> Direct Chat with Teacher</h3>
+            <button class="btn-absence-report" onclick="openAbsenceModal()">
+                <i class="fa-solid fa-circle-exclamation"></i> Report Child Absence
+            </button>
+        </div>
+        
+        <div class="chat-body" id="chat-messages-container" style="flex-grow:1; overflow-y:auto; padding:15px 0; display:flex; flex-direction:column; gap:10px;">
+            <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+                <i class="fa-regular fa-comment-dots" style="font-size:2.5rem; margin-bottom:10px;"></i>
+                <p>Loading conversation with teacher...</p>
+            </div>
+        </div>
+        
+        <div class="chat-footer" style="margin-top:15px;">
+            <input type="text" class="chat-input" id="chat-input-field" placeholder="Type a message to the teacher..." onkeydown="handleChatKey(event)">
+            <button class="btn-chat-send" onclick="sendParentChatMessage()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PANEL 3: Parent Community Messenger -->
+<div id="panel-parents-chat" class="toggle-panel">
+    <div class="messenger-container" id="p2p-messenger-container">
+        <!-- Sidebar -->
+        <div class="messenger-sidebar">
+            <div class="messenger-sidebar-header">
+                <h4>Parent Directory</h4>
+                <input type="text" class="messenger-search" id="p2p-search-input" placeholder="Search other parents..." oninput="filterP2PList()">
+            </div>
+            <div class="messenger-parent-list" id="p2p-parent-list-container">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+        
+        <!-- Chat Workspace -->
+        <div class="messenger-chat-workspace" id="p2p-chat-workspace">
+            <div style="text-align:center; color:#999; padding:60px; margin:auto; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <i class="fa-regular fa-comments" style="font-size:3.5rem; color:#ccc; margin-bottom:15px;"></i>
+                <h4 style="margin:0; color:#043263;">Parent Messenger</h4>
+                <p style="font-size:0.85rem; max-width:280px; margin-top:5px;">Select a parent from the left sidebar to start direct parent-to-parent messaging.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Structure for teacher report details -->
 <div class="modal-overlay" id="reportModal">
     <div class="modal-container">
         <div class="modal-header">
@@ -166,20 +677,116 @@
     </div>
 </div>
 
+<!-- Modal Structure for reporting absence -->
+<div class="modal-overlay" id="absenceModal">
+    <div class="modal-container" style="width: 450px;">
+        <div class="modal-header" style="background:#e74a3b;">
+            <h3>Report Child Absence / Illness</h3>
+            <button class="btn-close" onclick="closeAbsenceModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:15px; color:#555; font-size:0.9rem;">Submit an official absence notice to the teacher. This will instantly update the daily attendance checklist.</p>
+            
+            <!-- Child Selector dropdown, visible when parent has multiple children -->
+            <div class="form-group-row" id="child-selector-container" style="display: none;">
+                <label for="abs-child-select">Select Child</label>
+                <select id="abs-child-select">
+                </select>
+            </div>
+
+            <div class="form-group-row">
+                <label for="abs-date">Date of Absence</label>
+                <input type="date" id="abs-date">
+            </div>
+            
+            <div class="form-group-row">
+                <label for="abs-reason">Reason Category</label>
+                <select id="abs-reason" onchange="toggleCustomReasonInput(this.value)">
+                    <option value="Sick 🤒">Sick 🤒</option>
+                    <option value="Family Event 👨&zwj;👩&zwj;👧">Family Event 👨‍👩‍👧</option>
+                    <option value="Travel ✈️">Travel ✈️</option>
+                    <option value="Other 📝">Other (Provide details below) 📝</option>
+                </select>
+            </div>
+            
+            <div class="form-group-row">
+                <label for="abs-notes">Detailed Explanation</label>
+                <textarea id="abs-notes" rows="3" placeholder="Explain the reason (e.g. has fever/flu)..."></textarea>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button class="btn-cancel" onclick="closeAbsenceModal()" style="border:1px solid #ccc; background:#fff; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer;">Cancel</button>
+                <button onclick="submitChildAbsence()" style="background:#e74a3b; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:700; cursor:pointer;">Submit Notice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let myChildId = null;
+    let myChildName = "Student";
+    let parentChatKey = null;
+    let myChildren = [];
+    let parentsMaster = [];
+    let myParentProfileId = null;
+    let activeP2PId = null;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
     function fetchSystemData() {
         Promise.all([
             fetch('/api/parent/history/').then(res => res.json()),
-            fetch('/api/no-class-days/').then(res => res.json())
+            fetch('/api/no-class-days/').then(res => res.json()),
+            fetch('/api/parents/').then(res => res.json())
         ])
-            .then(([data, noClassData]) => {
+            .then(([data, noClassData, parentsData]) => {
                 if(data.detail || !data.child) {
                     document.getElementById('messages-container').innerHTML = `<div class="empty-state"><h3>No Child Linked.</h3><p>Please contact the teacher to link your child to this account.</p></div>`;
                     throw new Error("No child linked");
                 }
+                myChildId = data.child.id;
+                myChildName = `${data.child.first_name} ${data.child.last_name}`;
+                myChildren = data.children || [data.child];
+                myParentProfileId = data.parent_profile_id;
+
+                if (myParentProfileId) {
+                    parentChatKey = `parent_${myParentProfileId}`;
+                } else {
+                    parentChatKey = `student_${myChildId}`;
+                }
+
+                // Filter out current parent profile from community directory
+                parentsMaster = parentsData.filter(p => p.id !== myParentProfileId);
+                
+                // Prefill absence date to today's date
+                document.getElementById('abs-date').value = new Date().toISOString().split('T')[0];
+
+                // Configure child selector dropdown if parent has multiple children
+                let childSelectContainer = document.getElementById('child-selector-container');
+                let childSelect = document.getElementById('abs-child-select');
+                if (myChildren.length > 1) {
+                    childSelect.innerHTML = myChildren.map(c => `<option value="${c.id}">${c.first_name} ${c.last_name}</option>`).join('');
+                    childSelectContainer.style.display = 'block';
+                } else {
+                    childSelectContainer.style.display = 'none';
+                }
+
                 renderInbox(data, noClassData);
+                renderParentChat();
+                renderP2PInbox();
             })
             .catch(err => {
                 console.error(err);
@@ -188,24 +795,73 @@
 
     function renderInbox(history, noClassData) {
         let container = document.getElementById('messages-container');
-        
         let html = '';
         let totalReports = 0;
         
-        // Fetch actual reports from teacher instead of fake ones
         let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
-        let myReports = reportsDB[history.child.id] || [];
+        
+        // Gather reports for all associated children
+        let allReports = [];
+        myChildren.forEach(child => {
+            let childReports = reportsDB[child.id] || [];
+            childReports.forEach(rep => {
+                allReports.push({
+                    ...rep,
+                    childId: child.id,
+                    childName: `${child.first_name} ${child.last_name}`
+                });
+            });
+        });
 
-        myReports.forEach(rep => {
+        // Sort all reports by date descending
+        allReports.sort((a, b) => {
+            let dateA = new Date(a.date);
+            let dateB = new Date(b.date);
+            if (isNaN(dateA)) return -1;
+            if (isNaN(dateB)) return 1;
+            return dateB - dateA;
+        });
+
+        // Group identical reports to show as a single card for multiple children
+        let groupedReports = [];
+        allReports.forEach(rep => {
+            // Group by title, body, and date to consolidate duplicates
+            let key = (rep.title || '') + '||' + (rep.body || '') + '||' + (rep.date || '');
+            let existing = groupedReports.find(r => r.key === key);
+            if (existing) {
+                if (!existing.childNames.includes(rep.childName)) {
+                    existing.childNames.push(rep.childName);
+                }
+            } else {
+                groupedReports.push({
+                    key: key,
+                    title: rep.title,
+                    body: rep.body,
+                    date: rep.date,
+                    childNames: [rep.childName]
+                });
+            }
+        });
+
+        groupedReports.forEach(rep => {
             totalReports++;
             const safeTitle = rep.title.replace(/'/g, "\\'");
             const safeBody = rep.body.replace(/'/g, "\\'").replace(/\n/g, "<br>");
             const safeDate = rep.date.replace(/'/g, "\\'");
 
+            let badgeHtml = '';
+            if (myChildren.length > 1) {
+                let forLabel = rep.childNames.join(' & ');
+                badgeHtml = `<span style="font-size:0.75rem; background:#eaeaea; color:#555; padding:2px 8px; border-radius:10px; font-weight:600; margin-left:10px;">For: ${forLabel}</span>`;
+            }
+
+            let isUrgentClass = rep.title.includes('URGENT') ? 'urgent' : '';
+            let titlePrefix = rep.title.includes('URGENT') ? '⚠️' : '📨';
+
             html += `
-            <div class="msg-item" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
+            <div class="msg-item ${isUrgentClass}" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
                 <div class="msg-header">
-                    <div class="msg-title">📨 ${rep.title}</div>
+                    <div class="msg-title ${isUrgentClass ? 'urgent-title' : ''}">${titlePrefix} ${rep.title} ${badgeHtml}</div>
                     <div class="msg-date">${rep.date}</div>
                 </div>
                 <div class="msg-body-preview">
@@ -214,7 +870,6 @@
             </div>`;
         });
 
-        // Process No Class Days into urgent messages
         if (Array.isArray(noClassData) && noClassData.length > 0) {
             noClassData.forEach(nc => {
                 totalReports++;
@@ -248,6 +903,187 @@
         container.innerHTML = html;
     }
 
+    /* Parent-Teacher Chat Panel Logic */
+    function renderParentChat() {
+        if (!parentChatKey) return;
+        
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+        let myChat = chatDB[parentChatKey] || [];
+        let chatContainer = document.getElementById('chat-messages-container');
+        
+        // Mark all teacher messages as read
+        let updated = false;
+        myChat.forEach(msg => {
+            if (msg.sender === 'teacher' && !msg.read) {
+                msg.read = true;
+                updated = true;
+            }
+        });
+        if (updated) {
+            chatDB[parentChatKey] = myChat;
+            localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+        }
+
+        document.getElementById('unread-val').innerText = myChat.length;
+
+        if (myChat.length === 0) {
+            chatContainer.innerHTML = `
+            <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+                <i class="fa-regular fa-comment-dots" style="font-size:2.5rem; color:#ccc; margin-bottom:10px;"></i>
+                <h4>No messages yet</h4>
+                <p style="font-size:0.8rem; margin-top:5px;">Send a message to start direct communication with the teacher.</p>
+            </div>`;
+            return;
+        }
+
+        let html = '';
+        myChat.forEach(msg => {
+            if (msg.type === 'system-absent') {
+                html += `
+                <div class="chat-bubble system-absent">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <strong>ABSENCE NOTICE</strong>
+                    <div style="margin-top: 3px;">${msg.text}</div>
+                </div>`;
+            } else {
+                let bubbleClass = msg.sender === 'parent' ? 'parent' : 'teacher';
+                let senderLabel = msg.sender === 'parent' ? 'You' : 'Teacher';
+                html += `
+                <div class="chat-bubble ${bubbleClass}">
+                    <strong style="font-size:0.75rem; font-weight:800; margin-bottom:3px; opacity:0.8;">${senderLabel}</strong>
+                    <div>${msg.text}</div>
+                    <div class="chat-time">${msg.timestamp}</div>
+                </div>`;
+            }
+        });
+
+        chatContainer.innerHTML = html;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function sendParentChatMessage() {
+        let inputField = document.getElementById('chat-input-field');
+        let text = inputField.value.trim();
+        if (!text || !parentChatKey) return;
+
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+        if (!chatDB[parentChatKey]) chatDB[parentChatKey] = [];
+
+        let now = new Date();
+        let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        chatDB[parentChatKey].push({
+            sender: 'parent',
+            text: text,
+            timestamp: timeStr,
+            date: now.toLocaleDateString(),
+            read: false
+        });
+
+        localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+        inputField.value = '';
+        renderParentChat();
+    }
+
+    function handleChatKey(event) {
+        if (event.key === 'Enter') {
+            sendParentChatMessage();
+        }
+    }
+
+    /* Absence Submissions Modal and Integrations */
+    function openAbsenceModal() {
+        document.getElementById('absenceModal').classList.add('active');
+    }
+
+    function closeAbsenceModal() {
+        document.getElementById('absenceModal').classList.remove('active');
+        document.getElementById('abs-notes').value = '';
+    }
+
+    function toggleCustomReasonInput(val) {
+        let notesTextarea = document.getElementById('abs-notes');
+        if (val === 'Sick 🤒') {
+            notesTextarea.placeholder = "Explain child's illness (e.g. fever, cough)...";
+        } else if (val === 'Family Event 👨‍👩‍👧') {
+            notesTextarea.placeholder = "Explain briefly (e.g. family gathering, out of town)...";
+        } else {
+            notesTextarea.placeholder = "Provide reason notes...";
+        }
+    }
+
+    async function submitChildAbsence() {
+        if (!parentChatKey) return;
+
+        let selectedChildId = myChildId;
+        let selectedChildName = myChildName;
+
+        if (myChildren.length > 1) {
+            let childSelect = document.getElementById('abs-child-select');
+            selectedChildId = parseInt(childSelect.value);
+            let selectedChildObj = myChildren.find(c => c.id === selectedChildId);
+            if (selectedChildObj) {
+                selectedChildName = `${selectedChildObj.first_name} ${selectedChildObj.last_name}`;
+            }
+        }
+
+        const dateVal = document.getElementById('abs-date').value;
+        const cat = document.getElementById('abs-reason').value;
+        const notes = document.getElementById('abs-notes').value.trim();
+
+        if (!dateVal) {
+            alert("Please pick a valid date of absence.");
+            return;
+        }
+
+        let fullReason = cat;
+        if (notes) {
+            fullReason += ": " + notes;
+        }
+
+        const payload = {
+            child: selectedChildId,
+            date: dateVal,
+            status: 'absent',
+            absence_reason: fullReason
+        };
+
+        try {
+            let res = await fetch('/api/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!res.ok) throw new Error("Failed to post attendance");
+            
+            let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+            if (!chatDB[parentChatKey]) chatDB[parentChatKey] = [];
+
+            let now = new Date();
+            let dateStrFormatted = new Date(dateVal).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            
+            chatDB[parentChatKey].push({
+                type: 'system-absent',
+                text: `${selectedChildName} reported ABSENT for ${dateStrFormatted}. Reason logged: "${fullReason}"`,
+                timestamp: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                date: now.toLocaleDateString()
+            });
+
+            localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+            
+            closeAbsenceModal();
+            renderParentChat();
+            alert(`Successfully reported absence for ${selectedChildName} on ${dateStrFormatted}! Attendance updated and teacher notified.`);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to sync absence with system database. Please try again.");
+        }
+    }
+
     function openReportModal(title, date, body) {
         document.getElementById('modalReportTitle').innerText = title;
         document.getElementById('modalReportDate').innerText = "Generated on: " + date;
@@ -259,11 +1095,221 @@
         document.getElementById('reportModal').classList.remove('active');
     }
 
+    /* Tab Switcher Logic */
+    function switchEngageTab(tabName) {
+        document.querySelectorAll('.eng-tab').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.toggle-panel').forEach(panel => panel.classList.remove('active'));
+        
+        if (tabName === 'inbox') {
+            document.getElementById('tab-inbox').classList.add('active');
+            document.getElementById('panel-inbox').classList.add('active');
+        } else if (tabName === 'teacher-chat') {
+            document.getElementById('tab-teacher-chat').classList.add('active');
+            document.getElementById('panel-teacher-chat').classList.add('active');
+            setTimeout(() => {
+                let chatContainer = document.getElementById('chat-messages-container');
+                if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 50);
+        } else if (tabName === 'parents-chat') {
+            document.getElementById('tab-parents-chat').classList.add('active');
+            document.getElementById('panel-parents-chat').classList.add('active');
+            setTimeout(() => {
+                let chatBodyContainer = document.getElementById('p2p-chat-body-container');
+                if (chatBodyContainer) chatBodyContainer.scrollTop = chatBodyContainer.scrollHeight;
+            }, 50);
+        }
+    }
+
+    /* Parent-to-Parent Messenger Logic */
+    function renderP2PInbox() {
+        let listContainer = document.getElementById('p2p-parent-list-container');
+        if (!listContainer) return;
+
+        let query = document.getElementById('p2p-search-input').value.toLowerCase().trim();
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+
+        let filtered = parentsMaster.filter(p => {
+            let nameMatch = p.name.toLowerCase().includes(query);
+            let childMatch = p.children.some(c => c.toLowerCase().includes(query));
+            return nameMatch || childMatch;
+        });
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `<div style="text-align:center; color:#999; padding:20px; font-size:0.85rem;">No parents found</div>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(p => {
+            let minId = Math.min(myParentProfileId, p.id);
+            let maxId = Math.max(myParentProfileId, p.id);
+            let p2pKey = `p2p_${minId}_${maxId}`;
+            let messages = chatDB[p2pKey] || [];
+            let lastMsgText = "No messages yet";
+            if (messages.length > 0) {
+                let lastMsg = messages[messages.length - 1];
+                lastMsgText = (lastMsg.sender === myParentProfileId ? 'You: ' : '') + lastMsg.text;
+            }
+
+            let initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            let isActive = activeP2PId === p.id ? 'active' : '';
+            let childrenLabel = p.children.join(', ');
+
+            html += `
+            <div class="messenger-parent-item ${isActive}" onclick="selectP2PParent(${p.id})">
+                <div class="messenger-avatar">${initials}</div>
+                <div class="messenger-info">
+                    <h5>${p.name}</h5>
+                    <p style="font-weight: 600; color: #4a90e2; font-size: 0.72rem;">Parents of: ${childrenLabel}</p>
+                    <p style="color: #888; font-size: 0.7rem;">${lastMsgText}</p>
+                </div>
+            </div>`;
+        });
+
+        listContainer.innerHTML = html;
+    }
+
+    function selectP2PParent(parentId) {
+        activeP2PId = parentId;
+        
+        document.getElementById('p2p-messenger-container').classList.add('chat-active');
+        renderP2PInbox();
+        renderP2PChatWorkspace();
+    }
+
+    function renderP2PChatWorkspace() {
+        let workspace = document.getElementById('p2p-chat-workspace');
+        if (!workspace || !activeP2PId) return;
+
+        let peer = parentsMaster.find(p => p.id === activeP2PId);
+        if (!peer) return;
+
+        let initials = peer.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        let childrenLabel = peer.children.join(', ');
+
+        let minId = Math.min(myParentProfileId, activeP2PId);
+        let maxId = Math.max(myParentProfileId, activeP2PId);
+        let p2pKey = `p2p_${minId}_${maxId}`;
+
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+        let messages = chatDB[p2pKey] || [];
+
+        // Mark incoming peer messages as read
+        let updated = false;
+        messages.forEach(msg => {
+            if (msg.sender !== myParentProfileId && !msg.read) {
+                msg.read = true;
+                updated = true;
+            }
+        });
+        if (updated) {
+            chatDB[p2pKey] = messages;
+            localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+        }
+
+        let chatBodyHtml = '';
+        if (messages.length === 0) {
+            chatBodyHtml = `
+            <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+                <i class="fa-regular fa-comment-dots" style="font-size:2.5rem; color:#ccc; margin-bottom:10px;"></i>
+                <h4>No messages yet</h4>
+                <p style="font-size:0.8rem; margin-top:5px;">Send a message to start direct parent-to-parent messaging.</p>
+            </div>`;
+        } else {
+            messages.forEach(msg => {
+                let isMe = msg.sender === myParentProfileId;
+                let bubbleClass = isMe ? 'parent' : 'teacher';
+                let senderLabel = isMe ? 'You' : peer.name;
+                
+                chatBodyHtml += `
+                <div class="chat-bubble ${bubbleClass}" style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; ${isMe ? 'background-color: #d2f4ea; color: #0f5132;' : 'background-color: #e2e3e5; color: #383d41;'}">
+                    <strong style="font-size:0.75rem; font-weight:800; margin-bottom:3px; opacity:0.8;">${senderLabel}</strong>
+                    <div>${msg.text}</div>
+                    <div class="chat-time" style="color: rgba(0,0,0,0.6)">${msg.timestamp}</div>
+                </div>`;
+            });
+        }
+
+        workspace.innerHTML = `
+            <div class="messenger-chat-header">
+                <div class="messenger-chat-header-info">
+                    <button class="btn-back-sidebar" onclick="backToP2PSidebar()"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="messenger-avatar">${initials}</div>
+                    <div>
+                        <h4 style="margin:0; font-size:0.95rem; font-weight:800; color:#043263;">${peer.name}</h4>
+                        <p style="margin:2px 0 0 0; font-size:0.75rem; color:#666;">Parents of: ${childrenLabel}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="messenger-chat-body" id="p2p-chat-body-container" style="flex-grow:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;">
+                ${chatBodyHtml}
+            </div>
+            
+            <div class="messenger-chat-footer">
+                <input type="text" class="messenger-chat-input" id="p2p-chat-input-field" placeholder="Type a message..." onkeydown="handleP2PChatKey(event)">
+                <button class="messenger-chat-send" onclick="sendP2PMessage()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        `;
+
+        let chatBodyContainer = document.getElementById('p2p-chat-body-container');
+        if (chatBodyContainer) {
+            chatBodyContainer.scrollTop = chatBodyContainer.scrollHeight;
+        }
+    }
+
+    function sendP2PMessage() {
+        let inputField = document.getElementById('p2p-chat-input-field');
+        if (!inputField || !activeP2PId) return;
+
+        let text = inputField.value.trim();
+        if (!text) return;
+
+        let minId = Math.min(myParentProfileId, activeP2PId);
+        let maxId = Math.max(myParentProfileId, activeP2PId);
+        let p2pKey = `p2p_${minId}_${maxId}`;
+
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+        if (!chatDB[p2pKey]) chatDB[p2pKey] = [];
+
+        let now = new Date();
+        let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        chatDB[p2pKey].push({
+            sender: myParentProfileId,
+            text: text,
+            timestamp: timeStr,
+            date: now.toLocaleDateString(),
+            read: false
+        });
+
+        localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+        inputField.value = '';
+        
+        renderP2PChatWorkspace();
+        renderP2PInbox();
+    }
+
+    function handleP2PChatKey(event) {
+        if (event.key === 'Enter') {
+            sendP2PMessage();
+        }
+    }
+
+    function filterP2PList() {
+        renderP2PInbox();
+    }
+
+    function backToP2PSidebar() {
+        document.getElementById('p2p-messenger-container').classList.remove('chat-active');
+    }
+
     document.getElementById('reportModal').addEventListener('click', function(e) {
         if(e.target === this) closeModal();
     });
 
     fetchSystemData();
 </script>
-
 {% endblock content %}

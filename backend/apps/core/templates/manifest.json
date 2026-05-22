@@ -1,0 +1,18 @@
+{
+  "name": "BMV3 Child Care Management System",
+  "short_name": "BMV3 CCMS",
+  "description": "Progressive Child Care and ECCD Tracking System",
+  "start_url": "/login/",
+  "display": "standalone",
+  "background_color": "#043263",
+  "theme_color": "#043263",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/core/image/bmv3_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

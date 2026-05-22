@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - BMV3 Child Care Management System</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#043263">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
 
     <!-- Pre-load theme to prevent flash -->
     <script>
@@ -602,13 +607,82 @@
         html.dark-mode .footer-links h3, html.dark-mode .footer-contact h3 { color: #f0f0f0; }
         html.dark-mode .footer-links a { color: #999; }
         html.dark-mode .footer-links a:hover { color: #4a90e2; }
-        html.dark-mode .beneficiary-card { background-color: #222; border-color:#333; }
-        html.dark-mode .beneficiary-card h4 { color: #e0e0e0; }
         html.dark-mode .beneficiary-card ul { color: #aaa; }
+
+        /* PWA Install Banner Style */
+        #pwa-install-banner {
+            display: none;
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #063970, #043263);
+            color: white;
+            padding: 12px 25px;
+            z-index: 10001;
+            font-size: 0.9rem;
+            font-weight: 600;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-bottom: 2px solid #4a90e2;
+            animation: slideDown 0.4s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        .pwa-btn-install {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pwa-btn-install:hover {
+            background: #357abd;
+            transform: translateY(-1px);
+        }
+        .pwa-btn-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: color 0.2s;
+        }
+        .pwa-btn-close:hover {
+            color: white;
+        }
     </style>
 </head>
 
 <body>
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-mobile-screen-button" style="font-size: 1.2rem; color: #4a90e2;"></i>
+            <span>Install BMV3 Teacher Dashboard on your home screen for instant mobile access and offline lists!</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <button class="pwa-btn-install" onclick="triggerPWAInstall()">
+                <i class="fa-solid fa-download"></i> Install App
+            </button>
+            <button class="pwa-btn-close" onclick="dismissPWABanner()" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
 
     <!-- Navbar -->
     <nav>
@@ -691,6 +765,47 @@
                 dropdownMenu.classList.remove('active');
             }
         });
+
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered successfully.', reg.scope))
+                    .catch(err => console.error('PWA Service Worker registration failed.', err));
+            });
+        }
+
+        // PWA Install Prompt Handlers
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (localStorage.getItem('bmv3_pwa_dismissed') !== 'true') {
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) banner.style.display = 'flex';
+            }
+        });
+
+        function triggerPWAInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User installed PWA');
+                    } else {
+                        console.log('User dismissed PWA install');
+                    }
+                    deferredPrompt = null;
+                    dismissPWABanner();
+                });
+            }
+        }
+
+        function dismissPWABanner() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.style.display = 'none';
+            localStorage.setItem('bmv3_pwa_dismissed', 'true');
+        }
     </script>
 </body>
 

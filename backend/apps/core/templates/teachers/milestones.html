@@ -70,7 +70,7 @@
 
 <div class="tabs">
     <div class="tab active" onclick="switchTab('overview')" id="tab-overview">Overview</div>
-    <div class="tab" onclick="switchTab('dashboard')" id="tab-dashboard">Dashboard</div>
+    <div class="tab" onclick="switchTab('dashboard')" id="tab-dashboard" style="display:none;">Dashboard</div>
     <div class="tab" onclick="switchTab('assessment')" id="tab-assessment" style="display:none;">Assessment Log</div>
 </div>
 
@@ -91,16 +91,53 @@
         <h3 style="margin:0;">Developmental Domains</h3>
         <div id="dashboard-overall" style="font-weight:bold; color:#4a90e2;">Overall Completion: 0%</div>
     </div>
+    
     <div class="domain-grid" id="domainCardsContainer">
         <div style="text-align:center; width:100%; grid-column: 1/-1; padding:40px; color:#888;">Loading domains...</div>
     </div>
-    
-    <div id="scoringSummaryContainer" style="display:none; margin-top: 40px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0;">Overall Assessment Scoring</h3>
+
+    <!-- Toggle Button Container -->
+    <div id="scoringToggleContainer" style="display:none; justify-content:center; margin-top:40px; margin-bottom:20px;">
+        <button id="toggleScoringBtn" class="btn btn-primary" onclick="toggleScoringSummary()" style="display:flex; align-items:center; gap:8px; padding: 12px 24px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 0.95rem; cursor: pointer; background: #043263; color: white; border: none;">
+            <i class="fa-solid fa-chart-simple"></i> View Overall Assessment Scoring & Details
+        </button>
+    </div>
+
+    <!-- Scoring Summary Container -->
+    <div id="scoringSummaryContainer" style="display:none; margin-top: 30px; margin-bottom: 40px; border-top: 1px solid #e2e8f0; padding-top: 30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0; color:#043263;">Overall Assessment Scoring</h3>
         </div>
         <div id="scoringSummaryContent" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <!-- Filled by JS -->
+        </div>
+
+        <!-- Explanation Card -->
+        <div class="explanation-card" style="background: #f8fafc; border-left: 5px solid #043263; border-radius: 8px; padding: 25px; margin-top: 35px; font-size: 0.9rem; line-height: 1.6; color:#475569; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <h4 style="margin: 0 0 12px 0; color: #043263; display: flex; align-items: center; gap: 8px; font-size: 1.05rem;">
+                <i class="fa-solid fa-circle-info"></i> How ECCD Scoring Works
+            </h4>
+            <p style="margin: 0 0 15px 0;">The Early Childhood Care and Development (ECCD) Checklist measures developmental milestones across 7 domains to evaluate a child's overall developmental progress.</p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 15px;">
+                <div>
+                    <strong style="color: #0f172a; display: block; margin-bottom: 6px; font-size: 0.95rem;">📅 Computed Age</strong>
+                    Chronological age calculated on the day of the assessment (Assessment Date minus Date of Birth). Since children develop rapidly, all milestones are assessed relative to this precise age group.
+                </div>
+                <div>
+                    <strong style="color: #0f172a; display: block; margin-bottom: 6px; font-size: 0.95rem;">📈 Sum of Scaled Scores</strong>
+                    The sum of scores obtained across all 7 developmental domains (Gross Motor, Fine Motor, Self-Help, Receptive, Expressive, Cognitive, and Social-Emotional). Each domain's score matches the number of milestones successfully demonstrated.
+                </div>
+                <div>
+                    <strong style="color: #0f172a; display: block; margin-bottom: 6px; font-size: 0.95rem;">🎯 Standard Score</strong>
+                    The normalized overall development index scaled based on national childhood development norms.
+                    <ul style="margin: 6px 0 0 20px; padding: 0; font-size: 0.85rem;">
+                        <li style="margin-bottom: 3px;"><strong>80 - 119:</strong> Average/Normal Development</li>
+                        <li style="margin-bottom: 3px;"><strong>70 - 79:</strong> Mild Developmental Delay</li>
+                        <li style="margin-bottom: 3px;"><strong>Below 70:</strong> Significant Developmental Delay (Needs Intervention)</li>
+                        <li style="margin-bottom: 3px;"><strong>120 & above:</strong> Highly Advanced Development</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -136,6 +173,10 @@
             <!-- Rendered by JS -->
         </tbody>
     </table>
+    
+    <div style="display:flex; justify-content:flex-end; margin-top: 20px;">
+        <button class="btn btn-primary" onclick="saveAllScores(event)">Save Assessments</button>
+    </div>
 </div>
 
 
@@ -158,6 +199,14 @@ function switchTab(tabId) {
         document.getElementById('tab-assessment').style.display = 'block';
     } else {
         document.getElementById('tab-assessment').style.display = 'none';
+    }
+
+    if (tabId === 'overview') {
+        document.getElementById('tab-dashboard').style.display = 'none';
+        document.getElementById('childSelect').value = '';
+        loadChildAssessment();
+    } else {
+        document.getElementById('tab-dashboard').style.display = 'block';
     }
 }
 
@@ -206,6 +255,23 @@ async function loadChildAssessment() {
         currentAssessments = [];
         currentScores = [];
         document.getElementById('assessingChildDisplay').style.display = 'none';
+        
+        const container = document.getElementById('scoringSummaryContainer');
+        if (container) {
+            container.style.display = 'none';
+        }
+        const toggleContainer = document.getElementById('scoringToggleContainer');
+        if (toggleContainer) {
+            toggleContainer.style.display = 'none';
+        }
+        
+        const btn = document.getElementById('toggleScoringBtn');
+        if (btn) {
+            btn.innerHTML = `<i class="fa-solid fa-chart-simple"></i> View Overall Assessment Scoring & Details`;
+            btn.style.background = '#043263';
+            btn.style.color = 'white';
+        }
+        
         renderDomainCards();
         return;
     }
@@ -241,7 +307,19 @@ async function loadChildAssessment() {
         }
 
         renderDomainCards();
-        document.getElementById('scoringSummaryContainer').style.display = 'block';
+        
+        // Hide calculation block by default, reset button state, and show toggle button container
+        document.getElementById('scoringSummaryContainer').style.display = 'none';
+        
+        const btn = document.getElementById('toggleScoringBtn');
+        if (btn) {
+            btn.innerHTML = `<i class="fa-solid fa-chart-simple"></i> View Overall Assessment Scoring & Details`;
+            btn.style.background = '#043263';
+            btn.style.color = 'white';
+        }
+        
+        document.getElementById('scoringToggleContainer').style.display = 'flex';
+        
         loadScoringSummary();
     } catch(e) { console.error(e); }
 }
@@ -250,49 +328,96 @@ async function loadScoringSummary() {
     const container = document.getElementById('scoringSummaryContent');
     container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#888;">Calculating all periods...</div>`;
     
-    const periods = ['1st', '2nd', '3rd'];
+    const childId = document.getElementById('childSelect').value;
+    const periods = ['1st', '2nd', '3rd', 'Overall'];
     let finalHtml = '';
     
     for (let period of periods) {
-        const assessment = currentAssessments.find(a => a.assessment_period === period);
-        
         finalHtml += `<div style="background: #fdfdfd; padding: 20px; border-radius: 10px; border: 2px solid #e0e0e0; text-align:center;">
             <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color:#043263;">${period} Assessment</h4>`;
             
-        if (!assessment) {
-            finalHtml += `<div style="color:#888; margin-top: 20px;">No assessment record</div></div>`;
-            continue;
-        }
-        
         try {
-            const res = await fetch(`/api/eccd-report/${assessment.id}/`);
-            const report = await res.json();
-            
-            if (report.detail) {
-                finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Error: ${report.detail}</div>`;
+            if (period === 'Overall') {
+                if (!childId) {
+                    finalHtml += `<div style="color:#888; margin-top: 20px;">No student selected</div>`;
+                } else {
+                    const res = await fetch(`/api/eccd-report/overall/${childId}/`);
+                    const report = await res.json();
+                    
+                    if (report.detail) {
+                        finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Error: ${report.detail}</div>`;
+                    } else {
+                        finalHtml += `
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Computed Age</div>
+                                <div style="font-size:1.2rem; color:#043263; font-weight:bold;">${report.age_years}y, ${report.age_months}m, ${report.age_days}d</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Sum of Scaled Scores</div>
+                                <div style="font-size:2rem; color:#1cc88a; font-weight:900;">${report.sum_scaled_scores}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Standard Score</div>
+                                <div style="font-size:2rem; color:#e74a3b; font-weight:900;">${report.standard_score !== null ? report.standard_score : 'N/A'}</div>
+                            </div>
+                        `;
+                    }
+                }
             } else {
-                finalHtml += `
-                    <div style="margin-bottom: 15px;">
-                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Computed Age</div>
-                        <div style="font-size:1.2rem; color:#043263; font-weight:bold;">${report.age_years}y, ${report.age_months}m, ${report.age_days}d</div>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Sum of Scaled Scores</div>
-                        <div style="font-size:2rem; color:#1cc88a; font-weight:900;">${report.sum_scaled_scores}</div>
-                    </div>
-                    <div>
-                        <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Standard Score</div>
-                        <div style="font-size:2rem; color:#e74a3b; font-weight:900;">${report.standard_score !== null ? report.standard_score : 'N/A'}</div>
-                    </div>
-                `;
+                const assessment = currentAssessments.find(a => a.assessment_period === period);
+                if (!assessment) {
+                    finalHtml += `<div style="color:#888; margin-top: 20px;">No assessment record</div>`;
+                } else {
+                    const res = await fetch(`/api/eccd-report/${assessment.id}/`);
+                    const report = await res.json();
+                    
+                    if (report.detail) {
+                        finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Error: ${report.detail}</div>`;
+                    } else {
+                        finalHtml += `
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Computed Age</div>
+                                <div style="font-size:1.2rem; color:#043263; font-weight:bold;">${report.age_years}y, ${report.age_months}m, ${report.age_days}d</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Sum of Scaled Scores</div>
+                                <div style="font-size:2rem; color:#1cc88a; font-weight:900;">${report.sum_scaled_scores}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.85rem; color:#666; font-weight:bold; text-transform:uppercase;">Standard Score</div>
+                                <div style="font-size:2rem; color:#e74a3b; font-weight:900;">${report.standard_score !== null ? report.standard_score : 'N/A'}</div>
+                            </div>
+                        `;
+                    }
+                }
             }
         } catch(e) {
+            console.error(e);
             finalHtml += `<div style="color:#e74a3b; margin-top: 20px;">Failed to calculate.</div>`;
         }
         finalHtml += `</div>`;
     }
     
     container.innerHTML = finalHtml;
+}
+
+function toggleScoringSummary() {
+    const container = document.getElementById('scoringSummaryContainer');
+    const btn = document.getElementById('toggleScoringBtn');
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        btn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> Hide Assessment Scoring & Details`;
+        btn.style.background = '#e74a3b'; // Sleek red color when open
+        btn.style.color = 'white';
+        // Scroll smoothly to the scoring container
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        container.style.display = 'none';
+        btn.innerHTML = `<i class="fa-solid fa-chart-simple"></i> View Overall Assessment Scoring & Details`;
+        btn.style.background = '#043263'; // Primary blue color when closed
+        btn.style.color = 'white';
+    }
 }
 
 // ---------------------------
@@ -462,71 +587,84 @@ function renderAssessmentTable() {
             <td>${m.action_description}</td>
             <td style="font-size:0.8rem; color:#555;">${matProc}</td>
             <td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" style="transform:scale(1.5);" ${t1} onchange="saveScoreCheckbox(${ast1}, ${m.id}, this.checked)">
+                <input type="checkbox" style="transform:scale(1.5);" ${t1} id="cb_${ast1}_${m.id}">
             </td>
             <td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" style="transform:scale(1.5);" ${t2} onchange="saveScoreCheckbox(${ast2}, ${m.id}, this.checked)">
+                <input type="checkbox" style="transform:scale(1.5);" ${t2} id="cb_${ast2}_${m.id}">
             </td>
             <td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" style="transform:scale(1.5);" ${t3} onchange="saveScoreCheckbox(${ast3}, ${m.id}, this.checked)">
+                <input type="checkbox" style="transform:scale(1.5);" ${t3} id="cb_${ast3}_${m.id}">
             </td>
             <td>
-                <textarea class="builder-input" style="width:100%; min-height:60px;" placeholder="Comments..." onchange="saveObs(${ast1}, ${m.id}, this.value)">${comment}</textarea>
+                <textarea class="builder-input" id="obs_${m.id}" style="width:100%; min-height:60px;" placeholder="Comments...">${comment}</textarea>
             </td>
         </tr>`;
     });
 }
 
-async function saveScoreCheckbox(assessmentId, milestoneId, isChecked) {
+async function saveAllScores(event) {
+    const dMilestones = milestonesList.filter(m => m.domain === currentAssessingDomain.id);
+    const ast1 = currentAssessments.find(a => a.assessment_period === '1st').id;
+    const ast2 = currentAssessments.find(a => a.assessment_period === '2nd').id;
+    const ast3 = currentAssessments.find(a => a.assessment_period === '3rd').id;
+    
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    try {
+        for (let m of dMilestones) {
+            const c1 = document.getElementById(`cb_${ast1}_${m.id}`).checked;
+            const c2 = document.getElementById(`cb_${ast2}_${m.id}`).checked;
+            const c3 = document.getElementById(`cb_${ast3}_${m.id}`).checked;
+            const obs = document.getElementById(`obs_${m.id}`).value;
+            
+            await saveScoreData(ast1, m.id, c1, obs);
+            await saveScoreData(ast2, m.id, c2, obs);
+            await saveScoreData(ast3, m.id, c3, obs);
+        }
+        alert("Assessments saved successfully!");
+        loadChildAssessment(); // refresh summary
+    } catch (e) {
+        alert("An error occurred while saving.");
+        console.error(e);
+    }
+    
+    btn.innerText = originalText;
+    btn.disabled = false;
+}
+
+async function saveScoreData(assessmentId, milestoneId, isChecked, obsText) {
     const scoreVal = isChecked ? 1 : 0;
     let scoreObj = currentScores.find(s => s.milestone === milestoneId && s.assessment === assessmentId);
     
     if (scoreObj) {
-        const res = await fetch(`/api/eccd-scores/${scoreObj.id}/`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({ teacher_score: scoreVal })
-        });
-        const updated = await res.json();
-        scoreObj.teacher_score = updated.teacher_score;
+        if (scoreObj.teacher_score !== scoreVal || scoreObj.teacher_observation !== obsText) {
+            const res = await fetch(`/api/eccd-scores/${scoreObj.id}/`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                body: JSON.stringify({ teacher_score: scoreVal, teacher_observation: obsText })
+            });
+            const updated = await res.json();
+            scoreObj.teacher_score = updated.teacher_score;
+            scoreObj.teacher_observation = updated.teacher_observation;
+        }
     } else {
-        const res = await fetch(`/api/eccd-scores/`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({
-                assessment: assessmentId,
-                milestone: milestoneId,
-                teacher_score: scoreVal
-            })
-        });
-        const created = await res.json();
-        currentScores.push(created);
-    }
-}
-
-async function saveObs(assessmentId, milestoneId, obsText) {
-    // We save comments onto the first assessment period for simplicity, or the one that triggered it
-    let scoreObj = currentScores.find(s => s.milestone === milestoneId && s.assessment === assessmentId);
-    
-    if (scoreObj) {
-        await fetch(`/api/eccd-scores/${scoreObj.id}/`, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({ teacher_observation: obsText })
-        });
-        scoreObj.teacher_observation = obsText;
-    } else {
-        const res = await fetch(`/api/eccd-scores/`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-            body: JSON.stringify({
-                assessment: assessmentId,
-                milestone: milestoneId,
-                teacher_observation: obsText
-            })
-        });
-        const created = await res.json();
-        currentScores.push(created);
+        if (isChecked || obsText) {
+            const res = await fetch(`/api/eccd-scores/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                body: JSON.stringify({
+                    assessment: assessmentId,
+                    milestone: milestoneId,
+                    teacher_score: scoreVal,
+                    teacher_observation: obsText
+                })
+            });
+            const created = await res.json();
+            currentScores.push(created);
+        }
     }
 }
 

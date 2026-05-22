@@ -291,7 +291,7 @@ class ECCDReportAPIView(APIView):
             except:
                 pass
             
-        dob = assessment.child.date_of_birth
+        dob = assessment.child.dob
         years, months, days = compute_age(date_tested, dob)
         age_group = get_age_group(years, months)
         
@@ -324,6 +324,68 @@ class ECCDReportAPIView(APIView):
         
         return Response({
             'child_name': f"{assessment.child.first_name} {assessment.child.last_name}",
+            'date_of_birth': dob,
+            'date_tested': date_tested,
+            'age_years': years,
+            'age_months': months,
+            'age_days': days,
+            'age_group': age_group,
+            'domains': domain_results,
+            'sum_scaled_scores': sum_scaled,
+            'standard_score': standard_score
+        })
+
+class ECCDOverallReportAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, child_id):
+        child = get_object_or_404(Child, id=child_id)
+        
+        # Security check
+        user = request.user
+        if hasattr(user, 'userprofile') and not user.userprofile.is_teacher:
+            if not child.parents.filter(id=user.userprofile.id).exists():
+                return Response({'detail': 'Not authorized'}, status=403)
+                
+        # 1. Compute Age
+        date_tested = date.today()
+        dob = child.dob
+        years, months, days = compute_age(date_tested, dob)
+        age_group = get_age_group(years, months)
+        
+        # 2. Compute Raw Scores per Domain
+        domains = ECCDDomain.objects.all().order_by('order')
+        
+        # Find all assessments for this child
+        assessments = ECCDAssessment.objects.filter(child=child)
+        
+        domain_results = []
+        sum_scaled = 0
+        
+        for d in domains:
+            milestones = ECCDMilestone.objects.filter(domain=d)
+            # Find all unique milestones achieved by this child in ANY assessment period
+            scores = ECCDMilestoneScore.objects.filter(assessment__in=assessments, teacher_score=1, milestone__in=milestones)
+            raw_score = scores.values('milestone').distinct().count()
+            
+            scaled_score = 0
+            if age_group:
+                ss = get_scaled_score(age_group, d.name, raw_score)
+                if ss: scaled_score = ss
+                
+            sum_scaled += scaled_score
+            
+            domain_results.append({
+                'domain_id': d.id,
+                'domain_name': d.name,
+                'raw_score': raw_score,
+                'scaled_score': scaled_score
+            })
+            
+        standard_score = get_standard_score(sum_scaled)
+        
+        return Response({
+            'child_name': f"{child.first_name} {child.last_name}",
             'date_of_birth': dob,
             'date_tested': date_tested,
             'age_years': years,
@@ -381,11 +443,14 @@ class ParentHistoryAPIView(APIView):
         """Return past 30 days of attendance, nutrition, behavior, and milestones for the linked child."""
         try:
             profile = request.user.userprofile
-            child = Child.objects.filter(parents=profile).first()
-            if not child:
+            children = Child.objects.filter(parents=profile)
+            if not children.exists():
                 return Response({'detail': 'No child linked.'}, status=404)
         except UserProfile.DoesNotExist:
             return Response({'detail': 'User profile missing.'}, status=400)
+
+        # Get first child for backwards compatibility
+        child = children.first()
 
         from datetime import datetime, timedelta
         today = datetime.today().date()
@@ -405,14 +470,81 @@ class ParentHistoryAPIView(APIView):
         milestone_data = MilestoneRecordSerializer(milestone_qs, many=True).data
 
         child_data = ChildSerializer(child).data
+        children_data = ChildSerializer(children, many=True).data
+
+        # Determine parent name robustly
+        parent_name = ""
+        if profile.user.first_name or profile.user.last_name:
+            parent_name = f"{profile.user.first_name} {profile.user.last_name}".strip()
+        if not parent_name:
+            for c in children:
+                if c.mother_email == profile.user.email and c.mother_first_name:
+                    parent_name = f"{c.mother_first_name} {c.mother_last_name}".strip()
+                    break
+                elif c.father_email == profile.user.email and c.father_first_name:
+                    parent_name = f"{c.father_first_name} {c.father_last_name}".strip()
+                    break
+                elif c.other_guardian_email == profile.user.email and c.other_guardian_first_name:
+                    parent_name = f"{c.other_guardian_first_name} {c.other_guardian_last_name}".strip()
+                    break
+        if not parent_name:
+            parent_name = profile.user.username
 
         return Response({
             'child': child_data,
+            'children': children_data,
+            'parent_profile_id': profile.id,
+            'parent_name': parent_name,
             'attendance': attendance_data,
             'nutrition': nutrition_data,
             'engagement': engagement_data,
             'milestones': milestone_data,
         })
+
+class ParentListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        parents_data = []
+        try:
+            # Fetch all user profiles that are not teachers
+            profiles = UserProfile.objects.filter(is_teacher=False).select_related('user')
+            for profile in profiles:
+                # Find children linked to this parent profile
+                children = Child.objects.filter(parents=profile)
+                if not children.exists():
+                    continue  # Only show parents with enrolled children
+                
+                # Determine parent name robustly
+                parent_name = ""
+                if profile.user.first_name or profile.user.last_name:
+                    parent_name = f"{profile.user.first_name} {profile.user.last_name}".strip()
+                if not parent_name:
+                    for c in children:
+                        if c.mother_email == profile.user.email and c.mother_first_name:
+                            parent_name = f"{c.mother_first_name} {c.mother_last_name}".strip()
+                            break
+                        elif c.father_email == profile.user.email and c.father_first_name:
+                            parent_name = f"{c.father_first_name} {c.father_last_name}".strip()
+                            break
+                        elif c.other_guardian_email == profile.user.email and c.other_guardian_first_name:
+                            parent_name = f"{c.other_guardian_first_name} {c.other_guardian_last_name}".strip()
+                            break
+                if not parent_name:
+                    parent_name = profile.user.username
+                
+                children_names = [f"{c.first_name} {c.last_name}" for c in children]
+                
+                parents_data.append({
+                    'id': profile.id,
+                    'name': parent_name,
+                    'children': children_names,
+                    'email': profile.user.email
+                })
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)
+            
+        return Response(parents_data)
 
 class SchoolYearViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

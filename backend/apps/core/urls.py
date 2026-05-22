@@ -1,17 +1,18 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from django.views.generic import TemplateView
 from . import views
 from .api_views import (
     ChildViewSet, AttendanceRecordViewSet, MilestoneRecordViewSet, NutritionRecordViewSet,
     SchoolYearViewSet, EngagementRecordViewSet,
-    ParentHistoryAPIView, UserSettingsAPIView, ParentDashboardStatsAPIView,
+    ParentHistoryAPIView, ParentListAPIView, UserSettingsAPIView, ParentDashboardStatsAPIView,
     TeacherDashboardStatsAPIView, UpdateChildProfileAPIView, NutritionAnalyticsAPIView,
     UpdateUsernameAPIView, RequestPasswordChangeAPIView, VerifyPasswordChangeAPIView,
     GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
     link_guardian_profile, NoClassDayViewSet,
     ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet,
-    ECCDReportAPIView
+    ECCDReportAPIView, ECCDOverallReportAPIView
 )
 
 router = DefaultRouter()
@@ -53,7 +54,10 @@ urlpatterns = [
     path('settings/', views.teacher_settings, name='teacher_settings'),
     
     # API Endpoints
+    path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw_js'),
+    path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest_json'),
     path('api/parent/history/', ParentHistoryAPIView.as_view(), name='api_parent_history'),
+    path('api/parents/', ParentListAPIView.as_view(), name='api_parents'),
     # Existing API endpoints
     path('api/teacher/dashboard/', TeacherDashboardStatsAPIView.as_view(), name='api_teacher_dashboard'),
     path('api/parent/dashboard/', ParentDashboardStatsAPIView.as_view(), name='api_parent_dashboard'),
@@ -67,5 +71,6 @@ urlpatterns = [
     path('api/verify-otp-only/', VerifyOTPOnlyAPIView.as_view(), name='api_verify_otp_only'),
     path('api/link_guardian/', link_guardian_profile, name='api_link_guardian'),
     path('api/eccd-report/<int:assessment_id>/', ECCDReportAPIView.as_view(), name='api_eccd_report'),
+    path('api/eccd-report/overall/<int:child_id>/', ECCDOverallReportAPIView.as_view(), name='api_eccd_overall_report'),
     path('api/', include(router.urls)),
 ]

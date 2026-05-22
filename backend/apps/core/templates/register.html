@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - BMV3 CDC</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#043263">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
@@ -608,6 +613,15 @@
             alert("Sorry, an error occurred: " + error.message);
             console.error(error);
         }
+    }
+
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('PWA Service Worker registered successfully.', reg.scope))
+                .catch(err => console.error('PWA Service Worker registration failed.', err));
+        });
     }
 </script>
 </body>

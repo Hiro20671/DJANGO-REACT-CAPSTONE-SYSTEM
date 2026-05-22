@@ -8,6 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parent Dashboard - BMV3 Child Care Management System</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#043263">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
 
     <!-- Chart.js for Dynamic Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -389,6 +394,142 @@
             color: #c9302c;
         }
 
+        /* PWA Install Banner Style */
+        #pwa-install-banner {
+            display: none;
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #063970, #043263);
+            color: white;
+            padding: 12px 25px;
+            z-index: 10001;
+            font-size: 0.9rem;
+            font-weight: 600;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-bottom: 2px solid #8FB977;
+            animation: slideDown 0.4s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        .pwa-btn-install {
+            background: #8FB977;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pwa-btn-install:hover {
+            background: #7fa669;
+            transform: translateY(-1px);
+        }
+        .pwa-btn-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: color 0.2s;
+        }
+        .pwa-btn-close:hover {
+            color: white;
+        }
+
+        /* Mobile Bottom Tab Navigation */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            text-decoration: none;
+            color: #777;
+            font-size: 0.65rem;
+            font-weight: 700;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab i {
+            font-size: 1.25rem;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-tab:hover {
+            color: #063970;
+        }
+
+        .nav-tab.active {
+            color: #8FB977;
+        }
+
+        .nav-tab.active i {
+            transform: scale(1.1);
+        }
+
+        /* Adjust main layout when bottom nav is active */
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            body {
+                padding-bottom: 65px !important;
+            }
+        }
+
+        /* Dark Mode overrides for PWA Install Banner and Bottom Navigation */
+        html.dark-mode .mobile-bottom-nav {
+            background: rgba(26, 26, 26, 0.95);
+            border-top-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+        }
+        html.dark-mode .nav-tab {
+            color: #aaa;
+        }
+        html.dark-mode .nav-tab:hover {
+            color: #fff;
+        }
+        html.dark-mode .nav-tab.active {
+            color: #8FB977;
+        }
+
         /* --- Responsive Design --- */
         .table-responsive {
             overflow-x: auto;
@@ -607,6 +748,15 @@
 
 <body>
 
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner">
+        <span>📲 Install the BMV3 Child Care Web App for a faster mobile experience!</span>
+        <div style="display: flex; align-items: center;">
+            <button class="pwa-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> Install</button>
+            <button class="pwa-btn-close" id="pwaCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
     <nav class="sidebar" id="mainSidebar">
         <div class="sidebar-header">
             <div class="user-avatar" id="sidebar-avatar">
@@ -690,6 +840,30 @@
         {% endblock content %}
     </main>
 
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="mobile-bottom-nav">
+        <a href="{% url 'parent_home' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'parent_dashboard' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Stats</span>
+        </a>
+        <a href="{% url 'parent_attendance' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_attendance' %}active{% endif %}">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Attendance</span>
+        </a>
+        <a href="{% url 'parent_engagement' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
+            <i class="fa-solid fa-comments"></i>
+            <span>Chat</span>
+        </a>
+        <button class="nav-tab" id="mobileMoreBtn">
+            <i class="fa-solid fa-bars"></i>
+            <span>More</span>
+        </button>
+    </div>
+
     <!-- UI Scripts -->
     <script>
         const burgerToggle = document.getElementById('burgerToggle');
@@ -731,6 +905,62 @@
                 }
             {% endif %}
         });
+
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered successfully.', reg.scope))
+                    .catch(err => console.error('PWA Service Worker registration failed.', err));
+            });
+        }
+
+        // PWA Install Banner Logic
+        let deferredPrompt;
+        const pwaBanner = document.getElementById('pwa-install-banner');
+        const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+        const pwaCloseBtn = document.getElementById('pwaCloseBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (localStorage.getItem('pwa_install_dismissed') !== 'true') {
+                if (pwaBanner) {
+                    pwaBanner.style.display = 'flex';
+                }
+            }
+        });
+
+        if (pwaInstallBtn) {
+            pwaInstallBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                if (pwaBanner) {
+                    pwaBanner.style.display = 'none';
+                }
+            });
+        }
+
+        if (pwaCloseBtn) {
+            pwaCloseBtn.addEventListener('click', () => {
+                if (pwaBanner) {
+                    pwaBanner.style.display = 'none';
+                }
+                localStorage.setItem('pwa_install_dismissed', 'true');
+            });
+        }
+
+        // Handle Mobile Bottom Nav "More" Button
+        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+        if (mobileMoreBtn && mainSidebar) {
+            mobileMoreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mainSidebar.classList.toggle('active');
+            });
+        }
     </script>
 </body>
 

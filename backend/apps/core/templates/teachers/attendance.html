@@ -223,6 +223,37 @@
     let attendanceRecords = [];
     let noClassDB = {};
 
+    function getParentName(st) {
+        if (st.mother_first_name && st.mother_last_name) {
+            return `${st.mother_first_name} ${st.mother_last_name}`;
+        } else if (st.father_first_name && st.father_last_name) {
+            return `${st.father_first_name} ${st.father_last_name}`;
+        } else if (st.other_guardian_first_name && st.other_guardian_last_name) {
+            return `${st.other_guardian_first_name} ${st.other_guardian_last_name}`;
+        } else {
+            return `Parent of ${st.first_name} ${st.last_name}`;
+        }
+    }
+
+    function getStudentChatKey(st) {
+        if (st.parents && st.parents.length > 0) {
+            return `parent_${st.parents[0]}`;
+        }
+        let email = st.mother_email || st.father_email || st.other_guardian_email || st.email;
+        if (email) {
+            return `email_${email.trim().toLowerCase()}`;
+        }
+        let phone = st.mother_phone || st.father_phone || st.other_guardian_phone || st.phone;
+        if (phone) {
+            return `phone_${phone.trim()}`;
+        }
+        let parentName = getParentName(st);
+        if (parentName && !parentName.startsWith("Parent of ")) {
+            return `name_${parentName.trim().toLowerCase()}`;
+        }
+        return `student_${st.id}`;
+    }
+
     const datePicker = document.getElementById('attendanceDate');
     datePicker.value = new Date().toISOString().split('T')[0];
     
@@ -265,7 +296,7 @@
             window.mockDatabase = {};
             attendanceRecords.forEach(a => {
                 if(!mockDatabase[a.date]) mockDatabase[a.date] = {};
-                mockDatabase[a.date][a.child] = a.status;
+                mockDatabase[a.date][a.child] = a; // Store whole record object
             });
 
             renderCalendar();
@@ -387,7 +418,8 @@
         }
 
         studentsMaster.forEach(st => {
-            let status = (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) ? window.mockDatabase[date][st.id] : null;
+            let recordObj = (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) ? window.mockDatabase[date][st.id] : null;
+            let status = recordObj ? recordObj.status : null;
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
             let badgeHtml = '';
             let toggleHtml = '';
@@ -397,6 +429,9 @@
                 let bc = status === 'present' ? 'excellent' : (status==='late'?'warning':'poor');
                 let t = status.charAt(0).toUpperCase() + status.slice(1);
                 badgeHtml = `<span class="status-badge ${bc}">${t}</span>`;
+                if (status === 'absent' && recordObj.absence_reason) {
+                    badgeHtml += `<div style="font-size:0.75rem; color:#d9534f; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
+                }
             } else {
                 toggleHtml = `
                 <div class="attendance-action-area" id="action-area-${st.id}" style="flex-direction:column; align-items:flex-start;">
@@ -446,8 +481,11 @@
             let daysP = 0;
             let daysL = 0;
             Object.keys(window.mockDatabase || {}).forEach(d => { 
-                if(window.mockDatabase[d][st.id] === 'present') daysP++; 
-                if(window.mockDatabase[d][st.id] === 'late') daysL++; 
+                let record = window.mockDatabase[d][st.id];
+                if (record) {
+                    if (record.status === 'present') daysP++; 
+                    if (record.status === 'late') daysL++; 
+                }
             });
             let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
             
@@ -526,6 +564,31 @@
                 },
                 body: JSON.stringify(payload)
             });
+
+            // Synchronize with the parent's chat store bmv3_chat_messages
+            if (status === 'absent') {
+                let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+                let studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
+                let chatKey = studentObj ? getStudentChatKey(studentObj) : studentId;
+
+                if (!chatDB[chatKey]) chatDB[chatKey] = [];
+
+                let now = new Date();
+                let dateStrFormatted = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                
+                let childName = studentObj ? `${studentObj.first_name} ${studentObj.last_name}` : "Child";
+                let reasonText = reason ? `: "${reason}"` : "";
+
+                chatDB[chatKey].push({
+                    type: 'system-absent',
+                    text: `[ATTENDANCE RECORD] ${childName} marked ABSENT on ${dateStrFormatted}. Reason logged${reasonText}`,
+                    timestamp: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    date: now.toLocaleDateString()
+                });
+
+                localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+            }
+
             fetchData(); // Reload data
         } catch(e) {
             console.error('Error saving attendance', e);

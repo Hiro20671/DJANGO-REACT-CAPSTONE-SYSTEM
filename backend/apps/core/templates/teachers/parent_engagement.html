@@ -69,6 +69,48 @@
 
 .empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
+
+/* Dual Pane Chat in Teacher Panel */
+.chat-student-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+}
+.chat-student-item:hover {
+    background-color: #f8f9fa;
+}
+.chat-student-item.active-thread {
+    background-color: #eaf3fc;
+    border-left: 4px solid #4a90e2;
+}
+.chat-student-item h5 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #333;
+}
+.chat-student-item p {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    color: #777;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+.badge-unread {
+    background-color: #e74a3b;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 2px 6px;
+    margin-left: auto;
+}
 </style>
 
 <div class="page-header">
@@ -95,6 +137,12 @@
     </div>
 </div>
 
+<!-- Tabs to Toggle Workspace -->
+<div class="tabs">
+    <div class="tab active" id="tab-reports" onclick="switchEngageTab('reports')">Weekly Digests</div>
+    <div class="tab" id="tab-chat" onclick="switchEngageTab('chat')">Parent Chat Inbox</div>
+</div>
+
 <!-- Main Digest Section -->
 <div id="content-reports" class="e-content">
 <div class="digest-section">
@@ -111,6 +159,31 @@
 
 
 </div> <!-- End Reports Content -->
+
+<!-- NEW SECTION: Parent Chat Inbox Page -->
+<div id="content-chat" class="e-content" style="display: none;">
+    <div class="dual-pane-chat" style="display: grid; grid-template-columns: 300px 1fr; gap: 0; background: #fff; border: 1px solid #ddd; border-radius: 12px; height: 600px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <!-- LEFT: Parent / Child list -->
+        <div style="border-right: 1px solid #eee; display: flex; flex-direction: column; height: 100%;">
+            <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: 700; color: #333; background: #fafafa;">
+                <i class="fa-solid fa-users"></i> Parents Thread List
+            </div>
+            <div id="chat-student-list" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;">
+                <!-- Populated dynamically by JS -->
+            </div>
+        </div>
+        
+        <!-- RIGHT: Live Chat workspace -->
+        <div id="teacher-chat-workspace" style="display: flex; flex-direction: column; height: 100%; min-width: 0;">
+            <!-- Initial Empty State -->
+            <div style="text-align: center; color: #999; padding: 40px; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <i class="fa-regular fa-comment-dots" style="font-size: 3rem; color: #ccc;"></i>
+                <h4>No parent thread selected</h4>
+                <p style="font-size: 0.85rem;">Select a parent from the left side panel to view messages and respond.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal: Alerts -->
 <div class="modal-overlay" id="alertModal">
@@ -477,6 +550,423 @@ function renderHistory() {
         html = `<p style="text-align:center; color:#888; padding:20px;">No messages sent yet.</p>`;
     }
     container.innerHTML = html;
+}
+
+// Tab Switching
+function switchEngageTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.e-content').forEach(c => c.style.display = 'none');
+    
+    document.getElementById('tab-' + tabName).classList.add('active');
+    document.getElementById('content-' + tabName).style.display = 'block';
+    
+    if (tabName === 'chat') {
+        renderTeacherChatStudentList();
+    }
+}
+
+let currentChatGroupKey = null;
+
+function getParentName(st) {
+    if (st.mother_first_name && st.mother_last_name) {
+        return `${st.mother_first_name} ${st.mother_last_name}`;
+    } else if (st.father_first_name && st.father_last_name) {
+        return `${st.father_first_name} ${st.father_last_name}`;
+    } else if (st.other_guardian_first_name && st.other_guardian_last_name) {
+        return `${st.other_guardian_first_name} ${st.other_guardian_last_name}`;
+    } else {
+        return `Parent of ${st.first_name} ${st.last_name}`;
+    }
+}
+
+function getGroupKey(st) {
+    if (st.parents && st.parents.length > 0) {
+        return `parent_${st.parents[0]}`;
+    }
+    let email = st.mother_email || st.father_email || st.other_guardian_email || st.email;
+    if (email) {
+        return `email_${email.trim().toLowerCase()}`;
+    }
+    let phone = st.mother_phone || st.father_phone || st.other_guardian_phone || st.phone;
+    if (phone) {
+        return `phone_${phone.trim()}`;
+    }
+    let parentName = getParentName(st);
+    if (parentName && !parentName.startsWith("Parent of ")) {
+        return `name_${parentName.trim().toLowerCase()}`;
+    }
+    return `student_${st.id}`;
+}
+
+function formatChildrenNames(students) {
+    if (students.length === 0) return '';
+    let names = students.map(st => `${st.first_name} ${st.last_name}`);
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} & ${names[1]}`;
+    return names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
+}
+
+function groupStudentsByParent(students) {
+    let groups = {};
+    students.forEach(st => {
+        let key = getGroupKey(st);
+        if (!groups[key]) {
+            groups[key] = {
+                key: key,
+                parentName: getParentName(st),
+                students: [],
+                avatarHtml: '',
+                parentsList: st.parents || []
+            };
+        }
+        groups[key].students.push(st);
+    });
+    
+    Object.values(groups).forEach(g => {
+        g.childrenNames = formatChildrenNames(g.students);
+        if (g.students.length === 1) {
+            let st = g.students[0];
+            g.avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]).toUpperCase();
+        } else {
+            let initials = g.parentName ? g.parentName.split(' ').map(n => n[0]).join('').toUpperCase() : "👨‍👩‍👧";
+            if (initials.length > 2) initials = initials.substring(0, 2);
+            g.avatarHtml = initials || "👨‍👩‍👧";
+        }
+    });
+    
+    return groups;
+}
+
+function getGroupMessages(groupKey, groupStudents) {
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    let messages = chatDB[groupKey] || [];
+    let migrated = false;
+    
+    groupStudents.forEach(st => {
+        let legacyMessages = chatDB[st.id];
+        if (legacyMessages && legacyMessages.length > 0) {
+            messages = messages.concat(legacyMessages);
+            delete chatDB[st.id];
+            migrated = true;
+        }
+    });
+    
+    if (migrated) {
+        messages.sort((a, b) => {
+            let dateA = new Date(a.date + ' ' + (a.timestamp || '00:00 AM'));
+            let dateB = new Date(b.date + ' ' + (b.timestamp || '00:00 AM'));
+            return dateA - dateB;
+        });
+        chatDB[groupKey] = messages;
+        localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+    }
+    
+    return messages;
+}
+
+function renderTeacherChatStudentList() {
+    let listContainer = document.getElementById('chat-student-list');
+    if (!listContainer) return;
+    
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    let studentGroups = groupStudentsByParent(studentsMaster);
+    
+    let html = '';
+    
+    // Render Broadcast Announcement at the top
+    let broadcastActive = currentChatGroupKey === 'broadcast' ? 'active-thread' : '';
+    let broadcastChat = chatDB['broadcast'] || [];
+    let lastBroadcastMsg = "Send an announcement to all parents.";
+    if (broadcastChat.length > 0) {
+        lastBroadcastMsg = broadcastChat[broadcastChat.length - 1].text || '';
+    }
+    
+    html += `
+    <div class="chat-student-item ${broadcastActive}" id="chat-item-broadcast" onclick="selectBroadcastThread()">
+        <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#fff2e6; color:#fd7e14; font-weight:bold; display:flex; justify-content:center; align-items:center; flex-shrink: 0;">
+            📢
+        </div>
+        <div style="flex-grow:1; min-width: 0;">
+            <h5 style="margin:0; color:#fd7e14;">📢 Broadcast Announcement</h5>
+            <p title="${lastBroadcastMsg}" style="color:#fd7e14; font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastBroadcastMsg}</p>
+        </div>
+    </div>`;
+    
+    Object.values(studentGroups).forEach(g => {
+        let myChat = getGroupMessages(g.key, g.students);
+        let lastMsg = "No conversation yet.";
+        let unreadBadge = '';
+        
+        if (myChat.length > 0) {
+            let lastRecord = myChat[myChat.length - 1];
+            lastMsg = lastRecord.text || (lastRecord.type === 'system-absent' ? "Absence Reported" : "");
+            
+            let unread = myChat.filter(msg => msg.sender === 'parent' && !msg.read).length;
+            if (unread > 0) {
+                unreadBadge = `<span class="badge-unread">${unread}</span>`;
+            }
+        }
+        
+        let activeClass = currentChatGroupKey === g.key ? 'active-thread' : '';
+        
+        html += `
+        <div class="chat-student-item ${activeClass}" id="chat-item-${g.key}" onclick="selectParentThread('${g.key}')">
+            <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#e0f0ff; color:#4a90e2; font-weight:bold; display:flex; justify-content:center; align-items:center; overflow:hidden; flex-shrink: 0;">
+                ${g.avatarHtml}
+            </div>
+            <div style="flex-grow:1; min-width: 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <h5 style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${g.parentName}</h5>
+                    ${unreadBadge}
+                </div>
+                <div style="font-size:0.75rem; color:#4a90e2; font-weight:600; margin-top:2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Children: ${g.childrenNames}</div>
+                <p title="${lastMsg}">${lastMsg}</p>
+            </div>
+        </div>`;
+    });
+    
+    listContainer.innerHTML = html;
+}
+
+function selectBroadcastThread() {
+    currentChatGroupKey = 'broadcast';
+    
+    document.querySelectorAll('.chat-student-item').forEach(item => {
+        item.classList.remove('active-thread');
+    });
+    let item = document.getElementById('chat-item-broadcast');
+    if(item) item.classList.add('active-thread');
+    
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    let myChat = chatDB['broadcast'] || [];
+    
+    let chatHtml = '';
+    if (myChat.length === 0) {
+        chatHtml = `
+        <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+            <i class="fa-solid fa-bullhorn" style="font-size:2rem; color:#ccc; margin-bottom:10px;"></i>
+            <p>No broadcast history yet.</p>
+        </div>`;
+    } else {
+        myChat.forEach(msg => {
+            let align = 'align-self: flex-end; background-color: #ffeeba; color: #856404;';
+            let rounded = 'border-top-right-radius: 2px;';
+            
+            chatHtml += `
+            <div class="chat-bubble" style="max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; margin-bottom: 8px; ${align} ${rounded}">
+                <strong style="font-size: 0.75rem; font-weight: 800; margin-bottom: 3px; opacity: 0.8;">📢 Sent to All Parents</strong>
+                <div>${msg.text}</div>
+                <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 4px; text-align: right;">${msg.timestamp}</div>
+            </div>`;
+        });
+    }
+
+    let workspace = document.getElementById('teacher-chat-workspace');
+    workspace.innerHTML = `
+    <!-- Header -->
+    <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; background: #fff8f0;">
+        <div class="avatar" style="width: 35px; height: 35px; border-radius: 50%; font-size: 0.9rem; background: #fff2e6; color: #fd7e14; font-weight: bold; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;">
+            📢
+        </div>
+        <div>
+            <div style="font-weight: 700; color: #fd7e14; font-size: 0.95rem;">📢 Broadcast Announcement</div>
+            <div style="font-size: 0.75rem; color: #777; font-weight: 600;">Message will be sent to ALL enrolled parents' chats and Classroom Inboxes</div>
+        </div>
+    </div>
+    
+    <!-- Body -->
+    <div id="teacher-chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fdfdfd;">
+        ${chatHtml}
+    </div>
+    
+    <!-- Footer -->
+    <div style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center; background: #fff;">
+        <input type="text" id="teacher-chat-input" placeholder="Type an urgent announcement for everyone..." style="flex-grow: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; font-family: inherit; font-size: 0.9rem; outline: none;" onkeydown="handleTeacherChatKey(event)">
+        <button onclick="sendTeacherChatMessage()" style="background-color: #fd7e14; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1rem; transition: 0.2s; flex-shrink: 0;">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>`;
+    
+    let chatContainer = document.getElementById('teacher-chat-messages');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function selectParentThread(groupKey) {
+    currentChatGroupKey = groupKey;
+    
+    document.querySelectorAll('.chat-student-item').forEach(item => {
+        item.classList.remove('active-thread');
+    });
+    let item = document.getElementById('chat-item-' + groupKey);
+    if(item) item.classList.add('active-thread');
+    
+    let studentGroups = groupStudentsByParent(studentsMaster);
+    let group = studentGroups[groupKey];
+    if (!group) return;
+    
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    let myChat = getGroupMessages(groupKey, group.students);
+    
+    // Mark as read when teacher views
+    let updated = false;
+    myChat.forEach(msg => {
+        if (msg.sender === 'parent' && !msg.read) {
+            msg.read = true;
+            updated = true;
+        }
+    });
+    if (updated) {
+        chatDB[groupKey] = myChat;
+        localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+        renderTeacherChatStudentList();
+    }
+    
+    let chatHtml = '';
+    if (myChat.length === 0) {
+        chatHtml = `
+        <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+            <i class="fa-regular fa-comments" style="font-size:2rem; color:#ccc; margin-bottom:10px;"></i>
+            <p>No chat history with this parent yet.</p>
+        </div>`;
+    } else {
+        myChat.forEach(msg => {
+            if (msg.type === 'system-absent') {
+                chatHtml += `
+                <div class="chat-bubble system-absent" style="align-self: center; background-color: #fdf2f2; color: #d9534f; border: 1px solid #fbe3e4; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: 700; width: 90%; margin: 8px auto; padding: 10px; box-shadow: none;">
+                    <i class="fa-solid fa-circle-exclamation"></i> <strong>ABSENCE NOTICE</strong>: ${msg.text}
+                </div>`;
+            } else {
+                let senderLabel = msg.sender === 'teacher' ? 'You' : 'Parent';
+                let align = msg.sender === 'teacher' ? 'align-self: flex-end; background-color: #d2f4ea; color: #0f5132;' : 'align-self: flex-start; background-color: #043263; color: white;';
+                let rounded = msg.sender === 'teacher' ? 'border-top-right-radius: 2px;' : 'border-top-left-radius: 2px;';
+                
+                chatHtml += `
+                <div class="chat-bubble" style="max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; margin-bottom: 8px; ${align} ${rounded}">
+                    <strong style="font-size: 0.75rem; font-weight: 800; margin-bottom: 3px; opacity: 0.8;">${senderLabel}</strong>
+                    <div>${msg.text}</div>
+                    <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 4px; text-align: right;">${msg.timestamp}</div>
+                </div>`;
+            }
+        });
+    }
+
+    let workspace = document.getElementById('teacher-chat-workspace');
+    workspace.innerHTML = `
+    <!-- Header -->
+    <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; background: #fafafa;">
+        <div class="avatar" style="width: 35px; height: 35px; border-radius: 50%; font-size: 0.9rem; background: #e0f0ff; color: #4a90e2; font-weight: bold; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;">
+            ${group.avatarHtml}
+        </div>
+        <div>
+            <div style="font-weight: 700; color: #333; font-size: 0.95rem;">${group.parentName}</div>
+            <div style="font-size: 0.75rem; color: #777; font-weight: 600;">Children: ${group.childrenNames}</div>
+        </div>
+    </div>
+    
+    <!-- Body -->
+    <div id="teacher-chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa;">
+        ${chatHtml}
+    </div>
+    
+    <!-- Footer -->
+    <div style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center; background: #fff;">
+        <input type="text" id="teacher-chat-input" placeholder="Type a response to the parent..." style="flex-grow: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 25px; font-family: inherit; font-size: 0.9rem; outline: none;" onkeydown="handleTeacherChatKey(event)">
+        <button onclick="sendTeacherChatMessage()" style="background-color: #043263; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1rem; transition: 0.2s; flex-shrink: 0;">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>`;
+    
+    let chatContainer = document.getElementById('teacher-chat-messages');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function sendBroadcastAnnouncement() {
+    let inputField = document.getElementById('teacher-chat-input');
+    let text = inputField.value.trim();
+    if (!text) return;
+
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    if (!chatDB['broadcast']) chatDB['broadcast'] = [];
+
+    let now = new Date();
+    let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    let dateStr = now.toLocaleDateString();
+
+    chatDB['broadcast'].push({
+        sender: 'teacher',
+        text: text,
+        timestamp: timeStr,
+        date: dateStr,
+        read: true
+    });
+
+    let studentGroups = groupStudentsByParent(studentsMaster);
+    let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+
+    Object.values(studentGroups).forEach(g => {
+        if (!chatDB[g.key]) chatDB[g.key] = [];
+        chatDB[g.key].push({
+            sender: 'teacher',
+            text: `📢 **ANNOUNCEMENT**: ${text}`,
+            timestamp: timeStr,
+            date: dateStr,
+            read: false
+        });
+
+        g.students.forEach(st => {
+            if (!reportsDB[st.id]) reportsDB[st.id] = [];
+            reportsDB[st.id].unshift({
+                title: "⚠️ URGENT ANNOUNCEMENT",
+                date: now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric'}),
+                body: `Dear Parents,\n\nWe have an urgent announcement:\n\n${text}\n\nThank you,\nBMV3 Management`
+            });
+        });
+    });
+
+    localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+    localStorage.setItem('bmv3_reports', JSON.stringify(reportsDB));
+    inputField.value = '';
+
+    selectBroadcastThread();
+    renderTeacherChatStudentList();
+    alert("Broadcast announcement successfully sent to all parent chat threads and classroom inboxes!");
+}
+
+function sendTeacherChatMessage() {
+    if (currentChatGroupKey === 'broadcast') {
+        sendBroadcastAnnouncement();
+        return;
+    }
+    
+    let inputField = document.getElementById('teacher-chat-input');
+    let text = inputField.value.trim();
+    if (!text || !currentChatGroupKey) return;
+
+    let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+    if (!chatDB[currentChatGroupKey]) chatDB[currentChatGroupKey] = [];
+
+    let now = new Date();
+    let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    chatDB[currentChatGroupKey].push({
+        sender: 'teacher',
+        text: text,
+        timestamp: timeStr,
+        date: now.toLocaleDateString(),
+        read: true
+    });
+
+    localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+    inputField.value = '';
+    
+    selectParentThread(currentChatGroupKey);
+    renderTeacherChatStudentList();
+}
+
+function handleTeacherChatKey(event) {
+    if (event.key === 'Enter') {
+        sendTeacherChatMessage();
+    }
 }
 
 // Initialize

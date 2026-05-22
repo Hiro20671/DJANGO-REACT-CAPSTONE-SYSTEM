@@ -408,6 +408,11 @@
             const timeText = recordObj && recordObj.dropoff_time ? recordObj.dropoff_time : (status === 'absent' ? '--:--' : '08:00 AM Dropped Off');
             const guardianText = recordObj && recordObj.authorized_guardian ? `Confirmed by ${recordObj.authorized_guardian}` : (status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`);
             
+            let reasonHtml = '';
+            if (status === 'absent' && recordObj && recordObj.absence_reason) {
+              reasonHtml = `<div style="font-size: 0.8rem; color: #d9534f; margin-top: 5px; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
+            }
+
             historyHtml += `
             <div class="history-item">
               <div class="history-info-left">
@@ -416,6 +421,7 @@
                   <div class="history-date">${formattedDate}</div>
                   <div class="history-time">${timeText}</div>
                   <div class="history-guardian"><i class="fa-solid fa-user-lock" style="font-size:0.75rem;"></i> ${guardianText}</div>
+                  ${reasonHtml}
                 </div>
               </div>
               <div>
