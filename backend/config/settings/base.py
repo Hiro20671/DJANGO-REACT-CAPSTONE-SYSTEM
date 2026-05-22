@@ -108,11 +108,22 @@ DJANGO_VITE = {
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / 'apps' / 'core' / 'static' / 'react'
 DJANGO_VITE_DEV_MODE = False
 
-# Email Configuration (Brevo SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-# TODO: Update these with your actual Brevo SMTP credentials in your environment variables or a local .env file
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '') 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+# Email Configuration
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+
+if BREVO_API_KEY:
+    # Use django-anymail for Brevo HTTP API (works on PythonAnywhere free tier)
+    if 'anymail' not in INSTALLED_APPS:
+        INSTALLED_APPS.append('anymail')
+    EMAIL_BACKEND = 'anymail.backends.sendinblue.EmailBackend'
+    ANYMAIL = {
+        'SENDINBLUE_API_KEY': BREVO_API_KEY,
+    }
+else:
+    # Fallback to standard Brevo SMTP (works on local machine and paid PythonAnywhere tiers)
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp-relay.brevo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '') 
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
