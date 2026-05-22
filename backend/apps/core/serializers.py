@@ -9,10 +9,14 @@ class SchoolYearSerializer(serializers.ModelSerializer):
 
 class ChildSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
+    parent_usernames = serializers.SerializerMethodField()
 
     class Meta:
         model = Child
         fields = '__all__'
+
+    def get_parent_usernames(self, obj):
+        return [p.user.username for p in obj.parents.all() if p.user]
 
     def validate(self, attrs):
         dob = attrs.get('dob')
@@ -34,12 +38,23 @@ class ChildSerializer(serializers.ModelSerializer):
         present = att_records.filter(status='present').count()
         att_pct = round((present / total_att) * 100) if total_att > 0 else 0
 
-        # Milestones
-        m_rec = getattr(obj, 'milestone_record', None)
-        ach = 0
-        if m_rec and isinstance(m_rec.tasks, dict):
-            ach = sum(1 for v in m_rec.tasks.values() if v == 'achieved')
-        mile_pct = round((ach / 16) * 100)
+        # Milestones (ECCD Tracker)
+        from .models import SchoolYear, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        assessments = obj.eccd_assessments.all()
+        if active_year:
+            assessments = assessments.filter(school_year=active_year)
+            
+        total_possible = ECCDMilestone.objects.count()
+        achieved = 0
+        if total_possible > 0:
+            achieved = ECCDMilestoneScore.objects.filter(
+                assessment__in=assessments,
+                teacher_score=1
+            ).values('milestone').distinct().count()
+            mile_pct = round((achieved / total_possible) * 100)
+        else:
+            mile_pct = 0
 
         # Nutrition
         n_recs = obj.nutrition_records.all()
@@ -55,6 +70,8 @@ class ChildSerializer(serializers.ModelSerializer):
         return {
             'attendance': att_pct,
             'milestones': mile_pct,
+            'milestones_achieved': achieved,
+            'milestones_total': total_possible,
             'nutrition': nut_pct
         }
 

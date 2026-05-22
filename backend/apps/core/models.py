@@ -39,6 +39,12 @@ class SchoolYear(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            # deactivate all other school years
+            SchoolYear.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
+        super().save(*args, **kwargs)
+
 class Child(models.Model):
     first_name = models.CharField(max_length=100)
     middle_initial = models.CharField(max_length=10, blank=True, null=True)

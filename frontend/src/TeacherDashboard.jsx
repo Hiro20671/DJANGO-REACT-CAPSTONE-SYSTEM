@@ -13,6 +13,16 @@ export default function TeacherDashboard() {
   // School Year Management
   const [schoolYears, setSchoolYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
+  
+  // Mobile Layout Management
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [mobileTab, setMobileTab] = useState('overview'); // 'overview', 'performance', 'trends'
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadDashboardData = (yearId = '') => {
     const qs = yearId ? `?school_year=${yearId}` : '';
@@ -48,17 +58,11 @@ export default function TeacherDashboard() {
       });
 
       // Milestones
-      let totalAchieved = 0;
-      const TOTAL_POSSIBLE = 16;
+      let totalMilestonePct = 0;
       enrolledStudents.forEach(st => {
-        let mStudent = mileRecords.find(m => m.child === st.id);
-        let ach = 0;
-        if (mStudent && mStudent.tasks) {
-             Object.values(mStudent.tasks).forEach(v => { if (v === 'achieved') ach++; });
-        }
-        totalAchieved += ach;
+        totalMilestonePct += (st.stats && typeof st.stats.milestones !== 'undefined') ? st.stats.milestones : 0;
       });
-      let avgMilestone = enrolledStudents.length > 0 ? Math.round((totalAchieved / (enrolledStudents.length * TOTAL_POSSIBLE)) * 100) : 0;
+      let avgMilestone = enrolledStudents.length > 0 ? Math.round(totalMilestonePct / enrolledStudents.length) : 0;
 
       // Attendance Trend (Last 7 Days)
       let attLabels = [];
@@ -134,16 +138,22 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     // Initial load: fetch school years
+    const archiveId = sessionStorage.getItem('bmv3_archive_year_id');
     fetch('/api/school-years/')
       .then(r => r.json())
       .then(years => {
           setSchoolYears(years);
-          const activeYear = years.find(y => y.is_active);
-          if (activeYear) {
-              setSelectedYear(activeYear.id);
-              loadDashboardData(activeYear.id);
+          if (archiveId && years.some(y => y.id == archiveId)) {
+              setSelectedYear(archiveId);
+              loadDashboardData(archiveId);
           } else {
-              loadDashboardData('');
+              const activeYear = years.find(y => y.is_active);
+              if (activeYear) {
+                  setSelectedYear(activeYear.id);
+                  loadDashboardData(activeYear.id);
+              } else {
+                  loadDashboardData('');
+              }
           }
       })
       .catch(err => {
@@ -154,16 +164,29 @@ export default function TeacherDashboard() {
 
   const handleYearChange = (e) => {
       const yId = e.target.value;
-      setSelectedYear(yId);
-      loadDashboardData(yId);
+      if (!yId) {
+          sessionStorage.removeItem('bmv3_archive_year_id');
+          sessionStorage.removeItem('bmv3_archive_year_name');
+          window.location.reload();
+          return;
+      }
+      const selectedObj = schoolYears.find(y => y.id == yId);
+      if (selectedObj) {
+          if (selectedObj.is_active) {
+              sessionStorage.removeItem('bmv3_archive_year_id');
+              sessionStorage.removeItem('bmv3_archive_year_name');
+          } else {
+              sessionStorage.setItem('bmv3_archive_year_id', selectedObj.id);
+              sessionStorage.setItem('bmv3_archive_year_name', selectedObj.name);
+          }
+          window.location.reload();
+      }
   };
 
   const handleResetToActive = () => {
-      const activeYear = schoolYears.find(y => y.is_active);
-      if (activeYear) {
-          setSelectedYear(activeYear.id);
-          loadDashboardData(activeYear.id);
-      }
+      sessionStorage.removeItem('bmv3_archive_year_id');
+      sessionStorage.removeItem('bmv3_archive_year_name');
+      window.location.reload();
   };
 
   const attBarData = {
@@ -221,87 +244,106 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* KPI Cards Row */}
-      <div className="resp-grid-4" style={{ marginBottom: '25px' }}>
-        <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Total Enrolled</div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#777', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
-            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Active children</div>
-          </div>
-        </a>
-        <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Today's Attendance</div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-calendar-check"></i></div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.absent} absent today</div>
-          </div>
-        </a>
-        <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f6c23e' : '1px solid #000', height: '100%', cursor: 'pointer', position: 'relative' }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Pending Enrollments</div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', color: stats.pending > 0 ? '#f6c23e' : '#1cc88a', fontSize: '1rem' }}><i className="fa-solid fa-file-signature"></i></div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.pending}</div>
-            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.pending > 0 ? 'Requires your approval' : 'All caught up'}</div>
-          </div>
-        </a>
-        <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Milestone Progress</div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-chart-line"></i></div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.milestonePct}%</div>
-            <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Overall completion</div>
-          </div>
-        </a>
+      {/* Mobile Tab Switcher */}
+      <div className="resp-mobile-tabs">
+        <button className={`resp-mobile-tab-btn ${mobileTab === 'overview' ? 'active' : ''}`} onClick={() => setMobileTab('overview')}>Overview</button>
+        <button className={`resp-mobile-tab-btn ${mobileTab === 'performance' ? 'active' : ''}`} onClick={() => setMobileTab('performance')}>Performance</button>
+        <button className={`resp-mobile-tab-btn ${mobileTab === 'trends' ? 'active' : ''}`} onClick={() => setMobileTab('trends')}>Trends</button>
       </div>
+
+      {/* KPI Cards Row */}
+      {(!isMobile || mobileTab === 'overview') && (
+        <div className="resp-grid-4" style={{ marginBottom: '25px' }}>
+          <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Total Enrolled</div>
+              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#777', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
+              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Active children</div>
+            </div>
+          </a>
+          <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Today's Attendance</div>
+              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-calendar-check"></i></div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
+              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.absent} absent today</div>
+            </div>
+          </a>
+          <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f6c23e' : '1px solid #000', height: '100%', cursor: 'pointer', position: 'relative' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Pending Enrollments</div>
+              <div style={{ position: 'absolute', top: '15px', right: '20px', color: stats.pending > 0 ? '#f6c23e' : '#1cc88a', fontSize: '1rem' }}><i className="fa-solid fa-file-signature"></i></div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.pending}</div>
+              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.pending > 0 ? 'Requires your approval' : 'All caught up'}</div>
+            </div>
+          </a>
+          <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Milestone Progress</div>
+              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-chart-line"></i></div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.milestonePct}%</div>
+              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Overall completion</div>
+            </div>
+          </a>
+        </div>
+      )}
 
       {/* ECCD Chart Row */}
-      <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', marginBottom: '25px' }}>
-          <div style={{ fontWeight: 600, marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
-          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Average completion percentage across 7 ECCD domains</p>
-          <div style={{ height: '250px', position: 'relative', width: '100%' }}>
-            <Line data={eccdLineData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { beginAtZero: true, max: 100, ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { position: 'top', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} />
-          </div>
-      </div>
+      {(!isMobile || mobileTab === 'performance') && (
+        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', marginBottom: '25px' }}>
+            <div style={{ fontWeight: 600, marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Average completion percentage across 7 ECCD domains</p>
+            <div style={{ height: '250px', position: 'relative', width: '100%' }}>
+              <Line data={eccdLineData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { beginAtZero: true, max: 100, ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { position: 'top', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} />
+            </div>
+        </div>
+      )}
 
       {/* Row 2 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
-          <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
-          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
-          <div style={{ height: '220px', position: 'relative', width: '100%' }}>
-            <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
-          </div>
-        </div>
-        
-        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontWeight: 600, marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
-          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Weekly snack consumption summary</p>
-          <div style={{ height: '220px', position: 'relative', width: '100%' }}>
-            <Bar data={nutBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
-          </div>
-        </div>
+      {(!isMobile || mobileTab === 'trends' || mobileTab === 'overview') && (
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+          {(!isMobile || mobileTab === 'trends') && (
+            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
+              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
+              <div style={{ height: '220px', position: 'relative', width: '100%' }}>
+                <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
+              </div>
+            </div>
+          )}
+          
+          {(!isMobile || mobileTab === 'trends') && (
+            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Weekly snack consumption summary</p>
+              <div style={{ height: '220px', position: 'relative', width: '100%' }}>
+                <Bar data={nutBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
+              </div>
+            </div>
+          )}
 
-        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
-          <div style={{ fontWeight: 600, marginBottom: '5px' }}>Today's Attendance</div>
-          <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Present vs Absent distribution</p>
-          <div style={{ height: '220px', position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <Pie 
-              data={{
-                  labels: ['Present', 'Absent'],
-                  datasets: [{
-                      data: [stats.present, stats.absent],
-                      backgroundColor: ['#1cc88a', '#e74a3b'],
-                      borderWidth: 1
-                  }]
-              }} 
-              options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} 
-            />
-          </div>
+          {(!isMobile || mobileTab === 'overview') && (
+            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
+              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Today's Attendance</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Present vs Absent distribution</p>
+              <div style={{ height: '220px', position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <Pie 
+                  data={{
+                      labels: ['Present', 'Absent'],
+                      datasets: [{
+                          data: [stats.present, stats.absent],
+                          backgroundColor: ['#1cc88a', '#e74a3b'],
+                          borderWidth: 1
+                      }]
+                  }} 
+                  options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} 
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -253,6 +253,47 @@ input:checked + .slider:before { transform: translateX(26px); }
 .btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
 .modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
 .archived-student-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+@media (max-width: 768px) {
+    .settings-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .settings-sidebar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 0;
+        border-radius: 8px;
+    }
+    .settings-menu-item {
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 12px 15px;
+    }
+    .settings-menu-item.active {
+        border-left: none;
+        border-bottom: 3px solid #4a90e2;
+    }
+    .settings-content {
+        width: 100%;
+    }
+    .settings-panel {
+        padding: 20px;
+    }
+    .form-group input, .form-group select {
+        max-width: 100%;
+    }
+    .toggle-row {
+        max-width: 100%;
+    }
+    .profile-upload-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
 </style>
 
 <div class="page-header">
@@ -312,24 +353,34 @@ input:checked + .slider:before { transform: translateX(26px); }
             <!-- Password Sub -->
             <div class="sub-panel" id="sub-password">
                 <div id="otp-request-section">
-                    <p>To change your password, you must first verify your email address.</p>
-                    <button class="btn-primary" onclick="requestOTP()" id="btnRequestOTP">Request Verification Code</button>
+                    <p style="margin-bottom: 15px; color: #555;">To update your password, request a security code sent to your registered email address.</p>
+                    <button class="btn-primary" onclick="requestOTP()" id="btnRequestOTP" style="width: auto;">Verify Email</button>
                     <div id="otp-message" style="margin-top:10px; font-weight:600; color:#28a745;"></div>
                 </div>
+                
                 <div id="otp-verify-section" style="display:none; margin-top:20px;">
-                    <div class="form-group">
+                    <div class="form-group" id="otpInputGroup">
                         <label>Verification Code (Sent to Email)</label>
-                        <input type="text" id="otpCode" placeholder="Enter 6-digit code">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="otpCode" placeholder="Enter 6-digit code" style="flex: 1;">
+                            <button class="btn-primary" style="width: auto;" id="btnVerifyOTP" onclick="verifyOTPOnly()">Verify Code</button>
+                        </div>
+                        <div id="otpTimer" style="font-size: 0.85rem; color: #d9534f; margin-top: 5px; font-weight: bold;"></div>
+                        <button class="btn-primary" style="background: transparent; color: #4a90e2; border: 1px solid #4a90e2; padding: 8px 15px; margin-top: 10px; display: none; width: auto; font-size: 0.9rem;" id="btnResendOTP" onclick="requestOTP()">Resend Code</button>
                     </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    
                     <div class="form-group">
                         <label>New Password</label>
-                        <input type="password" id="pwNew" placeholder="Enter new password">
+                        <input type="password" id="pwNew" placeholder="Enter new password" disabled>
+                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">Must be at least 8 characters long.</div>
                     </div>
                     <div class="form-group">
                         <label>Confirm New Password</label>
-                        <input type="password" id="pwConf" placeholder="Confirm new password">
+                        <input type="password" id="pwConf" placeholder="Confirm new password" disabled>
                     </div>
-                    <button class="btn-primary" onclick="verifyAndChangePassword()">Change Password</button>
+                    <button class="btn-primary" id="btnSubmitPassword" onclick="submitPasswordChange()" disabled>Change Password</button>
                 </div>
             </div>
         </div>
@@ -598,9 +649,37 @@ input:checked + .slider:before { transform: translateX(26px); }
         .catch(err => showToast(err.message, "error"));
     }
 
+    let otpInterval;
+    function startOTPTimer() {
+        clearInterval(otpInterval);
+        let timeLeft = 300; // 5 minutes
+        const timerEl = document.getElementById('otpTimer');
+        const resendBtn = document.getElementById('btnResendOTP');
+        const verifyBtn = document.getElementById('btnVerifyOTP');
+        
+        timerEl.style.display = 'block';
+        resendBtn.style.display = 'none';
+        
+        otpInterval = setInterval(() => {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            timerEl.innerText = `Code expires in: ${minutes}:${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(otpInterval);
+                timerEl.innerText = "Code expired.";
+                resendBtn.style.display = 'inline-block';
+                verifyBtn.disabled = true;
+            }
+            timeLeft--;
+        }, 1000);
+    }
+
     function requestOTP() {
         document.getElementById('btnRequestOTP').disabled = true;
         document.getElementById('btnRequestOTP').innerText = "Requesting...";
+        document.getElementById('btnVerifyOTP').disabled = false;
         
         fetch('/api/request-password-change/', {
             method: 'POST',
@@ -621,21 +700,68 @@ input:checked + .slider:before { transform: translateX(26px); }
             }
             document.getElementById('otp-request-section').style.display = 'none';
             document.getElementById('otp-verify-section').style.display = 'block';
+            startOTPTimer();
         })
         .catch(err => {
             showToast(err.message, "error");
             document.getElementById('btnRequestOTP').disabled = false;
-            document.getElementById('btnRequestOTP').innerText = "Request Verification Code";
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
         });
     }
 
-    function verifyAndChangePassword() {
+    function verifyOTPOnly() {
+        let otpCode = document.getElementById('otpCode').value;
+        if(!otpCode) { showToast("Please enter the verification code", "error"); return; }
+        
+        document.getElementById('btnVerifyOTP').disabled = true;
+        document.getElementById('btnVerifyOTP').innerText = "Verifying...";
+        
+        fetch('/api/verify-otp-only/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ otp_code: otpCode })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Email verified successfully!", "success");
+            clearInterval(otpInterval);
+            document.getElementById('otpTimer').style.display = 'none';
+            document.getElementById('btnVerifyOTP').innerText = "Verified";
+            document.getElementById('btnResendOTP').style.display = 'none';
+            
+            // Enable password inputs
+            document.getElementById('pwNew').disabled = false;
+            document.getElementById('pwConf').disabled = false;
+            document.getElementById('btnSubmitPassword').disabled = false;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnVerifyOTP').disabled = false;
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+        });
+    }
+
+    function submitPasswordChange() {
         let otpCode = document.getElementById('otpCode').value;
         let pNew = document.getElementById('pwNew').value;
         let pConf = document.getElementById('pwConf').value;
 
-        if(!otpCode || !pNew || !pConf) { showToast("Please fill all fields", "error"); return; }
+        if(!pNew || !pConf) { showToast("Please fill all fields", "error"); return; }
         if(pNew !== pConf) { showToast("New passwords do not match", "error"); return; }
+        if(pNew.length < 8) { showToast("Password must be at least 8 characters long", "error"); return; }
+        
+        const btn = document.getElementById('btnSubmitPassword');
+        btn.disabled = true;
+        btn.innerText = "Changing...";
         
         fetch('/api/verify-password-change/', {
             method: 'POST',
@@ -651,7 +777,7 @@ input:checked + .slider:before { transform: translateX(26px); }
         .then(async res => {
             if(!res.ok) {
                 const err = await res.json();
-                throw new Error(err.detail || 'Failed to verify');
+                throw new Error(err.error || 'Failed to verify');
             }
             return res.json();
         })
@@ -660,18 +786,30 @@ input:checked + .slider:before { transform: translateX(26px); }
             document.getElementById('otpCode').value = '';
             document.getElementById('pwNew').value = '';
             document.getElementById('pwConf').value = '';
+            document.getElementById('pwNew').disabled = true;
+            document.getElementById('pwConf').disabled = true;
+            btn.disabled = true;
+            btn.innerText = "Change Password";
+            
             document.getElementById('otp-request-section').style.display = 'block';
             document.getElementById('otp-verify-section').style.display = 'none';
             document.getElementById('btnRequestOTP').disabled = false;
-            document.getElementById('btnRequestOTP').innerText = "Request Verification Code";
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
             document.getElementById('otp-message').innerText = "";
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+            document.getElementById('btnVerifyOTP').disabled = false;
         })
         .catch(err => {
             showToast(err.message, "error");
+            btn.disabled = false;
+            btn.innerText = "Change Password";
         });
     }
 
     // ARCHIVAL LOGIC
+    let currentViewingArchiveId = null;
+    let currentViewingArchiveName = '';
+
     function loadArchives() {
         fetch('/api/school-years/')
         .then(res => res.json())
@@ -687,17 +825,220 @@ input:checked + .slider:before { transform: translateX(26px); }
             let html = '';
             historical.forEach((arc) => {
                 html += `
-                <div class="archive-box">
+                <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; border:1px solid #edf2f7; background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
                     <div>
-                        <div class="year-title">${arc.name}</div>
-                        <div class="year-stats">Status: Archived</div>
+                        <div class="year-title" style="font-weight:800; font-size:1.15rem; color:#1e293b; margin-bottom:4px;">${arc.name}</div>
+                        <div class="year-stats" style="font-size:0.85rem; color:#64748b; font-weight:500;">Status: Archived &bull; Read-Only</div>
                     </div>
-                    <div>
-                        <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-primary" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; font-weight:700; cursor:pointer;" onclick="openArchiveViewModal(${arc.id}, '${arc.name}')">View Enrolled Children</button>
+                        <button class="btn-primary" style="background:#4a90e2; color:#fff; border:none; font-weight:700; cursor:pointer;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
                     </div>
                 </div>`;
             });
             cont.innerHTML = html;
+        });
+    }
+
+    function openArchiveViewModal(id, name) {
+        currentViewingArchiveId = id;
+        currentViewingArchiveName = name;
+        
+        const modal = document.getElementById('archiveViewModal');
+        modal.classList.add('active');
+        
+        document.getElementById('av-name').innerText = name;
+        document.getElementById('av-meta').innerText = "Loading enrolled students...";
+        document.getElementById('av-students').innerHTML = '<div style="text-align:center; padding:30px; color:#888;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Loading children...</div>';
+        
+        fetch(`/api/children/?school_year=${id}`)
+        .then(res => res.json())
+        .then(children => {
+            const enrolled = children.filter(c => c.enrollment_status === 'Enrolled');
+            document.getElementById('av-meta').innerText = `Archived Academic Year • ${enrolled.length} Enrolled Children`;
+            
+            if (enrolled.length === 0) {
+                document.getElementById('av-students').innerHTML = '<div style="text-align:center; padding:20px; color:#888;">No enrolled children found in this archived year.</div>';
+                return;
+            }
+            
+            let html = '';
+            enrolled.forEach(child => {
+                const init = ((child.first_name ? child.first_name[0] : '') + (child.last_name ? child.last_name[0] : '')).toUpperCase();
+                html += `
+                <div class="archived-student-item" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition: all 0.2s ease; border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-bottom:12px; background:#fff;" onclick="showArchivedStudentDetails(${child.id}, ${id})" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:44px; height:44px; border-radius:50%; background:#f0f4f8; color:#4a90e2; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.15rem; border:1px solid #d1d5db; overflow:hidden; flex-shrink:0;">
+                            ${child.img ? `<img src="${child.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${init}</span>`}
+                        </div>
+                        <div>
+                            <div style="font-weight:800; color:#1e293b; font-size:1rem;">${child.first_name} ${child.last_name}</div>
+                            <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Age: <strong>${child.age}</strong> &bull; Gender: <strong>${child.gender || 'N/A'}</strong></div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:#94a3b8; font-size:0.9rem;"></i>
+                </div>`;
+            });
+            document.getElementById('av-students').innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById('av-students').innerHTML = '<div style="text-align:center; padding:20px; color:#d9534f;">Failed to load student directory.</div>';
+        });
+    }
+
+    function showArchivedStudentDetails(childId, schoolYearId) {
+        document.getElementById('av-students').innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Loading child profile and stats...</div>';
+        
+        Promise.all([
+            fetch(`/api/children/${childId}/`).then(res => res.json()),
+            fetch(`/api/attendance/?child=${childId}&school_year=${schoolYearId}`).then(res => res.json()),
+            fetch(`/api/milestones/?school_year=${schoolYearId}`).then(res => res.json()),
+            fetch(`/api/nutrition/?child=${childId}&school_year=${schoolYearId}`).then(res => res.json()),
+            fetch(`/api/eccd-assessments/?child=${childId}&school_year=${schoolYearId}`).then(res => res.json())
+        ])
+        .then(([child, attRecords, milestoneList, nutritionRecords, assessments]) => {
+            // Compute Attendance Rate
+            const totalDays = attRecords.length;
+            const presentDays = attRecords.filter(a => a.status.toLowerCase() === 'present').length;
+            const attRate = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+            
+            // Compute Milestone Rate
+            let milestoneRate = 0;
+            if (assessments && assessments.length > 0) {
+                let achievedMilestoneIds = new Set();
+                assessments.forEach(ass => {
+                    if (ass.scores) {
+                        ass.scores.forEach(s => {
+                            if (s.teacher_score === 1) {
+                                achievedMilestoneIds.add(s.milestone);
+                            }
+                        });
+                    }
+                });
+                const totalPossible = 109; // total possible milestones in system
+                milestoneRate = totalPossible > 0 ? Math.round((achievedMilestoneIds.size / totalPossible) * 100) : 0;
+            }
+            
+            // Compute Nutrition Rate
+            let nutRated = 0, nutFin = 0;
+            nutritionRecords.forEach(n => {
+                if (n.snack_status) {
+                    let pct = 0;
+                    if (n.snack_status === 'Finished') pct = 100;
+                    else if (n.snack_status === 'Some Left') pct = 50;
+                    nutFin += pct;
+                    nutRated++;
+                }
+            });
+            const nutRate = nutRated > 0 ? Math.round(nutFin / nutRated) : 0;
+            
+            const init = ((child.first_name ? child.first_name[0] : '') + (child.last_name ? child.last_name[0] : '')).toUpperCase();
+            
+            let html = `
+            <div style="margin-bottom: 20px;">
+                <button onclick="openArchiveViewModal(${schoolYearId}, '${currentViewingArchiveName}')" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#334155; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; gap:8px; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Student Directory
+                </button>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:16px; padding-bottom:15px; border-bottom:1px solid #edf2f7; margin-bottom:20px;">
+                <div style="width:64px; height:64px; border-radius:50%; background:#f0f4f8; color:#4a90e2; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem; border:1px solid #d1d5db; overflow:hidden; flex-shrink:0;">
+                    ${child.img ? `<img src="${child.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${init}</span>`}
+                </div>
+                <div>
+                    <h4 style="margin:0; font-size:1.3rem; font-weight:800; color:#1e293b;">${child.first_name} ${child.middle_initial ? child.middle_initial + '. ' : ''}${child.last_name}</h4>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">
+                        Gender: <strong>${child.gender || 'N/A'}</strong> &bull; Born: <strong>${child.dob || 'N/A'}</strong> &bull; Age: <strong>${child.age || 'N/A'}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Section -->
+            <h6 style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#64748b; letter-spacing:0.5px; margin:0 0 10px 0;">Academic Year Performance</h6>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:20px;">
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="color:#4a90e2; font-size:0.7rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.3px;">Attendance</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#1e293b;">${attRate}%</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="color:#9b59b6; font-size:0.7rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.3px;">Milestones</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#1e293b;">${milestoneRate}%</div>
+                </div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="color:#f6c23e; font-size:0.7rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.3px;">Nutrition</div>
+                    <div style="font-size:1.4rem; font-weight:800; color:#1e293b;">${nutRate}%</div>
+                </div>
+            </div>
+            
+            <!-- Health Section -->
+            ${child.allergies || child.health_conditions ? `
+            <div style="background:#fff5f5; border:1px solid #fed7d7; padding:12px 15px; border-radius:10px; color:#c53030; font-size:0.85rem; margin-bottom:20px;">
+                <div style="font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-triangle-exclamation"></i> Health & Medical Alerts</div>
+                ${child.allergies ? `<div>Allergies: <strong>${child.allergies}</strong></div>` : ''}
+                ${child.health_conditions ? `<div>Conditions: <strong>${child.health_conditions}</strong></div>` : ''}
+            </div>` : ''}
+            
+            <!-- Personal Info -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-bottom:20px; font-size:0.85rem;">
+                <h5 style="margin:0 0 10px 0; font-size:0.9rem; font-weight:800; border-bottom:1px solid #edf2f7; padding-bottom:5px; color:#334155;">Child Details</h5>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px 15px;">
+                    <div><span style="color:#64748b;">Enrollment Date:</span> <br><strong>${child.doe || 'N/A'}</strong></div>
+                    <div><span style="color:#64748b;">Status:</span> <br><strong style="color:#10b981;">Enrolled (Archived)</strong></div>
+                    <div style="grid-column: 1 / -1;"><span style="color:#64748b;">Home Address:</span> <br><strong>${[child.address_line1, child.barangay, child.city_municipality, child.province].filter(p => p).join(', ') || 'N/A'}</strong></div>
+                </div>
+            </div>
+            
+            <!-- Guardian Info -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:15px; margin-bottom:20px; font-size:0.85rem;">
+                <h5 style="margin:0 0 10px 0; font-size:0.9rem; font-weight:800; border-bottom:1px solid #edf2f7; padding-bottom:5px; color:#334155;">Guardian Information</h5>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    ${child.mother_first_name ? `
+                    <div style="padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">
+                        <strong style="color:#475569;">Mother: ${child.mother_first_name} ${child.mother_last_name}</strong>
+                        <div style="color:#64748b; margin-top:2px;">Phone: <strong>${child.mother_phone || 'N/A'}</strong> &bull; Email: <strong>${child.mother_email || 'N/A'}</strong></div>
+                    </div>` : ''}
+                    ${child.father_first_name ? `
+                    <div style="padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">
+                        <strong style="color:#475569;">Father: ${child.father_first_name} ${child.father_last_name}</strong>
+                        <div style="color:#64748b; margin-top:2px;">Phone: <strong>${child.father_phone || 'N/A'}</strong> &bull; Email: <strong>${child.father_email || 'N/A'}</strong></div>
+                    </div>` : ''}
+                    ${child.other_guardian_first_name ? `
+                    <div>
+                        <strong style="color:#475569;">Guardian: ${child.other_guardian_first_name} ${child.other_guardian_last_name}</strong>
+                        <div style="color:#64748b; margin-top:2px;">Phone: <strong>${child.other_guardian_phone || 'N/A'}</strong> &bull; Email: <strong>${child.other_guardian_email || 'N/A'}</strong></div>
+                    </div>` : ''}
+                </div>
+            </div>
+            
+            <!-- ECCD Assessments -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:15px; font-size:0.85rem;">
+                <h5 style="margin:0 0 10px 0; font-size:0.9rem; font-weight:800; border-bottom:1px solid #edf2f7; padding-bottom:5px; color:#334155;">ECCD Milestone Evaluations</h5>
+                ${assessments.length === 0 ? `
+                <div style="color:#64748b; font-style:italic;">No ECCD evaluations were recorded for this child.</div>` : `
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${assessments.map(ass => `
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="color:#1e293b;">${ass.assessment_period} Evaluation</strong>
+                            <div style="color:#64748b; font-size:0.75rem; margin-top:2px;">Date: ${ass.assessment_date}</div>
+                        </div>
+                        <div>
+                            <span style="background:${ass.status === 'Finalized' ? '#d1fae5' : '#fee2e2'}; color:${ass.status === 'Finalized' ? '#065f46' : '#991b1b'}; padding:4px 10px; border-radius:6px; font-weight:800; font-size:0.75rem; text-transform:uppercase;">${ass.status}</span>
+                        </div>
+                    </div>`).join('')}
+                </div>`}
+            </div>
+            `;
+            
+            document.getElementById('av-students').innerHTML = html;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('av-students').innerHTML = `
+            <div style="text-align:center; padding:20px; color:#d9534f;">
+                Failed to load child details.<br><br>
+                <button onclick="openArchiveViewModal(${schoolYearId}, '${currentViewingArchiveName}')" class="btn-primary">Back to Student Directory</button>
+            </div>`;
         });
     }
 
@@ -731,7 +1072,7 @@ input:checked + .slider:before { transform: translateX(26px); }
     }
 
     function closeArchiveModal() {
-        // Obsolete, modal is no longer used for Time Travel
+        document.getElementById('archiveViewModal').classList.remove('active');
     }
 
     loadArchives();

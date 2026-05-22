@@ -45,6 +45,49 @@
 
 .empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; }
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
+
+/* Mobile Responsive Optimizations */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+    .page-header div {
+        width: 100% !important;
+    }
+    .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tab {
+        flex-shrink: 0;
+    }
+    .assess-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+    .assess-header div {
+        width: 100% !important;
+    }
+    .assess-header button {
+        width: 100% !important;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    .assess-table {
+        min-width: 650px; /* prevent column squeezing on mobile viewports */
+    }
+}
 </style>
 
 <div class="page-header">
@@ -88,20 +131,22 @@
         </div>
     </div>
 
-    <table class="assess-table">
-        <thead>
-            <tr>
-                <th style="width: 50px; text-align:center;">No.</th>
-                <th>Indicator & Material/Procedure</th>
-                <th style="text-align:center; width:80px;">1st Eval</th>
-                <th style="text-align:center; width:80px;">2nd Eval</th>
-                <th style="text-align:center; width:80px;">3rd Eval</th>
-            </tr>
-        </thead>
-        <tbody id="assessmentTbody">
-            <!-- Rendered by JS -->
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="assess-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px; text-align:center;">No.</th>
+                    <th>Indicator & Material/Procedure</th>
+                    <th style="text-align:center; width:80px;">1st Eval</th>
+                    <th style="text-align:center; width:80px;">2nd Eval</th>
+                    <th style="text-align:center; width:80px;">3rd Eval</th>
+                </tr>
+            </thead>
+            <tbody id="assessmentTbody">
+                <!-- Rendered by JS -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -375,8 +420,8 @@ async function saveAllPending() {
         
         pendingScores = {}; // clear
         alert("Scores saved successfully!");
-        renderDomainCards(); // update progress bar on dashboard
-        renderAssessmentTable(); // re-render to lock checkboxes
+        await loadChildAssessment();
+        switchTab('dashboard');
     } catch (e) {
         console.error(e);
         alert("An error occurred while saving.");

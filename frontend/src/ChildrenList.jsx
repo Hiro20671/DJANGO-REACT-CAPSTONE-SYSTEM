@@ -264,7 +264,7 @@ export default function ChildrenList() {
             </div>
 
             <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #eee' }}>
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+                <div className="resp-grid-2-form">
                     <div>
                         <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Child Name</div>
                         <div style={{fontWeight: 700}}>{selectedChild.name}</div>
@@ -286,7 +286,7 @@ export default function ChildrenList() {
 
             <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #eee' }}>
                 <h4 style={{margin: '0 0 10px 0', borderBottom: '1px solid #ddd', paddingBottom: '5px'}}>Guardian Information</h4>
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+                <div className="resp-grid-2-form">
                     <div>
                         <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Mother's Name</div>
                         <div style={{fontWeight: 700}}>{selectedChild.motherName}</div>
@@ -399,7 +399,7 @@ export default function ChildrenList() {
               <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
                 <h4 style={{ margin: '0 0 20px 0' }}>Child's Personal Information</h4>
                 <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                  <div className="resp-grid-2-form">
                     <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Full Name:</span> <br/><strong>{selectedChild.name}</strong></div>
                     <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Gender:</span> <br/><strong>{selectedChild.gender}</strong></div>
                     <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Date of Birth:</span> <br/><strong>{selectedChild.dob} (Age {selectedChild.age})</strong></div>
@@ -418,7 +418,7 @@ export default function ChildrenList() {
                   {selectedChild.motherName && selectedChild.motherName !== 'No Info' && (
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Mother's Information</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="resp-grid-2-form">
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.motherName}</strong></div>
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.motherPhone}</strong></div>
                       <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.motherEmail}</strong></div>
@@ -430,7 +430,7 @@ export default function ChildrenList() {
                   {selectedChild.fatherName && selectedChild.fatherName !== 'No Info' && (
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Father's Information</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="resp-grid-2-form">
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.fatherName}</strong></div>
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.fatherPhone}</strong></div>
                       <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.fatherEmail}</strong></div>
@@ -442,7 +442,7 @@ export default function ChildrenList() {
                   {selectedChild.otherGuardianName && selectedChild.otherGuardianName !== 'No Info' && (
                   <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Other Guardian Information</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="resp-grid-2-form">
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.otherGuardianName}</strong></div>
                       <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.otherGuardianPhone}</strong></div>
                       <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.otherGuardianEmail}</strong></div>
@@ -484,7 +484,17 @@ export default function ChildrenList() {
             {genAccResult ? (
                 <div style={{ background: '#e0f0ff', color: '#063970', padding: '20px', borderRadius: '12px', border: '1px solid #b3d7ff' }}>
                     <h4 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>✅ Account Generated!</h4>
-                    <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem' }}>The temporary username and password have been successfully emailed directly to the parent's email address. They will be prompted to verify their email upon logging in.</p>
+                    {genAccResult.dev_credentials ? (
+                        <div style={{ marginBottom: '15px' }}>
+                            <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', lineHeight: '1.4' }}>The account was generated, but could not send email (local testing / SMTP fallback). Please provide these temporary credentials directly to the parent:</p>
+                            <div style={{ background: '#fff', padding: '12px 15px', borderRadius: '8px', border: '1px solid #cce5ff', marginBottom: '15px' }}>
+                                <p style={{ margin: '5px 0', fontSize: '0.95rem' }}><strong>Username:</strong> <code style={{ color: '#d9534f', fontSize: '1.05rem', background: '#f8f9fa', padding: '3px 8px', borderRadius: '4px', border: '1px solid #e9ecef', fontFamily: 'monospace' }}>{genAccResult.dev_credentials.username}</code></p>
+                                <p style={{ margin: '8px 0 5px 0', fontSize: '0.95rem' }}><strong>Password:</strong> <code style={{ color: '#d9534f', fontSize: '1.05rem', background: '#f8f9fa', padding: '3px 8px', borderRadius: '4px', border: '1px solid #e9ecef', fontFamily: 'monospace' }}>{genAccResult.dev_credentials.password}</code></p>
+                            </div>
+                        </div>
+                    ) : (
+                        <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', lineHeight: '1.4' }}>The temporary username and password have been successfully emailed directly to the parent's email address. They will be prompted to verify their email upon logging in.</p>
+                    )}
                     <button onClick={() => { setGenAccResult(null); setShowGenerateAccountModal(false); }} style={{ width: '100%', padding: '12px', background: '#1b3b5c', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Done</button>
                 </div>
             ) : (

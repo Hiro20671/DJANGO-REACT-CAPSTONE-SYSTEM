@@ -226,12 +226,32 @@
 <!-- Real Camera Modal -->
 <div class="modal-overlay" id="cameraModal">
     <div class="modal-container" style="width: 500px;">
-        <div class="modal-header">
-            <h3>📷 Scan QR Code</h3>
-            <button class="btn-close" onclick="stopRealCamera()">&times;</button>
+        <div class="modal-header" style="background: #043263; color: white;">
+            <h3 style="margin: 0; color: white;">📷 Scan QR Code</h3>
+            <button class="btn-close" style="color: white;" onclick="stopRealCamera()">&times;</button>
         </div>
-        <div class="modal-body" style="padding: 20px;">
-            <div id="qr-reader" style="width: 100%;"></div>
+        <div class="modal-body" style="padding: 20px; background-color: #f8fafc; text-align: center;">
+            <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px dashed #4a90e2;"></div>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #555;">Point your rear camera at the PWA QR code on the parent's phone.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Child Record Modal -->
+<div class="modal-overlay" id="childRecordModal">
+    <div class="modal-container" style="width: 700px; max-width: 95%; max-height: 90vh;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #043263 0%, #1e5799 100%); color: white;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 1.8rem;">🛡️</div>
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; color: white; font-weight: 800; font-size: 1.4rem;" id="childModalTitle">Verification Successful</h3>
+                    <p style="margin: 2px 0 0 0; color: #a4ceeb; font-size: 0.85rem;" id="childModalSubtitle">Transport Access Cleared</p>
+                </div>
+            </div>
+            <button class="btn-close" style="color: white;" onclick="closeModal('childRecordModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="childRecordModalBody" style="padding: 25px; background-color: #f8fafc;">
+            <!-- Content will be rendered dynamically -->
         </div>
     </div>
 </div>
@@ -329,23 +349,40 @@
     }
 
     // Find guardian by contact info or exact full name matches.
-    // For demo/prototype we assume input manual code = their phone number or name.
+    // Supports parent account username tokens, names, and contact numbers.
     function locateGuardianAuth(inputText) {
+        let cleanedInput = inputText.trim();
+        let scannedUsername = null;
+        if (cleanedInput.toUpperCase().startsWith("BMV3-AUTH-")) {
+            scannedUsername = cleanedInput.substring(10);
+        } else if (cleanedInput.toUpperCase().startsWith("BMV3-")) {
+            scannedUsername = cleanedInput.substring(5);
+        }
+
         for (let st of studentsMaster) {
-            // Check primary parents
-            if(st.mother_phone === inputText || (st.mother_first_name && st.mother_first_name.includes(inputText))) {
+            // Check parent username match from secure PWA token
+            if (scannedUsername && st.parent_usernames && st.parent_usernames.includes(scannedUsername)) {
+                let guardian = 'Parent';
+                if (st.mother_first_name) guardian = `${st.mother_first_name} (Mother)`;
+                else if (st.father_first_name) guardian = `${st.father_first_name} (Father)`;
+                else if (st.other_guardian_first_name) guardian = `${st.other_guardian_first_name} (Guardian)`;
+                return { guardian: guardian, student: st };
+            }
+
+            // Check primary parent contacts or name matches
+            if(st.mother_phone === cleanedInput || (st.mother_first_name && st.mother_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
                 return { guardian: `${st.mother_first_name} (Mother)`, student: st };
             }
-            if(st.father_phone === inputText || (st.father_first_name && st.father_first_name.includes(inputText))) {
+            if(st.father_phone === cleanedInput || (st.father_first_name && st.father_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
                 return { guardian: `${st.father_first_name} (Father)`, student: st };
             }
-            if(st.other_guardian_phone === inputText || (st.other_guardian_first_name && st.other_guardian_first_name.includes(inputText))) {
+            if(st.other_guardian_phone === cleanedInput || (st.other_guardian_first_name && st.other_guardian_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
                 return { guardian: `${st.other_guardian_first_name} (Guardian)`, student: st };
             }
             // Check extra guardians
             if(extraGuardiansDB[st.id]) {
                 for(let eg of extraGuardiansDB[st.id]) {
-                    if (eg.contact === inputText || eg.name.includes(inputText)) {
+                    if (eg.contact === cleanedInput || eg.name.toLowerCase().includes(cleanedInput.toLowerCase())) {
                         return { guardian: `${eg.name} (${eg.rel})`, student: st };
                     }
                 }
@@ -391,29 +428,265 @@
             document.getElementById('qrInput').value = ''; // clear
             
             calculateDash();
+
+            // Display Child Record Modal instantly!
+            openChildRecordModal(match.student, match.guardian, action, timeStr);
         }, 800);
     }
     
-    let html5QrcodeScanner = null;
+    let html5QrCode = null;
     function startRealCamera() {
         openModal('cameraModal');
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-            function onScanSuccess(decodedText) {
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+        }
+        
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config, 
+            (decodedText) => {
                 document.getElementById('qrInput').value = decodedText;
                 stopRealCamera();
                 simulateScan();
+            },
+            (errorMessage) => {
+                // Ignore scanning warnings
             }
-            html5QrcodeScanner.render(onScanSuccess);
-        }
+        ).catch(err => {
+            console.error("Camera start failed: ", err);
+            showToast('Unable to access camera. Please allow permission or enter code manually.', 'error');
+            stopRealCamera();
+        });
     }
+    
     function stopRealCamera() {
         closeModal('cameraModal');
-        if (html5QrcodeScanner) {
-            html5QrcodeScanner.clear().catch(e => console.error(e));
-            html5QrcodeScanner = null;
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                console.log("Camera stopped successfully");
+            }).catch(e => console.error("Error stopping camera: ", e));
         }
     }
+    
+    // Renders the comprehensive "Verified Child Record" Modal
+    function openChildRecordModal(student, guardian, action, timeStr) {
+        const modalBody = document.getElementById('childRecordModalBody');
+        const actionLabel = action === 'dropoff' ? 'Dropped Off' : 'Picked Up';
+        const actionColor = action === 'dropoff' ? '#28a745' : '#f39c12';
+        const actionIcon = action === 'dropoff' ? 'fa-arrow-down-long' : 'fa-arrow-up-long';
+        
+        let avatarHtml = student.img ? 
+            `<img src="${student.img}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">` : 
+            `<div style="width:100px; height:100px; border-radius:50%; background-color:#e0f0ff; color:#043263; display:flex; justify-content:center; align-items:center; font-weight:800; font-size:2.2rem; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.1); font-family:'Montserrat', sans-serif;">${(student.first_name[0] + student.last_name[0]).toUpperCase()}</div>`;
+        
+        // Physical metrics BMI calculation
+        let weight = student.weight ? `${student.weight} kg` : 'N/A';
+        let height = student.height ? `${student.height} cm` : 'N/A';
+        let bmiText = 'N/A';
+        if (student.weight && student.height) {
+            let heightM = student.height / 100;
+            let bmi = (student.weight / (heightM * heightM)).toFixed(1);
+            let cat = 'Normal';
+            if (bmi < 15) cat = 'Severely Underweight';
+            else if (bmi < 18.5) cat = 'Underweight';
+            else if (bmi >= 25) cat = 'Overweight';
+            bmiText = `${bmi} (${cat})`;
+        }
+
+        // Emergency contact info
+        let contactsHtml = '';
+        if (student.mother_first_name) {
+            contactsHtml += `
+            <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="text-align: left;">
+                    <div style="font-weight:700; color:#334155; font-size:0.9rem;">${student.mother_first_name} ${student.mother_last_name || ''}</div>
+                    <div style="font-size:0.75rem; color:#64748b;">Mother &bull; ${student.mother_phone || 'No Phone'}</div>
+                </div>
+                ${student.mother_phone ? `<a href="tel:${student.mother_phone}" style="background:#043263; color:white; width:36px; height:36px; border-radius:50%; display:flex; justify-content:center; align-items:center; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:0.9rem;"></i></a>` : ''}
+            </div>`;
+        }
+        if (student.father_first_name) {
+            contactsHtml += `
+            <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="text-align: left;">
+                    <div style="font-weight:700; color:#334155; font-size:0.9rem;">${student.father_first_name} ${student.father_last_name || ''}</div>
+                    <div style="font-size:0.75rem; color:#64748b;">Father &bull; ${student.father_phone || 'No Phone'}</div>
+                </div>
+                ${student.father_phone ? `<a href="tel:${student.father_phone}" style="background:#043263; color:white; width:36px; height:36px; border-radius:50%; display:flex; justify-content:center; align-items:center; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:0.9rem;"></i></a>` : ''}
+            </div>`;
+        }
+        if (student.other_guardian_first_name) {
+            contactsHtml += `
+            <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="text-align: left;">
+                    <div style="font-weight:700; color:#334155; font-size:0.9rem;">${student.other_guardian_first_name} ${student.other_guardian_last_name || ''}</div>
+                    <div style="font-size:0.75rem; color:#64748b;">Guardian &bull; ${student.other_guardian_phone || 'No Phone'}</div>
+                </div>
+                ${student.other_guardian_phone ? `<a href="tel:${student.other_guardian_phone}" style="background:#043263; color:white; width:36px; height:36px; border-radius:50%; display:flex; justify-content:center; align-items:center; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:0.9rem;"></i></a>` : ''}
+            </div>`;
+        }
+        // Extra guardians
+        if (extraGuardiansDB[student.id]) {
+            extraGuardiansDB[student.id].forEach(eg => {
+                contactsHtml += `
+                <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight:700; color:#334155; font-size:0.9rem;">${eg.name}</div>
+                        <div style="font-size:0.75rem; color:#64748b;">${eg.rel} &bull; ${eg.contact || 'No Phone'}</div>
+                    </div>
+                    ${eg.contact ? `<a href="tel:${eg.contact}" style="background:#043263; color:white; width:36px; height:36px; border-radius:50%; display:flex; justify-content:center; align-items:center; text-decoration:none;"><i class="fa-solid fa-phone" style="font-size:0.9rem;"></i></a>` : ''}
+                </div>`;
+            });
+        }
+
+        // Stats percentages
+        let attPct = student.stats ? student.stats.attendance : 0;
+        let milePct = student.stats ? student.stats.milestones : 0;
+        let nutPct = student.stats ? student.stats.nutrition : 0;
+
+        // Health Conditions and Allergies alerts
+        let allergiesAlert = student.allergies ? 
+            `<div style="background-color:#fff5f5; border-left:4px solid #e53e3e; padding:10px 15px; border-radius:6px; margin-bottom:10px; display:flex; align-items:center; gap:10px; text-align: left;">
+                <span style="font-size:1.2rem; color:#e53e3e;">⚠️</span>
+                <div>
+                    <div style="font-weight:700; color:#c53030; font-size:0.85rem;">ALLERGIES DETECTED</div>
+                    <div style="font-size:0.85rem; color:#9b2c2c;">${student.allergies}</div>
+                </div>
+            </div>` : 
+            `<div style="background-color:#f0fff4; border-left:4px solid #38a169; padding:10px 15px; border-radius:6px; margin-bottom:10px; display:flex; align-items:center; gap:10px; text-align: left;">
+                <span style="font-size:1.2rem; color:#38a169;">✅</span>
+                <div style="font-size:0.85rem; color:#22543d; font-weight:600;">No Known Allergies</div>
+            </div>`;
+            
+        let healthAlert = student.health_conditions ? 
+            `<div style="background-color:#fffaf0; border-left:4px solid #dd6b20; padding:10px 15px; border-radius:6px; display:flex; align-items:center; gap:10px; text-align: left;">
+                <span style="font-size:1.2rem; color:#dd6b20;">ℹ️</span>
+                <div>
+                    <div style="font-weight:700; color:#c05621; font-size:0.85rem;">MEDICAL CONDITION</div>
+                    <div style="font-size:0.85rem; color:#7b341e;">${student.health_conditions}</div>
+                </div>
+            </div>` : 
+            `<div style="background-color:#f0fff4; border-left:4px solid #38a169; padding:10px 15px; border-radius:6px; display:flex; align-items:center; gap:10px; text-align: left;">
+                <span style="font-size:1.2rem; color:#38a169;">✅</span>
+                <div style="font-size:0.85rem; color:#22543d; font-weight:600;">No Medical Conditions</div>
+            </div>`;
+
+        modalBody.innerHTML = `
+        <!-- Top verified card banner -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:${actionColor}20; border:1px solid ${actionColor}40; padding:15px 20px; border-radius:10px; margin-bottom:25px; text-align: left;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="background:${actionColor}; color:white; width:40px; height:40px; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:1.2rem;">
+                    <i class="fa-solid ${actionIcon}"></i>
+                </div>
+                <div>
+                    <div style="font-weight:800; color:#0f172a; font-size:1.05rem;">Child Successfully Verified</div>
+                    <div style="font-size:0.8rem; color:#475569;">Logged by ${guardian} at ${timeStr}</div>
+                </div>
+            </div>
+            <span style="background:${actionColor}; color:white; padding:5px 12px; border-radius:15px; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;">${actionLabel}</span>
+        </div>
+
+        <div class="modal-grid-layout" style="display:grid; grid-template-columns: 1fr 1.8fr; gap:25px;">
+            <!-- Left Profile Section -->
+            <div style="display:flex; flex-direction:column; align-items:center; background:white; padding:20px; border-radius:12px; border:1px solid #e2e8f0; height: fit-content;">
+                ${avatarHtml}
+                <h4 style="margin:15px 0 5px 0; font-size:1.15rem; font-weight:800; color:#1e293b; text-align:center;">${student.first_name} ${student.last_name}</h4>
+                <span style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:10px; font-weight:700; font-size:0.75rem; text-transform:uppercase; margin-bottom: 10px;">Age: ${student.age || '3'} y/o</span>
+                
+                <div style="width:100%; border-top:1px solid #f1f5f9; margin:15px 0 0 0; padding-top:15px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem;">
+                        <span style="color:#64748b;">DOB:</span>
+                        <span style="font-weight:700; color:#334155;">${student.dob || 'N/A'}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.8rem;">
+                        <span style="color:#64748b;">Gender:</span>
+                        <span style="font-weight:700; color:#334155; text-transform:capitalize;">${student.gender || 'N/A'}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                        <span style="color:#64748b;">ECCD Year:</span>
+                        <span style="font-weight:700; color:#334155;">${student.school_year_name || '2025-2026'}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Info Sections -->
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <!-- Health Alerts -->
+                <div style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
+                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;">🚨 MEDICAL & HEALTH PROFILE</h5>
+                    ${allergiesAlert}
+                    ${healthAlert}
+                </div>
+
+                <!-- Physical Metrics -->
+                <div style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
+                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;">📐 PHYSICAL MEASUREMENTS</h5>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; text-align:center;">
+                        <div style="background:#f8fafc; padding:10px; border-radius:8px;">
+                            <div style="font-size:0.75rem; color:#64748b; font-weight:600;">Weight</div>
+                            <div style="font-size:1.1rem; font-weight:800; color:#0f172a; margin-top:4px;">${weight}</div>
+                        </div>
+                        <div style="background:#f8fafc; padding:10px; border-radius:8px;">
+                            <div style="font-size:0.75rem; color:#64748b; font-weight:600;">Height</div>
+                            <div style="font-size:1.1rem; font-weight:800; color:#0f172a; margin-top:4px;">${height}</div>
+                        </div>
+                        <div style="background:#f8fafc; padding:10px; border-radius:8px;">
+                            <div style="font-size:0.75rem; color:#64748b; font-weight:600;">BMI Index</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:#0f172a; margin-top:6px; line-height:1.2;">${bmiText}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance & Milestones Stats -->
+        <div style="margin-top:20px; background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; text-align: left;">
+            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📊 CURRENT PERFORMANCE KPI'S</h5>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; color:#475569; margin-bottom:5px;">
+                        <span>Attendance</span>
+                        <span>${attPct}%</span>
+                    </div>
+                    <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div style="width:${attPct}%; height:100%; background:#28a745; border-radius:4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; color:#475569; margin-bottom:5px;">
+                        <span>Milestones</span>
+                        <span>${milePct}%</span>
+                    </div>
+                    <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div style="width:${milePct}%; height:100%; background:#043263; border-radius:4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; color:#475569; margin-bottom:5px;">
+                        <span>Nutrition Intake</span>
+                        <span>${nutPct}%</span>
+                    </div>
+                    <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div style="width:${nutPct}%; height:100%; background:#e0a800; border-radius:4px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency / Guardian Contacts -->
+        <div style="margin-top:20px; background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; text-align: left;">
+            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📞 AUTHORIZED CONTACTS & EMERGENCY DIRECTORY</h5>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                ${contactsHtml || '<div style="grid-column: span 2; text-align:center; color:#888; font-size:0.85rem; padding:10px;">No registered contact details found.</div>'}
+            </div>
+        </div>
+        `;
+        
+        openModal('childRecordModal');
+    }
+
     document.getElementById('qrInput').addEventListener('keypress', function(e) { if(e.key === 'Enter') simulateScan(); });
 
     // UI Updates

@@ -4,6 +4,16 @@ function ParentDashboard() {
   // Core state
   const [parentName, setParentName] = useState(window.CURRENT_USER_NAME || 'Parent Guardian');
   const [parentUserId, setParentUserId] = useState(window.CURRENT_USER_ID || null);
+
+  // Mobile states
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [mobileTab, setMobileTab] = useState('overview'); // 'overview', 'health-milestones', 'notifications'
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [parentPic, setParentPic] = useState(null);
   const [linkedChildId, setLinkedChildId] = useState(null);
   const [student, setStudent] = useState(null);
@@ -431,7 +441,7 @@ function ParentDashboard() {
             {enrollSuccess && <div style={{ background: '#d4edda', color: '#155724', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>{enrollSuccess}</div>}
 
             <form onSubmit={submitEnrollment}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>First Name *</label>
                         <input required type="text" name="first_name" value={enrollForm.first_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
@@ -444,7 +454,7 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Last Name *</label>
                         <input required type="text" name="last_name" value={enrollForm.last_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
                     </div>
-                    <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+                    <div className="resp-grid-dob" style={{ gridColumn: '1 / -1' }}>
                         <div>
                             <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Date of Birth * (Must be 3-4 yrs old)</label>
                             <input required type="date" min="2020-01-01" name="dob" value={enrollForm.dob} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
@@ -469,7 +479,7 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Address Details</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
                         <input required type="text" name="address_line1" value={enrollForm.address_line1} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
@@ -543,7 +553,7 @@ function ParentDashboard() {
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '40px', marginBottom: '20px' }}>Part 2: Guardian Profile Setup</h4>
                 <p style={{ color: '#666', marginBottom: '20px' }}>Fill out your information to link with this child.</p>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Relationship to Child *</label>
                         <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
@@ -580,7 +590,7 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Guardian Address Details</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
                         <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
@@ -663,7 +673,7 @@ function ParentDashboard() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Relationship to Child *</label>
                         <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
@@ -700,7 +710,7 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Address Details</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+                <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
                         <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
@@ -831,70 +841,85 @@ function ParentDashboard() {
           </div>
       </div>
 
+      {/* Mobile Tab Switcher */}
+      {student.enrollment_status === 'Enrolled' && isMobile && (
+        <div className="resp-mobile-tabs">
+          <button className={`resp-mobile-tab-btn ${mobileTab === 'overview' ? 'active' : ''}`} onClick={() => setMobileTab('overview')}>Overview</button>
+          <button className={`resp-mobile-tab-btn ${mobileTab === 'health-milestones' ? 'active' : ''}`} onClick={() => setMobileTab('health-milestones')}>Health & Milestones</button>
+          <button className={`resp-mobile-tab-btn ${mobileTab === 'notifications' ? 'active' : ''}`} onClick={() => setMobileTab('notifications')}>Notifications</button>
+        </div>
+      )}
+
       {/* Main dashboard content */}
       {student.enrollment_status === 'Enrolled' ? (
       <>
-          <h4 style={{ margin: '20px 0 10px 0', fontSize: '1.1rem' }}>Overview for {isToday ? 'Today' : dateDisplay}</h4>
-          <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
-            <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Drop-off time</div>
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Pick-up Status</div>
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Authorized Guardian</div>
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Session</div>
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
-            </div>
-          </div>
-
-          <div className="resp-grid-2">
-            <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
-              <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Health & Nutrition</h4>
-              <div style={{ marginBottom: '15px' }}>
-                <strong style={{ fontSize: '0.9rem' }}>Snack Status</strong>
-                <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>{nutritionStatus}</div>
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <strong style={{ fontSize: '0.9rem' }}>Health observation</strong>
-                <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.85rem' }}>
-                    <li>Healthy</li>
-                    <li>Active</li>
-                    <li>No fever</li>
-                </ul>
-              </div>
-              <div>
-                <strong style={{ fontSize: '0.9rem' }}>Allergies / Conditions</strong>
-                <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>
-                    {student.allergies || 'None recorded'} 
-                    {student.health_conditions ? ` / ${student.health_conditions}` : ''}
+          {(!isMobile || mobileTab === 'overview') && (
+            <>
+              <h4 style={{ margin: '20px 0 10px 0', fontSize: '1.1rem' }}>Overview for {isToday ? 'Today' : dateDisplay}</h4>
+              <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Drop-off time</div>
+                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Pick-up Status</div>
+                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Authorized Guardian</div>
+                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Session</div>
+                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
                 </div>
               </div>
-            </div>
+            </>
+          )}
 
-            <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', position: 'relative' }}>
-                <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>ECCD Milestone Progress</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    {eccdProgress.length > 0 ? eccdProgress.map((p, i) => (
-                        <div key={i}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.name}</div>
-                            <div style={{ width: '100%', height: '6px', background: '#eee', borderRadius: '3px', marginTop: '5px' }}>
-                                <div style={{ width: `${p.pct}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div>
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '2px' }}>{p.pct}% Achieved</div>
-                        </div>
-                    )) : (
-                        <div style={{ fontSize: '0.8rem', color: '#555', gridColumn: '1/-1' }}>No ECCD assessment records found. Click 'Milestones' in the menu to start your first evaluation!</div>
-                    )}
+          {(!isMobile || mobileTab === 'health-milestones') && (
+            <div className="resp-grid-2">
+              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
+                <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Health & Nutrition</h4>
+                <div style={{ marginBottom: '15px' }}>
+                  <strong style={{ fontSize: '0.9rem' }}>Snack Status</strong>
+                  <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>{nutritionStatus}</div>
                 </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <strong style={{ fontSize: '0.9rem' }}>Health observation</strong>
+                  <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.85rem' }}>
+                      <li>Healthy</li>
+                      <li>Active</li>
+                      <li>No fever</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong style={{ fontSize: '0.9rem' }}>Allergies / Conditions</strong>
+                  <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>
+                      {student.allergies || 'None recorded'} 
+                      {student.health_conditions ? ` / ${student.health_conditions}` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', position: 'relative' }}>
+                  <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>ECCD Milestone Progress</h4>
+                  <div className="resp-grid-2-form">
+                      {eccdProgress.length > 0 ? eccdProgress.map((p, i) => (
+                          <div key={i}>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.name}</div>
+                              <div style={{ width: '100%', height: '6px', background: '#eee', borderRadius: '3px', marginTop: '5px' }}>
+                                  <div style={{ width: `${p.pct}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div>
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '2px' }}>{p.pct}% Achieved</div>
+                          </div>
+                      )) : (
+                          <div style={{ fontSize: '0.8rem', color: '#555', gridColumn: '1/-1' }}>No ECCD assessment records found. Click 'Milestones' in the menu to start your first evaluation!</div>
+                      )}
+                  </div>
+              </div>
             </div>
-          </div>
+          )}
       </>
       ) : (
           <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '15px', border: '1px solid #ccc' }}>
@@ -917,16 +942,18 @@ function ParentDashboard() {
           </div>
       )}
 
-      <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
-        <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent Notifications</h4>
-        {notifications.map((notif, i) => (
-          <div key={i} style={{ fontSize: '0.8rem', borderLeft: '2px solid #333', paddingLeft: '10px', marginBottom: '15px' }}>
-            <strong>{notif.title}</strong><br />
-            <span style={{ opacity: 0.8 }}>{notif.desc} - {notif.date}</span>
-          </div>
-        ))}
+      {(!isMobile || mobileTab === 'notifications') && (
+        <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent Notifications</h4>
+          {notifications.map((notif, i) => (
+            <div key={i} style={{ fontSize: '0.8rem', borderLeft: '2px solid #333', paddingLeft: '10px', marginBottom: '15px' }}>
+              <strong>{notif.title}</strong><br />
+              <span style={{ opacity: 0.8 }}>{notif.desc} - {notif.date}</span>
+            </div>
+          ))}
+        </div>
+      )}
       </div>
-    </div>
   );
 }
 

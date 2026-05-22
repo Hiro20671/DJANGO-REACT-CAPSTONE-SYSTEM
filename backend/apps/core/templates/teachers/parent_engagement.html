@@ -111,6 +111,59 @@
     padding: 2px 6px;
     margin-left: auto;
 }
+
+/* Responsive Dual Pane Chat overrides */
+.dual-pane-chat {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    height: 600px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+.chat-sidebar-left {
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.btn-chat-back {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .dual-pane-chat {
+        grid-template-columns: 1fr;
+    }
+    .chat-sidebar-left {
+        display: flex !important;
+        border-right: none;
+    }
+    #teacher-chat-workspace {
+        display: none !important;
+    }
+    .dual-pane-chat.chat-active .chat-sidebar-left {
+        display: none !important;
+    }
+    .dual-pane-chat.chat-active #teacher-chat-workspace {
+        display: flex !important;
+    }
+    .btn-chat-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #333;
+        cursor: pointer;
+        padding: 5px;
+        margin-right: 5px;
+    }
+}
 </style>
 
 <div class="page-header">
@@ -162,9 +215,9 @@
 
 <!-- NEW SECTION: Parent Chat Inbox Page -->
 <div id="content-chat" class="e-content" style="display: none;">
-    <div class="dual-pane-chat" style="display: grid; grid-template-columns: 300px 1fr; gap: 0; background: #fff; border: 1px solid #ddd; border-radius: 12px; height: 600px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+    <div class="dual-pane-chat">
         <!-- LEFT: Parent / Child list -->
-        <div style="border-right: 1px solid #eee; display: flex; flex-direction: column; height: 100%;">
+        <div class="chat-sidebar-left">
             <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: 700; color: #333; background: #fafafa;">
                 <i class="fa-solid fa-users"></i> Parents Thread List
             </div>
@@ -293,14 +346,9 @@ function compileData(attendance, milestones, engagement, nutrition) {
         let totalTrackedDays = stAtt.length;
 
         // Milestones Logic
-        let stMile = milestones.find(m => m.child === student.id);
-        let tasks = stMile && stMile.tasks ? stMile.tasks : {};
-        let skillsAchieved = 0;
-        Object.values(tasks).forEach(status => {
-            if(status === 'achieved') skillsAchieved++;
-        });
-        let totalSkills = 16;
-        let milePct = Math.round((skillsAchieved / totalSkills) * 100);
+        let milePct = (student.stats && typeof student.stats.milestones !== 'undefined') ? student.stats.milestones : 0;
+        let skillsAchieved = (student.stats && typeof student.stats.milestones_achieved !== 'undefined') ? student.stats.milestones_achieved : 0;
+        let totalSkills = (student.stats && typeof student.stats.milestones_total !== 'undefined') ? student.stats.milestones_total : 109;
 
         // Nutrition Logic
         let stNut = nutrition.filter(n => n.child === student.id);
@@ -737,6 +785,9 @@ function selectBroadcastThread() {
     let item = document.getElementById('chat-item-broadcast');
     if(item) item.classList.add('active-thread');
     
+    let chatContainerElement = document.querySelector('.dual-pane-chat');
+    if (chatContainerElement) chatContainerElement.classList.add('chat-active');
+    
     let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
     let myChat = chatDB['broadcast'] || [];
     
@@ -765,6 +816,7 @@ function selectBroadcastThread() {
     workspace.innerHTML = `
     <!-- Header -->
     <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; background: #fff8f0;">
+        <button class="btn-chat-back" onclick="closeChatThread()"><i class="fa-solid fa-arrow-left"></i></button>
         <div class="avatar" style="width: 35px; height: 35px; border-radius: 50%; font-size: 0.9rem; background: #fff2e6; color: #fd7e14; font-weight: bold; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;">
             📢
         </div>
@@ -799,6 +851,9 @@ function selectParentThread(groupKey) {
     });
     let item = document.getElementById('chat-item-' + groupKey);
     if(item) item.classList.add('active-thread');
+    
+    let chatContainerElement = document.querySelector('.dual-pane-chat');
+    if (chatContainerElement) chatContainerElement.classList.add('chat-active');
     
     let studentGroups = groupStudentsByParent(studentsMaster);
     let group = studentGroups[groupKey];
@@ -854,6 +909,7 @@ function selectParentThread(groupKey) {
     workspace.innerHTML = `
     <!-- Header -->
     <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; background: #fafafa;">
+        <button class="btn-chat-back" onclick="closeChatThread()"><i class="fa-solid fa-arrow-left"></i></button>
         <div class="avatar" style="width: 35px; height: 35px; border-radius: 50%; font-size: 0.9rem; background: #e0f0ff; color: #4a90e2; font-weight: bold; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;">
             ${group.avatarHtml}
         </div>
@@ -878,6 +934,28 @@ function selectParentThread(groupKey) {
     
     let chatContainer = document.getElementById('teacher-chat-messages');
     chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function closeChatThread() {
+    let chatContainerElement = document.querySelector('.dual-pane-chat');
+    if (chatContainerElement) chatContainerElement.classList.remove('chat-active');
+    
+    document.querySelectorAll('.chat-student-item').forEach(item => {
+        item.classList.remove('active-thread');
+    });
+    currentChatGroupKey = null;
+    
+    let workspace = document.getElementById('teacher-chat-workspace');
+    if (workspace) {
+        workspace.innerHTML = `
+            <!-- Initial Empty State -->
+            <div style="text-align: center; color: #999; padding: 40px; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <i class="fa-regular fa-comment-dots" style="font-size: 3rem; color: #ccc;"></i>
+                <h4>No parent thread selected</h4>
+                <p style="font-size: 0.85rem;">Select a parent from the left side panel to view messages and respond.</p>
+            </div>
+        `;
+    }
 }
 
 function sendBroadcastAnnouncement() {

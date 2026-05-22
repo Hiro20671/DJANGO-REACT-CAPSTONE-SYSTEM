@@ -58,6 +58,65 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     border-color: #043263 !important;
 }
+
+/* Mobile Responsive Optimizations */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+    .page-header div {
+        width: 100% !important;
+    }
+    .page-header button {
+        width: 100% !important;
+    }
+    .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tab {
+        flex-shrink: 0;
+    }
+    .assess-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+    .assess-header div {
+        width: 100% !important;
+    }
+    .assess-header button {
+        width: 100% !important;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    .assess-table {
+        min-width: 750px; /* Prevent column squeezing on mobile */
+    }
+    .explanation-card {
+        padding: 15px !important;
+    }
+    .explanation-card div[style*="display:grid"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+    #scoringSummaryContent {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+}
 </style>
 
 <div class="page-header">
@@ -164,25 +223,27 @@
         </div>
     </div>
 
-    <table class="assess-table">
-        <thead>
-            <tr>
-                <th rowspan="2" style="width: 50px; text-align:center;">No.</th>
-                <th rowspan="2">Gross Motor</th>
-                <th rowspan="2">Material/Procedure</th>
-                <th colspan="3" style="text-align:center;">Present</th>
-                <th rowspan="2" style="width: 250px;">Comments</th>
-            </tr>
-            <tr>
-                <th style="text-align:center; font-size:0.8rem;">1st Eval</th>
-                <th style="text-align:center; font-size:0.8rem;">2nd Eval</th>
-                <th style="text-align:center; font-size:0.8rem;">3rd Eval</th>
-            </tr>
-        </thead>
-        <tbody id="assessmentTbody">
-            <!-- Rendered by JS -->
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="assess-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 50px; text-align:center;">No.</th>
+                    <th rowspan="2">Gross Motor</th>
+                    <th rowspan="2">Material/Procedure</th>
+                    <th colspan="3" style="text-align:center;">Present</th>
+                    <th rowspan="2" style="width: 250px;">Comments</th>
+                </tr>
+                <tr>
+                    <th style="text-align:center; font-size:0.8rem;">1st Eval</th>
+                    <th style="text-align:center; font-size:0.8rem;">2nd Eval</th>
+                    <th style="text-align:center; font-size:0.8rem;">3rd Eval</th>
+                </tr>
+            </thead>
+            <tbody id="assessmentTbody">
+                <!-- Rendered by JS -->
+            </tbody>
+        </table>
+    </div>
     
     <div style="display:flex; justify-content:flex-end; margin-top: 20px;">
         <button class="btn btn-primary" onclick="saveAllScores(event)">Save Assessments</button>
@@ -206,20 +267,22 @@
         <h4 style="margin: 0 0 15px 0; color: #043263; display: flex; align-items: center; gap: 8px; font-weight:bold;">
             <i class="fa-solid fa-calendar-days"></i> Computation of the Child's Chronological Age
         </h4>
-        <table class="assess-table" style="margin: 0; width:100%;">
-            <thead>
-                <tr>
-                    <th style="background:#f8f9fa; font-weight:700;">Assessment</th>
-                    <th style="background:#f8f9fa; font-weight:700; text-align:center;">Date Tested</th>
-                    <th style="background:#f8f9fa; font-weight:700; text-align:center;">Date of Birth</th>
-                    <th style="background:#f8f9fa; font-weight:700; text-align:center;">Computed Chronological Age</th>
-                    <th style="background:#f8f9fa; font-weight:700; text-align:center;">Examiner / Teacher</th>
-                </tr>
-            </thead>
-            <tbody id="ageCalculationTbody">
-                <!-- Rendered by JS -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="assess-table" style="margin: 0; width:100%;">
+                <thead>
+                    <tr>
+                        <th style="background:#f8f9fa; font-weight:700;">Assessment</th>
+                        <th style="background:#f8f9fa; font-weight:700; text-align:center;">Date Tested</th>
+                        <th style="background:#f8f9fa; font-weight:700; text-align:center;">Date of Birth</th>
+                        <th style="background:#f8f9fa; font-weight:700; text-align:center;">Computed Chronological Age</th>
+                        <th style="background:#f8f9fa; font-weight:700; text-align:center;">Examiner / Teacher</th>
+                    </tr>
+                </thead>
+                <tbody id="ageCalculationTbody">
+                    <!-- Rendered by JS -->
+                </tbody>
+            </table>
+        </div>
         <p style="margin: 12px 0 0 0; font-size: 0.8rem; color: #777; font-style: italic;">
             *Note: Chronological age is calculated by subtracting the child's date of birth from the assessment date. Each month is composed of 30 days. No rounding off of months or years.
         </p>
@@ -759,7 +822,8 @@ async function saveAllScores(event) {
             await saveScoreData(ast3, m.id, c3, obs);
         }
         alert("Assessments saved successfully!");
-        loadChildAssessment(); // refresh summary
+        await loadChildAssessment();
+        switchTab('dashboard');
     } catch (e) {
         alert("An error occurred while saving.");
         console.error(e);
@@ -994,18 +1058,19 @@ function getStandardScoreClassification(score) {
 
 function generateStandardScoreTable(childSum) {
     let html = `
-    <table class="assess-table" style="font-size:0.85rem; margin:0; width:100%; border: 1px solid #ddd;">
-        <thead>
-            <tr>
-                <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
-                <th style="text-align:center; background:#f1f5f9; font-weight:700; border-right: 2px solid #cbd5e1; width:23%;">Standard Score</th>
-                <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
-                <th style="text-align:center; background:#f1f5f9; font-weight:700; border-right: 2px solid #cbd5e1; width:23%;">Standard Score</th>
-                <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
-                <th style="text-align:center; background:#f1f5f9; font-weight:700; width:24%;">Standard Score</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="table-responsive">
+        <table class="assess-table" style="font-size:0.85rem; margin:0; width:100%; border: 1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
+                    <th style="text-align:center; background:#f1f5f9; font-weight:700; border-right: 2px solid #cbd5e1; width:23%;">Standard Score</th>
+                    <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
+                    <th style="text-align:center; background:#f1f5f9; font-weight:700; border-right: 2px solid #cbd5e1; width:23%;">Standard Score</th>
+                    <th style="text-align:center; background:#f8f9fa; font-weight:700; width:10%;">Sum</th>
+                    <th style="text-align:center; background:#f1f5f9; font-weight:700; width:24%;">Standard Score</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
 
     for (let i = 0; i < 31; i++) {
@@ -1052,8 +1117,9 @@ function generateStandardScoreTable(childSum) {
     }
 
     html += `
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
     `;
     return html;
 }
@@ -1066,14 +1132,15 @@ function generateScaledScoreTable(ageGroup, childScores) {
     let domains = ['Gross Motor', 'Fine Motor', 'Self-Help', 'Receptive Language', 'Expressive Language', 'Cognitive', 'Social-Emotional'];
     
     let html = `
-    <table class="assess-table" style="font-size:0.85rem; margin:0; width:100%; border:1px solid #ddd;">
-        <thead>
-            <tr>
-                <th style="text-align:center; background:#f8f9fa; font-weight:700;">Scaled Score</th>
-                ${domains.map(d => `<th style="text-align:center; background:#f8f9fa; font-weight:700;">${d}</th>`).join('')}
-            </tr>
-        </thead>
-        <tbody>
+    <div class="table-responsive">
+        <table class="assess-table" style="font-size:0.85rem; margin:0; width:100%; border:1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th style="text-align:center; background:#f8f9fa; font-weight:700;">Scaled Score</th>
+                    ${domains.map(d => `<th style="text-align:center; background:#f8f9fa; font-weight:700;">${d}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
     `;
 
     for (let ss = 1; ss <= 19; ss++) {
@@ -1107,8 +1174,9 @@ function generateScaledScoreTable(ageGroup, childScores) {
     }
 
     html += `
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
     `;
     return html;
 }

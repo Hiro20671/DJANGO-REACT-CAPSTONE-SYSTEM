@@ -8,6 +8,17 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Load environment variables from .env file if it exists
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ[key.strip()] = val.strip().strip('"').strip("'")
+
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -120,10 +131,14 @@ if BREVO_API_KEY:
         'SENDINBLUE_API_KEY': BREVO_API_KEY,
     }
 else:
-    # Fallback to standard Brevo SMTP (works on local machine and paid PythonAnywhere tiers)
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp-relay.brevo.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '') 
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+        # Fallback to console backend for local development if credentials aren't set
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    else:
+        # Fallback to standard Brevo SMTP (works on local machine and paid PythonAnywhere tiers)
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        EMAIL_HOST = 'smtp-relay.brevo.com'
+        EMAIL_PORT = 587
+        EMAIL_USE_TLS = True

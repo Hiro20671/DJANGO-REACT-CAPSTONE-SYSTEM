@@ -138,12 +138,20 @@ class ChildViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year=active_year)
             
         return qs
 
 class AttendanceRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AttendanceRecordSerializer
+
+    def perform_create(self, serializer):
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        serializer.save(school_year=active_year)
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
@@ -155,6 +163,10 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year=active_year)
             
         return qs
 
@@ -171,13 +183,21 @@ class MilestoneRecordViewSet(viewsets.ModelViewSet):
         
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
-            qs = qs.filter(school_year_id=school_year_id)
+            qs = qs.filter(child__school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(child__school_year_id=active_year.id)
             
         return qs
 
 class NutritionRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = NutritionRecordSerializer
+
+    def perform_create(self, serializer):
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        serializer.save(school_year=active_year)
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
@@ -189,12 +209,20 @@ class NutritionRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year=active_year)
             
         return qs
 
 class EngagementRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = EngagementRecordSerializer
+
+    def perform_create(self, serializer):
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        serializer.save(school_year=active_year)
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
@@ -206,6 +234,10 @@ class EngagementRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year=active_year)
             
         return qs
 
@@ -233,6 +265,11 @@ class ECCDAssessmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ECCDAssessmentSerializer
 
+    def perform_create(self, serializer):
+        profile = getattr(self.request.user, 'userprofile', None)
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        serializer.save(school_year=active_year, teacher=profile)
+
     def get_queryset(self):
         user = self.request.user
         if not hasattr(user, 'userprofile'):
@@ -248,6 +285,10 @@ class ECCDAssessmentViewSet(viewsets.ModelViewSet):
         sy_id = self.request.query_params.get('school_year')
         if sy_id:
             qs = qs.filter(school_year_id=sy_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year_id=active_year.id)
             
         return qs
 
@@ -263,6 +304,13 @@ class ECCDMilestoneScoreViewSet(viewsets.ModelViewSet):
         milestone = self.request.query_params.get('milestone')
         if milestone:
             qs = qs.filter(milestone=milestone)
+        school_year_id = self.request.query_params.get('school_year')
+        if school_year_id:
+            qs = qs.filter(assessment__school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(assessment__school_year_id=active_year.id)
         return qs
 
 from .eccd_scoring import compute_age, get_age_group, get_scaled_score, get_standard_score
@@ -417,6 +465,14 @@ class NutritionAnalyticsAPIView(APIView):
         if child_id:
             qs = qs.filter(child_id=child_id)
             
+        school_year_id = request.query_params.get('school_year')
+        if school_year_id:
+            qs = qs.filter(school_year_id=school_year_id)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year_id=active_year.id)
+            
         weekly_qs = qs.filter(date__gte=week_ago)
         monthly_qs = qs.filter(date__gte=month_ago)
         
@@ -444,8 +500,17 @@ class ParentHistoryAPIView(APIView):
         try:
             profile = request.user.userprofile
             children = Child.objects.filter(parents=profile)
+            
+            school_year_id = request.query_params.get('school_year')
+            if school_year_id:
+                children = children.filter(school_year_id=school_year_id)
+            else:
+                active_year = SchoolYear.objects.filter(is_active=True).first()
+                if active_year:
+                    children = children.filter(school_year=active_year)
+                    
             if not children.exists():
-                return Response({'detail': 'No child linked.'}, status=404)
+                return Response({'detail': 'No child linked for this academic year.'}, status=404)
         except UserProfile.DoesNotExist:
             return Response({'detail': 'User profile missing.'}, status=400)
 
@@ -563,7 +628,8 @@ class NoClassDayViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save()
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        serializer.save(school_year=active_year)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -700,19 +766,28 @@ class RequestPasswordChangeAPIView(APIView):
         PasswordResetOTP.objects.create(user=user, otp_code=otp_code)
         
         # Send Email
+        email_sent = False
         try:
             send_mail(
                 'Password Verification Code - BMV3 Child Care',
-                f'Your password verification code is: {otp_code}\n\nThis code will expire in 10 minutes.',
+                f'Your password verification code is: {otp_code}\n\nThis code will expire in 5 minutes.',
                 'jeremybryanvillanueva@gmail.com',
                 [user.email],
                 fail_silently=False,
             )
-            return Response({'success': True, 'message': 'Verification code sent to your email.'})
+            email_sent = True
         except Exception as e:
-            # Fallback if email is not configured (for development/testing)
             print(f"FAILED TO SEND EMAIL. OTP IS: {otp_code}. Error: {e}")
-            return Response({'success': True, 'dev_otp': otp_code, 'message': 'Verification code generated locally.'})
+            
+        from django.conf import settings
+        if settings.DEBUG or not email_sent:
+            return Response({
+                'success': True, 
+                'dev_otp': otp_code, 
+                'message': 'Verification code generated locally (DEBUG mode/SMTP fallback).'
+            })
+            
+        return Response({'success': True, 'message': 'Verification code sent to your email.'})
 
 class VerifyPasswordChangeAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1020,20 +1095,31 @@ class GenerateParentAccountAPIView(APIView):
             text_content = strip_tags(html_content)
             
             from django.conf import settings
+            email_sent = False
+            is_console_backend = (getattr(settings, 'EMAIL_BACKEND', '') == 'django.core.mail.backends.console.EmailBackend')
+            
             try:
                 msg = EmailMultiAlternatives(subject, text_content, "jeremybryanvillanueva@gmail.com", [email])
                 msg.attach_alternative(html_content, "text/html")
                 msg.send(fail_silently=False)
+                # If we are using the console backend, no real email is sent to the parent,
+                # so we treat email_sent as False so that credentials show on-screen.
+                if not is_console_backend:
+                    email_sent = True
             except Exception as e:
-                # If email fails, rollback the account creation so we don't have orphan accounts
-                user.delete()
                 print(f"Failed to send email to {email}: {e}")
-                return Response({'error': f'Failed to send email. Please check your SMTP configuration.'}, status=500)
+                email_sent = False
                 
-            return Response({
+            res_data = {
                 'success': True,
                 'message': 'Account generated successfully.'
-            })
+            }
+            if settings.DEBUG or not email_sent or is_console_backend:
+                res_data['dev_credentials'] = {
+                    'username': username,
+                    'password': password
+                }
+            return Response(res_data)
             
         except Exception as e:
             return Response({'error': str(e)}, status=500)

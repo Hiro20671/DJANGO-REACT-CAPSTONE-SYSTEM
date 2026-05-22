@@ -8,7 +8,7 @@
 .page-header p { font-size: 0.95rem; color: #777; margin: 5px 0 0 0; }
 
 /* KPIs */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
 .kpi-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
 .kpi-title { font-size: 0.9rem; font-weight: 600; color: #555; }
 .kpi-value { font-size: 1.8rem; font-weight: 700; color: #333; margin-top: 15px; }
@@ -56,11 +56,11 @@
 .empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
 
-@media (max-width: 900px) {
-    .kpi-row { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 500px) {
+@media (max-width: 768px) {
     .kpi-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .student-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .overall-avg { text-align: left; }
 }
 </style>
 
