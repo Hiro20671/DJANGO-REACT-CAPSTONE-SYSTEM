@@ -49,6 +49,9 @@
 .pill-green { background: #1cc88a; color: white; }
 .pill-yellow { background: #f6c23e; color: white; }
 .pill-red { background: #e74a3b; color: white; }
+.pill-blue { background: #4a90e2; color: white; }
+.pill-purple { background: #9b59b6; color: white; }
+
 
 .assessment-button-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -200,10 +203,11 @@
                     <strong style="color: #0f172a; display: block; margin-bottom: 6px; font-size: 0.95rem;">🎯 Standard Score</strong>
                     The normalized overall development index scaled based on national childhood development norms.
                     <ul style="margin: 6px 0 0 20px; padding: 0; font-size: 0.85rem;">
-                        <li style="margin-bottom: 3px;"><strong>80 - 119:</strong> Average/Normal Development</li>
-                        <li style="margin-bottom: 3px;"><strong>70 - 79:</strong> Mild Developmental Delay</li>
-                        <li style="margin-bottom: 3px;"><strong>Below 70:</strong> Significant Developmental Delay (Needs Intervention)</li>
-                        <li style="margin-bottom: 3px;"><strong>120 & above:</strong> Highly Advanced Development</li>
+                        <li style="margin-bottom: 3px;"><strong>80 - 119:</strong> Average Development</li>
+                        <li style="margin-bottom: 3px;"><strong>70 - 79:</strong> Suggests Slight Delay</li>
+                        <li style="margin-bottom: 3px;"><strong>Below 70:</strong> Suggests Significant Delay</li>
+                        <li style="margin-bottom: 3px;"><strong>120 - 129:</strong> Slightly Advanced</li>
+                        <li style="margin-bottom: 3px;"><strong>130 & above:</strong> Highly Advanced</li>
                     </ul>
                 </div>
             </div>
@@ -1019,39 +1023,45 @@ const STANDARD_SCORE_TABLE = {
     31: 51, 32: 53, 33: 54, 34: 55, 35: 56, 36: 57, 37: 59, 38: 60, 39: 61, 40: 62,
     41: 64, 42: 65, 43: 66, 44: 67, 45: 68, 46: 70, 47: 71, 48: 72, 49: 73, 50: 75,
     51: 76, 52: 77, 53: 78, 54: 79, 55: 81, 56: 82, 57: 83, 58: 84, 59: 86, 60: 87,
-    61: 88, 62: 89, 63: 90, 64: 92, 65: 93, 66: 94, 67: 95, 68: 96, 69: 98, 70: 99,
-    71: 100, 72: 101, 73: 103, 74: 104, 75: 105, 76: 106, 77: 107, 78: 109, 79: 110, 80: 111,
-    81: 112, 82: 114, 83: 115, 84: 116, 85: 117, 86: 118, 87: 120, 88: 121, 89: 122, 90: 123,
-    91: 125, 92: 126, 93: 127, 94: 128, 95: 129, 96: 131, 97: 132, 98: 133, 99: 134, 100: 135,
-    101: 137, 102: 138, 103: 139, 104: 140, 105: 142, 106: 143, 107: 144, 108: 145, 109: 146, 110: 148,
-    111: 149, 112: 150
+    61: 88, 62: 89, 63: 90, 64: 92, 65: 93, 66: 94, 67: 95, 68: 96, 69: 98, 70: 100,
+    71: 101, 72: 103, 73: 104, 74: 105, 75: 106, 76: 107, 77: 109, 78: 110, 79: 111, 80: 112,
+    81: 114, 82: 115, 83: 116, 84: 117, 85: 118, 86: 120, 87: 121, 88: 122, 89: 123, 90: 125,
+    91: 126, 92: 127, 93: 128, 94: 129, 95: 131, 96: 132, 97: 133, 98: 134, 99: 135, 100: 137,
+    101: 138, 102: 139, 103: 140, 104: 142, 105: 143, 106: 144, 107: 145, 108: 146, 109: 148, 110: 149,
+    111: 150, 112: 151
 };
 
 function getStandardScoreClassification(score) {
     if (score === null || score === undefined) return { label: 'N/A', badge: 'pill-red', desc: 'No score calculated.' };
-    if (score >= 120) {
+    if (score >= 130) {
         return {
-            label: 'Highly Advanced Development',
-            badge: 'pill-green',
-            desc: 'The child demonstrates developmental milestones significantly ahead of their age group.'
+            label: 'Highly Advanced',
+            badge: 'pill-purple',
+            desc: 'Highly Advanced (Clinical Meaning: Exceptionally advanced milestones).'
+        };
+    } else if (score >= 120) {
+        return {
+            label: 'Slightly Advanced',
+            badge: 'pill-blue',
+            desc: 'Slightly Advanced (Clinical Meaning: Advanced milestones).'
         };
     } else if (score >= 80) {
         return {
-            label: 'Average / Normal Development',
+            label: 'Average Development',
             badge: 'pill-green',
-            desc: 'The child is developing normally and meets all typical age-appropriate developmental milestones.'
+            desc: 'Average Development (Clinical Meaning: Age-appropriate milestones).'
         };
     } else if (score >= 70) {
         return {
-            label: 'Mild Developmental Delay',
+            label: 'Suggests Slight Delay',
             badge: 'pill-yellow',
-            desc: 'The child shows signs of mild delay in certain milestones. Monitored enrichment activities are recommended.'
+            desc: 'Suggests Slight Delay (Clinical Meaning: Monitor after 3 months).'
         };
     } else {
         return {
-            label: 'Significant Developmental Delay',
+            label: 'Suggests Significant Delay',
             badge: 'pill-red',
-            desc: 'The child exhibits significant developmental delays. Specialized early intervention is highly recommended.'
+            desc: 'Suggests Significant Delay (Clinical Meaning: Monitor after 3 months / Refer).'
         };
     }
 }

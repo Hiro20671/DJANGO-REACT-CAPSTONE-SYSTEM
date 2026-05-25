@@ -313,7 +313,7 @@ class ECCDMilestoneScoreViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(assessment__school_year_id=active_year.id)
         return qs
 
-from .eccd_scoring import compute_age, get_age_group, get_scaled_score, get_standard_score
+from .eccd_scoring import compute_age, get_age_group, get_scaled_score, get_standard_score, get_standard_score_interpretation
 from django.shortcuts import get_object_or_404
 from datetime import date
 
@@ -369,6 +369,7 @@ class ECCDReportAPIView(APIView):
             })
             
         standard_score = get_standard_score(sum_scaled)
+        interpretation = get_standard_score_interpretation(standard_score)
         
         return Response({
             'child_name': f"{assessment.child.first_name} {assessment.child.last_name}",
@@ -380,7 +381,8 @@ class ECCDReportAPIView(APIView):
             'age_group': age_group,
             'domains': domain_results,
             'sum_scaled_scores': sum_scaled,
-            'standard_score': standard_score
+            'standard_score': standard_score,
+            'interpretation': interpretation
         })
 
 class ECCDOverallReportAPIView(APIView):
@@ -431,6 +433,7 @@ class ECCDOverallReportAPIView(APIView):
             })
             
         standard_score = get_standard_score(sum_scaled)
+        interpretation = get_standard_score_interpretation(standard_score)
         
         return Response({
             'child_name': f"{child.first_name} {child.last_name}",
@@ -442,7 +445,8 @@ class ECCDOverallReportAPIView(APIView):
             'age_group': age_group,
             'domains': domain_results,
             'sum_scaled_scores': sum_scaled,
-            'standard_score': standard_score
+            'standard_score': standard_score,
+            'interpretation': interpretation
         })
 
 class NutritionAnalyticsAPIView(APIView):
