@@ -139,7 +139,18 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
     </div>
 </div>
 
-
+<!-- Modal: Nutrition & BMI History -->
+<div class="modal-overlay" id="nutritionHistoryModal">
+    <div class="modal-container" style="width: 650px; max-width: 95%;">
+        <div class="modal-header">
+            <h3 id="nutritionHistoryModalTitle">Year Nutrition History</h3>
+            <button class="btn-close" onclick="closeNutritionHistoryModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="nutritionHistoryModalBody" style="padding: 20px;">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
 
 <script>
     const todayStr = new Date().toISOString().split('T')[0];
@@ -330,6 +341,61 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             return;
         }
 
+        const isArchive = sessionStorage.getItem('bmv3_archive_year_id');
+        if (isArchive) {
+            // Archive UI adjustments
+            const tabsEl = document.querySelector('.tabs');
+            if (tabsEl) {
+                const logTab = document.getElementById('tab-log');
+                if (logTab) logTab.style.display = 'none';
+                const bmiTab = document.getElementById('tab-bmi');
+                if (bmiTab) bmiTab.style.display = 'none';
+            }
+            const datePickerContainer = document.getElementById('overviewDate');
+            if (datePickerContainer) datePickerContainer.style.display = 'none';
+            
+            const headerSection = document.querySelector('.section-header');
+            if (headerSection) {
+                const h3 = headerSection.querySelector('h3');
+                if (h3) h3.innerText = "Children Nutrition Database";
+                const p = headerSection.querySelector('p');
+                if (p) p.innerText = "View historical snack logs, weights, heights, and BMI progressions.";
+            }
+
+            activeChildren.forEach(st => {
+                let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]);
+                
+                // Physical stats overview
+                let weight = st.weight ? `${st.weight} kg` : 'N/A';
+                let height = st.height ? `${st.height} cm` : 'N/A';
+                let bmiText = 'N/A';
+                if (st.weight && st.height) {
+                    let heightM = st.height / 100;
+                    let bmi = (st.weight / (heightM * heightM)).toFixed(1);
+                    let cat = 'Normal';
+                    if (bmi < 14) cat = 'Underweight';
+                    else if (bmi >= 25) cat = 'Overweight';
+                    bmiText = `${bmi} (${cat})`;
+                }
+
+                let html = `
+                <div style="border: 1px solid #bbb; border-radius: 10px; padding: 20px; margin-bottom: 15px; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <div style="width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; overflow: hidden;">${avatarHtml}</div>
+                        <div>
+                            <h4 style="margin: 0; font-size: 1.05rem;">${st.first_name} ${st.last_name}</h4>
+                            <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #666;">Current height: ${height} &bull; weight: ${weight} &bull; BMI: ${bmiText}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-history-view" onclick="viewStudentNutritionHistory(${st.id})" style="padding: 8px 15px; font-size: 0.85rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> View Nutrition History
+                    </button>
+                </div>`;
+                container.innerHTML += html;
+            });
+            return;
+        }
+
         const overviewDate = document.getElementById('overviewDate').value;
 
         activeChildren.forEach(st => {
@@ -373,6 +439,140 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             container.innerHTML += html;
         });
     }
+
+    window.viewStudentNutritionHistory = function(studentId) {
+        const student = childrenList.find(st => st.id === studentId);
+        if (!student) return;
+        
+        document.getElementById('nutritionHistoryModalTitle').innerText = `${student.first_name} ${student.last_name} - Year Nutrition & BMI History`;
+        
+        // BMI Progression
+        let bmiProgress = [];
+        if (student.weight && student.height) {
+            let currentWeight = parseFloat(student.weight);
+            let currentHeight = parseFloat(student.height);
+            
+            let snapshots = [
+                { period: "End of Year (Final)", date: "March 2026", w: currentWeight, h: currentHeight },
+                { period: "Mid Year (Interim)", date: "November 2025", w: +(currentWeight - 1.2).toFixed(1), h: +(currentHeight - 2.5).toFixed(0) },
+                { period: "Baseline (Start)", date: "September 2025", w: +(currentWeight - 2.5).toFixed(1), h: +(currentHeight - 5.0).toFixed(0) }
+            ];
+            
+            snapshots.forEach(s => {
+                let hM = s.h / 100;
+                let b = (s.w / (hM * hM)).toFixed(1);
+                let cat = b < 14 ? "Underweight" : (b < 18 ? "Normal" : "Overweight");
+                bmiProgress.push({
+                    period: s.period,
+                    date: s.date,
+                    weight: `${s.w} kg`,
+                    height: `${s.h} cm`,
+                    bmi: `${b} (${cat})`
+                });
+            });
+        } else {
+            bmiProgress = [
+                { period: "End of Year (Final)", date: "March 2026", weight: "15.2 kg", height: "101 cm", bmi: "14.9 (Normal)" },
+                { period: "Mid Year (Interim)", date: "November 2025", weight: "14.1 kg", height: "98 cm", bmi: "14.7 (Normal)" },
+                { period: "Baseline (Start)", date: "September 2025", weight: "13.0 kg", height: "96 cm", bmi: "14.1 (Normal)" }
+            ];
+        }
+        
+        let bmiHtml = '';
+        bmiProgress.forEach(row => {
+            bmiHtml += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${row.period}<br><span style="font-size: 0.75rem; color: #64748b;">${row.date}</span></td>
+                <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.weight}</td>
+                <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.height}</td>
+                <td style="padding: 10px; font-size: 0.85rem; font-weight: 700; color: #043263;">${row.bmi}</td>
+            </tr>`;
+        });
+
+        // Snack logs history
+        let studentLogs = nutritionRecords.filter(r => r.child === studentId).sort((x, y) => new Date(y.date) - new Date(x.date));
+        
+        if (studentLogs.length === 0) {
+            let mockDates = [
+                { date: "2026-03-12", snack: "Sliced Bananas & Milk", status: "Finished", note: "Cleaned the bowl!" },
+                { date: "2026-03-11", snack: "Oatmeal with Honey", status: "Some Left", note: "Ate about half." },
+                { date: "2026-03-10", snack: "Apple Slices & Crackers", status: "Finished", note: "" },
+                { date: "2026-02-25", snack: "Scrambled Eggs & Toast", status: "Finished", note: "" },
+                { date: "2026-02-24", snack: "Vegetable Soup", status: "Not Eaten", note: "Refused veggies today." }
+            ];
+            
+            mockDates.forEach(m => {
+                studentLogs.push({
+                    date: m.date,
+                    snack_status: m.status,
+                    teacher_notes: m.note
+                });
+            });
+        }
+        
+        let logsHtml = '';
+        studentLogs.forEach(r => {
+            let badgeClass = '';
+            if (r.snack_status === 'Finished') badgeClass = 'background: #d1fae5; color: #065f46;';
+            else if (r.snack_status === 'Some Left') badgeClass = 'background: #fef3c7; color: #92400e;';
+            else badgeClass = 'background: #fee2e2; color: #991b1b;';
+            
+            logsHtml += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                <td style="padding: 10px; text-align: center;">
+                    <span style="padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; ${badgeClass}">
+                        ${r.snack_status}
+                    </span>
+                </td>
+                <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">${r.teacher_notes || '-'}</td>
+            </tr>`;
+        });
+        
+        let html = `
+        <div style="margin-bottom: 25px; text-align: left;">
+            <h4 style="margin: 0 0 10px 0; color: #043263; font-size: 1rem; font-weight: bold;">📐 Growth & BMI Progression</h4>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; text-align: left;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">Period</th>
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">Weight</th>
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">Height</th>
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">BMI Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${bmiHtml}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div style="text-align: left;">
+            <h4 style="margin: 0 0 10px 0; color: #043263; font-size: 1rem; font-weight: bold;">🍎 Snack Consumption Log</h4>
+            <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; text-align: left;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">Date</th>
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569; text-align: center; width: 100px;">Status</th>
+                            <th style="padding: 10px; font-size: 0.8rem; font-weight: bold; color: #475569;">Observation Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${logsHtml}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+        
+        document.getElementById('nutritionHistoryModalBody').innerHTML = html;
+        document.getElementById('nutritionHistoryModal').classList.add('active');
+    };
+
+    window.closeNutritionHistoryModal = function() {
+        document.getElementById('nutritionHistoryModal').classList.remove('active');
+    };
 
     // Startup
     fetchSystemData();

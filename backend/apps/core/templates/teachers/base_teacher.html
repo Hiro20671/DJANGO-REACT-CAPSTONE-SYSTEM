@@ -77,7 +77,7 @@
                     // Repeatedly check for dynamic buttons to hide
                     setInterval(() => {
                         document.querySelectorAll('.btn-primary, .btn-action, button[type="submit"], .add-btn, .btn-send').forEach(btn => {
-                            if (btn.innerText !== 'Exit Archive Mode' && !btn.classList.contains('mobile-sidebar-toggle') && !btn.classList.contains('logout-btn') && !btn.closest('#otp-request-section') && !btn.closest('#otp-verify-section') && btn.id !== 'btnRequestOTP' && btn.id !== 'btnVerifyOTP' && btn.id !== 'btnSubmitPassword') {
+                            if (btn.innerText !== 'Exit Archive Mode' && !btn.classList.contains('mobile-sidebar-toggle') && !btn.classList.contains('logout-btn') && !btn.classList.contains('btn-history-view') && !btn.closest('#otp-request-section') && !btn.closest('#otp-verify-section') && btn.id !== 'btnRequestOTP' && btn.id !== 'btnVerifyOTP' && btn.id !== 'btnSubmitPassword') {
                                 btn.style.display = 'none';
                             }
                         });

@@ -193,7 +193,8 @@ class ECCDAssessment(models.Model):
     school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='eccd_assessments', null=True, blank=True)
     teacher = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True)
     assessment_period = models.CharField(max_length=10, choices=PERIOD_CHOICES)
-    assessment_date = models.DateField(auto_now_add=True)
+    import datetime
+    assessment_date = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
     
     # Recommendations & Summaries
@@ -227,4 +228,18 @@ class ECCDMilestoneScore(models.Model):
         unique_together = ('assessment', 'milestone')
 
     def __str__(self):
-        return f"Score: {self.milestone.action_description[:20]}..."
+        return f"Score: {self.milestone.action_description[:20]}..."
+
+class ScoringAccessRequest(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='scoring_requests')
+    parent = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='scoring_requests')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')],
+        default='Pending'
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Request for {self.child.first_name} by {self.parent.user.username} - {self.status}"

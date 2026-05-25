@@ -133,3 +133,13 @@ class NoClassDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = NoClassDay
         fields = '__all__'
+
+from .models import ScoringAccessRequest
+class ScoringAccessRequestSerializer(serializers.ModelSerializer):
+    child_name = serializers.ReadOnlyField(source='child.first_name')
+    child_lastname = serializers.ReadOnlyField(source='child.last_name')
+    parent_name = serializers.ReadOnlyField(source='parent.user.username')
+    class Meta:
+        model = ScoringAccessRequest
+        fields = '__all__'
+        read_only_fields = ('parent', 'approved_at')

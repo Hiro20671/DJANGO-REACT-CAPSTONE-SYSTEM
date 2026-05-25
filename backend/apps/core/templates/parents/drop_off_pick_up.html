@@ -119,9 +119,27 @@
         // Count standard parents
         let studentGuardiansCount = 0;
         let gHtml = '';
-        if (child.mother_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.mother_first_name} ${child.mother_last_name} (Mother)</div>`; }
-        if (child.father_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.father_first_name} ${child.father_last_name} (Father)</div>`; }
-        if (child.other_guardian_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${child.other_guardian_first_name} ${child.other_guardian_last_name} (Other)</div>`; }
+        if (child.mother_first_name) { 
+            studentGuardiansCount++; 
+            gHtml += `<div class="item-sub" style="margin-bottom: 8px;">
+                <strong>${child.mother_first_name} ${child.mother_last_name} (Mother)</strong><br>
+                <span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-{{ request.user.username|upper }}</span>
+            </div>`; 
+        }
+        if (child.father_first_name) { 
+            studentGuardiansCount++; 
+            gHtml += `<div class="item-sub" style="margin-bottom: 8px;">
+                <strong>${child.father_first_name} ${child.father_last_name} (Father)</strong><br>
+                <span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-{{ request.user.username|upper }}</span>
+            </div>`; 
+        }
+        if (child.other_guardian_first_name) { 
+            studentGuardiansCount++; 
+            gHtml += `<div class="item-sub" style="margin-bottom: 8px;">
+                <strong>${child.other_guardian_first_name} ${child.other_guardian_last_name} (Other)</strong><br>
+                <span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-{{ request.user.username|upper }}</span>
+            </div>`; 
+        }
 
         totalGuardians = studentGuardiansCount;
 

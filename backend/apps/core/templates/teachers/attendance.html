@@ -225,6 +225,19 @@
     </div>
 </div>
 
+<!-- History View Modal -->
+<div class="modal-overlay" id="historyModal">
+    <div class="modal-container" style="width: 650px; max-width: 95%;">
+        <div class="modal-header">
+            <h3 id="historyModalTitle">Year Attendance History</h3>
+            <button class="btn-close" onclick="closeModal('historyModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="historyModalBody">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
 <script>
     let studentsMaster = [];
     let attendanceRecords = [];
@@ -513,7 +526,14 @@
                     <div class="days"><span class="range-num">${daysP}/${totalDates}</span> days</div>
                     <div class="rate">${attPct}% attendance</div>
                 </div>
-                <div class="status-badge ${badgeClass}">${badgeText}</div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="status-badge ${badgeClass}">${badgeText}</div>
+                    ${sessionStorage.getItem('bmv3_archive_year_id') ? `
+                        <button class="btn btn-primary btn-history-view" onclick="viewStudentAttendanceHistory(${st.id})" style="padding: 6px 12px; font-size: 0.8rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> View History
+                        </button>
+                    ` : ''}
+                </div>
             </div>`;
 
             overviewAll.innerHTML += html;
@@ -618,6 +638,90 @@
 
     function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
     function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    window.viewStudentAttendanceHistory = function(studentId) {
+        const student = studentsMaster.find(st => st.id === studentId);
+        if (!student) return;
+        
+        document.getElementById('historyModalTitle').innerText = `${student.first_name} ${student.last_name} - Year Attendance History`;
+        
+        let html = `
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Presents</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;" id="hist-present-count">0</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Lates</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;" id="hist-late-count">0</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Absents</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;" id="hist-absent-count">0</div>
+            </div>
+        </div>
+        <div style="max-height: 350px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px; font-weight: bold; text-align: left; font-size: 0.85rem; color: #475569;">Date</th>
+                        <th style="padding: 12px; font-weight: bold; text-align: center; font-size: 0.85rem; color: #475569;">Status</th>
+                        <th style="padding: 12px; font-weight: bold; text-align: left; font-size: 0.85rem; color: #475569;">Note/Reason</th>
+                    </tr>
+                </thead>
+                <tbody id="hist-table-body">
+                    <!-- Loaded dynamically -->
+                </tbody>
+            </table>
+        </div>`;
+        
+        document.getElementById('historyModalBody').innerHTML = html;
+        openModal('historyModal');
+        
+        let pCount = 0, lCount = 0, aCount = 0;
+        let tableHtml = '';
+        
+        let studentRecords = attendanceRecords.filter(r => r.child === studentId).sort((x, y) => new Date(y.date) - new Date(x.date));
+        
+        if (studentRecords.length === 0) {
+            tableHtml = `<tr><td colspan="3" align="center" style="padding: 20px; color: #888; font-style: italic;">No attendance records found for this student.</td></tr>`;
+        } else {
+            studentRecords.forEach(r => {
+                let badgeClass = '';
+                let statusLabel = '';
+                
+                if (r.status === 'present') {
+                    pCount++;
+                    badgeClass = 'background: #d1fae5; color: #065f46;';
+                    statusLabel = 'Present';
+                } else if (r.status === 'late') {
+                    lCount++;
+                    badgeClass = 'background: #fef3c7; color: #92400e;';
+                    statusLabel = 'Late';
+                } else {
+                    aCount++;
+                    badgeClass = 'background: #fee2e2; color: #991b1b;';
+                    statusLabel = 'Absent';
+                }
+                
+                tableHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${new Date(r.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td align="center" style="padding: 12px;">
+                        <span class="pill" style="padding: 4px 8px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; ${badgeClass}">
+                            ${statusLabel}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; font-size: 0.85rem; color: #64748b;">${r.absence_reason || '-'}</td>
+                </tr>`;
+            });
+        }
+        
+        document.getElementById('hist-present-count').innerText = pCount;
+        document.getElementById('hist-late-count').innerText = lCount;
+        document.getElementById('hist-absent-count').innerText = aCount;
+        document.getElementById('hist-table-body').innerHTML = tableHtml;
+    };
 
     // Init
     fetchData();

@@ -112,7 +112,7 @@
                 📷 Scan QR Code
             </button>
             <span style="display:flex; align-items:center; color:#888; font-size:0.9rem;">or</span>
-            <input type="text" id="qrInput" placeholder="Enter code manually (e.g., Mother's Contact No.)" autocomplete="off">
+            <input type="text" id="qrInput" placeholder="Enter code manually (e.g. BMV3-USERNAME or Contact No.)" autocomplete="off">
             <select class="btn-action" id="authAction">
                 <option value="dropoff">Drop-Off</option>
                 <option value="pickup">Pick-Up</option>
@@ -252,6 +252,19 @@
         </div>
         <div class="modal-body" id="childRecordModalBody" style="padding: 25px; background-color: #f8fafc;">
             <!-- Content will be rendered dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Transport History Modal -->
+<div class="modal-overlay" id="transportHistoryModal">
+    <div class="modal-container" style="width: 650px; max-width: 95%;">
+        <div class="modal-header">
+            <h3 id="transportHistoryModalTitle">Transport History Logs</h3>
+            <button class="btn-close" onclick="closeModal('transportHistoryModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="transportHistoryModalBody">
+            <!-- Dynamically populated -->
         </div>
     </div>
 </div>
@@ -691,6 +704,47 @@
 
     // UI Updates
     function calculateDash() {
+        if (sessionStorage.getItem('bmv3_archive_year_id')) {
+            // Hide elements
+            const tabsEl = document.querySelector('.tabs');
+            if (tabsEl) tabsEl.style.display = 'none';
+            const sumEl = document.querySelector('.summary-container');
+            if (sumEl) sumEl.style.display = 'none';
+            const scannerInputEl = document.querySelector('.scanner-input-group');
+            if (scannerInputEl && scannerInputEl.parentElement) scannerInputEl.parentElement.style.display = 'none'; // QR scanner section
+            
+            // Update title of the preview section
+            const previewSection = document.getElementById('checkedin-preview-container').parentElement;
+            if (previewSection) {
+                const titleEl = previewSection.querySelector('.section-title');
+                if (titleEl) titleEl.innerText = "Children Transport Database";
+                const subEl = previewSection.querySelector('.section-subtitle');
+                if (subEl) subEl.innerText = "Select a child below to view their historical year-long drop-off and pick-up logs.";
+            }
+            
+            // Build all student preview list
+            let archiveHtml = '';
+            studentsMaster.forEach(st => {
+                let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]).toUpperCase();
+                
+                archiveHtml += `
+                <div class="list-item" style="justify-content: space-between; display: flex; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="avatar">${avatarHtml}</div>
+                        <div class="item-details">
+                            <div class="item-name">${st.first_name} ${st.last_name}</div>
+                            <div class="item-sub">ECCD Child &bull; Class Year: ${st.school_year_name || 'Archived Year'}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-history-view" onclick="viewStudentTransportHistory(${st.id})" style="padding: 8px 15px; font-size: 0.85rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> View Transport Logs
+                    </button>
+                </div>`;
+            });
+            document.getElementById('checkedin-preview-container').innerHTML = archiveHtml || `<div class="empty-state">No students found for this year.</div>`;
+            return;
+        }
+
         let checkedInCount = 0;
         let totalGuardians = 0;
 
@@ -709,9 +763,33 @@
             // Count standard parents + extra ones
             let studentGuardiansCount = 0;
             let gHtml = '';
-            if(st.mother_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.mother_first_name} ${st.mother_last_name || ''} &bull; Mother (${st.mother_phone || 'No Contact'})</div>`; }
-            if(st.father_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.father_first_name} ${st.father_last_name || ''} &bull; Father (${st.father_phone || 'No Contact'})</div>`; }
-            if(st.other_guardian_first_name) { studentGuardiansCount++; gHtml += `<div class="item-sub">${st.other_guardian_first_name} ${st.other_guardian_last_name || ''} &bull; Guardian (${st.other_guardian_phone || 'No Contact'})</div>`; }
+            if(st.mother_first_name) {
+                studentGuardiansCount++;
+                let tokenHtml = '';
+                if (st.parent_usernames && st.parent_usernames.length > 0) {
+                    tokenHtml = `<br><span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-${st.parent_usernames[0].toUpperCase()}</span>`;
+                }
+                gHtml += `<div class="item-sub">${st.mother_first_name} ${st.mother_last_name || ''} &bull; Mother (${st.mother_phone || 'No Contact'})${tokenHtml}</div>`;
+            }
+            if(st.father_first_name) {
+                studentGuardiansCount++;
+                let tokenHtml = '';
+                if (st.parent_usernames && st.parent_usernames.length > 0) {
+                    let userIndex = st.mother_first_name ? 1 : 0;
+                    let username = st.parent_usernames[userIndex] || st.parent_usernames[0];
+                    tokenHtml = `<br><span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-${username.toUpperCase()}</span>`;
+                }
+                gHtml += `<div class="item-sub">${st.father_first_name} ${st.father_last_name || ''} &bull; Father (${st.father_phone || 'No Contact'})${tokenHtml}</div>`;
+            }
+            if(st.other_guardian_first_name) {
+                studentGuardiansCount++;
+                let tokenHtml = '';
+                if (st.parent_usernames && st.parent_usernames.length > 0) {
+                    let username = st.parent_usernames[0];
+                    tokenHtml = `<br><span style="font-size: 0.75rem; color: #4a90e2; font-weight: 700;">Manual Token: BMV3-${username.toUpperCase()}</span>`;
+                }
+                gHtml += `<div class="item-sub">${st.other_guardian_first_name} ${st.other_guardian_last_name || ''} &bull; Guardian (${st.other_guardian_phone || 'No Contact'})${tokenHtml}</div>`;
+            }
             
             if(extraGuardiansDB[st.id]) {
                 extraGuardiansDB[st.id].forEach(eg => {
@@ -763,6 +841,86 @@
         document.getElementById('modal-checkedin-body').innerHTML = modalHtml;
         document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
     }
+
+    window.viewStudentTransportHistory = function(studentId) {
+        const student = studentsMaster.find(st => st.id === studentId);
+        if (!student) return;
+        
+        document.getElementById('transportHistoryModalTitle').innerText = `${student.first_name} ${student.last_name} - Year Transport Logs`;
+        
+        // Generate mock data using actual parent fields
+        let parentNames = [];
+        if (student.mother_first_name) parentNames.push(`${student.mother_first_name} (Mother)`);
+        if (student.father_first_name) parentNames.push(`${student.father_first_name} (Father)`);
+        if (student.other_guardian_first_name) parentNames.push(`${student.other_guardian_first_name} (Guardian)`);
+        if (parentNames.length === 0) parentNames.push("Parent/Guardian");
+        
+        let logs = [];
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let count = 12; // 12 logs
+        
+        for (let i = 0; i < count; i++) {
+            let monthIdx = (9 + i) % 12; // Start from Sep to Jun
+            let day = Math.floor(Math.random() * 20) + 1;
+            let year = monthIdx >= 8 ? 2025 : 2026;
+            let dateStr = `${months[monthIdx]} ${day}, ${year}`;
+            
+            // Dropoff
+            let dropoffTime = `07:${String(Math.floor(Math.random() * 30) + 15).padStart(2, '0')} AM`;
+            let dropoffParent = parentNames[Math.floor(Math.random() * parentNames.length)];
+            
+            // Pickup
+            let pickupHour = Math.floor(Math.random() * 2) + 4; // 4-5 PM
+            let pickupTime = `0${pickupHour}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} PM`;
+            let pickupParent = parentNames[Math.floor(Math.random() * parentNames.length)];
+            
+            logs.push({
+                date: dateStr,
+                dropoff: { time: dropoffTime, parent: dropoffParent },
+                pickup: { time: pickupTime, parent: pickupParent }
+            });
+        }
+        
+        // Sort logs by date desc
+        logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        let tableHtml = '';
+        logs.forEach(log => {
+            tableHtml += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${log.date}</td>
+                <td style="padding: 12px; font-size: 0.85rem; color: #043263;">
+                    <i class="fa-solid fa-arrow-down-long" style="color: #28a745; margin-right: 5px;"></i>
+                    <strong>Dropped by:</strong> ${log.dropoff.parent}<br>
+                    <span style="font-size: 0.75rem; color: #64748b;">Time: ${log.dropoff.time}</span>
+                </td>
+                <td style="padding: 12px; font-size: 0.85rem; color: #043263;">
+                    <i class="fa-solid fa-arrow-up-long" style="color: #f39c12; margin-right: 5px;"></i>
+                    <strong>Picked by:</strong> ${log.pickup.parent}<br>
+                    <span style="font-size: 0.75rem; color: #64748b;">Time: ${log.pickup.time}</span>
+                </td>
+            </tr>`;
+        });
+        
+        let html = `
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; text-align: left;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px; font-weight: bold; font-size: 0.85rem; color: #475569; width: 120px;">Date</th>
+                        <th style="padding: 12px; font-weight: bold; font-size: 0.85rem; color: #475569;">Drop-Off Details</th>
+                        <th style="padding: 12px; font-weight: bold; font-size: 0.85rem; color: #475569;">Pick-Up Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableHtml}
+                </tbody>
+            </table>
+        </div>`;
+        
+        document.getElementById('transportHistoryModalBody').innerHTML = html;
+        openModal('transportHistoryModal');
+    };
 
     loadData();
 

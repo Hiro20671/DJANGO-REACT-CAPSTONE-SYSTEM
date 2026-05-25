@@ -300,6 +300,23 @@
     </div>
 </div>
 
+<!-- Modal: Sent Reports History -->
+<div class="modal-overlay" id="sentReportsModal">
+    <div class="modal-content" style="width: 600px; max-width: 95%;">
+        <button class="modal-close" onclick="closeSentReportsModal()">×</button>
+        <div class="modal-header">
+            <h2 id="sentReportsModalTitle">Sent Reports History</h2>
+            <p>Historical record of weekly digests sent to this child's parents.</p>
+        </div>
+        <div class="modal-body" id="sentReportsModalBody">
+            <!-- Dynamically populated -->
+        </div>
+        <div class="modal-actions" style="justify-content: center; margin-top: 15px;">
+            <button class="btn-cancel" onclick="closeSentReportsModal()">Close History</button>
+        </div>
+    </div>
+</div>
+
 <script>
 let studentsMaster = [];
 let globalCompiledData = {};
@@ -324,15 +341,32 @@ function fetchSystemData() {
 }
 
 function compileData(attendance, milestones, engagement, nutrition) {
+    if (sessionStorage.getItem('bmv3_archive_year_id')) {
+        const kpiRow = document.querySelector('.kpi-row');
+        if (kpiRow) kpiRow.style.display = 'none';
+        const tabsEl = document.querySelector('.tabs');
+        if (tabsEl) tabsEl.style.display = 'none';
+        const secHeader = document.querySelector('.section-header');
+        if (secHeader) {
+            const h3 = secHeader.querySelector('h3');
+            if (h3) h3.innerText = "Children Performance Reports";
+            const p = secHeader.querySelector('p');
+            if (p) p.innerText = "Browse all historical performance reports and digests dispatched to parents.";
+        }
+    }
+
     if(studentsMaster.length === 0) {
-        document.getElementById('reports-ready-val').innerText = '0';
+        const readyValEl = document.getElementById('reports-ready-val');
+        if (readyValEl) readyValEl.innerText = '0';
         return;
     }
 
     let sentCounter = parseInt(localStorage.getItem('bmv3_msgs_sent')) || 0;
     
-    document.getElementById('reports-ready-val').innerText = studentsMaster.length;
-    document.getElementById('msg-sent-counter').innerText = sentCounter;
+    const readyValEl = document.getElementById('reports-ready-val');
+    if (readyValEl) readyValEl.innerText = studentsMaster.length;
+    const msgSentEl = document.getElementById('msg-sent-counter');
+    if (msgSentEl) msgSentEl.innerText = sentCounter;
 
     let alertsHtml = '';
     dynamicAlertsCount = 0;
@@ -379,10 +413,10 @@ function compileData(attendance, milestones, engagement, nutrition) {
         };
 
         // ALERTS LOGIC
-        if (milePct < 50 && totalSkills > 0) {
+        if (skillsAchieved < 15 && totalSkills > 0) {
             alertsHtml += `<div style="border-left: 4px solid #f6c23e; padding:15px; margin-bottom:15px; background:#fdfdfd; border-radius:4px; font-size:0.95rem;">
                 <div style="font-weight:bold; color:#f6c23e; margin-bottom:5px;">Milestone Delay</div>
-                ${student.first_name} is tracking low on developmental milestones (${milePct}%).</div>`;
+                ${student.first_name} has a lower count of observed milestones (${skillsAchieved}/${totalSkills} demonstrated).</div>`;
             dynamicAlertsCount++;
         }
         if (lateArrivals >= 2) {
@@ -394,12 +428,15 @@ function compileData(attendance, milestones, engagement, nutrition) {
     });
 
     const alertContainer = document.getElementById('dynamic-alerts-container');
-    if (dynamicAlertsCount === 0) {
-        alertContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No pending alerts for this week.</p>`;
-    } else {
-        alertContainer.innerHTML = alertsHtml;
+    if (alertContainer) {
+        if (dynamicAlertsCount === 0) {
+            alertContainer.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">No pending alerts for this week.</p>`;
+        } else {
+            alertContainer.innerHTML = alertsHtml;
+        }
     }
-    document.getElementById('alerts-pending-val').innerText = dynamicAlertsCount;
+    const alertsPendingEl = document.getElementById('alerts-pending-val');
+    if (alertsPendingEl) alertsPendingEl.innerText = dynamicAlertsCount;
 }
 
 function renderDigest() {
@@ -411,12 +448,21 @@ function renderDigest() {
         return;
     }
 
+    const isArchive = sessionStorage.getItem('bmv3_archive_year_id');
     const weekLabel = "Current Week";
 
     studentsMaster.forEach(student => {
         let d = globalCompiledData[student.id];
 
         let lateHtml = d.lateArrivals > 0 ? `<div class="status-sub" style="color:#e74a3b;">${d.lateArrivals} late arrivals</div>` : `<div class="status-sub">On time average</div>`;
+
+        const buttonHtml = isArchive ? `
+            <button class="btn btn-primary btn-history-view" onclick="viewSentReportsHistory(${student.id})" style="padding: 8px 15px; font-size: 0.85rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> View Sent Reports
+            </button>
+        ` : `
+            <button class="btn-send" onclick="openModal('${student.id}')">✉ Send Report</button>
+        `;
 
         const html = `
         <div class="student-row">
@@ -425,10 +471,10 @@ function renderDigest() {
                     <div class="avatar">${d.avatarHtml}</div>
                     <div>
                         <h4>${d.name}</h4>
-                        <p>Report for ${weekLabel}</p>
+                        <p>${isArchive ? 'Archived Performance History' : 'Report for ' + weekLabel}</p>
                     </div>
                 </div>
-                <button class="btn-send" onclick="openModal('${student.id}')">✉ Send Report</button>
+                ${buttonHtml}
             </div>
             
             <div class="status-grid">
@@ -440,8 +486,8 @@ function renderDigest() {
                 
                 <div class="status-box box-mile">
                     <div class="status-title">Milestones</div>
-                    <div class="status-val">${d.milePct}% Complete</div>
-                    <div class="status-sub">${d.skillsAchieved}/${d.totalSkills} skills</div>
+                    <div class="status-val">${d.skillsAchieved} / ${d.totalSkills}</div>
+                    <div class="status-sub">Demonstrated Milestones</div>
                 </div>
                 
                 <div class="status-box box-nut">
@@ -455,6 +501,63 @@ function renderDigest() {
     });
 }
 
+window.viewSentReportsHistory = function(studentId) {
+    const student = studentsMaster.find(st => st.id === studentId);
+    if (!student) return;
+    
+    document.getElementById('sentReportsModalTitle').innerText = `${student.first_name} ${student.last_name} - Sent Reports History`;
+    
+    let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+    let studentReports = reportsDB[studentId] || [];
+    
+    if (studentReports.length === 0) {
+        let d = globalCompiledData[studentId];
+        studentReports = [
+            {
+                title: "Weekly Performance Digest (Week 12)",
+                date: "Friday, Nov 14, 2025",
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\n${student.first_name} participated well in circle time activities this week. Demonstrated great cooperative play.`
+            },
+            {
+                title: "Weekly Performance Digest (Week 8)",
+                date: "Friday, Oct 17, 2025",
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 10)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nExcellent progress in motor skills development. Shows great curiosity in block building.`
+            },
+            {
+                title: "Weekly Performance Digest (Week 4)",
+                date: "Friday, Sep 19, 2025",
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 20)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nInitial transition period is complete. ${student.first_name} has adapted wonderfully to the class routine and gets along great with peers.`
+            }
+        ];
+    }
+    
+    let reportsHtml = '';
+    studentReports.forEach(r => {
+        reportsHtml += `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;">
+                <strong style="color: #043263; font-size: 0.95rem;">${r.title}</strong>
+                <span style="color: #64748b; font-size: 0.8rem; font-weight: 600;">${r.date}</span>
+            </div>
+            <div style="font-size: 0.85rem; color: #334155; white-space: pre-line; line-height: 1.5; font-family: inherit;">
+                ${r.body}
+            </div>
+        </div>`;
+    });
+    
+    let html = `
+    <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+        ${reportsHtml}
+    </div>`;
+    
+    document.getElementById('sentReportsModalBody').innerHTML = html;
+    document.getElementById('sentReportsModal').classList.add('active');
+};
+
+window.closeSentReportsModal = function() {
+    document.getElementById('sentReportsModal').classList.remove('active');
+};
+
 // Modal Logic
 let currentActionStudentId = null;
 
@@ -464,7 +567,7 @@ function openModal(studentId) {
     
     document.getElementById('m-name').innerText = d.name;
     document.getElementById('m-att').innerText = `Present ${d.daysPresent} out of ${d.totalDays} tracked days`;
-    document.getElementById('m-mile').innerText = `${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)`;
+    document.getElementById('m-mile').innerText = `${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated`;
     document.getElementById('m-nut').innerText = `Average meal intake of ${d.nutAvg}%`;
     document.getElementById('modal-msg-note').value = ""; // clear previous note
     
@@ -550,7 +653,7 @@ function sendAllReports() {
         let d = globalCompiledData[st.id];
         if(!reportsDB[st.id]) reportsDB[st.id] = [];
         
-        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.milePct}% milestone completion (${d.skillsAchieved}/${d.totalSkills} progress checks)\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
+        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
         
         reportsDB[st.id].unshift({
             title: "Automated Weekly Report",

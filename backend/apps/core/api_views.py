@@ -371,6 +371,10 @@ class ECCDReportAPIView(APIView):
         standard_score = get_standard_score(sum_scaled)
         interpretation = get_standard_score_interpretation(standard_score)
         
+        teacher_name = "Not Assigned"
+        if assessment.teacher and assessment.teacher.user:
+            teacher_name = assessment.teacher.user.get_full_name() or assessment.teacher.user.username
+
         return Response({
             'child_name': f"{assessment.child.first_name} {assessment.child.last_name}",
             'date_of_birth': dob,
@@ -382,7 +386,8 @@ class ECCDReportAPIView(APIView):
             'domains': domain_results,
             'sum_scaled_scores': sum_scaled,
             'standard_score': standard_score,
-            'interpretation': interpretation
+            'interpretation': interpretation,
+            'teacher_name': teacher_name
         })
 
 class ECCDOverallReportAPIView(APIView):
@@ -446,7 +451,8 @@ class ECCDOverallReportAPIView(APIView):
             'domains': domain_results,
             'sum_scaled_scores': sum_scaled,
             'standard_score': standard_score,
-            'interpretation': interpretation
+            'interpretation': interpretation,
+            'teacher_name': "Overall Aggregated"
         })
 
 class NutritionAnalyticsAPIView(APIView):
@@ -1127,3 +1133,44 @@ class GenerateParentAccountAPIView(APIView):
             
         except Exception as e:
             return Response({'error': str(e)}, status=500)
+
+from .models import ScoringAccessRequest
+from .serializers import ScoringAccessRequestSerializer
+from rest_framework import serializers as drf_serializers
+from django.utils import timezone
+
+class ScoringAccessRequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ScoringAccessRequestSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return ScoringAccessRequest.objects.none()
+        profile = user.userprofile
+        qs = ScoringAccessRequest.objects.all()
+        
+        child_id = self.request.query_params.get('child')
+        if child_id:
+            qs = qs.filter(child_id=child_id)
+            
+        if profile.is_teacher:
+            return qs.order_by('-requested_at')
+        else:
+            return qs.filter(parent=profile).order_by('-requested_at')
+
+    def perform_create(self, serializer):
+        profile = getattr(self.request.user, 'userprofile', None)
+        child_id = self.request.data.get('child')
+        if child_id:
+            existing = ScoringAccessRequest.objects.filter(child_id=child_id, parent=profile, status='Pending').first()
+            if existing:
+                raise drf_serializers.ValidationError("A request is already pending for this child.")
+        serializer.save(parent=profile)
+
+    def perform_update(self, serializer):
+        status = self.request.data.get('status')
+        if status == 'Approved':
+            serializer.save(approved_at=timezone.now())
+        else:
+            serializer.save()

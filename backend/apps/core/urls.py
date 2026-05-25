@@ -12,7 +12,7 @@ from .api_views import (
     GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
     link_guardian_profile, NoClassDayViewSet,
     ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet,
-    ECCDReportAPIView, ECCDOverallReportAPIView
+    ECCDReportAPIView, ECCDOverallReportAPIView, ScoringAccessRequestViewSet
 )
 
 router = DefaultRouter()
@@ -27,6 +27,7 @@ router.register(r'eccd-domains', ECCDDomainViewSet, basename='eccd_domain')
 router.register(r'eccd-milestones', ECCDMilestoneViewSet, basename='eccd_milestone')
 router.register(r'eccd-assessments', ECCDAssessmentViewSet, basename='eccd_assessment')
 router.register(r'eccd-scores', ECCDMilestoneScoreViewSet, basename='eccd_score')
+router.register(r'scoring-requests', ScoringAccessRequestViewSet, basename='scoring_request')
 
 urlpatterns = [
     path('', views.login_view, name='login'),
