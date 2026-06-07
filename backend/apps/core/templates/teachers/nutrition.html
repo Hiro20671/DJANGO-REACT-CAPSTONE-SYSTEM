@@ -56,6 +56,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
     <div class="tab active" id="tab-overview" onclick="switchTab('overview')">Overview</div>
     <div class="tab" id="tab-log" onclick="switchTab('log')">Log Snack</div>
     <div class="tab" id="tab-bmi" onclick="switchTab('bmi')">BMI Calculator</div>
+    <div class="tab" id="tab-history" onclick="switchTab('history')">History</div>
 </div>
 
 <!-- ================= OVERVIEW TAB ================= -->
@@ -65,9 +66,32 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             <h3>Nutrition Overview</h3>
             <p>Snack intake records for the selected date.</p>
         </div>
-        <div id="student-list-container">
-            <!-- Rendered by JS -->
-            <div style="text-align: center; padding: 20px;">Loading...</div>
+        
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; flex-wrap:wrap; gap:15px; margin-top:20px;">
+            <div style="display:flex; gap:10px; width: 100%; max-width: 400px; position: relative;">
+                <input type="text" id="nutritionSearch" placeholder="Search student by name..." style="width: 100%; padding: 10px 15px; padding-left: 38px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-family:'Montserrat', sans-serif;" oninput="renderDashboard()">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.9rem;"></i>
+            </div>
+        </div>
+
+        <div class="table-responsive" style="background:#fff; border:1px solid #edf2f7; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.02); overflow:hidden; margin-top:20px;">
+            <table class="assess-table" style="width:100%; border-collapse:collapse; margin:0;">
+                <thead>
+                    <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Student</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 100px;">Age</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 250px;">Physical Stats</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 150px;">Snack Status</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Teacher Notes</th>
+                        <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="student-list-container">
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding:40px; color:#888;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -113,29 +137,88 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
 
 <!-- ================= BMI CALCULATOR TAB ================= -->
 <div id="content-bmi" style="display:none;">
-    <div class="bmi-calculator" style="max-width: 600px; margin: 0 auto;">
-        <div class="section-header" style="margin-bottom: 25px;">
-            <h3>BMI Calculator</h3>
-            <p>Quickly calculate a child's Body Mass Index (BMI).</p>
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <div class="digest-section">
+            <div class="section-header" style="margin-bottom: 25px;">
+                <h3>Quarterly Growth & BMI Monitoring</h3>
+                <p>Record weight, height, and calculate BMI across 1st, 2nd, and 3rd quarters.</p>
+            </div>
+            <div class="form-group" style="max-width: 400px; margin-bottom: 25px;">
+                <label style="font-weight: 700; color: #1e293b;">Select Student</label>
+                <select id="bmiStudent" onchange="renderStudentBmiQuarters(this.value)">
+                    <option value="" disabled selected>Loading...</option>
+                </select>
+            </div>
+            
+            <div id="bmiQuartersContainer" style="display:none;">
+                <div id="bmiPhaseCards" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom:20px;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Student</label>
-            <select id="bmiStudent">
-                <option value="" disabled selected>Loading...</option>
+    </div>
+</div>
+
+<!-- ================= HISTORY TAB ================= -->
+<div id="content-history" style="display:none;">
+    <div class="digest-section">
+        <div class="section-header" style="margin-bottom: 25px;">
+            <h3>Nutrition & Growth History</h3>
+            <p>View complete history of quarterly BMI progressions and daily snack intake evaluations.</p>
+        </div>
+        
+        <div class="form-group" style="max-width: 400px; margin-bottom: 25px;">
+            <label style="font-weight: 700; color: #1e293b;">Select Student</label>
+            <select id="historyStudent" onchange="loadStudentHistory(this.value)" style="font-family: inherit;">
+                <option value="" disabled selected>Select a child...</option>
             </select>
         </div>
-        <div class="bmi-grid">
-            <div class="form-group" style="margin-bottom:0;">
-                <label>Weight (kg)</label>
-                <input type="number" id="bmiWeight" step="0.1" placeholder="e.g. 15.5">
+        
+        <div id="studentHistoryContainer" style="display:none; flex-direction:column; gap:30px;">
+            <!-- 1. Growth & BMI progression table -->
+            <div style="background:#fff; border:1px solid #edf2f7; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.02); overflow:hidden; padding:20px;">
+                <h4 style="margin: 0 0 15px 0; color: #043263; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; font-family:'Montserrat', sans-serif;">
+                    <i class="fa-solid fa-weight-scale"></i> 📐 Growth & BMI Progression
+                </h4>
+                <div class="table-responsive">
+                    <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; text-align: left;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Period</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Weight</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Height</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">BMI Classification</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-bmi-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-                <label>Height (cm)</label>
-                <input type="number" id="bmiHeight" step="1" placeholder="e.g. 102">
+            
+            <!-- 2. Snack log history -->
+            <div style="background:#fff; border:1px solid #edf2f7; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.02); overflow:hidden; padding:20px;">
+                <h4 style="margin: 0 0 15px 0; color: #043263; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; font-family:'Montserrat', sans-serif;">
+                    <i class="fa-solid fa-utensils"></i> 🍎 Snack Consumption Log
+                </h4>
+                <div class="table-responsive">
+                    <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; text-align: left;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:20%;">Date</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:25%;">Status</th>
+                                <th style="padding:12px; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Observation Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-snack-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <button class="btn-submit" style="width:100%; padding:15px; font-size:1.1rem;" onclick="calculateBMI()">Calculate BMI</button>
-        <div id="bmiResult" class="bmi-result"></div>
     </div>
 </div>
 
@@ -159,27 +242,63 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
 
     let childrenList = [];
     let nutritionRecords = [];
-    let childBmiResults = {};
+    let activeSchoolYear = null;
 
     function fetchSystemData() {
         Promise.all([
             fetch('/api/children/').then(r => r.json()),
-            fetch('/api/nutrition/').then(r => r.json())
-        ]).then(([children, nutrition]) => {
+            fetch('/api/nutrition/').then(r => r.json()),
+            fetch('/api/school-years/').then(r => r.json())
+        ]).then(([children, nutrition, schoolYears]) => {
             childrenList = children;
             nutritionRecords = nutrition;
+            activeSchoolYear = schoolYears.find(y => y.is_active);
             
             const logStudentDropdown = document.getElementById('logStudent');
             const bmiStudentDropdown = document.getElementById('bmiStudent');
+            const historyStudentDropdown = document.getElementById('historyStudent');
+            
+            const prevLog = logStudentDropdown.value;
+            const prevBmi = bmiStudentDropdown.value;
+            const prevHist = historyStudentDropdown.value;
+            
             logStudentDropdown.innerHTML = '<option value="" disabled selected>Select a child...</option>';
             bmiStudentDropdown.innerHTML = '<option value="" disabled selected>Select a child...</option>';
+            historyStudentDropdown.innerHTML = '<option value="" disabled selected>Select a child...</option>';
             childrenList.forEach(st => {
                 if(st.enrollment_status !== 'Pending' && st.enrollment_status !== 'Rejected') {
                     const opt = `<option value="${st.id}">${st.first_name} ${st.last_name}</option>`;
                     logStudentDropdown.innerHTML += opt;
                     bmiStudentDropdown.innerHTML += opt;
+                    historyStudentDropdown.innerHTML += opt;
                 }
             });
+
+            // Restore previous selections if valid
+            if (prevLog && [...logStudentDropdown.options].some(o => o.value == prevLog)) {
+                logStudentDropdown.value = prevLog;
+            }
+            if (prevBmi && [...bmiStudentDropdown.options].some(o => o.value == prevBmi)) {
+                bmiStudentDropdown.value = prevBmi;
+            }
+            if (prevHist && [...historyStudentDropdown.options].some(o => o.value == prevHist)) {
+                historyStudentDropdown.value = prevHist;
+            }
+
+            // Re-render based on restored values
+            const selectedBmiChild = bmiStudentDropdown.value;
+            if (selectedBmiChild) {
+                renderStudentBmiQuarters(selectedBmiChild);
+            } else {
+                document.getElementById('bmiQuartersContainer').style.display = 'none';
+            }
+
+            const selectedHistChild = historyStudentDropdown.value;
+            if (selectedHistChild) {
+                loadStudentHistory(selectedHistChild);
+            } else {
+                document.getElementById('studentHistoryContainer').style.display = 'none';
+            }
 
             renderDashboard();
         }).catch(err => {
@@ -188,60 +307,229 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         });
     }
 
-    function calculateBMI() {
-        const studentId = document.getElementById('bmiStudent').value;
-        const weight = parseFloat(document.getElementById('bmiWeight').value);
-        const heightCm = parseFloat(document.getElementById('bmiHeight').value);
-        const resDiv = document.getElementById('bmiResult');
+    window.updateLiveBmi = function(q) {
+        const w = parseFloat(document.getElementById(`bmiWeight-${q}`).value);
+        const hCm = parseFloat(document.getElementById(`bmiHeight-${q}`).value);
+        const resultSpan = document.getElementById(`bmiLiveRes-${q}`);
         
-        if (!studentId) {
-            resDiv.style.display = 'block';
-            resDiv.innerText = "Please select a student.";
-            resDiv.style.borderLeftColor = "#e74a3b";
-            return;
+        if (w && hCm) {
+            const hM = hCm / 100;
+            const bmi = (w / (hM * hM)).toFixed(1);
+            let category = "Overweight";
+            if (bmi < 14) category = "Underweight";
+            else if (bmi < 18) category = "Normal weight";
+            resultSpan.innerHTML = `BMI: <strong>${bmi}</strong> (${category})`;
+            resultSpan.style.color = bmi < 14 ? "#b45309" : (bmi < 18 ? "#0f766e" : "#b91c1c");
+        } else {
+            resultSpan.innerHTML = `BMI: --`;
+            resultSpan.style.color = "#718096";
         }
+    }
 
-        if (!weight || !heightCm) {
-            resDiv.style.display = 'block';
-            resDiv.innerText = "Please enter both weight and height.";
-            resDiv.style.borderLeftColor = "#e74a3b";
+    window.renderStudentBmiQuarters = function(studentId) {
+        const container = document.getElementById('bmiQuartersContainer');
+        if (!studentId) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'block';
+        
+        const student = childrenList.find(c => c.id == studentId);
+        if (!student) return;
+        
+        const bmiRecords = student.bmi_records || [];
+        const activeSchoolYearId = activeSchoolYear ? activeSchoolYear.id : null;
+        
+        const q1 = bmiRecords.find(r => r.quarter === '1st' && (!activeSchoolYearId || r.school_year == activeSchoolYearId));
+        const q2 = bmiRecords.find(r => r.quarter === '2nd' && (!activeSchoolYearId || r.school_year == activeSchoolYearId));
+        const q3 = bmiRecords.find(r => r.quarter === '3rd' && (!activeSchoolYearId || r.school_year == activeSchoolYearId));
+        
+        const quarters = [
+            {
+                id: '1st',
+                title: '1st Quarter (Baseline)',
+                record: q1,
+                is_locked: false
+            },
+            {
+                id: '2nd',
+                title: '2nd Quarter (Interim)',
+                record: q2,
+                is_locked: !q1 || q1.status !== 'Finalized'
+            },
+            {
+                id: '3rd',
+                title: '3rd Quarter (Final)',
+                record: q3,
+                is_locked: !q2 || q2.status !== 'Finalized'
+            }
+        ];
+        
+        const cardsContainer = document.getElementById('bmiPhaseCards');
+        cardsContainer.innerHTML = '';
+        
+        quarters.forEach(q => {
+            const rec = q.record;
+            let statusText = 'Not Started';
+            let badgeBg = '#f1f5f9';
+            let badgeColor = '#64748b';
+            
+            let dateVal = todayStr;
+            let weightVal = '';
+            let heightVal = '';
+            let isFinalized = false;
+            
+            if (rec) {
+                isFinalized = rec.status === 'Finalized';
+                statusText = rec.status;
+                badgeBg = isFinalized ? '#d1fae5' : '#ebf8ff';
+                badgeColor = isFinalized ? '#065f46' : '#3182ce';
+                dateVal = rec.measurement_date;
+                weightVal = rec.weight;
+                heightVal = rec.height;
+            }
+            
+            if (q.is_locked) {
+                statusText = 'Locked';
+                badgeBg = '#f1f5f9';
+                badgeColor = '#94a3b8';
+            }
+            
+            let actionHtml = '';
+            if (q.is_locked) {
+                actionHtml = `<button class="btn" style="width:100%; background:#e2e8f0; color:#a0aec0; border:none; cursor:not-allowed; font-weight:700; font-family:'Montserrat', sans-serif;" disabled><i class="fa-solid fa-lock"></i> Locked</button>`;
+            } else if (isFinalized) {
+                actionHtml = `<button class="btn btn-outline" style="width:100%; border-color:#4a90e2; color:#4a90e2; font-weight:700; font-family:'Montserrat', sans-serif;" onclick="unlockBmiQuarter('${rec.id}', '${studentId}')"><i class="fa-solid fa-lock-open"></i> Unlock Quarter</button>`;
+            } else {
+                const saveText = rec ? 'Update Draft' : 'Save Draft';
+                actionHtml = `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; width: 100%;">
+                        <button class="btn" style="background:#4a90e2; color:white; font-weight:700; font-family:'Montserrat', sans-serif;" onclick="saveBmiQuarter('${q.id}', 'Draft', '${studentId}', ${rec ? rec.id : null})"><i class="fa-solid fa-floppy-disk"></i> ${saveText}</button>
+                        <button class="btn" style="background:#e74a3b; border:none; color:white; font-weight:700; font-family:'Montserrat', sans-serif;" onclick="saveBmiQuarter('${q.id}', 'Finalized', '${studentId}', ${rec ? rec.id : null})"><i class="fa-solid fa-lock"></i> Finalize</button>
+                    </div>
+                `;
+            }
+            
+            let bmiText = '--';
+            let bmiColor = '#718096';
+            if (weightVal && heightVal) {
+                const hM = heightVal / 100;
+                const bmiVal = (weightVal / (hM * hM)).toFixed(1);
+                let cat = 'Overweight';
+                if (bmiVal < 14) cat = 'Underweight';
+                else if (bmiVal < 18) cat = 'Normal weight';
+                bmiText = `<strong>${bmiVal}</strong> (${cat})`;
+                bmiColor = bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#0f766e' : '#b91c1c');
+            }
+            
+            const cardHtml = `
+            <div style="background:#fff; border:1px solid #edf2f7; border-radius:12px; padding:20px; box-shadow:0 4px 6px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; min-height: 290px;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-weight:800; font-size:1rem; color:#2d3748; font-family:'Montserrat', sans-serif;">${q.title}</span>
+                        <span style="background:${badgeBg}; color:${badgeColor}; font-size:0.75rem; padding:4px 10px; border-radius:30px; font-weight:800; text-transform:uppercase;">${statusText}</span>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                        <div>
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px;">Date Measured:</label>
+                            <input type="date" id="bmiDate-${q.id}" value="${dateVal}" style="padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 0.85rem; width: 100%; font-weight: 600; color: #1e293b;" ${q.is_locked || isFinalized ? 'disabled' : ''}>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px;">Weight (kg):</label>
+                                <input type="number" step="0.1" id="bmiWeight-${q.id}" value="${weightVal}" placeholder="e.g. 15.5" oninput="updateLiveBmi('${q.id}')" style="padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 0.85rem; width: 100%; font-weight: 600; color: #1e293b;" ${q.is_locked || isFinalized ? 'disabled' : ''}>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: #4a5568; display: block; margin-bottom: 4px;">Height (cm):</label>
+                                <input type="number" step="1" id="bmiHeight-${q.id}" value="${heightVal}" placeholder="e.g. 102" oninput="updateLiveBmi('${q.id}')" style="padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 0.85rem; width: 100%; font-weight: 600; color: #1e293b;" ${q.is_locked || isFinalized ? 'disabled' : ''}>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; font-size: 0.85rem; color: #4a5568; font-weight: 600;">
+                        Live BMI Result: <span id="bmiLiveRes-${q.id}" style="color:${bmiColor};">${bmiText}</span>
+                    </div>
+                </div>
+                <div>
+                    ${actionHtml}
+                </div>
+            </div>`;
+            cardsContainer.innerHTML += cardHtml;
+        });
+    }
+
+    window.saveBmiQuarter = function(quarter, status, childId, recordId) {
+        const dateVal = document.getElementById(`bmiDate-${quarter}`).value;
+        const weightVal = parseFloat(document.getElementById(`bmiWeight-${quarter}`).value);
+        const heightVal = parseFloat(document.getElementById(`bmiHeight-${quarter}`).value);
+        
+        if (!dateVal || isNaN(weightVal) || isNaN(heightVal)) {
+            alert("Please enter a valid Date, Weight, and Height.");
             return;
         }
         
-        const heightM = heightCm / 100;
-        const bmi = (weight / (heightM * heightM)).toFixed(1);
+        const payload = {
+            child: childId,
+            quarter: quarter,
+            weight: weightVal,
+            height: heightVal,
+            measurement_date: dateVal,
+            status: status
+        };
         
-        let category = "";
-        let color = "";
-        if (bmi < 14) { category = "Underweight"; color = "#f6c23e"; }
-        else if (bmi < 18) { category = "Normal weight"; color = "#1cc88a"; }
-        else { category = "Overweight"; color = "#e74a3b"; } // rough ranges for 3-4 yr olds
+        const url = recordId ? `/api/bmi-records/${recordId}/` : `/api/bmi-records/`;
+        const method = recordId ? 'PUT' : 'POST';
         
-        resDiv.style.display = 'block';
-        resDiv.style.borderLeftColor = color;
-        resDiv.innerHTML = `Calculated BMI: ${bmi} (${category}) \n<span style="font-size:0.8rem; color:#888;">Saving...</span>`;
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw new Error(err.non_field_errors || err.detail || "Error saving record"); });
+            }
+            return res.json();
+        })
+        .then(data => {
+            alert(`Quarter BMI saved successfully as ${status}!`);
+            fetchSystemData();
+        })
+        .catch(err => {
+            console.error(err);
+            alert(err.message || "Error saving BMI data.");
+        });
+    };
+    
+    window.unlockBmiQuarter = function(recordId, childId) {
+        if (!confirm("Are you sure you want to unlock this BMI quarter? This will change status back to Draft.")) return;
         
-        childBmiResults[studentId] = `BMI: ${bmi} (${category})`;
-        
-        // Save to backend
-        fetch(`/api/children/${studentId}/`, {
+        fetch(`/api/bmi-records/${recordId}/`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({
-                weight: weight,
-                height: heightCm
-            })
-        }).then(res => res.json()).then(data => {
-            resDiv.innerHTML = `Calculated BMI: ${bmi} (${category})`;
-            // Update the local list so renderDashboard uses fresh data
-            let st = childrenList.find(c => c.id == studentId);
-            if(st) { st.weight = weight; st.height = heightCm; }
-            renderDashboard();
-        }).catch(err => console.error(err));
-    }
+            body: JSON.stringify({ status: 'Draft' })
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(err => { throw new Error(err.detail || "Error unlocking record"); });
+            return res.json();
+        })
+        .then(data => {
+            alert("Quarter BMI unlocked successfully!");
+            fetchSystemData();
+        })
+        .catch(err => {
+            console.error(err);
+            alert(err.message || "Error unlocking BMI quarter.");
+        });
+    };
 
     // TABS
     function switchTab(tabId) {
@@ -250,6 +538,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         document.getElementById('content-overview').style.display = 'none';
         document.getElementById('content-log').style.display = 'none';
         document.getElementById('content-bmi').style.display = 'none';
+        document.getElementById('content-history').style.display = 'none';
         
         const targetContent = document.getElementById('content-' + tabId);
         if (targetContent) targetContent.style.display = 'block';
@@ -337,11 +626,26 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         const activeChildren = childrenList.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
 
         if(activeChildren.length === 0) {
-            container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to begin tracking meals.</p></div>`;
+            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">System Empty. Please enroll a student via the Children Directory to begin tracking meals.</td></tr>`;
             return;
         }
 
         const isArchive = sessionStorage.getItem('bmv3_archive_year_id');
+        
+        // Search & Sort filter
+        const searchVal = document.getElementById('nutritionSearch') ? document.getElementById('nutritionSearch').value.trim().toLowerCase() : '';
+        const filteredChildren = activeChildren.filter(c => {
+            const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+            return fullName.includes(searchVal);
+        });
+
+        filteredChildren.sort((a, b) => {
+            const lastA = (a.last_name || '').toLowerCase();
+            const lastB = (b.last_name || '').toLowerCase();
+            if (lastA !== lastB) return lastA.localeCompare(lastB);
+            return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
+        });
+
         if (isArchive) {
             // Archive UI adjustments
             const tabsEl = document.querySelector('.tabs');
@@ -362,7 +666,12 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 if (p) p.innerText = "View historical snack logs, weights, heights, and BMI progressions.";
             }
 
-            activeChildren.forEach(st => {
+            if (filteredChildren.length === 0) {
+                container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
+                return;
+            }
+
+            filteredChildren.forEach(st => {
                 let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]);
                 
                 // Physical stats overview
@@ -377,20 +686,32 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                     else if (bmi >= 25) cat = 'Overweight';
                     bmiText = `${bmi} (${cat})`;
                 }
+                const init = ((st.first_name ? st.first_name[0] : '') + (st.last_name ? st.last_name[0] : '')).toUpperCase();
 
                 let html = `
-                <div style="border: 1px solid #bbb; border-radius: 10px; padding: 20px; margin-bottom: 15px; background: #fff; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display:flex; gap:15px; align-items:center;">
-                        <div style="width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; overflow: hidden;">${avatarHtml}</div>
-                        <div>
-                            <h4 style="margin: 0; font-size: 1.05rem;">${st.first_name} ${st.last_name}</h4>
-                            <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #666;">Current height: ${height} &bull; weight: ${weight} &bull; BMI: ${bmiText}</p>
+                <tr style="border-bottom:1px solid #edf2f7; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
+                    <td style="padding:15px; display:flex; align-items:center; gap:12px; border:none;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:#f0f4f8; color:#4a90e2; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; border:1px solid #cbd5e1; overflow:hidden; flex-shrink:0;">
+                            ${st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${init}</span>`}
                         </div>
-                    </div>
-                    <button class="btn btn-primary btn-history-view" onclick="viewStudentNutritionHistory(${st.id})" style="padding: 8px 15px; font-size: 0.85rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-clock-rotate-left"></i> View Nutrition History
-                    </button>
-                </div>`;
+                        <div>
+                            <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.last_name}, ${st.first_name}</span>
+                        </div>
+                    </td>
+                    <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
+                    <td style="padding:15px; color:#475569; font-weight:500; font-size:0.85rem;">
+                        Height: <strong>${height}</strong><br>
+                        Weight: <strong>${weight}</strong><br>
+                        BMI: <strong>${bmiText}</strong>
+                    </td>
+                    <td style="padding:15px; color:#94a3b8; font-style:italic; font-size:0.85rem;">Archived</td>
+                    <td style="padding:15px; color:#94a3b8; font-style:italic; font-size:0.85rem;">No active notes</td>
+                    <td style="padding:15px; text-align:center;">
+                        <button class="btn btn-primary" onclick="viewStudentNutritionHistory(${st.id})" style="padding:6px 12px; font-size:0.8rem; font-weight:700; font-family:'Montserrat', sans-serif;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> History
+                        </button>
+                    </td>
+                </tr>`;
                 container.innerHTML += html;
             });
             return;
@@ -398,136 +719,247 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
 
         const overviewDate = document.getElementById('overviewDate').value;
 
-        activeChildren.forEach(st => {
+        if (filteredChildren.length === 0) {
+            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
+            return;
+        }
+
+        filteredChildren.forEach(st => {
             const record = nutritionRecords.find(r => r.child === st.id && r.date === overviewDate);
             const status = record && record.snack_status ? record.snack_status : 'No Data';
             
-            let color = '#777';
-            if (status === 'Finished') color = '#1cc88a';
-            else if (status === 'Some Left') color = '#f6c23e';
-            else if (status === 'Not Eaten') color = '#e74a3b';
+            let color = '#718096';
+            let bg = '#edf2f7';
+            if (status === 'Finished') { color = '#0f766e'; bg = '#ccfbf1'; }
+            else if (status === 'Some Left') { color = '#b45309'; bg = '#fef3c7'; }
+            else if (status === 'Not Eaten') { color = '#b91c1c'; bg = '#fee2e2'; }
 
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]);
             
-            const notes = record && record.teacher_notes ? `<div style="margin-top:10px; font-size:0.85rem; color:#666; background:#f9f9f9; padding:8px; border-radius:5px; font-style:italic;">"${record.teacher_notes}"</div>` : '';
-            const bmiDisp = childBmiResults[st.id] ? `<p style="margin:5px 0 0 0; font-size: 0.85rem; color:#333; font-weight:700;">${childBmiResults[st.id]}</p>` : 
-                            (st.weight && st.height ? (() => {
-                                const hM = st.height / 100;
-                                const b = (st.weight / (hM * hM)).toFixed(1);
-                                let c = b < 14 ? "Underweight" : (b < 18 ? "Normal" : "Overweight");
-                                return `<p style="margin:5px 0 0 0; font-size: 0.85rem; color:#333; font-weight:700;">BMI: ${b} (${c})</p>`;
-                            })() : '');
+            const notesText = record && record.teacher_notes ? record.teacher_notes : '-';
             
+            let weight = st.weight ? `${st.weight} kg` : 'N/A';
+            let height = st.height ? `${st.height} cm` : 'N/A';
+            let bmiText = 'N/A';
+            if (st.weight && st.height) {
+                let heightM = st.height / 100;
+                let bmi = (st.weight / (heightM * heightM)).toFixed(1);
+                let cat = 'Normal';
+                if (bmi < 14) cat = 'Underweight';
+                else if (bmi >= 25) cat = 'Overweight';
+                bmiText = `${bmi} (${cat})`;
+            }
+            const init = ((st.first_name ? st.first_name[0] : '') + (st.last_name ? st.last_name[0] : '')).toUpperCase();
+
             let html = `
-            <div style="border: 1px solid #bbb; border-radius: 10px; padding: 20px; margin-bottom: 15px; background: #fff;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; gap:15px; align-items:center;">
-                        <div style="width: 45px; height: 45px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; overflow: hidden;">${avatarHtml}</div>
-                        <div>
-                            <h4 style="margin: 0; font-size: 1.05rem;">${st.first_name} ${st.last_name}</h4>
-                            <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: #666;">${st.age} years old</p>
-                        </div>
+            <tr style="border-bottom:1px solid #edf2f7; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
+                <td style="padding:15px; display:flex; align-items:center; gap:12px; border:none;">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f0f4f8; color:#4a90e2; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; border:1px solid #cbd5e1; overflow:hidden; flex-shrink:0;">
+                        ${st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${init}</span>`}
                     </div>
-                    <div style="text-align: right;">
-                        <h3 style="margin:0; font-size: 1.2rem; color: ${color};">${status}</h3>
-                        <p style="margin:0; font-size: 0.8rem; color: #888;">Snack Status</p>
-                        ${bmiDisp}
+                    <div>
+                        <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.last_name}, ${st.first_name}</span>
                     </div>
-                </div>
-                ${notes}
-            </div>`;
+                </td>
+                <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
+                <td style="padding:15px; color:#475569; font-weight:500; font-size:0.85rem;">
+                    Height: <strong>${height}</strong> &bull; Weight: <strong>${weight}</strong><br>
+                    BMI: <strong>${bmiText}</strong>
+                </td>
+                <td style="padding:15px;">
+                    <span class="pill" style="background:${bg}; color:${color}; font-weight:bold; font-size:0.75rem; padding:4px 10px; border-radius:30px; display:inline-block; text-transform:uppercase;">
+                        ${status}
+                    </span>
+                </td>
+                <td style="padding:15px; color:#475569; font-size:0.85rem; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${notesText}">
+                    ${notesText}
+                </td>
+                <td style="padding:15px; text-align:center;">
+                    <button class="btn btn-primary" onclick="viewStudentNutritionHistory(${st.id})" style="padding:6px 12px; font-size:0.8rem; font-weight:700; font-family:'Montserrat', sans-serif;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    </button>
+                </td>
+            </tr>`;
             container.innerHTML += html;
         });
     }
 
     window.viewStudentNutritionHistory = function(studentId) {
+        switchTab('history');
+        document.getElementById('historyStudent').value = studentId;
+        loadStudentHistory(studentId);
+    };
+
+    window.loadStudentHistory = function(studentId) {
+        const container = document.getElementById('studentHistoryContainer');
+        if (!studentId) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+
+        const student = childrenList.find(c => c.id == studentId);
+        if (!student) return;
+
+        // 1. Populate BMI Records (Draft and Finalized)
+        const bmiRecords = student.bmi_records || [];
+        const bmiTbody = document.getElementById('history-bmi-tbody');
+        bmiTbody.innerHTML = '';
+        
+        const activeSchoolYearId = activeSchoolYear ? activeSchoolYear.id : null;
+        const yearBmis = bmiRecords.filter(r => !activeSchoolYearId || r.school_year == activeSchoolYearId);
+
+        if (yearBmis.length === 0) {
+            bmiTbody.innerHTML = `<tr><td colspan="5" align="center" style="color:#888; font-style:italic; padding: 20px;">No BMI records entered yet.</td></tr>`;
+        } else {
+            const sortedBmis = [...yearBmis].sort((x, y) => {
+                const quarters = {'1st': 1, '2nd': 2, '3rd': 3};
+                return quarters[x.quarter] - quarters[y.quarter];
+            });
+
+            sortedBmis.forEach(rec => {
+                const hM = rec.height / 100;
+                const bmiVal = (rec.weight / (hM * hM)).toFixed(1);
+                let cat = "Overweight";
+                if (bmiVal < 14) cat = "Underweight";
+                else if (bmiVal < 18) cat = "Normal weight";
+
+                let qTitle = "1st Quarter (Baseline)";
+                if (rec.quarter === '2nd') qTitle = "2nd Quarter (Interim)";
+                else if (rec.quarter === '3rd') qTitle = "3rd Quarter (Final)";
+
+                const isDraft = rec.status === 'Draft';
+                const statusBadge = isDraft 
+                    ? `<span style="font-size:0.75rem; font-weight:700; background:#fef3c7; color:#d97706; padding:3px 8px; border-radius:4px; display:inline-block;">Ongoing / Draft</span>`
+                    : `<span style="font-size:0.75rem; font-weight:700; background:#d1fae5; color:#065f46; padding:3px 8px; border-radius:4px; display:inline-block;">Finalized</span>`;
+
+                let bmiColor = bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#0f766e' : '#b91c1c');
+                let badgeBg = bmiVal < 14 ? '#fef3c7' : (bmiVal < 18 ? '#d1fae5' : '#fee2e2');
+
+                bmiTbody.innerHTML += `
+                <tr style="border-bottom:1px solid #edf2f7;">
+                    <td style="padding:12px; font-weight:700; color:#334155;">${qTitle}</td>
+                    <td style="padding:12px; color:#334155;"><strong>${rec.weight} kg</strong></td>
+                    <td style="padding:12px; color:#334155;"><strong>${rec.height} cm</strong></td>
+                    <td style="padding:12px;">
+                        <span style="font-size:0.8rem; font-weight:700; color:${bmiColor}; background:${badgeBg}; padding:4px 8px; border-radius:6px; display:inline-block;">
+                            BMI: ${bmiVal} (${cat})
+                        </span>
+                    </td>
+                    <td style="padding:12px;">${statusBadge}</td>
+                </tr>`;
+            });
+        }
+
+        // 2. Populate Snack logs
+        const snackTbody = document.getElementById('history-snack-tbody');
+        snackTbody.innerHTML = '';
+        
+        const childSnacks = nutritionRecords.filter(r => r.child == studentId);
+        
+        if (childSnacks.length === 0) {
+            snackTbody.innerHTML = `<tr><td colspan="3" align="center" style="color:#888; font-style:italic; padding: 20px;">No snack consumption logs registered yet.</td></tr>`;
+        } else {
+            const sortedSnacks = [...childSnacks].sort((a, b) => new Date(b.date) - new Date(a.date));
+            sortedSnacks.forEach(rec => {
+                let badgeColor = '#777';
+                let badgeBg = '#eee';
+                if (rec.snack_status === 'Finished') { badgeColor = '#065f46'; badgeBg = '#d1fae5'; }
+                else if (rec.snack_status === 'Some Left') { badgeColor = '#b45309'; badgeBg = '#fef3c7'; }
+                else if (rec.snack_status === 'Not Eaten') { badgeColor = '#b91c1c'; badgeBg = '#fee2e2'; }
+
+                snackTbody.innerHTML += `
+                <tr style="border-bottom:1px solid #edf2f7;">
+                    <td style="padding:12px; font-weight:600; color:#475569;">
+                        ${new Date(rec.date).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}
+                    </td>
+                    <td style="padding:12px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:${badgeColor}; background:${badgeBg}; padding:3px 6px; border-radius:4px; display:inline-block;">
+                            ${rec.snack_status || 'No Data'}
+                        </span>
+                    </td>
+                    <td style="padding:12px; color:#64748b; font-style:italic;">${rec.teacher_notes || '—'}</td>
+                </tr>`;
+            });
+        }
+    };
+
+    window.originalViewStudentNutritionHistory = function(studentId) {
         const student = childrenList.find(st => st.id === studentId);
         if (!student) return;
         
         document.getElementById('nutritionHistoryModalTitle').innerText = `${student.first_name} ${student.last_name} - Year Nutrition & BMI History`;
         
-        // BMI Progression
+        // BMI Progression from database
         let bmiProgress = [];
-        if (student.weight && student.height) {
-            let currentWeight = parseFloat(student.weight);
-            let currentHeight = parseFloat(student.height);
+        const bmiRecords = student.bmi_records || [];
+        const activeSchoolYearId = activeSchoolYear ? activeSchoolYear.id : null;
+        const yearBmis = bmiRecords.filter(r => !activeSchoolYearId || r.school_year == activeSchoolYearId);
+        
+        // Sort by quarter
+        yearBmis.sort((x, y) => {
+            const quarters = {'1st': 1, '2nd': 2, '3rd': 3};
+            return quarters[x.quarter] - quarters[y.quarter];
+        });
+        
+        yearBmis.forEach(rec => {
+            const hM = rec.height / 100;
+            const b = (rec.weight / (hM * hM)).toFixed(1);
+            let cat = b < 14 ? "Underweight" : (b < 18 ? "Normal" : "Overweight");
             
-            let snapshots = [
-                { period: "End of Year (Final)", date: "March 2026", w: currentWeight, h: currentHeight },
-                { period: "Mid Year (Interim)", date: "November 2025", w: +(currentWeight - 1.2).toFixed(1), h: +(currentHeight - 2.5).toFixed(0) },
-                { period: "Baseline (Start)", date: "September 2025", w: +(currentWeight - 2.5).toFixed(1), h: +(currentHeight - 5.0).toFixed(0) }
-            ];
+            let qTitle = "1st Quarter (Baseline)";
+            if (rec.quarter === '2nd') qTitle = "2nd Quarter (Interim)";
+            else if (rec.quarter === '3rd') qTitle = "3rd Quarter (Final)";
             
-            snapshots.forEach(s => {
-                let hM = s.h / 100;
-                let b = (s.w / (hM * hM)).toFixed(1);
-                let cat = b < 14 ? "Underweight" : (b < 18 ? "Normal" : "Overweight");
-                bmiProgress.push({
-                    period: s.period,
-                    date: s.date,
-                    weight: `${s.w} kg`,
-                    height: `${s.h} cm`,
-                    bmi: `${b} (${cat})`
-                });
+            bmiProgress.push({
+                period: `${qTitle} (${rec.status})`,
+                date: new Date(rec.measurement_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                weight: `${rec.weight} kg`,
+                height: `${rec.height} cm`,
+                bmi: `${b} (${cat})`
             });
-        } else {
-            bmiProgress = [
-                { period: "End of Year (Final)", date: "March 2026", weight: "15.2 kg", height: "101 cm", bmi: "14.9 (Normal)" },
-                { period: "Mid Year (Interim)", date: "November 2025", weight: "14.1 kg", height: "98 cm", bmi: "14.7 (Normal)" },
-                { period: "Baseline (Start)", date: "September 2025", weight: "13.0 kg", height: "96 cm", bmi: "14.1 (Normal)" }
-            ];
-        }
+        });
         
         let bmiHtml = '';
-        bmiProgress.forEach(row => {
-            bmiHtml += `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${row.period}<br><span style="font-size: 0.75rem; color: #64748b;">${row.date}</span></td>
-                <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.weight}</td>
-                <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.height}</td>
-                <td style="padding: 10px; font-size: 0.85rem; font-weight: 700; color: #043263;">${row.bmi}</td>
-            </tr>`;
-        });
-
+        if (bmiProgress.length === 0) {
+            bmiHtml = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#888;">No BMI records entered yet.</td></tr>`;
+        } else {
+            bmiProgress.forEach(row => {
+                bmiHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${row.period}<br><span style="font-size: 0.75rem; color: #64748b;">${row.date}</span></td>
+                    <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.weight}</td>
+                    <td style="padding: 10px; font-size: 0.85rem; color: #334155;">${row.height}</td>
+                    <td style="padding: 10px; font-size: 0.85rem; font-weight: 700; color: #043263;">${row.bmi}</td>
+                </tr>`;
+            });
+        }
+ 
         // Snack logs history
         let studentLogs = nutritionRecords.filter(r => r.child === studentId).sort((x, y) => new Date(y.date) - new Date(x.date));
         
+        let logsHtml = '';
         if (studentLogs.length === 0) {
-            let mockDates = [
-                { date: "2026-03-12", snack: "Sliced Bananas & Milk", status: "Finished", note: "Cleaned the bowl!" },
-                { date: "2026-03-11", snack: "Oatmeal with Honey", status: "Some Left", note: "Ate about half." },
-                { date: "2026-03-10", snack: "Apple Slices & Crackers", status: "Finished", note: "" },
-                { date: "2026-02-25", snack: "Scrambled Eggs & Toast", status: "Finished", note: "" },
-                { date: "2026-02-24", snack: "Vegetable Soup", status: "Not Eaten", note: "Refused veggies today." }
-            ];
-            
-            mockDates.forEach(m => {
-                studentLogs.push({
-                    date: m.date,
-                    snack_status: m.status,
-                    teacher_notes: m.note
-                });
+            logsHtml = `<tr><td colspan="3" style="text-align:center; padding:20px; color:#888;">No snack logs recorded yet.</td></tr>`;
+        } else {
+            studentLogs.forEach(r => {
+                let badgeClass = '';
+                if (r.snack_status === 'Finished') badgeClass = 'background: #d1fae5; color: #065f46;';
+                else if (r.snack_status === 'Some Left') badgeClass = 'background: #fef3c7; color: #92400e;';
+                else badgeClass = 'background: #fee2e2; color: #991b1b;';
+                
+                logsHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td style="padding: 10px; text-align: center;">
+                        <span style="padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; ${badgeClass}">
+                            ${r.snack_status}
+                        </span>
+                    </td>
+                    <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">${r.teacher_notes || '-'}</td>
+                </tr>`;
             });
         }
-        
-        let logsHtml = '';
-        studentLogs.forEach(r => {
-            let badgeClass = '';
-            if (r.snack_status === 'Finished') badgeClass = 'background: #d1fae5; color: #065f46;';
-            else if (r.snack_status === 'Some Left') badgeClass = 'background: #fef3c7; color: #92400e;';
-            else badgeClass = 'background: #fee2e2; color: #991b1b;';
-            
-            logsHtml += `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding: 10px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                <td style="padding: 10px; text-align: center;">
-                    <span style="padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; ${badgeClass}">
-                        ${r.snack_status}
-                    </span>
-                </td>
-                <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">${r.teacher_notes || '-'}</td>
-            </tr>`;
-        });
         
         let html = `
         <div style="margin-bottom: 25px; text-align: left;">

@@ -35,6 +35,14 @@ class SchoolYear(models.Model):
     is_active = models.BooleanField(default=False)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    
+    # ECCD Assessment Period Dates
+    eccd_1st_start = models.DateField(null=True, blank=True)
+    eccd_1st_end = models.DateField(null=True, blank=True)
+    eccd_2nd_start = models.DateField(null=True, blank=True)
+    eccd_2nd_end = models.DateField(null=True, blank=True)
+    eccd_3rd_start = models.DateField(null=True, blank=True)
+    eccd_3rd_end = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -206,6 +214,13 @@ class ECCDAssessment(models.Model):
     def __str__(self):
         return f"ECCD - {self.child.first_name} ({self.assessment_period})"
 
+    def save(self, *args, **kwargs):
+        if not self.school_year:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                self.school_year = active_year
+        super().save(*args, **kwargs)
+
 class ECCDMilestoneScore(models.Model):
     SCORE_CHOICES = [
         (0, 'Not Yet Observed'),
@@ -242,4 +257,65 @@ class ScoringAccessRequest(models.Model):
     approved_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"Request for {self.child.first_name} by {self.parent.user.username} - {self.status}"
+        return f"Request for {self.child.first_name} by {self.parent.user.username} - {self.status}"
+
+class Activity(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateField()
+    school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.date})"
+
+class StudentActivityCompletion(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='activity_completions')
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='completions')
+    completed = models.BooleanField(default=False)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('child', 'activity')
+
+    def __str__(self):
+        return f"{self.child} - {self.activity.name} - {'Yes' if self.completed else 'No'}"
+
+class BMIRecord(models.Model):
+    QUARTER_CHOICES = [
+        ('1st', '1st Quarter'),
+        ('2nd', '2nd Quarter'),
+        ('3rd', '3rd Quarter'),
+    ]
+    STATUS_CHOICES = [
+        ('Draft', 'Draft'),
+        ('Finalized', 'Finalized'),
+    ]
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='bmi_records')
+    school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='bmi_records', null=True, blank=True)
+    quarter = models.CharField(max_length=10, choices=QUARTER_CHOICES)
+    weight = models.FloatField()
+    height = models.FloatField()
+    import datetime
+    measurement_date = models.DateField(default=datetime.date.today)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('child', 'school_year', 'quarter')
+
+    def save(self, *args, **kwargs):
+        if not self.school_year:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                self.school_year = active_year
+        super().save(*args, **kwargs)
+        
+        # Update current weight/height on the Child model
+        latest_record = BMIRecord.objects.filter(child=self.child, school_year=self.school_year).order_by('quarter').last()
+        if latest_record:
+            Child.objects.filter(pk=self.child.pk).update(weight=latest_record.weight, height=latest_record.height)
+
+    def __str__(self):
+        return f"{self.child.first_name} - {self.quarter} ({self.status})"

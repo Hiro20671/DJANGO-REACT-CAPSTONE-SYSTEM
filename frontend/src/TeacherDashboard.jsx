@@ -1,8 +1,353 @@
 import React, { useState, useEffect } from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler } from 'chart.js';
-import { Bar, Pie, Line } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler);
+// Custom SVG Chart Components
+
+function SVGDonutChart({ present, absent }) {
+  const total = present + absent;
+  const presentPct = total > 0 ? Math.round((present / total) * 100) : 0;
+  const absentPct = total > 0 ? Math.round((absent / total) * 100) : 0;
+
+  const radius = 40;
+  const circ = 2 * Math.PI * radius; 
+  const presentOffset = circ - (presentPct / 100) * circ;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+      <svg width="180" height="180" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="10" />
+        {absent > 0 && (
+          <circle 
+            cx="50" 
+            cy="50" 
+            r={radius} 
+            fill="none" 
+            stroke="#e74a3b" 
+            strokeWidth="10" 
+            strokeDasharray={circ} 
+            strokeDashoffset={0} 
+            transform="rotate(-90 50 50)"
+          />
+        )}
+        {present > 0 && (
+          <circle 
+            cx="50" 
+            cy="50" 
+            r={radius} 
+            fill="none" 
+            stroke="#1cc88a" 
+            strokeWidth="10" 
+            strokeDasharray={circ} 
+            strokeDashoffset={presentOffset} 
+            transform="rotate(-90 50 50)"
+            strokeLinecap="round"
+          />
+        )}
+        <text x="50" y="47" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '12px', fontWeight: 800, fontFamily: 'Montserrat', fill: '#333' }}>
+          {presentPct}%
+        </text>
+        <text x="50" y="62" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '6px', fontWeight: 600, fontFamily: 'Montserrat', fill: '#777', textTransform: 'uppercase' }}>
+          Present
+        </text>
+      </svg>
+      <div style={{ display: 'flex', gap: '15px', marginTop: '10px', fontSize: '0.85rem', fontFamily: 'Montserrat', fontWeight: 600 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#1cc88a' }}></span>
+          Present: {present}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#e74a3b' }}></span>
+          Absent: {absent}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SVGBarChart({ labels, data, total }) {
+  const maxVal = Math.max(1, ...data, total || 1);
+  const chartHeight = 160;
+  const chartWidth = 400;
+  const padding = { top: 20, right: 15, bottom: 30, left: 30 };
+  const graphWidth = chartWidth - padding.left - padding.right;
+  const graphHeight = chartHeight - padding.top - padding.bottom;
+
+  const barWidth = Math.max(12, (graphWidth / (labels.length || 1)) - 12);
+
+  return (
+    <svg width="100%" height="100%" viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ fontFamily: 'Montserrat' }}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const yVal = Math.round((maxVal / 4) * i);
+        const yPos = padding.top + graphHeight - (yVal / maxVal) * graphHeight;
+        return (
+          <g key={i}>
+            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+              {yVal}
+            </text>
+            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2,2" />
+          </g>
+        );
+      })}
+
+      {data.map((val, i) => {
+        const colWidth = graphWidth / data.length;
+        const xPos = padding.left + i * colWidth + (colWidth - barWidth) / 2;
+        const barHeight = (val / maxVal) * graphHeight;
+        const yPos = padding.top + graphHeight - barHeight;
+
+        let displayLabel = labels[i] || '';
+        if (displayLabel.includes('-')) {
+          const parts = displayLabel.split('-');
+          displayLabel = `${parts[1]}-${parts[2]}`;
+        }
+
+        return (
+          <g key={i}>
+            <rect 
+              x={xPos} 
+              y={yPos} 
+              width={barWidth} 
+              height={barHeight} 
+              fill="url(#barGradGreen)" 
+              rx="3"
+            />
+            <text 
+              x={xPos + barWidth / 2} 
+              y={yPos - 4} 
+              textAnchor="middle" 
+              style={{ fontSize: '8px', fontWeight: 800, fill: '#043263' }}
+            >
+              {val}
+            </text>
+            <text 
+              x={padding.left + i * colWidth + colWidth / 2} 
+              y={chartHeight - 10} 
+              textAnchor="middle" 
+              style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+            >
+              {displayLabel}
+            </text>
+          </g>
+        );
+      })}
+
+      <defs>
+        <linearGradient id="barGradGreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+function SVGNutritionBarChart({ finished, someLeft, notEaten }) {
+  const maxVal = Math.max(1, finished, someLeft, notEaten);
+  const chartHeight = 160;
+  const chartWidth = 400;
+  const padding = { top: 20, right: 15, bottom: 30, left: 30 };
+  const graphWidth = chartWidth - padding.left - padding.right;
+  const graphHeight = chartHeight - padding.top - padding.bottom;
+
+  const barLabels = ['Finished', 'Some Left', 'Not Eaten'];
+  const barValues = [finished, someLeft, notEaten];
+  const barColors = ['url(#nutGradGreen)', 'url(#nutGradYellow)', 'url(#nutGradRed)'];
+  
+  const barWidth = 45;
+  const colWidth = graphWidth / 3;
+
+  return (
+    <svg width="100%" height="100%" viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ fontFamily: 'Montserrat' }}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const yVal = Math.round((maxVal / 4) * i);
+        const yPos = padding.top + graphHeight - (yVal / maxVal) * graphHeight;
+        return (
+          <g key={i}>
+            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+              {yVal}
+            </text>
+            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2,2" />
+          </g>
+        );
+      })}
+
+      {barValues.map((val, i) => {
+        const xPos = padding.left + i * colWidth + (colWidth - barWidth) / 2;
+        const barHeight = (val / maxVal) * graphHeight;
+        const yPos = padding.top + graphHeight - barHeight;
+
+        return (
+          <g key={i}>
+            <rect 
+              x={xPos} 
+              y={yPos} 
+              width={barWidth} 
+              height={barHeight} 
+              fill={barColors[i]} 
+              rx="3"
+            />
+            <text 
+              x={xPos + barWidth / 2} 
+              y={yPos - 4} 
+              textAnchor="middle" 
+              style={{ fontSize: '8px', fontWeight: 800, fill: '#333' }}
+            >
+              {val}
+            </text>
+            <text 
+              x={padding.left + i * colWidth + colWidth / 2} 
+              y={chartHeight - 10} 
+              textAnchor="middle" 
+              style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+            >
+              {barLabels[i]}
+            </text>
+          </g>
+        );
+      })}
+
+      <defs>
+        <linearGradient id="nutGradGreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+        <linearGradient id="nutGradYellow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="100%" stopColor="#d97706" />
+        </linearGradient>
+        <linearGradient id="nutGradRed" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#dc2626" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+function SVGEccdDomainPerformanceChart({ labels, data1, data2, data3 }) {
+  const chartHeight = 220;
+  const chartWidth = 750;
+  const padding = { top: 20, right: 30, bottom: 40, left: 35 };
+  const graphWidth = chartWidth - padding.left - padding.right;
+  const graphHeight = chartHeight - padding.top - padding.bottom;
+
+  const count = labels.length || 7;
+  const getCoordinates = (dataset) => {
+    return dataset.map((val, i) => {
+      const x = padding.left + i * (graphWidth / (count - 1 || 1));
+      const y = padding.top + graphHeight - (val / 100) * graphHeight;
+      return { x, y, val };
+    });
+  };
+
+  const pts1 = getCoordinates(data1);
+  const pts2 = getCoordinates(data2);
+  const pts3 = getCoordinates(data3);
+
+  const getPathD = (pts) => {
+    if (pts.length === 0) return '';
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  };
+
+  const getAreaD = (pts) => {
+    if (pts.length === 0) return '';
+    const linePath = getPathD(pts);
+    return `${linePath} L ${pts[pts.length - 1].x} ${padding.top + graphHeight} L ${pts[0].x} ${padding.top + graphHeight} Z`;
+  };
+
+  const renderDataset = (pts, strokeColor, fillGrad) => {
+    if (pts.length === 0) return null;
+    return (
+      <g>
+        <path d={getAreaD(pts)} fill={fillGrad} opacity="0.1" />
+        <path d={getPathD(pts)} fill="none" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {pts.map((p, i) => (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="4.5" fill="#fff" stroke={strokeColor} strokeWidth="2" />
+            <circle cx={p.x} cy={p.y} r="2" fill={strokeColor} />
+            <text x={p.x} y={p.y - 8} textAnchor="middle" style={{ fontSize: '8px', fontWeight: 800, fill: strokeColor }}>
+              {p.val}%
+            </text>
+          </g>
+        ))}
+      </g>
+    );
+  };
+
+  return (
+    <div style={{ width: '100%', overflowX: 'auto' }}>
+      <div style={{ minWidth: '700px' }}>
+        <svg width="100%" height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ fontFamily: 'Montserrat' }}>
+          {[0, 25, 50, 75, 100].map((val) => {
+            const yPos = padding.top + graphHeight - (val / 100) * graphHeight;
+            return (
+              <g key={val}>
+                <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+                  {val}%
+                </text>
+                <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3,3" />
+              </g>
+            );
+          })}
+
+          {renderDataset(pts1, '#e74a3b', 'url(#eccdGradRed)')}
+          {renderDataset(pts2, '#fbbf24', 'url(#eccdGradYellow)')}
+          {renderDataset(pts3, '#1cc88a', 'url(#eccdGradGreen)')}
+
+          {labels.map((lbl, i) => {
+            const xPos = padding.left + i * (graphWidth / (count - 1 || 1));
+            let shortLabel = lbl;
+            if (shortLabel.length > 15) {
+              shortLabel = shortLabel.substring(0, 12) + '...';
+            }
+            return (
+              <text 
+                key={i} 
+                x={xPos} 
+                y={chartHeight - 15} 
+                textAnchor="middle" 
+                style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+                transform={`rotate(-10, ${xPos}, ${chartHeight - 15})`}
+              >
+                {shortLabel}
+              </text>
+            );
+          })}
+
+          <defs>
+            <linearGradient id="eccdGradRed" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#e74a3b" />
+              <stop offset="100%" stopColor="#e74a3b" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="eccdGradYellow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="eccdGradGreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1cc88a" />
+              <stop offset="100%" stopColor="#1cc88a" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '25px', marginTop: '10px', fontSize: '0.8rem', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '12px', height: '3px', borderRadius: '1px', background: '#e74a3b', display: 'inline-block' }}></span>
+            1st Evaluation
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '12px', height: '3px', borderRadius: '1px', background: '#fbbf24', display: 'inline-block' }}></span>
+            2nd Evaluation
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '12px', height: '3px', borderRadius: '1px', background: '#1cc88a', display: 'inline-block' }}></span>
+            3rd Evaluation
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 export default function TeacherDashboard() {
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0, pending: 0, milestonePct: 0, nutritionPct: 0 });
@@ -295,7 +640,7 @@ export default function TeacherDashboard() {
             <div style={{ fontWeight: 600, marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
             <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Average completion percentage across 7 ECCD domains</p>
             <div style={{ height: '250px', position: 'relative', width: '100%' }}>
-              <Line data={eccdLineData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { beginAtZero: true, max: 100, ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { position: 'top', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} />
+              <SVGEccdDomainPerformanceChart labels={eccdChart.labels} data1={eccdChart.data1} data2={eccdChart.data2} data3={eccdChart.data3} />
             </div>
         </div>
       )}
@@ -308,7 +653,7 @@ export default function TeacherDashboard() {
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
               <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
-                <Bar data={attBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
+                <SVGBarChart labels={attendanceChart.labels} data={attendanceChart.data} total={stats.total} />
               </div>
             </div>
           )}
@@ -318,7 +663,7 @@ export default function TeacherDashboard() {
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
               <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Weekly snack consumption summary</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
-                <Bar data={nutBarData} options={{ maintainAspectRatio: false, scales: { x: { ticks: { color: '#333', font: { family: 'Montserrat' } }, grid: { display: false } }, y: { ticks: { stepSize: 1, color: '#333', font: { family: 'Montserrat' } }, grid: { color: '#eee' } } }, plugins: { legend: { display: false } } }} />
+                <SVGNutritionBarChart finished={nutritionChart.finished} someLeft={nutritionChart.someLeft} notEaten={nutritionChart.notEaten} />
               </div>
             </div>
           )}
@@ -328,17 +673,7 @@ export default function TeacherDashboard() {
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Today's Attendance</div>
               <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Present vs Absent distribution</p>
               <div style={{ height: '220px', position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <Pie 
-                  data={{
-                      labels: ['Present', 'Absent'],
-                      datasets: [{
-                          data: [stats.present, stats.absent],
-                          backgroundColor: ['#1cc88a', '#e74a3b'],
-                          borderWidth: 1
-                      }]
-                  }} 
-                  options={{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat' }, color: '#333' } } } }} 
-                />
+                <SVGDonutChart present={stats.present} absent={stats.absent} />
               </div>
             </div>
           )}

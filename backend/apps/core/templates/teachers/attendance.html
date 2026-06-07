@@ -386,7 +386,8 @@
             alert("This day is already marked as No Class: " + noClassDB[dateKey]);
             return;
         }
-        const dt = new Date(dateKey);
+        const parts = dateKey.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
         const dayOfWeek = dt.getDay();
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             alert("Weekends are automatically marked as No Class.");
@@ -431,6 +432,25 @@
     function renderChecklistForDate(date) {
         const container = document.getElementById('daily-checklist-container');
         container.innerHTML = '';
+ 
+        const parts = date.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayOfWeek = dt.getDay();
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const noClassReason = noClassDB[date];
+
+        if (isWeekend || noClassReason) {
+            const reasonText = noClassReason ? `Reason: ${noClassReason}` : "Weekend";
+            container.innerHTML = `
+            <div style="text-align:center; padding:40px; background:#fff; border-radius:12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 15px;">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                </div>
+                <h3 style="margin: 0 0 10px 0; font-family: 'Montserrat', sans-serif; font-weight: 800; color: #1e293b;">No Class Day</h3>
+                <p style="margin: 0; color: #64748b; font-weight: 500; font-size: 0.95rem;">${reasonText}</p>
+            </div>`;
+            return;
+        }
 
         if(studentsMaster.length === 0) {
             container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to take attendance.</p></div>`;

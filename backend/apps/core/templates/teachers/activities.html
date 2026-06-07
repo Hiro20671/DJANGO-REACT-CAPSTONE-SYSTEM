@@ -1,0 +1,860 @@
+{% extends "teachers/base_teacher.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Styling variables and custom classes for Premium Look */
+    :root {
+        --primary: #063970;
+        --primary-light: #1b4f91;
+        --secondary: #4a90e2;
+        --success: #1cc88a;
+        --warning: #f6c23e;
+        --danger: #e74a3b;
+        --dark-bg: #1e1e24;
+        --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        --card-hover-shadow: 0 12px 40px rgba(6, 57, 112, 0.12);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+        background-color: #f7f9fc;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(6, 57, 112, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-info h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .header-info p {
+        margin: 5px 0 0 0;
+        opacity: 0.85;
+        font-size: 1rem;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .premium-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #555;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .archive-banner {
+        background-color: #e0f0ff;
+        border-left: 5px solid var(--secondary);
+        color: var(--primary);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    /* Table Design */
+    .table-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .table-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .table-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin: 0;
+    }
+
+    .activities-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .activities-table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        padding: 18px 25px;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .activities-table td {
+        padding: 15px 25px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+
+    .activities-table tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Custom Checkbox */
+    .checkbox-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+    }
+
+    .checkbox-wrapper input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+
+    .checkbox-checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 24px;
+        width: 24px;
+        background-color: #e2e8f0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbd5e1;
+    }
+
+    .checkbox-wrapper input:checked ~ .checkbox-checkmark {
+        background-color: var(--success);
+        border-color: var(--success);
+        box-shadow: 0 4px 10px rgba(28, 200, 138, 0.3);
+    }
+
+    .checkbox-checkmark:after {
+        content: "";
+        display: none;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        margin-bottom: 2px;
+    }
+
+    .checkbox-wrapper input:checked ~ .checkbox-checkmark:after {
+        display: block;
+    }
+
+    .checkbox-wrapper input:disabled ~ .checkbox-checkmark {
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+
+    .checkbox-wrapper input:disabled:checked ~ .checkbox-checkmark {
+        background-color: #a7f3d0;
+        border-color: #a7f3d0;
+    }
+
+    .remarks-input {
+        width: 100%;
+        min-width: 150px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        outline: none;
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .remarks-input:focus {
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.25s ease-out;
+    }
+
+    .modal-content {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        padding: 30px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        position: relative;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Charts details */
+    .bar-chart-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 160px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+        margin-top: 15px;
+    }
+
+    .bar-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-grow: 1;
+        max-width: 40px;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    .bar-fill {
+        width: 20px;
+        background: linear-gradient(to top, var(--primary), var(--secondary));
+        border-radius: 6px 6px 0 0;
+        transition: height 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        height: 0px;
+        position: relative;
+    }
+
+    .bar-track:hover .tooltip, .bar-fill:hover .tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--dark-bg);
+        color: #fff;
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+        z-index: 10;
+        margin-bottom: 5px;
+        pointer-events: none;
+    }
+
+    .bar-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 8px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid" style="padding: 20px;">
+    <!-- Top Header Card -->
+    <div class="dashboard-header">
+        <div class="header-info">
+            <h2>Daily Learning & Snacks Activities</h2>
+            <p>Track student participation, log daily lessons, and record snacks checklist updates.</p>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+            <div>
+                <label for="activity-date" style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; opacity: 0.9;">Select Date</label>
+                <input type="date" id="activityDate" onchange="loadDateData()" style="padding: 10px 15px; border-radius: 10px; border: none; font-weight: 600; color: var(--primary); outline: none; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            </div>
+            <button onclick="openCreateModal()" id="btnAddActivity" style="background: #fff; color: var(--primary); border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px;">
+                <i class="fa-solid fa-plus"></i> Add Activity
+            </button>
+        </div>
+    </div>
+
+    <!-- Historical Archive Mode Banner -->
+    <div id="archiveBanner" class="archive-banner" style="display: none;">
+        <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.5rem;"></i>
+        <div>
+            <span>Viewing Historical Archives (Read-Only)</span>
+            <p style="margin: 2px 0 0 0; font-size: 0.85rem; font-weight: normal; opacity: 0.85;">You are viewing logs from a previous date. Modification is disabled. Select today's date to log achievements.</p>
+        </div>
+    </div>
+
+    <!-- Charts and Analytics Gauges -->
+    <div class="dashboard-grid">
+        <!-- Participation Gauge -->
+        <div class="premium-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div class="card-title" style="align-self: flex-start;"><i class="fa-solid fa-chart-pie" style="color: var(--secondary);"></i> Overall Participation</div>
+            <div style="position: relative; margin: 15px 0;">
+                <svg width="150" height="150" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" stroke-width="8" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#gauge-grad)" stroke-width="8"
+                            stroke-dasharray="251.2" stroke-dashoffset="251.2"
+                            stroke-linecap="round" transform="rotate(-90 50 50)" id="gaugeProgress" style="transition: stroke-dashoffset 0.8s ease;" />
+                    <defs>
+                        <linearGradient id="gauge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#4a90e2" />
+                            <stop offset="100%" stop-color="#1cc88a" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <span id="gaugePctText" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">0%</span>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Completed checklist cells vs total requirements</p>
+        </div>
+
+        <!-- Completion Count Per Activity Chart -->
+        <div class="premium-card">
+            <div class="card-title"><i class="fa-solid fa-chart-simple" style="color: var(--success);"></i> Activity Performance</div>
+            <div class="bar-chart-container" id="activityBarChart">
+                <!-- Populated dynamically -->
+            </div>
+            <p style="font-size: 0.85rem; color: #64748b; margin-top: 15px; text-align: center;">Total students who completed each task today</p>
+        </div>
+
+        <!-- List of Today's Activities -->
+        <div class="premium-card" style="display: flex; flex-direction: column;">
+            <div class="card-title"><i class="fa-solid fa-list-check" style="color: var(--warning);"></i> Tasks for Today</div>
+            <div id="taskListContainer" style="flex-grow: 1; overflow-y: auto; max-height: 170px; margin-top: 10px;">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Same-Day Checklist Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Activities Checklist Log</h3>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="text" id="studentSearch" oninput="filterChecklistTable()" placeholder="🔍 Search student name..." style="padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; width: 220px; font-family: inherit;">
+            </div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="activities-table" id="checklistTable">
+                <thead>
+                    <tr id="checklistHeaderRow">
+                        <th>Student Name</th>
+                        <!-- Dynamic activity headers -->
+                        <th>Remarks / Observations</th>
+                    </tr>
+                </thead>
+                <tbody id="checklistBody">
+                    <!-- Dynamic child checklist rows -->
+                </tbody>
+            </table>
+        </div>
+        <div id="noDataMessage" style="padding: 40px; text-align: center; color: #64748b; font-weight: 600; display: none;">
+            No students enrolled or activities scheduled for this date. Add activities to start logging.
+        </div>
+    </div>
+</div>
+
+<!-- Create Activity Modal -->
+<div class="modal-backdrop" id="createModal">
+    <div class="modal-content">
+        <h3 style="margin-top: 0; color: var(--primary); font-size: 1.4rem; font-weight: 800; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">Create Daily Activity</h3>
+        <button onclick="closeCreateModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8; transition: var(--transition);"><i class="fa-solid fa-xmark"></i></button>
+        <form id="activityForm" onsubmit="saveActivity(event)">
+            <div style="margin-bottom: 20px; text-align: left;">
+                <label for="modalActivityName" style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #334155;">Activity Name *</label>
+                <input type="text" id="modalActivityName" required placeholder="e.g., Coloring Shapes, Afternoon Snack" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; font-size: 0.95rem;">
+            </div>
+            <div style="margin-bottom: 25px; text-align: left;">
+                <label for="modalActivityDesc" style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; color: #334155;">Description & Notes</label>
+                <textarea id="modalActivityDesc" placeholder="e.g. Coloring book pg 12. Snack: Bananas." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; font-size: 0.95rem; height: 100px; resize: none;"></textarea>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                <button type="button" onclick="closeCreateModal()" style="padding: 12px 24px; border: none; border-radius: 8px; background: #e2e8f0; color: #475569; font-weight: 700; cursor: pointer; transition: var(--transition);">Cancel</button>
+                <button type="submit" style="padding: 12px 24px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 10px rgba(6, 57, 112, 0.25);">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // State management
+    let children = [];
+    let activities = [];
+    let completions = [];
+    let isArchiveMode = false;
+
+    // Load initial date to today
+    document.addEventListener("DOMContentLoaded", () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('activityDate').value = todayStr;
+        loadDateData();
+    });
+
+    async function loadDateData() {
+        const selectedDate = document.getElementById('activityDate').value;
+        const todayStr = new Date().toISOString().split('T')[0];
+        isArchiveMode = (selectedDate < todayStr);
+
+        // Update Archive Banner & Add Activity Button
+        document.getElementById('archiveBanner').style.display = isArchiveMode ? 'flex' : 'none';
+        document.getElementById('btnAddActivity').style.display = isArchiveMode ? 'none' : 'inline-block';
+
+        try {
+            // Fetch children (alphabetically sorted by last_name, first_name)
+            const childRes = await fetch('/api/children/');
+            children = await childRes.json();
+            // Sort client-side just in case
+            children.sort((a, b) => {
+                const lnA = (a.last_name || '').toLowerCase();
+                const lnB = (b.last_name || '').toLowerCase();
+                if (lnA !== lnB) return lnA.localeCompare(lnB);
+                return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
+            });
+
+            // Fetch activities for selected date
+            const actRes = await fetch(`/api/activities/?date=${selectedDate}`);
+            activities = await actRes.json();
+
+            // Fetch completions for selected date
+            const compRes = await fetch(`/api/activity-completions/?date=${selectedDate}`);
+            completions = await compRes.json();
+
+            renderChecklistTable();
+            renderStatsAndCharts();
+        } catch (e) {
+            console.error("Error loading date data:", e);
+        }
+    }
+
+    function renderChecklistTable() {
+        const headerRow = document.getElementById('checklistHeaderRow');
+        const body = document.getElementById('checklistBody');
+        const noDataMsg = document.getElementById('noDataMessage');
+
+        // Reset Headers - Keep Student Name and Remarks
+        headerRow.innerHTML = '<th>Student Name</th>';
+        
+        // Add dynamic headers for each activity
+        activities.forEach(act => {
+            headerRow.innerHTML += `
+                <th style="text-align: center;">
+                    <div style="font-weight:700;">${act.name}</div>
+                    <div style="font-size: 0.7rem; color: #64748b; font-weight: normal; margin-top:4px; text-transform:none;">
+                        ${act.description || ''}
+                    </div>
+                    ${!isArchiveMode ? `
+                        <button onclick="deleteActivity(${act.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem; margin-top:5px; opacity:0.6;" title="Delete Activity">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    ` : ''}
+                </th>
+            `;
+        });
+        headerRow.innerHTML += '<th>Remarks / Comments</th>';
+
+        // Clear body
+        body.innerHTML = '';
+
+        if (children.length === 0) {
+            noDataMsg.style.display = 'block';
+            document.getElementById('checklistTable').style.display = 'none';
+            return;
+        }
+
+        noDataMsg.style.display = 'none';
+        document.getElementById('checklistTable').style.display = 'table';
+
+        // Filter search value
+        const searchVal = document.getElementById('studentSearch').value.toLowerCase();
+
+        children.forEach(child => {
+            const fullName = `${child.first_name} ${child.last_name}`.toLowerCase();
+            if (searchVal && !fullName.includes(searchVal)) {
+                return;
+            }
+
+            let rowHtml = `
+                <tr data-child-id="${child.id}">
+                    <td style="font-weight: 700; color: var(--primary);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${child.img || 'https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + child.first_name}" style="width:30px; height:30px; borderRadius:50%; background:#e0f0ff; object-fit:cover;" />
+                            <span>${child.last_name}, ${child.first_name}</span>
+                        </div>
+                    </td>
+            `;
+
+            // Checkbox for each activity
+            activities.forEach(act => {
+                const comp = completions.find(c => c.child === child.id && c.activity === act.id);
+                const isChecked = comp ? comp.completed : false;
+                const disabledAttr = isArchiveMode ? 'disabled' : '';
+
+                rowHtml += `
+                    <td style="text-align: center;">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" 
+                                   data-child-id="${child.id}" 
+                                   data-activity-id="${act.id}"
+                                   ${isChecked ? 'checked' : ''} 
+                                   ${disabledAttr}
+                                   onchange="toggleCompletion(this)">
+                            <span class="checkbox-checkmark"></span>
+                        </label>
+                    </td>
+                `;
+            });
+
+            // Remarks field (takes child's latest completion remark, or holds generic remark)
+            // To be consistent, we grab the remark from any of this child's completions today
+            const childComps = completions.filter(c => c.child === child.id);
+            const remarkText = childComps.length > 0 ? (childComps[0].remarks || '') : '';
+            const disabledAttr = isArchiveMode ? 'disabled' : '';
+
+            rowHtml += `
+                <td>
+                    <input type="text" 
+                           class="remarks-input" 
+                           value="${remarkText}" 
+                           placeholder="Enter remarks..." 
+                           ${disabledAttr}
+                           onblur="saveRemarks(${child.id}, this.value)">
+                </td>
+            </tr>
+            `;
+
+            body.innerHTML += rowHtml;
+        });
+
+        if (body.children.length === 0) {
+            body.innerHTML = `<tr><td colspan="${activities.length + 2}" style="text-align:center; padding: 30px; color:#64748b;">No matching students found.</td></tr>`;
+        }
+    }
+
+    function filterChecklistTable() {
+        renderChecklistTable();
+    }
+
+    function renderStatsAndCharts() {
+        const overallTotal = children.length * activities.length;
+        let overallCompleted = 0;
+
+        // Overall stats
+        completions.forEach(c => {
+            if (c.completed) overallCompleted++;
+        });
+
+        const pct = overallTotal === 0 ? 0 : Math.round((overallCompleted / overallTotal) * 100);
+
+        // Circular Gauge Progress
+        const circumference = 251.2; // 2 * pi * r (r=40)
+        const offset = circumference - (pct / 100) * circumference;
+        document.getElementById('gaugeProgress').style.strokeDashoffset = offset;
+        document.getElementById('gaugePctText').innerText = `${pct}%`;
+
+        // Activity list sidebar in third card
+        const taskList = document.getElementById('taskListContainer');
+        taskList.innerHTML = '';
+
+        if (activities.length === 0) {
+            taskList.innerHTML = `<div style="text-align:center; color:#64748b; padding-top:20px; font-weight:600;">No tasks scheduled for today.</div>`;
+        } else {
+            activities.forEach(act => {
+                const actComps = completions.filter(c => c.activity === act.id && c.completed).length;
+                const actPct = children.length === 0 ? 0 : Math.round((actComps / children.length) * 100);
+
+                taskList.innerHTML += `
+                    <div style="margin-bottom:12px; background:#f8fafc; padding:10px 15px; borderRadius:10px; border-left:4px solid var(--primary);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:0.9rem;">
+                            <span>${act.name}</span>
+                            <span style="color:var(--success);">${actComps}/${children.length} completed</span>
+                        </div>
+                        <div style="width:100%; height:6px; background:#e2e8f0; borderRadius:3px; margin-top:5px;">
+                            <div style="width:${actPct}%; height:100%; background:var(--primary); borderRadius:3px;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Activity Performance Bar Chart
+        const barChart = document.getElementById('activityBarChart');
+        barChart.innerHTML = '';
+
+        if (activities.length === 0) {
+            barChart.innerHTML = `<div style="color:#64748b; font-weight:600;">No data to display</div>`;
+        } else {
+            activities.forEach(act => {
+                const count = completions.filter(c => c.activity === act.id && c.completed).length;
+                const pctHeight = children.length === 0 ? 0 : Math.round((count / children.length) * 100);
+
+                barChart.innerHTML += `
+                    <div class="bar-column">
+                        <div class="bar-track" style="width: 20px; height: 100%; background: #e2e8f0; border-radius: 6px; position: relative; cursor: pointer; display: flex; align-items: flex-end; width: 20px;" title="${act.name}: ${count}/${children.length} (${pctHeight}%)">
+                            <div class="bar-fill" style="height: ${pctHeight}%; width: 100%; background: linear-gradient(to top, var(--primary), var(--secondary)); border-radius: 6px; transition: height 0.8s ease; position: relative;">
+                                <span class="tooltip" style="opacity: 0; visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--dark-bg); color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; margin-bottom: 5px; z-index: 10; pointer-events: none; transition: all 0.2s ease;">${act.name}: ${count}/${children.length} (${pctHeight}%)</span>
+                            </div>
+                        </div>
+                        <div class="bar-label" title="${act.name}">${act.name}</div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    // Auto-save completion
+    async function toggleCompletion(chk) {
+        const childId = chk.getAttribute('data-child-id');
+        const activityId = chk.getAttribute('data-activity-id');
+        const isCompleted = chk.checked;
+
+        // Instantly update local state to feel responsive
+        const existing = completions.find(c => c.child == childId && c.activity == activityId);
+        if (existing) {
+            existing.completed = isCompleted;
+        } else {
+            completions.push({ child: parseInt(childId), activity: parseInt(activityId), completed: isCompleted, remarks: '' });
+        }
+        renderStatsAndCharts();
+
+        // Send to backend bulk-save API View
+        try {
+            const csrfToken = getCookie('csrftoken');
+            const payload = {
+                completions: [
+                    { child_id: childId, activity_id: activityId, completed: isCompleted }
+                ]
+            };
+
+            const response = await fetch('/api/activity-completions/bulk-save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error("Bulk save error");
+            const data = await response.json();
+            
+            // Sync with actual database response ids
+            if (data.success && data.results.length > 0) {
+                const saved = data.results[0];
+                const itemIndex = completions.findIndex(c => c.child == childId && c.activity == activityId);
+                if (itemIndex >= 0) {
+                    completions[itemIndex] = {
+                        id: saved.id,
+                        child: saved.child,
+                        activity: saved.activity,
+                        completed: saved.completed,
+                        remarks: saved.remarks
+                    };
+                }
+            }
+        } catch (e) {
+            console.error("Failed to auto-save completion:", e);
+            // Revert state on error
+            chk.checked = !isCompleted;
+            loadDateData();
+        }
+    }
+
+    // Auto-save Remarks
+    async function saveRemarks(childId, remarksValue) {
+        // Find any completion for this child, or if none, create one for the first activity
+        if (activities.length === 0) return;
+        const firstActId = activities[0].id;
+
+        // Apply remarks locally to all completions of this child
+        completions.forEach(c => {
+            if (c.child == childId) {
+                c.remarks = remarksValue;
+            }
+        });
+
+        try {
+            const csrfToken = getCookie('csrftoken');
+            // We save remarks on the first activity completion record for this child
+            const payload = {
+                completions: [
+                    { child_id: childId, activity_id: firstActId, remarks: remarksValue }
+                ]
+            };
+
+            await fetch('/api/activity-completions/bulk-save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (e) {
+            console.error("Failed to auto-save remarks:", e);
+        }
+    }
+
+    // Delete Activity
+    async function deleteActivity(activityId) {
+        if (!confirm("Are you sure you want to delete this activity? This will remove all student completion records for it.")) return;
+
+        try {
+            const csrfToken = getCookie('csrftoken');
+            const res = await fetch(`/api/activities/${activityId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+
+            if (res.ok) {
+                loadDateData();
+            } else {
+                alert("Failed to delete activity.");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Modal Controls
+    function openCreateModal() {
+        document.getElementById('createModal').style.display = 'flex';
+        document.getElementById('modalActivityName').value = '';
+        document.getElementById('modalActivityDesc').value = '';
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').style.display = 'none';
+    }
+
+    // Submit new activity
+    async function saveActivity(event) {
+        event.preventDefault();
+        const name = document.getElementById('modalActivityName').value;
+        const description = document.getElementById('modalActivityDesc').value;
+        const date = document.getElementById('activityDate').value;
+
+        try {
+            const csrfToken = getCookie('csrftoken');
+            const payload = { name, description, date };
+
+            const res = await fetch('/api/activities/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                closeCreateModal();
+                loadDateData();
+            } else {
+                alert("Failed to create activity.");
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Utility for CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

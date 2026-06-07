@@ -7,7 +7,7 @@ def start_frontend_dev_server():
     frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
     # Use CREATE_NEW_PROCESS_GROUP on Windows to avoid signal propagation
     try:
-        subprocess.Popen(['npm', 'run', 'dev'], cwd=frontend_path, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        subprocess.Popen(['npm', 'run', 'dev'], cwd=frontend_path, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, shell=True)
     except Exception as e:
         print(f'Failed to start frontend dev server: {e}')
 

@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import Child, UserProfile, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, EngagementRecord, PasswordResetOTP, NoClassDay, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore
-from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneRecordSerializer, NutritionRecordSerializer, SchoolYearSerializer, EngagementRecordSerializer, NoClassDaySerializer, ECCDDomainSerializer, ECCDMilestoneSerializer, ECCDAssessmentSerializer, ECCDMilestoneScoreSerializer
+from .models import Child, UserProfile, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, EngagementRecord, PasswordResetOTP, NoClassDay, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore, BMIRecord
+from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneRecordSerializer, NutritionRecordSerializer, SchoolYearSerializer, EngagementRecordSerializer, NoClassDaySerializer, ECCDDomainSerializer, ECCDMilestoneSerializer, ECCDAssessmentSerializer, ECCDMilestoneScoreSerializer, BMIRecordSerializer
 from django.core.mail import send_mail
 from django.conf import settings
 import random
@@ -163,7 +163,7 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
-        else:
+        elif profile.is_teacher:
             active_year = SchoolYear.objects.filter(is_active=True).first()
             if active_year:
                 qs = qs.filter(school_year=active_year)
@@ -184,7 +184,7 @@ class MilestoneRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(child__school_year_id=school_year_id)
-        else:
+        elif profile.is_teacher:
             active_year = SchoolYear.objects.filter(is_active=True).first()
             if active_year:
                 qs = qs.filter(child__school_year_id=active_year.id)
@@ -209,7 +209,70 @@ class NutritionRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
-        else:
+        elif profile.is_teacher:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                qs = qs.filter(school_year=active_year)
+            
+        return qs
+
+class BMIRecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = BMIRecordSerializer
+
+    def perform_create(self, serializer):
+        child = serializer.validated_data.get('child')
+        quarter = serializer.validated_data.get('quarter')
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        # Check locking logic
+        from rest_framework.exceptions import ValidationError
+        if quarter == '2nd':
+            first_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
+            if not first_q or first_q.status != 'Finalized':
+                raise ValidationError("Cannot create 2nd Quarter record because 1st Quarter is not finalized.")
+        elif quarter == '3rd':
+            second_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='2nd').first()
+            if not second_q or second_q.status != 'Finalized':
+                raise ValidationError("Cannot create 3rd Quarter record because 2nd Quarter is not finalized.")
+                
+        serializer.save(school_year=active_year)
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        quarter = serializer.validated_data.get('quarter', instance.quarter)
+        child = instance.child
+        active_year = instance.school_year
+        
+        # Check locking logic
+        from rest_framework.exceptions import ValidationError
+        # Only enforce locking if they are moving forward or changing values
+        if quarter == '2nd':
+            first_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
+            if not first_q or first_q.status != 'Finalized':
+                raise ValidationError("Cannot update 2nd Quarter record because 1st Quarter is not finalized.")
+        elif quarter == '3rd':
+            second_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='2nd').first()
+            if not second_q or second_q.status != 'Finalized':
+                raise ValidationError("Cannot update 3rd Quarter record because 2nd Quarter is not finalized.")
+                
+        serializer.save()
+
+    def get_queryset(self):
+        profile = getattr(self.request.user, 'userprofile', None)
+        if not profile:
+            return BMIRecord.objects.none()
+            
+        qs = BMIRecord.objects.all() if profile.is_teacher else BMIRecord.objects.filter(child__parents=profile)
+        
+        child_id = self.request.query_params.get('child')
+        if child_id:
+            qs = qs.filter(child_id=child_id)
+            
+        school_year_id = self.request.query_params.get('school_year')
+        if school_year_id:
+            qs = qs.filter(school_year_id=school_year_id)
+        elif profile.is_teacher:
             active_year = SchoolYear.objects.filter(is_active=True).first()
             if active_year:
                 qs = qs.filter(school_year=active_year)
@@ -234,7 +297,7 @@ class EngagementRecordViewSet(viewsets.ModelViewSet):
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
-        else:
+        elif profile.is_teacher:
             active_year = SchoolYear.objects.filter(is_active=True).first()
             if active_year:
                 qs = qs.filter(school_year=active_year)
@@ -543,6 +606,14 @@ class ParentHistoryAPIView(APIView):
         # Milestones (latest only, but include all milestones records if multiple)
         milestone_qs = MilestoneRecord.objects.filter(child=child)
         milestone_data = MilestoneRecordSerializer(milestone_qs, many=True).data
+        # BMI Records
+        bmi_qs = BMIRecord.objects.filter(child=child)
+        if school_year_id:
+            bmi_qs = bmi_qs.filter(school_year_id=school_year_id)
+        else:
+            if active_year:
+                bmi_qs = bmi_qs.filter(school_year=active_year)
+        bmi_data = BMIRecordSerializer(bmi_qs, many=True).data
 
         child_data = ChildSerializer(child).data
         children_data = ChildSerializer(children, many=True).data
@@ -574,6 +645,7 @@ class ParentHistoryAPIView(APIView):
             'nutrition': nutrition_data,
             'engagement': engagement_data,
             'milestones': milestone_data,
+            'bmi_records': bmi_data,
         })
 
 class ParentListAPIView(APIView):
@@ -584,9 +656,18 @@ class ParentListAPIView(APIView):
         try:
             # Fetch all user profiles that are not teachers
             profiles = UserProfile.objects.filter(is_teacher=False).select_related('user')
+            school_year_id = request.query_params.get('school_year')
+            active_year = None if school_year_id else SchoolYear.objects.filter(is_active=True).first()
+            
             for profile in profiles:
-                # Find children linked to this parent profile
-                children = Child.objects.filter(parents=profile)
+                # Find children linked to this parent profile in the active/selected school year
+                if school_year_id:
+                    children = Child.objects.filter(parents=profile, school_year_id=school_year_id)
+                elif active_year:
+                    children = Child.objects.filter(parents=profile, school_year=active_year)
+                else:
+                    children = Child.objects.filter(parents=profile)
+                    
                 if not children.exists():
                     continue  # Only show parents with enrolled children
                 
@@ -1174,3 +1255,61 @@ class ScoringAccessRequestViewSet(viewsets.ModelViewSet):
             serializer.save(approved_at=timezone.now())
         else:
             serializer.save()
+
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import Activity, StudentActivityCompletion
+from .serializers import ActivitySerializer, StudentActivityCompletionSerializer
+
+class ActivityViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ActivitySerializer
+    queryset = Activity.objects.all()
+
+    def get_queryset(self):
+        qs = Activity.objects.all()
+        date = self.request.query_params.get('date')
+        if date:
+            qs = qs.filter(date=date)
+        return qs.order_by('id')
+
+class StudentActivityCompletionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = StudentActivityCompletionSerializer
+    queryset = StudentActivityCompletion.objects.all()
+
+    def get_queryset(self):
+        qs = StudentActivityCompletion.objects.all()
+        child_id = self.request.query_params.get('child')
+        activity_id = self.request.query_params.get('activity')
+        date = self.request.query_params.get('date')
+        if child_id:
+            qs = qs.filter(child_id=child_id)
+        if activity_id:
+            qs = qs.filter(activity_id=activity_id)
+        if date:
+            qs = qs.filter(activity__date=date)
+        return qs.order_by('child__last_name', 'child__first_name')
+
+    @action(detail=False, methods=['post'], url_path='bulk-save')
+    def bulk_save(self, request):
+        completions = request.data.get('completions', [])
+        results = []
+        for item in completions:
+            cid = item.get('child_id')
+            aid = item.get('activity_id')
+            comp = item.get('completed', False)
+            rem = item.get('remarks', '')
+            
+            if not cid or not aid:
+                continue
+                
+            completion, created = StudentActivityCompletion.objects.update_or_create(
+                child_id=cid,
+                activity_id=aid,
+                defaults={'completed': comp, 'remarks': rem}
+            )
+            results.append(StudentActivityCompletionSerializer(completion).data)
+            
+        return Response({'success': True, 'results': results})

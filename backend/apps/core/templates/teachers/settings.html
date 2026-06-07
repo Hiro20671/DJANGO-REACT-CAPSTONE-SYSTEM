@@ -405,6 +405,93 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <button class="btn-danger" onclick="confirmReset()">Archive Current Year & Reset All Data</button>
             </div>
 
+            <!-- CONFIGURE ACTIVE SCHOOL YEAR DATES -->
+            <div style="background: #fff; border: 1px solid #edf2f7; border-radius: 8px; padding: 20px; max-width: 600px; margin-bottom: 30px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                <h4 style="color: #2b6cb0; margin-top: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; font-family: 'Montserrat', sans-serif; font-weight: 800;">
+                    <i class="fa-solid fa-calendar-days"></i> Configure Active School Year & Evaluation Periods
+                </h4>
+                <p style="color: #666; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+                    Set operational dates for the current school year. These dates govern the start and end of individual ECCD evaluation phases.
+                </p>
+                
+                <div style="font-weight: 700; margin-bottom: 15px; font-size: 1rem; color: #2d3748;">
+                    Active School Year: <span id="active-sy-name" style="color: #4299e1;">Loading...</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: #4a5568;">School Year Start Date</label>
+                        <input type="date" id="sy-start-date" class="form-control" style="width: 100%; border: 1px solid #cbd5e0; padding: 8px; border-radius: 6px;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: #4a5568;">School Year End Date</label>
+                        <input type="date" id="sy-end-date" class="form-control" style="width: 100%; border: 1px solid #cbd5e0; padding: 8px; border-radius: 6px;">
+                    </div>
+                </div>
+
+                <h5 style="margin-top: 20px; margin-bottom: 10px; color: #4a5568; font-weight: 700; font-size: 0.95rem; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; font-family: 'Montserrat', sans-serif;">
+                    ECCD Milestones Assessment Periods
+                </h5>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                    <!-- 1st Assessment -->
+                    <div style="background: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #2d3748; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <span style="background: #4a90e2; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+                            First Assessment Period
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">Start Date</label>
+                                <input type="date" id="eccd-1st-start" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">End Date</label>
+                                <input type="date" id="eccd-1st-end" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2nd Assessment -->
+                    <div style="background: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #2d3748; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <span style="background: #4a90e2; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+                            Second Assessment Period
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">Start Date</label>
+                                <input type="date" id="eccd-2nd-start" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">End Date</label>
+                                <input type="date" id="eccd-2nd-end" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3rd Assessment -->
+                    <div style="background: #f8fafc; border-radius: 6px; padding: 12px; border: 1px solid #e2e8f0;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #2d3748; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <span style="background: #4a90e2; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+                            Third Assessment Period
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">Start Date</label>
+                                <input type="date" id="eccd-3rd-start" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.75rem; color: #718096; margin-bottom: 4px; display:block;">End Date</label>
+                                <input type="date" id="eccd-3rd-end" style="width:100%; border:1px solid #cbd5e0; padding:6px; border-radius:4px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="btnSaveSchoolDates" onclick="saveSchoolYearDates()" style="font-weight: 700;">Save Configuration</button>
+            </div>
+
             <div class="panel-header">
                 <h3 style="font-size: 1.1rem;">Archived School Years</h3>
                 <p>Access historical records for past enrolled batches</p>
@@ -1075,7 +1162,91 @@ input:checked + .slider:before { transform: translateX(26px); }
         document.getElementById('archiveViewModal').classList.remove('active');
     }
 
+    let activeSchoolYearId = null;
+
+    function loadActiveSchoolYearDates() {
+        fetch('/api/school-years/')
+        .then(res => res.json())
+        .then(years => {
+            let activeYear = years.find(y => y.is_active);
+            if (activeYear) {
+                activeSchoolYearId = activeYear.id;
+                document.getElementById('active-sy-name').innerText = activeYear.name;
+                
+                document.getElementById('sy-start-date').value = activeYear.start_date || '';
+                document.getElementById('sy-end-date').value = activeYear.end_date || '';
+                
+                document.getElementById('eccd-1st-start').value = activeYear.eccd_1st_start || '';
+                document.getElementById('eccd-1st-end').value = activeYear.eccd_1st_end || '';
+                
+                document.getElementById('eccd-2nd-start').value = activeYear.eccd_2nd_start || '';
+                document.getElementById('eccd-2nd-end').value = activeYear.eccd_2nd_end || '';
+                
+                document.getElementById('eccd-3rd-start').value = activeYear.eccd_3rd_start || '';
+                document.getElementById('eccd-3rd-end').value = activeYear.eccd_3rd_end || '';
+            } else {
+                document.getElementById('active-sy-name').innerText = "None Active";
+            }
+        })
+        .catch(err => {
+            console.error("Error loading active school year:", err);
+            showToast("Failed to load active school year dates.", "error");
+        });
+    }
+
+    function saveSchoolYearDates() {
+        if (!activeSchoolYearId) {
+            showToast("No active school year to configure.", "error");
+            return;
+        }
+        
+        let start_date = document.getElementById('sy-start-date').value || null;
+        let end_date = document.getElementById('sy-end-date').value || null;
+        
+        let eccd_1st_start = document.getElementById('eccd-1st-start').value || null;
+        let eccd_1st_end = document.getElementById('eccd-1st-end').value || null;
+        
+        let eccd_2nd_start = document.getElementById('eccd-2nd-start').value || null;
+        let eccd_2nd_end = document.getElementById('eccd-2nd-end').value || null;
+        
+        let eccd_3rd_start = document.getElementById('eccd-3rd-start').value || null;
+        let eccd_3rd_end = document.getElementById('eccd-3rd-end').value || null;
+
+        let btn = document.getElementById('btnSaveSchoolDates');
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        fetch(`/api/school-years/${activeSchoolYearId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                start_date, end_date,
+                eccd_1st_start, eccd_1st_end,
+                eccd_2nd_start, eccd_2nd_end,
+                eccd_3rd_start, eccd_3rd_end
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Could not update school year dates.");
+            return res.json();
+        })
+        .then(data => {
+            showToast("School year and ECCD dates successfully saved!", "success");
+            btn.disabled = false;
+            btn.innerText = "Save Configuration";
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            btn.disabled = false;
+            btn.innerText = "Save Configuration";
+        });
+    }
+
     loadArchives();
+    loadActiveSchoolYearDates();
 </script>
 
 {% endblock content %}

@@ -1,15 +1,21 @@
 from rest_framework import serializers
 from .models import (Child, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, 
-                     EngagementRecord, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore)
+                     EngagementRecord, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore, BMIRecord)
 
 class SchoolYearSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolYear
         fields = '__all__'
 
+class BMIRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BMIRecord
+        fields = '__all__'
+
 class ChildSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     parent_usernames = serializers.SerializerMethodField()
+    bmi_records = BMIRecordSerializer(many=True, read_only=True)
 
     class Meta:
         model = Child
@@ -40,10 +46,13 @@ class ChildSerializer(serializers.ModelSerializer):
 
         # Milestones (ECCD Tracker)
         from .models import SchoolYear, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore
-        active_year = SchoolYear.objects.filter(is_active=True).first()
         assessments = obj.eccd_assessments.all()
-        if active_year:
-            assessments = assessments.filter(school_year=active_year)
+        if obj.school_year:
+            assessments = assessments.filter(school_year=obj.school_year)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                assessments = assessments.filter(school_year=active_year)
             
         total_possible = ECCDMilestone.objects.count()
         achieved = 0
@@ -61,9 +70,9 @@ class ChildSerializer(serializers.ModelSerializer):
         n_days = n_recs.count()
         tot_n_pct = 0
         for n in n_recs:
-            if n.snack_status == 'Naubos':
+            if n.snack_status in ['Naubos', 'Finished']:
                 tot_n_pct += 100
-            elif n.snack_status == 'May tira':
+            elif n.snack_status in ['May tira', 'Some Left']:
                 tot_n_pct += 50
         nut_pct = round(tot_n_pct / n_days) if n_days > 0 else 0
 
@@ -96,6 +105,8 @@ class EngagementRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = EngagementRecord
         fields = '__all__'
+
+# BMIRecordSerializer defined above ChildSerializer
 
 # ==========================================
 # ECCD MILESTONE TRACKER SERIALIZERS
@@ -143,3 +154,18 @@ class ScoringAccessRequestSerializer(serializers.ModelSerializer):
         model = ScoringAccessRequest
         fields = '__all__'
         read_only_fields = ('parent', 'approved_at')
+
+from .models import Activity, StudentActivityCompletion
+
+class ActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+
+class StudentActivityCompletionSerializer(serializers.ModelSerializer):
+    child_name = serializers.ReadOnlyField(source='child.first_name')
+    child_lastname = serializers.ReadOnlyField(source='child.last_name')
+    activity_name = serializers.ReadOnlyField(source='activity.name')
+    class Meta:
+        model = StudentActivityCompletion
+        fields = '__all__'

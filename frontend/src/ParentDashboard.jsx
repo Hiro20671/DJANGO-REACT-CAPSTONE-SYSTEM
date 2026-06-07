@@ -1,5 +1,192 @@
 import React, { useState, useEffect } from 'react';
 
+const PHILIPPINE_ADDRESSES = {
+  "Region IV-A (CALABARZON)": {
+    "Quezon": {
+      "Lucena City": ["Market View", "Ilayang Dupay", "Ibabang Dupay", "Cotta", "Gulang-Gulang"],
+      "Tayabas City": ["San Isidro", "San Roque", "Wakas", "Lalo", "Camasan"],
+      "Pagbilao": ["Bukal", "Del Carmen", "Mapagong", "Santa Catalina", "Talipan"],
+      "Sariaya": ["Balubal", "Bignay", "Guisguis", "Lutgarda", "Montecillo"]
+    },
+    "Laguna": {
+      "San Pablo City": ["Barangay I-A", "Barangay I-B", "San Jose", "San Lucas"],
+      "Calamba City": ["Halang", "Real", "Bucal", "Pansol"]
+    },
+    "Batangas": {
+      "Batangas City": ["Alangilan", "Bolbok", "Kumintang Ibaba", "Kumintang Ilaya"],
+      "Lipa City": ["Balintawak", "Marawoy", "Sabang", "Tambo"]
+    }
+  },
+  "NCR": {
+    "Metro Manila": {
+      "Quezon City": ["Bagong Pila", "Commonwealth", "Fairview", "Holy Spirit"],
+      "Manila": ["Binondo", "Ermita", "Malate", "Quiapo", "Tondo"]
+    }
+  }
+};
+
+const parseFullAddress = (fullText) => {
+  if (!fullText) return null;
+  const cleanText = fullText.toLowerCase().replace(/[\.,]/g, ' ');
+  
+  let matchedRegion = '';
+  let matchedProvince = '';
+  let matchedCity = '';
+  let matchedBarangay = '';
+  
+  // 1. Match Region
+  for (const region of Object.keys(PHILIPPINE_ADDRESSES)) {
+    const regLower = region.toLowerCase();
+    if (cleanText.includes("calabarzon") || cleanText.includes("region iv-a")) {
+      matchedRegion = "Region IV-A (CALABARZON)";
+      break;
+    } else if (cleanText.includes("ncr") || cleanText.includes("national capital region") || cleanText.includes("metro manila")) {
+      matchedRegion = "NCR";
+      break;
+    } else if (cleanText.includes(regLower)) {
+      matchedRegion = region;
+      break;
+    }
+  }
+  
+  // 2. Match Province
+  let provincesToSearch = {};
+  if (matchedRegion) {
+    provincesToSearch = PHILIPPINE_ADDRESSES[matchedRegion];
+  } else {
+    Object.keys(PHILIPPINE_ADDRESSES).forEach(r => {
+      Object.assign(provincesToSearch, PHILIPPINE_ADDRESSES[r]);
+    });
+  }
+  
+  for (const province of Object.keys(provincesToSearch)) {
+    const provLower = province.toLowerCase();
+    if (cleanText.includes(provLower)) {
+      matchedProvince = province;
+      if (!matchedRegion) {
+        for (const r of Object.keys(PHILIPPINE_ADDRESSES)) {
+          if (PHILIPPINE_ADDRESSES[r][province]) {
+            matchedRegion = r;
+            break;
+          }
+        }
+      }
+      break;
+    }
+  }
+  
+  // 3. Match City/Municipality
+  let citiesToSearch = {};
+  if (matchedRegion && matchedProvince) {
+    citiesToSearch = PHILIPPINE_ADDRESSES[matchedRegion][matchedProvince] || {};
+  } else if (matchedProvince) {
+    for (const r of Object.keys(PHILIPPINE_ADDRESSES)) {
+      if (PHILIPPINE_ADDRESSES[r][matchedProvince]) {
+        citiesToSearch = PHILIPPINE_ADDRESSES[r][matchedProvince];
+        break;
+      }
+    }
+  } else {
+    Object.keys(PHILIPPINE_ADDRESSES).forEach(r => {
+      Object.keys(PHILIPPINE_ADDRESSES[r]).forEach(p => {
+        Object.assign(citiesToSearch, PHILIPPINE_ADDRESSES[r][p]);
+      });
+    });
+  }
+  
+  for (const city of Object.keys(citiesToSearch)) {
+    const cityLower = city.toLowerCase();
+    const cityBase = cityLower.replace(" city", "").replace(" municipality", "");
+    if (cleanText.includes(cityLower) || cleanText.includes(cityBase)) {
+      matchedCity = city;
+      if (!matchedProvince) {
+        outer: for (const r of Object.keys(PHILIPPINE_ADDRESSES)) {
+          for (const p of Object.keys(PHILIPPINE_ADDRESSES[r])) {
+            if (PHILIPPINE_ADDRESSES[r][p][city]) {
+              matchedRegion = r;
+              matchedProvince = p;
+              break outer;
+            }
+          }
+        }
+      }
+      break;
+    }
+  }
+  
+  // 4. Match Barangay
+  let barangaysToSearch = [];
+  if (matchedRegion && matchedProvince && matchedCity) {
+    barangaysToSearch = PHILIPPINE_ADDRESSES[matchedRegion][matchedProvince][matchedCity] || [];
+  } else if (matchedCity) {
+    outer: for (const r of Object.keys(PHILIPPINE_ADDRESSES)) {
+      for (const p of Object.keys(PHILIPPINE_ADDRESSES[r])) {
+        if (PHILIPPINE_ADDRESSES[r][p][matchedCity]) {
+          barangaysToSearch = PHILIPPINE_ADDRESSES[r][p][matchedCity];
+          break outer;
+        }
+      }
+    }
+  } else {
+    Object.keys(PHILIPPINE_ADDRESSES).forEach(r => {
+      Object.keys(PHILIPPINE_ADDRESSES[r]).forEach(p => {
+        Object.keys(PHILIPPINE_ADDRESSES[r][p]).forEach(c => {
+          barangaysToSearch.push(...PHILIPPINE_ADDRESSES[r][p][c]);
+        });
+      });
+    });
+  }
+  
+  for (const brgy of barangaysToSearch) {
+    const brgyLower = brgy.toLowerCase();
+    if (cleanText.includes(brgyLower) || cleanText.includes(brgyLower.replace(' ', ''))) {
+      matchedBarangay = brgy;
+      if (!matchedCity) {
+        outer: for (const r of Object.keys(PHILIPPINE_ADDRESSES)) {
+          for (const p of Object.keys(PHILIPPINE_ADDRESSES[r])) {
+            for (const c of Object.keys(PHILIPPINE_ADDRESSES[r][p])) {
+              if (PHILIPPINE_ADDRESSES[r][p][c].includes(brgy)) {
+                matchedRegion = r;
+                matchedProvince = p;
+                matchedCity = c;
+                break outer;
+              }
+            }
+          }
+        }
+      }
+      break;
+    }
+  }
+  
+  let addressLine1 = fullText;
+  const toRemove = [matchedRegion, matchedProvince, matchedCity, matchedBarangay, 'brgy', 'barangay', 'province', 'city', 'region', 'philippines', 'phil'];
+  
+  toRemove.forEach(word => {
+    if (word) {
+      const regex = new RegExp('\\b' + word.toLowerCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b', 'gi');
+      addressLine1 = addressLine1.replace(regex, '');
+      if (word.includes(' ') || word.includes('(')) {
+         const regexNoBound = new RegExp(word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
+         addressLine1 = addressLine1.replace(regexNoBound, '');
+      }
+    }
+  });
+  
+  addressLine1 = addressLine1.replace(/,\s*,/g, ',')
+                             .replace(/^[\s,]+/g, '')
+                             .replace(/[\s,]+$/g, '')
+                             .trim();
+  
+  return {
+    region: matchedRegion || '',
+    province: matchedProvince || '',
+    city_municipality: matchedCity || '',
+    barangay: matchedBarangay || '',
+    address_line1: addressLine1 || 'Street Address'
+  };
+};
+
 function ParentDashboard() {
   // Core state
   const [parentName, setParentName] = useState(window.CURRENT_USER_NAME || 'Parent Guardian');
@@ -22,6 +209,8 @@ function ParentDashboard() {
   const [allAttendance, setAllAttendance] = useState([]);
   const [allNutrition, setAllNutrition] = useState([]);
   const [eccdData, setEccdData] = useState({ domains: [], scores: [], ass: [], miles: [] });
+  const [allActivities, setAllActivities] = useState([]);
+  const [allCompletions, setAllCompletions] = useState([]);
   
   const [notifications, setNotifications] = useState([]);
   const [childrenList, setChildrenList] = useState([]);
@@ -144,8 +333,10 @@ function ParentDashboard() {
             fetch(`/api/eccd-assessments/?child=${childId}`).then(r => r.json()),
             fetch('/api/eccd-domains/').then(r => r.json()),
             fetch('/api/eccd-milestones/').then(r => r.json()),
-            fetch('/api/eccd-scores/').then(r => r.json())
-        ]).then(([attData, nutData, eccdAss, eccdDomains, eccdMiles, eccdScores]) => {
+            fetch('/api/eccd-scores/').then(r => r.json()),
+            fetch('/api/activities/').then(r => r.json()),
+            fetch(`/api/activity-completions/?child=${childId}`).then(r => r.json())
+        ]).then(([attData, nutData, eccdAss, eccdDomains, eccdMiles, eccdScores, activitiesData, completionsData]) => {
             const childAtt = attData.filter((a) => a.child === childId);
             setAllAttendance(childAtt);
             
@@ -154,6 +345,9 @@ function ParentDashboard() {
             
             const childScores = eccdScores.filter(s => eccdAss.find(a => a.id === s.assessment));
             setEccdData({ domains: eccdDomains, scores: childScores, ass: eccdAss, miles: eccdMiles });
+
+            setAllActivities(activitiesData || []);
+            setAllCompletions(completionsData || []);
 
             // Populate some basic today notifications if they exist
             const todayAtt = childAtt.find((a) => a.date.startsWith(todayStr));
@@ -247,8 +441,45 @@ function ParentDashboard() {
 
   // Handle Enrollment
   const handleEnrollChange = (e) => {
-      setEnrollForm({ ...enrollForm, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      let updatedForm = { ...enrollForm, [name]: value };
+      if (name === 'region') {
+          updatedForm.province = '';
+          updatedForm.city_municipality = '';
+          updatedForm.barangay = '';
+      } else if (name === 'province') {
+          updatedForm.city_municipality = '';
+          updatedForm.barangay = '';
+      } else if (name === 'city_municipality') {
+          updatedForm.barangay = '';
+      }
+      setEnrollForm(updatedForm);
       setEnrollError('');
+  };
+
+  const handleAddressPaste = (value, type) => {
+      const parsed = parseFullAddress(value);
+      if (parsed) {
+          if (type === 'enroll') {
+              setEnrollForm(prev => ({
+                  ...prev,
+                  region: parsed.region,
+                  province: parsed.province,
+                  city_municipality: parsed.city_municipality,
+                  barangay: parsed.barangay,
+                  address_line1: parsed.address_line1
+              }));
+          } else if (type === 'guardian') {
+              setGuardianForm(prev => ({
+                  ...prev,
+                  region: parsed.region,
+                  province: parsed.province,
+                  city_municipality: parsed.city_municipality,
+                  barangay: parsed.barangay,
+                  address_line1: parsed.address_line1
+              }));
+          }
+      }
   };
 
   const calculateAge = (dobString) => {
@@ -345,7 +576,19 @@ function ParentDashboard() {
   };
 
   const handleGuardianChange = (e) => {
-      setGuardianForm({ ...guardianForm, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      let updatedForm = { ...guardianForm, [name]: value };
+      if (name === 'region') {
+          updatedForm.province = '';
+          updatedForm.city_municipality = '';
+          updatedForm.barangay = '';
+      } else if (name === 'province') {
+          updatedForm.city_municipality = '';
+          updatedForm.barangay = '';
+      } else if (name === 'city_municipality') {
+          updatedForm.barangay = '';
+      }
+      setGuardianForm(updatedForm);
       setGuardianError('');
   };
 
@@ -479,6 +722,14 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Address Details</h4>
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Paste Full Address (Auto-detects fields)</label>
+                    <textarea 
+                        placeholder="e.g. 123 Mabini St., Market View, Lucena City, Quezon"
+                        onChange={(e) => handleAddressPaste(e.target.value, 'enroll')} 
+                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', height: '60px', boxSizing: 'border-box' }}
+                    />
+                </div>
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
@@ -488,8 +739,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
                         <select required name="region" value={enrollForm.region} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Region</option>
-                            <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
-                            <option value="NCR">NCR</option>
+                            {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -497,9 +749,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
                         <select required name="province" value={enrollForm.province} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Province</option>
-                            <option value="Quezon">Quezon Province</option>
-                            <option value="Laguna">Laguna</option>
-                            <option value="Batangas">Batangas</option>
+                            {enrollForm.region && enrollForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region] || {}).map(p => (
+                                <option key={p} value={p}>{p}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -507,10 +759,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
                         <select required name="city_municipality" value={enrollForm.city_municipality} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select City/Municipality</option>
-                            <option value="Lucena City">Lucena City</option>
-                            <option value="Tayabas City">Tayabas City</option>
-                            <option value="Pagbilao">Pagbilao</option>
-                            <option value="Sariaya">Sariaya</option>
+                            {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province] || {}).map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -518,13 +769,20 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
                         <select required name="barangay" value={enrollForm.barangay} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Barangay</option>
-                            <option value="Market View">Market View</option>
-                            <option value="Ilayang Dupay">Ilayang Dupay</option>
-                            <option value="Ibabang Dupay">Ibabang Dupay</option>
-                            <option value="Cotta">Cotta</option>
-                            <option value="Gulang-Gulang">Gulang-Gulang</option>
+                            {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && enrollForm.city_municipality && enrollForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province][enrollForm.city_municipality] || []).map(b => (
+                                <option key={b} value={b}>{b}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                        <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Full Address Preview</label>
+                        <input 
+                            type="text" 
+                            readOnly 
+                            value={`${enrollForm.address_line1 || ''}${enrollForm.barangay ? ', ' + enrollForm.barangay : ''}${enrollForm.city_municipality ? ', ' + enrollForm.city_municipality : ''}${enrollForm.province ? ', ' + enrollForm.province : ''}${enrollForm.region ? ', ' + enrollForm.region : ''}`} 
+                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#f5f5f5', color: '#666', fontWeight: 500 }} 
+                        />
                     </div>
                 </div>
 
@@ -710,6 +968,14 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Address Details</h4>
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Paste Full Address (Auto-detects fields)</label>
+                    <textarea 
+                        placeholder="e.g. 123 Mabini St., Market View, Lucena City, Quezon"
+                        onChange={(e) => handleAddressPaste(e.target.value, 'guardian')} 
+                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', height: '60px', boxSizing: 'border-box' }}
+                    />
+                </div>
                 <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
@@ -719,8 +985,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
                         <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Region</option>
-                            <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
-                            <option value="NCR">NCR</option>
+                            {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -728,9 +995,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
                         <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Province</option>
-                            <option value="Quezon">Quezon Province</option>
-                            <option value="Laguna">Laguna</option>
-                            <option value="Batangas">Batangas</option>
+                            {guardianForm.region && guardianForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region] || {}).map(p => (
+                                <option key={p} value={p}>{p}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -738,10 +1005,9 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
                         <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select City/Municipality</option>
-                            <option value="Lucena City">Lucena City</option>
-                            <option value="Tayabas City">Tayabas City</option>
-                            <option value="Pagbilao">Pagbilao</option>
-                            <option value="Sariaya">Sariaya</option>
+                            {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province] || {}).map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -749,13 +1015,20 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
                         <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
                             <option value="">Select Barangay</option>
-                            <option value="Market View">Market View</option>
-                            <option value="Ilayang Dupay">Ilayang Dupay</option>
-                            <option value="Ibabang Dupay">Ibabang Dupay</option>
-                            <option value="Cotta">Cotta</option>
-                            <option value="Gulang-Gulang">Gulang-Gulang</option>
+                            {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && guardianForm.city_municipality && guardianForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province][guardianForm.city_municipality] || []).map(b => (
+                                <option key={b} value={b}>{b}</option>
+                            ))}
                             <option value="Other">Other</option>
                         </select>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                        <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Full Address Preview</label>
+                        <input 
+                            type="text" 
+                            readOnly 
+                            value={`${guardianForm.address_line1 || ''}${guardianForm.barangay ? ', ' + guardianForm.barangay : ''}${guardianForm.city_municipality ? ', ' + guardianForm.city_municipality : ''}${guardianForm.province ? ', ' + guardianForm.province : ''}${guardianForm.region ? ', ' + guardianForm.region : ''}`} 
+                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#f5f5f5', color: '#666', fontWeight: 500 }} 
+                        />
                     </div>
                 </div>
 
@@ -780,6 +1053,61 @@ function ParentDashboard() {
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#063970', margin: 0 }}>Welcome back, {parentName}</h2>
         </div>
         <button onClick={() => setShowEnrollForm(true)} style={{ padding: '10px 20px', background: '#4a90e2', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 600, cursor: 'pointer' }}>+ Enroll Another Child</button>
+      </div>
+
+      {/* Horizontal Child Profile Switcher */}
+      <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '15px', marginBottom: '25px', scrollbarWidth: 'thin' }}>
+          {childrenList.map((c) => {
+              const isSelected = c.id === linkedChildId;
+              const statusColor = c.enrollment_status === 'Enrolled' ? '#1cc88a' : (c.enrollment_status === 'Pending' ? '#f6c23e' : '#e74a3b');
+              const avatarUrl = c.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + c.first_name);
+              return (
+                  <div 
+                      key={c.id}
+                      onClick={() => {
+                          setLinkedChildId(c.id);
+                          localStorage.setItem('linked_child_id', c.id);
+                      }}
+                      style={{
+                          flex: '0 0 auto',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '12px 20px',
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          background: isSelected ? 'linear-gradient(135deg, #063970, #1b4f91)' : '#fff',
+                          color: isSelected ? '#fff' : '#333',
+                          border: isSelected ? '2px solid #063970' : '1px solid #ddd',
+                          boxShadow: isSelected ? '0 4px 15px rgba(6, 57, 112, 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
+                          transition: 'all 0.2s ease',
+                          transform: isSelected ? 'scale(1.02)' : 'none',
+                      }}
+                  >
+                      <img 
+                          src={avatarUrl} 
+                          alt={c.first_name} 
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', background: '#e0f0ff' }} 
+                      />
+                      <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{c.first_name} {c.last_name}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>{c.age} yrs</span>
+                              <span style={{ 
+                                  fontSize: '0.7rem', 
+                                  fontWeight: 800, 
+                                  color: isSelected ? '#fff' : statusColor,
+                                  background: isSelected ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)',
+                                  padding: '2px 6px',
+                                  borderRadius: '10px'
+                              }}>
+                                  {c.enrollment_status}
+                              </span>
+                          </div>
+                      </div>
+                  </div>
+              );
+          })}
       </div>
 
       {/* Enrollment Status Warning */}
@@ -818,21 +1146,7 @@ function ParentDashboard() {
       </div>
 
       {/* Controls Container */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px', gap: '15px', background: '#fff', padding: '20px', borderRadius: '15px', border: '1px solid #ccc' }}>
-          {/* Child selector */}
-          <div>
-            <label htmlFor="child-select" style={{ marginRight: '10px', fontWeight: 600 }}>Select Child:</label>
-            <select id="child-select" value={linkedChildId || ''} onChange={(e) => {
-              const newId = e.target.value ? parseInt(e.target.value) : null;
-              setLinkedChildId(newId);
-              if (newId) localStorage.setItem('linked_child_id', newId);
-            }} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', outline: 'none' }}>
-              {childrenList.map((c) => (
-                <option key={c.id} value={c.id}>{c.first_name} {c.last_name} ({c.enrollment_status})</option>
-              ))}
-            </select>
-          </div>
-
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', background: '#fff', padding: '20px', borderRadius: '15px', border: '1px solid #ccc' }}>
           {/* Date filter */}
           <div>
             <label htmlFor="history-date" style={{ marginRight: '10px', fontWeight: 600 }}>View records for date:</label>
@@ -874,6 +1188,103 @@ function ParentDashboard() {
                   <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
                 </div>
               </div>
+
+              {/* Daily Activities Card */}
+              {(() => {
+                const dateActivities = allActivities.filter(act => act.date === currentDate);
+                const totalActCount = dateActivities.length;
+                const completedActCount = dateActivities.filter(act => {
+                  const completion = allCompletions.find(c => c.activity === act.id);
+                  return completion ? completion.completed : false;
+                }).length;
+                const completionPct = totalActCount > 0 ? Math.round((completedActCount / totalActCount) * 100) : 0;
+
+                return (
+                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f1f5f9', paddingBottom: '15px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', color: '#0369a1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                          <i className="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800 }}>Daily Activities & Learning Checklist</h4>
+                      </div>
+                      {totalActCount > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748b' }}>Progress:</span>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0369a1', background: '#e0f2fe', padding: '4px 10px', borderRadius: '12px' }}>
+                            {completedActCount} / {totalActCount} ({completionPct}%)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {totalActCount > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        {/* Progress Bar */}
+                        <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
+                          <div style={{ width: `${completionPct}%`, height: '100%', background: '#0284c7', borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
+                        </div>
+
+                        {/* Activities Table/List */}
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '2px solid #edf2f7', color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>
+                                <th style={{ padding: '10px 15px' }}>Activity Name</th>
+                                <th style={{ padding: '10px 15px' }}>Description</th>
+                                <th style={{ padding: '10px 15px', textAlign: 'center' }}>Status</th>
+                                <th style={{ padding: '10px 15px' }}>Teacher Comments / Observations</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {dateActivities.map(act => {
+                                const completion = allCompletions.find(c => c.activity === act.id);
+                                const isCompleted = completion ? completion.completed : false;
+                                const remarks = completion ? completion.remarks : '';
+                                return (
+                                  <tr key={act.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }}>
+                                    <td style={{ padding: '12px 15px', fontWeight: 700, fontSize: '0.9rem', color: '#1e293b' }}>
+                                      {act.name}
+                                    </td>
+                                    <td style={{ padding: '12px 15px', fontSize: '0.85rem', color: '#475569' }}>
+                                      {act.description || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>No description</span>}
+                                    </td>
+                                    <td style={{ padding: '12px 15px', textAlign: 'center' }}>
+                                      {isCompleted ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#dcfce7', color: '#15803d', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700 }}>
+                                          <i className="fa-solid fa-circle-check"></i> Completed
+                                        </span>
+                                      ) : (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#f1f5f9', color: '#64748b', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700 }}>
+                                          <i className="fa-solid fa-circle-minus"></i> Pending / Missed
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td style={{ padding: '12px 15px', fontSize: '0.85rem', color: '#475569' }}>
+                                      {remarks ? (
+                                        <div style={{ background: '#f8fafc', borderLeft: '3px solid #0284c7', padding: '8px 12px', borderRadius: '0 8px 8px 0', fontSize: '0.8rem', fontStyle: 'italic' }}>
+                                          "{remarks}"
+                                        </div>
+                                      ) : (
+                                        <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.8rem' }}>No remarks yet</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '30px 15px', color: '#64748b' }}>
+                        <i className="fa-solid fa-calendar-xmark" style={{ fontSize: '2.5rem', color: '#cbd5e1', marginBottom: '10px', display: 'block' }}></i>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>No activities logged by the teacher for this date.</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </>
           )}
 
@@ -893,12 +1304,61 @@ function ParentDashboard() {
                       <li>No fever</li>
                   </ul>
                 </div>
-                <div>
+                <div style={{ marginBottom: '15px' }}>
                   <strong style={{ fontSize: '0.9rem' }}>Allergies / Conditions</strong>
                   <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>
                       {student.allergies || 'None recorded'} 
                       {student.health_conditions ? ` / ${student.health_conditions}` : ''}
                   </div>
+                </div>
+                <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                  <strong style={{ fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>Quarterly Growth History</strong>
+                  {(() => {
+                    const bmiRecords = student.bmi_records || [];
+                    if (bmiRecords.length === 0) {
+                      return <span style={{ fontSize: '0.8rem', color: '#666', fontStyle: 'italic' }}>No growth history recorded yet.</span>;
+                    }
+                    const sortedBmis = [...bmiRecords].sort((x, y) => {
+                      const quarters = { '1st': 1, '2nd': 2, '3rd': 3 };
+                      return quarters[x.quarter] - quarters[y.quarter];
+                    });
+
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {sortedBmis.map((rec, index) => {
+                          const hM = rec.height / 100;
+                          const bmiVal = (rec.weight / (hM * hM)).toFixed(1);
+                          let cat = "Overweight";
+                          if (bmiVal < 14) cat = "Underweight";
+                          else if (bmiVal < 18) cat = "Normal weight";
+
+                          let qName = "1st Quarter (Baseline)";
+                          if (rec.quarter === '2nd') qName = "2nd Quarter (Interim)";
+                          else if (rec.quarter === '3rd') qName = "3rd Quarter (Final)";
+
+                          const isDraft = rec.status === 'Draft';
+
+                          return (
+                            <div key={index} style={{ padding: '10px', background: isDraft ? '#fffbeb' : '#f8fafc', border: isDraft ? '1px dashed #f59e0b' : '1px solid #e2e8f0', borderRadius: '8px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#063970' }}>{qName}</div>
+                                {isDraft && (
+                                  <span style={{ fontSize: '0.7rem', fontWeight: 'bold', background: '#fef3c7', color: '#d97706', padding: '2px 6px', borderRadius: '4px' }}>Ongoing / Draft</span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>Date: {new Date(rec.measurement_date).toLocaleDateString()}</div>
+                              <div style={{ fontSize: '0.8rem', color: '#334155' }}>
+                                Weight: <strong>{rec.weight} kg</strong> &bull; Height: <strong>{rec.height} cm</strong>
+                              </div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, marginTop: '2px', color: bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#0f766e' : '#b91c1c') }}>
+                                BMI: {bmiVal} ({cat})
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

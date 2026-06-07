@@ -119,9 +119,25 @@
         </div>
     </div>
 
-    <!-- Directory Grid -->
-    <div class="directory-grid" id="directoryGrid">
-        <!-- Rendered dynamically -->
+    <!-- Directory Grid Table -->
+    <div class="table-responsive" style="background:#fff; border:1px solid #edf2f7; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.02); overflow:hidden; margin-top:20px;">
+        <table class="assess-table" style="width:100%; border-collapse:collapse; margin:0;">
+            <thead>
+                <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Student</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 100px;">Age</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 180px;">Attendance Status</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 180px;">Milestones Progress</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 180px;">Behavior Score</th>
+                    <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="directoryGrid">
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:40px; color:#888;">Loading directory...</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -266,63 +282,80 @@
         let cTotal = 0, cAge3 = 0, cAge4 = 0, cAge5 = 0;
 
         if (compiledProfiles.length === 0) {
-            container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: #fff; border-radius: 12px; border: 1px solid #ddd;">
-                <h3 style="color:#777; margin-bottom:10px; font-size:1.3rem;">System Empty.</h3>
-            </div>`;
+            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">System Empty.</td></tr>`;
+            return;
         }
 
-        compiledProfiles.forEach(st => {
-            // KPI counting
+        // Filter by search query
+        let filtered = compiledProfiles.filter(st => {
+            if (!filterText) return true;
+            return st.name.toLowerCase().includes(filterText.toLowerCase());
+        });
+
+        // Alphabetical sort by name
+        filtered.sort((a, b) => (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase()));
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching students found.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(st => {
             cTotal++;
             if(st.age == 3) cAge3++;
             else if(st.age == 4) cAge4++;
             else if(st.age == 5) cAge5++;
 
-            // Filtering
-            if (filterText && !st.name.toLowerCase().includes(filterText.toLowerCase())) return;
-
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
             let hlClass = st.id === 'noah' || st.id === 'liam' ? 'highlight' : ''; 
-            let alertIcon = hlClass ? `<span class="alert-icon">⚠</span>` : '';
+            let alertIcon = hlClass ? `<span class="alert-icon" style="color: #f6c23e;">⚠</span>` : '';
 
             let attWid = st.attPct;
             let milWid = st.milPct;
             let behWid = st.behScore;
 
             let html = `
-            <div class="student-card ${hlClass}">
-                <div>
-                    <div class="s-header">
-                        <div class="s-info">
-                            <div class="avatar">${avatarHtml}</div>
-                            <div>
-                                <h4>${st.name}</h4>
-                                <p>${st.age} years old</p>
-                            </div>
+            <tr class="${hlClass}" style="border-bottom:1px solid #edf2f7; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
+                <td style="padding:15px; display:flex; align-items:center; gap:12px; border:none;">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f0f4f8; color:#4a90e2; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; border:1px solid #cbd5e1; overflow:hidden; flex-shrink:0;">
+                        ${st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${st.initial}</span>`}
+                    </div>
+                    <div>
+                        <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.name} ${alertIcon}</span>
+                        ${st.allergies && st.allergies.length > 0 ? `<div style="font-size:0.7rem; color:#e74a3b; margin-top:2px;">⚠ Allergies: ${st.allergies.join(', ')}</div>` : ''}
+                    </div>
+                </td>
+                <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
+                <td style="padding:15px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="flex-grow:1; height:6px; background:#f1f5f9; border-radius:4px; overflow:hidden; min-width:80px;">
+                            <div style="height:100%; width:${attWid}%; background:#4a90e2; border-radius:4px;"></div>
                         </div>
-                        ${alertIcon}
+                        <span style="font-size:0.85rem; font-weight:700; color:#4a90e2; width:40px; text-align:right;">${attWid}%</span>
                     </div>
-
-                    <!-- Progress Stats -->
-                    <div class="prog-row">
-                        <div class="prog-labels"><span>Attendance</span><span>${attWid}%</span></div>
-                        <div class="prog-bg"><div class="prog-fill" style="width:${attWid}%;"></div></div>
+                </td>
+                <td style="padding:15px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="flex-grow:1; height:6px; background:#f1f5f9; border-radius:4px; overflow:hidden; min-width:80px;">
+                            <div style="height:100%; width:${milWid}%; background:#a461d8; border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:0.85rem; font-weight:700; color:#a461d8; width:40px; text-align:right;">${milWid}%</span>
                     </div>
-                    <div class="prog-row">
-                        <div class="prog-labels"><span>Milestones</span><span>${milWid}%</span></div>
-                        <div class="prog-bg"><div class="prog-fill" style="width:${milWid}%; background:#a461d8;"></div></div>
+                </td>
+                <td style="padding:15px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="flex-grow:1; height:6px; background:#f1f5f9; border-radius:4px; overflow:hidden; min-width:80px;">
+                            <div style="height:100%; width:${behWid}%; background:#1cc88a; border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:0.85rem; font-weight:700; color:#1cc88a; width:40px; text-align:right;">${behWid}/100</span>
                     </div>
-                    <div class="prog-row">
-                        <div class="prog-labels"><span>Behavior Score</span><span>${behWid}/100</span></div>
-                        <div class="prog-bg"><div class="prog-fill" style="width:${behWid}%; background:#1cc88a;"></div></div>
-                    </div>
-
-                    ${st.allergies && st.allergies.length > 0 ? `<div style="font-size:0.75rem; color:#e74a3b; margin-top:10px;">⚠ ${st.allergies.join(', ')}</div>` : ''}
-                </div>
-
-                <button class="btn-details" onclick="openProfile('${st.id}')">View Details</button>
-            </div>
-            `;
+                </td>
+                <td style="padding:15px; text-align:center;">
+                    <button class="btn btn-primary" onclick="openProfile('${st.id}')" style="padding:6px 12px; font-size:0.8rem; font-weight:700; font-family:'Montserrat', sans-serif;">
+                        <i class="fa-solid fa-circle-info"></i> Details
+                    </button>
+                </td>
+            </tr>`;
             container.innerHTML += html;
         });
 

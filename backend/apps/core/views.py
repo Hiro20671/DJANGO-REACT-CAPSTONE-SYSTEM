@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from .models import UserProfile
 from django.contrib.auth.decorators import login_required
 
+@never_cache
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -113,3 +115,15 @@ def teacher_children(request):
 @login_required
 def teacher_settings(request):
     return render(request, 'teachers/settings.html')
+
+def offline_view(request):
+    return render(request, 'offline.html')
+
+@login_required
+def teacher_activities(request):
+    return render(request, 'teachers/activities.html')
+
+@login_required
+def parent_activities(request):
+    return render(request, 'parents/activities.html')
+

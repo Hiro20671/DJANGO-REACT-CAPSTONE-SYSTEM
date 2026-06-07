@@ -296,6 +296,31 @@
 </div>
 
 <script>
+function formatDateString(dateStr) {
+    if(!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const year = parts[0];
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    if (monthIdx >= 0 && monthIdx < 12) {
+        return `${months[monthIdx]} ${day}, ${year}`;
+    }
+    return dateStr;
+}
+
+function parseDateParts(dateStr) {
+    if (!dateStr) return { year: '-', month: '-', day: '-' };
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return { year: '-', month: '-', day: '-' };
+    return {
+        year: parts[0],
+        month: parts[1],
+        day: parts[2]
+    };
+}
+
 let childData = null;
 let domainsList = [];
 let milestonesList = [];
@@ -1008,14 +1033,15 @@ function generateScaledScoreTable(ageGroup, childScores) {
 
 function viewScoringDetails(period) {
     window.lastScoringPeriod = period;
-    if (!window.currentChildReports || !window.currentChildReports[period]) {
+    if (!window.currentChildReports || !window.currentChildReports['Overall']) {
+        const ageTbody = document.getElementById('ageCalculationTbody');
+        if (ageTbody) ageTbody.innerHTML = '<tr><td colspan="6" align="center">Loading scoring details...</td></tr>';
         return;
     }
 
-    const report = window.currentChildReports[period];
-    if (report.detail) {
-        return;
-    }
+    const report = (window.currentChildReports[period] && !window.currentChildReports[period].detail)
+        ? window.currentChildReports[period]
+        : window.currentChildReports['Overall'];
 
     // Highlight active Switch View button
     document.querySelectorAll('.btn-period-tab').forEach(b => {
@@ -1031,7 +1057,7 @@ function viewScoringDetails(period) {
     }
 
     document.getElementById('scoringDetailsTitle').innerText = `${period === 'Overall' ? 'Overall' : period + ' Evaluation'} Assessment Scoring Breakdown`;
-    document.getElementById('scoringDetailsSubtitle').innerText = `${childData.first_name} ${childData.last_name} • DOB: ${report.date_of_birth}`;
+    document.getElementById('scoringDetailsSubtitle').innerText = `${childData.first_name} ${childData.last_name} • DOB: ${formatDateString(report.date_of_birth)}`;
 
     // 1. Age Calculation Table
     const ageTbody = document.getElementById('ageCalculationTbody');
@@ -1043,15 +1069,15 @@ function viewScoringDetails(period) {
         const activeClass = (p === period) ? 'style="background:#f0f7ff; font-weight:bold; border-left: 4px solid #043263;"' : '';
         
         if (r && !r.detail) {
-            const dt = new Date(r.date_tested);
-            const dtYear = dt.getFullYear();
-            const dtMonth = String(dt.getMonth() + 1).padStart(2, '0');
-            const dtDay = String(dt.getDate()).padStart(2, '0');
+            const dtParts = parseDateParts(r.date_tested);
+            const dtYear = dtParts.year;
+            const dtMonth = dtParts.month;
+            const dtDay = dtParts.day;
 
-            const dob = new Date(r.date_of_birth);
-            const dobYear = dob.getFullYear();
-            const dobMonth = String(dob.getMonth() + 1).padStart(2, '0');
-            const dobDay = String(dob.getDate()).padStart(2, '0');
+            const dobParts = parseDateParts(r.date_of_birth);
+            const dobYear = dobParts.year;
+            const dobMonth = dobParts.month;
+            const dobDay = dobParts.day;
 
             ageTbody.innerHTML += `
             <tr ${activeClass}>
@@ -1106,13 +1132,13 @@ function viewScoringDetails(period) {
     const r3rd = window.currentChildReports['3rd'];
 
     document.getElementById('summary_header_1st').innerHTML = (r1st && !r1st.detail)
-        ? `Date Tested: ${new Date(r1st.date_tested).toLocaleDateString()}<br>Age: ${r1st.age_years}y, ${r1st.age_months}m, ${r1st.age_days}d`
+        ? `Date Tested: ${formatDateString(r1st.date_tested)}<br>Age: ${r1st.age_years}y, ${r1st.age_months}m, ${r1st.age_days}d`
         : `Date: -<br>Child's Age: -`;
     document.getElementById('summary_header_2nd').innerHTML = (r2nd && !r2nd.detail)
-        ? `Date Tested: ${new Date(r2nd.date_tested).toLocaleDateString()}<br>Age: ${r2nd.age_years}y, ${r2nd.age_months}m, ${r2nd.age_days}d`
+        ? `Date Tested: ${formatDateString(r2nd.date_tested)}<br>Age: ${r2nd.age_years}y, ${r2nd.age_months}m, ${r2nd.age_days}d`
         : `Date: -<br>Child's Age: -`;
     document.getElementById('summary_header_3rd').innerHTML = (r3rd && !r3rd.detail)
-        ? `Date Tested: ${new Date(r3rd.date_tested).toLocaleDateString()}<br>Age: ${r3rd.age_years}y, ${r3rd.age_months}m, ${r3rd.age_days}d`
+        ? `Date Tested: ${formatDateString(r3rd.date_tested)}<br>Age: ${r3rd.age_years}y, ${r3rd.age_months}m, ${r3rd.age_days}d`
         : `Date: -<br>Child's Age: -`;
 
     const summaryTbody = document.getElementById('summaryTableTbody');

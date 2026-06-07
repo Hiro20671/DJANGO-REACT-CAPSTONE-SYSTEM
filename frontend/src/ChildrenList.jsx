@@ -124,7 +124,14 @@ export default function ChildrenList() {
   const enrolledChildren = children.filter(c => c.enrollment_status === 'Enrolled');
   const pendingChildren = children.filter(c => c.enrollment_status === 'Pending');
 
-  const filteredChildren = enrolledChildren.filter(c => 
+  const sortedChildren = [...enrolledChildren].sort((a, b) => {
+    const lastA = (a.last_name || '').toLowerCase();
+    const lastB = (b.last_name || '').toLowerCase();
+    if (lastA !== lastB) return lastA.localeCompare(lastB);
+    return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
+  });
+
+  const filteredChildren = sortedChildren.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -182,47 +189,71 @@ export default function ChildrenList() {
               style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
             />
           </div>
-
-          <div className="resp-grid-2">
-            {filteredChildren.map(child => (
-              <div key={child.id} style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-                  <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800, overflow: 'hidden' }}>
-                    {child.img ? (
-                      <img src={child.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
-                    ) : (
-                      <span>{child.initial}</span>
-                    )}
-                  </div>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#333' }}>{child.name}</h3>
-                    <div style={{ color: '#777', fontSize: '0.85rem' }}>{child.age} years old</div>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, color: '#555', marginBottom: '5px' }}>
-                    <span>Attendance</span><span>{child.stats?.attendance}%</span>
-                  </div>
-                  <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.attendance}%`, height: '100%', background: '#4a90e2', borderRadius: '3px' }}></div></div>
-                </div>
-                
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, color: '#555', marginBottom: '5px' }}>
-                    <span>Milestones</span><span>{child.stats?.milestones}%</span>
-                  </div>
-                  <div style={{ width: '100%', height: '6px', background: '#e9ecef', borderRadius: '3px' }}><div style={{ width: `${child.stats?.milestones}%`, height: '100%', background: '#9b59b6', borderRadius: '3px' }}></div></div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  {child.allergies ? (
-                    <div style={{ color: '#e74a3b', fontSize: '0.8rem', fontWeight: 600 }}>⚠ Has Allergies</div>
-                  ) : <div></div>}
-                  <button onClick={() => { setSelectedChild(child); setProfileTab('Performance'); setShowProfileModal(true); }} style={{ padding: '8px 25px', background: 'transparent', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#333', fontFamily: "'Montserrat', sans-serif" }}>View Details</button>
-                </div>
-              </div>
-            ))}
-            {filteredChildren.length === 0 && <div style={{color: '#777', padding: '20px'}}>No enrolled students found.</div>}
+          <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Student</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '120px' }}>Age</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Attendance Rate</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Milestone Progress</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Health Flags</th>
+                  <th style={{ padding: '15px', textAlign: 'center', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredChildren.map(child => (
+                  <tr key={child.id} style={{ borderBottom: '1px solid #edf2f7', transition: 'background 0.2s' }}>
+                    <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, overflow: 'hidden', flexShrink: 0, border: '1px solid #cbd5e1' }}>
+                        {child.img ? (
+                          <img src={child.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
+                        ) : (
+                          <span>{child.initial}</span>
+                        )}
+                      </div>
+                      <span style={{ fontWeight: 750, color: '#1e293b', fontSize: '0.95rem' }}>{child.last_name}, {child.first_name}</span>
+                    </td>
+                    <td style={{ padding: '15px', color: '#475569', fontWeight: 500, fontSize: '0.9rem' }}>{child.age} years</td>
+                    <td style={{ padding: '15px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ flexGrow: 1, height: '6px', background: '#e9ecef', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${child.stats?.attendance || 0}%`, height: '100%', background: '#4a90e2', borderRadius: '3px' }}></div>
+                        </div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#4a90e2', width: '40px', textAlign: 'right' }}>{child.stats?.attendance || 0}%</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '15px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ flexGrow: 1, height: '6px', background: '#e9ecef', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${child.stats?.milestones || 0}%`, height: '100%', background: '#9b59b6', borderRadius: '3px' }}></div>
+                        </div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9b59b6', width: '40px', textAlign: 'right' }}>{child.stats?.milestones || 0}%</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '15px' }}>
+                      {child.allergies ? (
+                        <span style={{ color: '#e74a3b', background: '#fdedec', border: '1px solid #fadbd8', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                          ⚠ Allergies
+                        </span>
+                      ) : (
+                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>None</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '15px', textAlign: 'center' }}>
+                      <button onClick={() => { setSelectedChild(child); setProfileTab('Performance'); setShowProfileModal(true); }} style={{ padding: '6px 12px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', color: '#334155', fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem' }}>
+                        Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredChildren.length === 0 && (
+                  <tr>
+                    <td colSpan="6" style={{ color: '#777', padding: '30px', textAlign: 'center' }}>No enrolled students found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </>
       ) : (

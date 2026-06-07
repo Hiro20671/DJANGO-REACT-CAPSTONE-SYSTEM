@@ -1,6 +1,6 @@
-const CACHE_NAME = 'bmv3-cache-v1';
+const CACHE_NAME = 'bmv3-cache-v3';
 const ASSETS_TO_CACHE = [
-  '/login/',
+  '/offline/',
   '/static/core/image/bmv3_logo.png',
   '/static/core/image/background_pic.png',
   '/static/core/image/bmv3_background.png'
@@ -55,9 +55,9 @@ self.addEventListener('fetch', (event) => {
           // Offline fallback
           return caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) return cachedResponse;
-            // If page is HTML view, fallback to cached login page
+            // If page is HTML view, fallback to cached offline page
             if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/login/');
+              return caches.match('/offline/');
             }
           });
         })

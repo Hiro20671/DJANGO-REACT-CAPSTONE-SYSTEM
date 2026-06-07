@@ -12,7 +12,8 @@ from .api_views import (
     GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
     link_guardian_profile, NoClassDayViewSet,
     ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet,
-    ECCDReportAPIView, ECCDOverallReportAPIView, ScoringAccessRequestViewSet
+    ECCDReportAPIView, ECCDOverallReportAPIView, ScoringAccessRequestViewSet,
+    ActivityViewSet, StudentActivityCompletionViewSet, BMIRecordViewSet
 )
 
 router = DefaultRouter()
@@ -28,11 +29,15 @@ router.register(r'eccd-milestones', ECCDMilestoneViewSet, basename='eccd_milesto
 router.register(r'eccd-assessments', ECCDAssessmentViewSet, basename='eccd_assessment')
 router.register(r'eccd-scores', ECCDMilestoneScoreViewSet, basename='eccd_score')
 router.register(r'scoring-requests', ScoringAccessRequestViewSet, basename='scoring_request')
+router.register(r'activities', ActivityViewSet, basename='activity')
+router.register(r'activity-completions', StudentActivityCompletionViewSet, basename='activity_completion')
+router.register(r'bmi-records', BMIRecordViewSet, basename='bmi_record')
 
 urlpatterns = [
     path('', views.login_view, name='login'),
 
     path('login/', views.login_view, name='login'),
+    path('offline/', views.offline_view, name='offline'),
     path('home/', views.home_view, name='home'),
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('dropoff-pickup/', views.teacher_dropoff_pickup, name='teacher_dropoff_pickup'),
@@ -51,8 +56,10 @@ urlpatterns = [
     path('parent/nutrition/', views.parent_nutrition, name='parent_nutrition'),
     path('parent/children/', views.parent_children, name='parent_children'),
     path('parent/settings/', views.parent_settings, name='parent_settings'),
+    path('parent/activities/', views.parent_activities, name='parent_activities'),
     path('parent/force-password-change/', views.parent_force_password_change, name='force_password_change'),
     path('settings/', views.teacher_settings, name='teacher_settings'),
+    path('activities/', views.teacher_activities, name='teacher_activities'),
     
     # API Endpoints
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw_js'),

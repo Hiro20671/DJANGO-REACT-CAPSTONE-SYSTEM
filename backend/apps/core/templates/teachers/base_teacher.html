@@ -660,6 +660,10 @@
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_milestones' %}active{% endif %}">
                 <i class="fa-solid fa-chart-line"></i> Milestones
             </a>
+            <a href="{% url 'teacher_activities' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_activities' %}active{% endif %}">
+                <i class="fa-solid fa-list-check"></i> Daily Activities
+            </a>
 
             <a href="{% url 'teacher_engagement' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_engagement' %}active{% endif %}">
