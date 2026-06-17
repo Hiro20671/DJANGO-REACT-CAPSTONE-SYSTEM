@@ -141,8 +141,8 @@ export default function ChildrenList() {
     <div style={{ animation: 'fadeIn 0.5s ease-in', fontFamily: "'Montserrat', sans-serif" }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#333' }}>Children Directory</h2>
-          <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Manage enrollments and view student profiles</p>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>Children Directory</h2>
+          <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Manage enrollments and view student profiles</p>
         </div>
         <button onClick={() => setShowGenerateAccountModal(true)} style={{ padding: '10px 20px', background: '#1b3b5c', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Montserrat', sans-serif" }}>
             + Generate Parent Account
@@ -165,22 +165,22 @@ export default function ChildrenList() {
       {activeTab === 'Enrolled' ? (
         <>
           <div className="resp-grid-3" style={{ marginBottom: '20px' }}>
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-              <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Total Enrolled</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#333' }}>{enrolledChildren.length}</div>
+            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
+              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Total Enrolled</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{enrolledChildren.length}</div>
             </div>
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-              <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 3 Years</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#333' }}>{getAgeCount(3)}</div>
+            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
+              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 3 Years</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getAgeCount(3)}</div>
             </div>
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
-              <div style={{ color: '#555', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 4 Years</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#333' }}>{getAgeCount(4)}</div>
+            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
+              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 4 Years</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getAgeCount(4)}</div>
             </div>
           </div>
 
-          <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #eee', marginBottom: '20px' }}>
-            <div style={{ fontWeight: 600, color: '#555', marginBottom: '10px' }}>Search Children</div>
+          <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px' }}>Search Children</div>
             <input 
               type="text" 
               placeholder="🔍 Search by name..." 
@@ -189,7 +189,7 @@ export default function ChildrenList() {
               style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
             />
           </div>
-          <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee', overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -249,7 +249,7 @@ export default function ChildrenList() {
                 ))}
                 {filteredChildren.length === 0 && (
                   <tr>
-                    <td colSpan="6" style={{ color: '#777', padding: '30px', textAlign: 'center' }}>No enrolled students found.</td>
+                    <td colSpan="6" style={{ color: 'var(--text-muted)', padding: '30px', textAlign: 'center' }}>No enrolled students found.</td>
                   </tr>
                 )}
               </tbody>
@@ -260,18 +260,18 @@ export default function ChildrenList() {
         // PENDING APPROVALS TAB
         <div>
             {pendingChildren.length === 0 ? (
-                <div style={{ background: '#fff', padding: '40px', borderRadius: '12px', textAlign: 'center', color: '#777', border: '1px solid #eee' }}>
+                <div style={{ background: 'var(--bg-card)', padding: '40px', borderRadius: '12px', textAlign: 'center', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}>
                     <i className="fa-solid fa-check-circle" style={{fontSize: '3rem', color: '#1cc88a', marginBottom: '15px'}}></i>
-                    <h3 style={{margin: '0 0 10px 0', color: '#333'}}>All Caught Up!</h3>
+                    <h3 style={{margin: '0 0 10px 0', color: 'var(--text-primary)'}}>All Caught Up!</h3>
                     <p style={{margin: 0}}>There are no pending enrollments to review at this time.</p>
                 </div>
             ) : (
                 <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
                     {pendingChildren.map(child => (
-                        <div key={child.id} style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div key={child.id} style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <h3 style={{margin: '0 0 5px 0', color: '#333'}}>{child.name}</h3>
-                                <div style={{color: '#777', fontSize: '0.9rem'}}>{child.age} years old &bull; Applied: {new Date(child.date_added).toLocaleDateString()}</div>
+                                <h3 style={{margin: '0 0 5px 0', color: 'var(--text-primary)'}}>{child.name}</h3>
+                                <div style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>{child.age} years old &bull; Applied: {new Date(child.date_added).toLocaleDateString()}</div>
                             </div>
                             <button onClick={() => { setSelectedChild(child); setFeedback(''); setShowReviewModal(true); }} style={{ padding: '8px 25px', background: '#4a90e2', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: '#fff', fontFamily: "'Montserrat', sans-serif" }}>Review Application</button>
                         </div>
@@ -285,57 +285,57 @@ export default function ChildrenList() {
       {/* REVIEW MODAL */}
       {showReviewModal && selectedChild && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', width: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-card)', padding: '30px', borderRadius: '12px', width: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Review Enrollment Application</h3>
-                <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Verify the submitted information before approving.</p>
+                <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Verify the submitted information before approving.</p>
               </div>
               <button onClick={() => setShowReviewModal(false)} style={{ background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer' }}>×</button>
             </div>
 
-            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #eee' }}>
+            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
                 <div className="resp-grid-2-form">
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Child Name</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Child Name</div>
                         <div style={{fontWeight: 700}}>{selectedChild.name}</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Computed Age</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Computed Age</div>
                         <div style={{fontWeight: 700}}>{selectedChild.age} years old</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Date of Birth</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Date of Birth</div>
                         <div style={{fontWeight: 700}}>{selectedChild.dob}</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Known Allergies</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Known Allergies</div>
                         <div style={{fontWeight: 700, color: selectedChild.allergies ? '#e74a3b' : '#333'}}>{selectedChild.allergies || 'None reported'}</div>
                     </div>
                 </div>
             </div>
 
-            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #eee' }}>
+            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
                 <h4 style={{margin: '0 0 10px 0', borderBottom: '1px solid #ddd', paddingBottom: '5px'}}>Guardian Information</h4>
                 <div className="resp-grid-2-form">
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Mother's Name</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Mother's Name</div>
                         <div style={{fontWeight: 700}}>{selectedChild.motherName}</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Father's Name</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Father's Name</div>
                         <div style={{fontWeight: 700}}>{selectedChild.fatherName}</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Contact Number</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Contact Number</div>
                         <div style={{fontWeight: 700}}>{selectedChild.guardianPhone}</div>
                     </div>
                     <div>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Email Address</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Email Address</div>
                         <div style={{fontWeight: 700}}>{selectedChild.guardianEmail}</div>
                     </div>
                     <div style={{gridColumn: '1 / -1'}}>
-                        <div style={{fontSize: '0.8rem', color: '#777', fontWeight: 600, marginBottom: '3px'}}>Address</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '3px'}}>Address</div>
                         <div style={{fontWeight: 700}}>{selectedChild.guardianAddress}</div>
                     </div>
                 </div>
@@ -348,7 +348,7 @@ export default function ChildrenList() {
                     value={feedback} 
                     onChange={e => setFeedback(e.target.value)} 
                     rows="3" 
-                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
                 ></textarea>
             </div>
 
@@ -365,11 +365,11 @@ export default function ChildrenList() {
       {/* CHILD PROFILE MODAL (Enrolled) */}
       {showProfileModal && selectedChild && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', width: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-card)', padding: '30px', borderRadius: '12px', width: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Child Profile</h3>
-                <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Complete information and performance overview</p>
+                <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Complete information and performance overview</p>
               </div>
               <button onClick={() => setShowProfileModal(false)} style={{ background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer' }}>×</button>
             </div>
@@ -383,8 +383,8 @@ export default function ChildrenList() {
                 )}
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{selectedChild.name}</h2>
-                <div style={{ color: '#777', fontSize: '0.9rem', marginTop: '5px' }}>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>{selectedChild.name}</h2>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px' }}>
                   {selectedChild.age} years old &bull; 🎈 Born: {selectedChild.dob} &bull; 📅 Enrolled: {selectedChild.doe}
                 </div>
               </div>
@@ -404,80 +404,79 @@ export default function ChildrenList() {
             </div>
 
             {profileTab === 'Performance' && (
-              <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
+              <div style={{ background: '#fcfcfc', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '12px' }}>
                 <h4 style={{ margin: '0 0 20px 0' }}>Performance Summary</h4>
                 <div className="resp-grid-2">
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '0.85rem' }}>Attendance</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#4a90e2' }}>{selectedChild.stats?.attendance || 0}%</div>
                     <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.attendance || 0}%`, height: '100%', background: '#4a90e2' }}></div></div>
                   </div>
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                     <div style={{ color: '#9b59b6', fontWeight: 700, fontSize: '0.85rem' }}>Milestones</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#9b59b6' }}>{selectedChild.stats?.milestones || 0}%</div>
                     <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.milestones || 0}%`, height: '100%', background: '#9b59b6' }}></div></div>
                   </div>
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
-                    <div style={{ color: '#f6c23e', fontWeight: 700, fontSize: '0.85rem' }}>Nutrition</div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f6c23e' }}>{selectedChild.stats?.nutrition || 0}%</div>
-                    <div style={{ height: '4px', background: '#e9ecef', borderRadius: '2px', marginTop: '10px' }}><div style={{ width: `${selectedChild.stats?.nutrition || 0}%`, height: '100%', background: '#f6c23e' }}></div></div>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
+                    <div style={{ color: '#f6c23e', fontWeight: 700, fontSize: '0.85rem' }}>Nutrition (Latest Snack Status)</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f6c23e', marginTop: '10px' }}>{selectedChild.stats?.nutrition_status || 'No Data'}</div>
                   </div>
                 </div>
               </div>
             )}
             
             {profileTab === 'ChildInfo' && (
-              <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
+              <div style={{ background: '#fcfcfc', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '12px' }}>
                 <h4 style={{ margin: '0 0 20px 0' }}>Child's Personal Information</h4>
-                <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                   <div className="resp-grid-2-form">
-                    <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Full Name:</span> <br/><strong>{selectedChild.name}</strong></div>
-                    <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Gender:</span> <br/><strong>{selectedChild.gender}</strong></div>
-                    <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Date of Birth:</span> <br/><strong>{selectedChild.dob} (Age {selectedChild.age})</strong></div>
-                    <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Home Address:</span> <br/><strong>{selectedChild.address_line1}, {selectedChild.barangay}, {selectedChild.city_municipality}, {selectedChild.province}, {selectedChild.region}</strong></div>
-                    <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Health Conditions:</span> <br/><strong>{selectedChild.health_conditions || 'None Reported'}</strong></div>
+                    <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Full Name:</span> <br/><strong>{selectedChild.name}</strong></div>
+                    <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Gender:</span> <br/><strong>{selectedChild.gender}</strong></div>
+                    <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Date of Birth:</span> <br/><strong>{selectedChild.dob} (Age {selectedChild.age})</strong></div>
+                    <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Home Address:</span> <br/><strong>{selectedChild.address_line1}, {selectedChild.barangay}, {selectedChild.city_municipality}, {selectedChild.province}, {selectedChild.region}</strong></div>
+                    <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Health Conditions:</span> <br/><strong>{selectedChild.health_conditions || 'None Reported'}</strong></div>
                   </div>
                 </div>
               </div>
             )}
 
             {profileTab === 'Guardians' && (
-              <div style={{ background: '#fcfcfc', border: '1px solid #eee', padding: '20px', borderRadius: '12px' }}>
+              <div style={{ background: '#fcfcfc', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '12px' }}>
                 <h4 style={{ margin: '0 0 20px 0' }}>Guardian Contact Information</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px', marginBottom: '15px' }}>
                   
                   {selectedChild.motherName && selectedChild.motherName !== 'No Info' && (
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Mother's Information</div>
                     <div className="resp-grid-2-form">
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.motherName}</strong></div>
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.motherPhone}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.motherEmail}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.motherAddress}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.motherName}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.motherPhone}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.motherEmail}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.motherAddress}</strong></div>
                     </div>
                   </div>
                   )}
                   
                   {selectedChild.fatherName && selectedChild.fatherName !== 'No Info' && (
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Father's Information</div>
                     <div className="resp-grid-2-form">
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.fatherName}</strong></div>
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.fatherPhone}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.fatherEmail}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.fatherAddress}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.fatherName}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.fatherPhone}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.fatherEmail}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.fatherAddress}</strong></div>
                     </div>
                   </div>
                   )}
                   
                   {selectedChild.otherGuardianName && selectedChild.otherGuardianName !== 'No Info' && (
-                  <div style={{ padding: '15px', border: '1px solid #e3e6f0', borderRadius: '8px', background: '#fff' }}>
+                  <div style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-card)' }}>
                     <div style={{ color: '#4a90e2', fontWeight: 700, fontSize: '1rem', marginBottom: '10px' }}>Other Guardian Information</div>
                     <div className="resp-grid-2-form">
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.otherGuardianName}</strong></div>
-                      <div><span style={{ color: '#777', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.otherGuardianPhone}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.otherGuardianEmail}</strong></div>
-                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#777', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.otherGuardianAddress}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Name:</span> <br/><strong>{selectedChild.otherGuardianName}</strong></div>
+                      <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Phone:</span> <br/><strong>{selectedChild.otherGuardianPhone}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Email:</span> <br/><strong>{selectedChild.otherGuardianEmail}</strong></div>
+                      <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Address:</span> <br/><strong>{selectedChild.otherGuardianAddress}</strong></div>
                     </div>
                   </div>
                   )}
@@ -485,7 +484,7 @@ export default function ChildrenList() {
                   {(!selectedChild.motherName || selectedChild.motherName === 'No Info') && 
                    (!selectedChild.fatherName || selectedChild.fatherName === 'No Info') && 
                    (!selectedChild.otherGuardianName || selectedChild.otherGuardianName === 'No Info') && (
-                      <div style={{ padding: '15px', textAlign: 'center', color: '#777', fontStyle: 'italic' }}>
+                      <div style={{ padding: '15px', textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                         No guardian information has been linked to this profile yet.
                       </div>
                   )}
@@ -501,11 +500,11 @@ export default function ChildrenList() {
       {/* GENERATE ACCOUNT MODAL */}
       {showGenerateAccountModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-card)', padding: '30px', borderRadius: '12px', width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Generate Parent Account</h3>
-                <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Create a temporary account to distribute to parents for enrollment.</p>
+                <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Create a temporary account to distribute to parents for enrollment.</p>
               </div>
               <button onClick={() => { setShowGenerateAccountModal(false); setGenAccResult(null); setGenAccError(''); }} style={{ background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer' }}>×</button>
             </div>
@@ -522,18 +521,18 @@ export default function ChildrenList() {
                 <form onSubmit={handleGenerateAccount}>
                     <div style={{ marginBottom: '15px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Link to Enrolled Student (Optional)</label>
-                        <select value={genAccForm.child_id} onChange={(e) => setGenAccForm({...genAccForm, child_id: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff' }}>
+                        <select value={genAccForm.child_id} onChange={(e) => setGenAccForm({...genAccForm, child_id: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box', background: 'var(--bg-card)' }}>
                             <option value="">-- No Child (Parent will enroll) --</option>
                             {children.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                     </div>
                     <div style={{ marginBottom: '15px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Parent Name</label>
-                        <input required type="text" value={genAccForm.parent_name} onChange={(e) => setGenAccForm({...genAccForm, parent_name: e.target.value})} placeholder="e.g. John Doe" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
+                        <input required type="text" value={genAccForm.parent_name} onChange={(e) => setGenAccForm({...genAccForm, parent_name: e.target.value})} placeholder="e.g. John Doe" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
                     </div>
                     <div style={{ marginBottom: '20px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, fontSize: '0.9rem' }}>Email Address</label>
-                        <input required type="email" value={genAccForm.email} onChange={(e) => setGenAccForm({...genAccForm, email: e.target.value})} placeholder="e.g. parent@example.com" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
+                        <input required type="email" value={genAccForm.email} onChange={(e) => setGenAccForm({...genAccForm, email: e.target.value})} placeholder="e.g. parent@example.com" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
                     </div>
                     <button type="submit" style={{ width: '100%', padding: '12px', background: '#4a90e2', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '1rem' }}>Generate Credentials</button>
                 </form>

@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from .models import Child, UserProfile, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, EngagementRecord, PasswordResetOTP, NoClassDay, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore, BMIRecord
 from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneRecordSerializer, NutritionRecordSerializer, SchoolYearSerializer, EngagementRecordSerializer, NoClassDaySerializer, ECCDDomainSerializer, ECCDMilestoneSerializer, ECCDAssessmentSerializer, ECCDMilestoneScoreSerializer, BMIRecordSerializer
@@ -279,6 +279,75 @@ class BMIRecordViewSet(viewsets.ModelViewSet):
             
         return qs
 
+    @action(detail=False, methods=['post'])
+    def bulk_finalize(self, request):
+        user = request.user
+        if not hasattr(user, 'userprofile') or not user.userprofile.is_teacher:
+            return Response({'error': 'Only teachers can perform bulk finalization.'}, status=403)
+            
+        quarter = request.data.get('quarter')
+        if not quarter:
+            return Response({'error': 'Quarter is required.'}, status=400)
+            
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        if not active_year:
+            return Response({'error': 'No active school year found.'}, status=400)
+            
+        # Get all enrolled children
+        children = Child.objects.filter(school_year=active_year, enrollment_status='Enrolled')
+        
+        from datetime import date
+        count = 0
+        for child in children:
+            # Check if previous quarter is finalized if needed
+            prev_record = None
+            if quarter == '2nd':
+                prev_record = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
+            elif quarter == '3rd':
+                prev_record = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='2nd').first()
+                if not prev_record:
+                    prev_record = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
+                    
+            default_weight = prev_record.weight if prev_record else 15.0
+            default_height = prev_record.height if prev_record else 100.0
+            default_date = getattr(active_year, f'eccd_{quarter}_start') or date.today()
+            
+            record, created = BMIRecord.objects.get_or_create(
+                child=child,
+                school_year=active_year,
+                quarter=quarter,
+                defaults={
+                    'weight': default_weight,
+                    'height': default_height,
+                    'measurement_date': default_date,
+                    'status': 'Finalized'
+                }
+            )
+            if not created and record.status != 'Finalized':
+                record.status = 'Finalized'
+                record.save()
+            count += 1
+            
+        return Response({'message': f'Successfully finalized {quarter} Quarter nutrition records for all {count} enrolled students.'})
+        
+    @action(detail=False, methods=['post'])
+    def bulk_unlock(self, request):
+        user = request.user
+        if not hasattr(user, 'userprofile') or not user.userprofile.is_teacher:
+            return Response({'error': 'Only teachers can perform bulk unlock.'}, status=403)
+            
+        quarter = request.data.get('quarter')
+        if not quarter:
+            return Response({'error': 'Quarter is required.'}, status=400)
+            
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        if not active_year:
+            return Response({'error': 'No active school year found.'}, status=400)
+            
+        records = BMIRecord.objects.filter(school_year=active_year, quarter=quarter)
+        count = records.update(status='Draft')
+        return Response({'message': f'Successfully unlocked {quarter} Quarter nutrition records for all {count} students.'})
+
 class EngagementRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = EngagementRecordSerializer
@@ -355,25 +424,99 @@ class ECCDAssessmentViewSet(viewsets.ModelViewSet):
             
         return qs
 
+    @action(detail=False, methods=['post'])
+    def bulk_finalize(self, request):
+        user = request.user
+        if not hasattr(user, 'userprofile') or not user.userprofile.is_teacher:
+            return Response({'error': 'Only teachers can perform bulk finalization.'}, status=403)
+            
+        period = request.data.get('period')
+        if not period:
+            return Response({'error': 'Period is required.'}, status=400)
+            
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        if not active_year:
+            return Response({'error': 'No active school year found.'}, status=400)
+            
+        # Get all enrolled children in active school year
+        children = Child.objects.filter(school_year=active_year, enrollment_status='Enrolled')
+        
+        # Ensure an assessment exists for each child for this period, and set its status to Finalized
+        from datetime import date
+        count = 0
+        for child in children:
+            initial_date = getattr(active_year, f'eccd_{period}_start') or date.today()
+            assessment, created = ECCDAssessment.objects.get_or_create(
+                child=child,
+                school_year=active_year,
+                assessment_period=period,
+                defaults={
+                    'status': 'Finalized',
+                    'assessment_date': initial_date,
+                    'teacher': user.userprofile
+                }
+            )
+            if not created and assessment.status != 'Finalized':
+                assessment.status = 'Finalized'
+                assessment.save()
+            count += 1
+            
+        return Response({'message': f'Successfully finalized {period} Assessment for all {count} enrolled students.'})
+
+    @action(detail=False, methods=['post'])
+    def bulk_unlock(self, request):
+        user = request.user
+        if not hasattr(user, 'userprofile') or not user.userprofile.is_teacher:
+            return Response({'error': 'Only teachers can perform bulk unlock.'}, status=403)
+            
+        period = request.data.get('period')
+        if not period:
+            return Response({'error': 'Period is required.'}, status=400)
+            
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+        if not active_year:
+            return Response({'error': 'No active school year found.'}, status=400)
+            
+        # Update all assessments for this period to Draft
+        assessments = ECCDAssessment.objects.filter(
+            school_year=active_year,
+            assessment_period=period
+        )
+        count = assessments.update(status='Draft')
+        return Response({'message': f'Successfully unlocked {period} Assessment for all {count} students.'})
+
 class ECCDMilestoneScoreViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ECCDMilestoneScoreSerializer
     
     def get_queryset(self):
-        qs = ECCDMilestoneScore.objects.all()
+        user = self.request.user
+        if not hasattr(user, 'userprofile'):
+            return ECCDMilestoneScore.objects.none()
+            
+        profile = user.userprofile
+        if profile.is_teacher:
+            qs = ECCDMilestoneScore.objects.all()
+        else:
+            # Parents only see scores for their children
+            qs = ECCDMilestoneScore.objects.filter(assessment__child__parents=profile)
+            
         assessment = self.request.query_params.get('assessment')
         if assessment:
             qs = qs.filter(assessment=assessment)
         milestone = self.request.query_params.get('milestone')
         if milestone:
             qs = qs.filter(milestone=milestone)
+            
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
             qs = qs.filter(assessment__school_year_id=school_year_id)
         else:
-            active_year = SchoolYear.objects.filter(is_active=True).first()
-            if active_year:
-                qs = qs.filter(assessment__school_year_id=active_year.id)
+            # Default to active year only for teachers
+            if profile.is_teacher:
+                active_year = SchoolYear.objects.filter(is_active=True).first()
+                if active_year:
+                    qs = qs.filter(assessment__school_year_id=active_year.id)
         return qs
 
 from .eccd_scoring import compute_age, get_age_group, get_scaled_score, get_standard_score, get_standard_score_interpretation
@@ -705,7 +848,47 @@ class ParentListAPIView(APIView):
 class SchoolYearViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SchoolYearSerializer
-    queryset = SchoolYear.objects.all().order_by('-start_date')
+
+    def get_queryset(self):
+        # Only return non-deleted school years by default
+        return SchoolYear.objects.filter(is_deleted=False).order_by('-start_date')
+
+    def destroy(self, request, *args, **kwargs):
+        # Allow hard deleting from the recycle bin
+        instance = get_object_or_404(SchoolYear, pk=kwargs.get('pk'))
+        self.perform_destroy(instance)
+        return Response(status=204)
+
+    @action(detail=True, methods=['post'])
+    def soft_delete(self, request, pk=None):
+        school_year = get_object_or_404(SchoolYear, pk=pk)
+        if school_year.is_active:
+            return Response({'error': 'Cannot delete the active school year.'}, status=400)
+        from django.utils import timezone
+        school_year.is_deleted = True
+        school_year.deleted_at = timezone.now()
+        school_year.save()
+        return Response({'message': f'School year {school_year.name} moved to recycle bin.'})
+
+    @action(detail=True, methods=['post'])
+    def restore(self, request, pk=None):
+        school_year = get_object_or_404(SchoolYear, pk=pk)
+        school_year.is_deleted = False
+        school_year.deleted_at = None
+        school_year.save()
+        return Response({'message': f'School year {school_year.name} restored successfully.'})
+
+    @action(detail=False, methods=['get'])
+    def recycle_bin(self, request):
+        from django.utils import timezone
+        from datetime import timedelta
+        # Auto cleanup: permanently delete entries older than 30 days
+        limit = timezone.now() - timedelta(days=30)
+        SchoolYear.objects.filter(is_deleted=True, deleted_at__lt=limit).delete()
+        
+        deleted_years = SchoolYear.objects.filter(is_deleted=True).order_by('-deleted_at')
+        serializer = self.get_serializer(deleted_years, many=True)
+        return Response(serializer.data)
 
 class NoClassDayViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

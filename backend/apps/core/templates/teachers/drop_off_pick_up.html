@@ -365,37 +365,52 @@
     // Supports parent account username tokens, names, and contact numbers.
     function locateGuardianAuth(inputText) {
         let cleanedInput = inputText.trim();
-        let scannedUsername = null;
+        
+        // Extract raw username from input
+        let lookupStr = cleanedInput;
         if (cleanedInput.toUpperCase().startsWith("BMV3-AUTH-")) {
-            scannedUsername = cleanedInput.substring(10);
+            lookupStr = cleanedInput.substring(10);
         } else if (cleanedInput.toUpperCase().startsWith("BMV3-")) {
-            scannedUsername = cleanedInput.substring(5);
+            lookupStr = cleanedInput.substring(5);
         }
+        
+        let targetLower = lookupStr.toLowerCase();
 
         for (let st of studentsMaster) {
-            // Check parent username match from secure PWA token
-            if (scannedUsername && st.parent_usernames && st.parent_usernames.includes(scannedUsername)) {
-                let guardian = 'Parent';
-                if (st.mother_first_name) guardian = `${st.mother_first_name} (Mother)`;
-                else if (st.father_first_name) guardian = `${st.father_first_name} (Father)`;
-                else if (st.other_guardian_first_name) guardian = `${st.other_guardian_first_name} (Guardian)`;
-                return { guardian: guardian, student: st };
+            // 1. Check parent usernames case-insensitively
+            if (st.parent_usernames && st.parent_usernames.length > 0) {
+                const matchedIndex = st.parent_usernames.findIndex(u => u.toLowerCase() === targetLower);
+                if (matchedIndex !== -1) {
+                    let guardian = 'Parent';
+                    if (matchedIndex === 0) {
+                        if (st.mother_first_name) guardian = `${st.mother_first_name} (Mother)`;
+                        else if (st.father_first_name) guardian = `${st.father_first_name} (Father)`;
+                        else if (st.other_guardian_first_name) guardian = `${st.other_guardian_first_name} (Guardian)`;
+                    } else if (matchedIndex === 1) {
+                        if (st.father_first_name) guardian = `${st.father_first_name} (Father)`;
+                        else if (st.other_guardian_first_name) guardian = `${st.other_guardian_first_name} (Guardian)`;
+                    } else {
+                        if (st.other_guardian_first_name) guardian = `${st.other_guardian_first_name} (Guardian)`;
+                    }
+                    return { guardian: guardian, student: st };
+                }
             }
-
-            // Check primary parent contacts or name matches
-            if(st.mother_phone === cleanedInput || (st.mother_first_name && st.mother_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
+            
+            // 2. Fallback check: check if the input is directly the parent's phone or first/last name
+            let inputLower = cleanedInput.toLowerCase();
+            if(st.mother_phone === cleanedInput || (st.mother_first_name && st.mother_first_name.toLowerCase().includes(inputLower))) {
                 return { guardian: `${st.mother_first_name} (Mother)`, student: st };
             }
-            if(st.father_phone === cleanedInput || (st.father_first_name && st.father_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
+            if(st.father_phone === cleanedInput || (st.father_first_name && st.father_first_name.toLowerCase().includes(inputLower))) {
                 return { guardian: `${st.father_first_name} (Father)`, student: st };
             }
-            if(st.other_guardian_phone === cleanedInput || (st.other_guardian_first_name && st.other_guardian_first_name.toLowerCase().includes(cleanedInput.toLowerCase()))) {
+            if(st.other_guardian_phone === cleanedInput || (st.other_guardian_first_name && st.other_guardian_first_name.toLowerCase().includes(inputLower))) {
                 return { guardian: `${st.other_guardian_first_name} (Guardian)`, student: st };
             }
             // Check extra guardians
             if(extraGuardiansDB[st.id]) {
                 for(let eg of extraGuardiansDB[st.id]) {
-                    if (eg.contact === cleanedInput || eg.name.toLowerCase().includes(cleanedInput.toLowerCase())) {
+                    if (eg.contact === cleanedInput || eg.name.toLowerCase().includes(inputLower)) {
                         return { guardian: `${eg.name} (${eg.rel})`, student: st };
                     }
                 }

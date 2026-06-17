@@ -4,10 +4,16 @@
   "description": "Progressive Child Care and ECCD Tracking System",
   "start_url": "/login/",
   "display": "standalone",
-  "background_color": "#043263",
-  "theme_color": "#043263",
+  "background_color": "#0b0f19",
+  "theme_color": "#090d16",
   "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "/static/core/image/bmv3_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/static/core/image/bmv3_logo.png",
       "sizes": "512x512",

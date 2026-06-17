@@ -67,21 +67,21 @@ class ChildSerializer(serializers.ModelSerializer):
 
         # Nutrition
         n_recs = obj.nutrition_records.all()
-        n_days = n_recs.count()
-        tot_n_pct = 0
-        for n in n_recs:
-            if n.snack_status in ['Naubos', 'Finished']:
-                tot_n_pct += 100
-            elif n.snack_status in ['May tira', 'Some Left']:
-                tot_n_pct += 50
-        nut_pct = round(tot_n_pct / n_days) if n_days > 0 else 0
+        if obj.school_year:
+            n_recs = n_recs.filter(school_year=obj.school_year)
+        else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                n_recs = n_recs.filter(school_year=active_year)
+        latest_nut = n_recs.order_by('-date').first()
+        nut_status = latest_nut.snack_status if latest_nut else 'No Data'
 
         return {
             'attendance': att_pct,
             'milestones': mile_pct,
             'milestones_achieved': achieved,
             'milestones_total': total_possible,
-            'nutrition': nut_pct
+            'nutrition_status': nut_status
         }
 
 class AttendanceRecordSerializer(serializers.ModelSerializer):

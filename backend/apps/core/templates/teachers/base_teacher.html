@@ -9,7 +9,8 @@
     <title>Teacher Dashboard - BMV3 Child Care Management System</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#043263">
+    <meta name="theme-color" content="#090d16">
+    <link rel="apple-touch-icon" href="{% static 'core/image/bmv3_logo.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
@@ -99,6 +100,52 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
+        :root {
+            /* Light mode variables */
+            --bg-body: #f4f7f6;
+            --bg-sidebar: #063970;
+            --bg-card: #ffffff;
+            --border-color: #dcdcdc;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+            --input-text: #333333;
+            
+            --btn-neutral-bg: #f0f0f0;
+            --btn-neutral-text: #333333;
+            --btn-neutral-border: #cccccc;
+            
+            --chart-bg: #ffffff;
+            --chart-grid: #f1f5f9;
+            --chart-text: #64748b;
+        }
+
+        html.dark-mode, .dark-mode {
+            /* Premium dark slate theme */
+            --bg-body: #0b0f19;
+            --bg-sidebar: #090d16;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            
+            --input-bg: #0f172a;
+            --input-border: #334155;
+            --input-text: #f8fafc;
+            
+            --btn-neutral-bg: #334155;
+            --btn-neutral-text: #cbd5e1;
+            --btn-neutral-border: #475569;
+            
+            --chart-bg: #1e293b;
+            --chart-grid: #334155;
+            --chart-text: #94a3b8;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -107,22 +154,23 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f4f7f6;
-            /* Very light grey/blue for dashboard bg */
+            background-color: var(--bg-body);
             display: flex;
             min-height: 100vh;
-            color: #333;
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Sidebar Architecture */
         .sidebar {
             width: 250px;
-            background-color: #063970;
+            background-color: var(--bg-sidebar);
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
             z-index: 100;
+            transition: background-color 0.3s ease;
         }
 
         .sidebar-header {
@@ -533,6 +581,16 @@
             color: #8FB977;
         }
 
+        /* --- Responsive Design Utilities --- */
+        .resp-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .resp-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .resp-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .resp-grid-2-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .resp-grid-dob { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
+        .resp-grid-2-ratio { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 15px; }
+        .resp-flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .resp-mobile-tabs { display: none !important; }
+
         /* --- Responsive Design --- */
         .table-responsive {
             overflow-x: auto;
@@ -546,9 +604,14 @@
                 flex-direction: column;
             }
             .menu-container {
-                display: none !important;
+                margin-left: auto;
             }
             .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 1000;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
             }
@@ -562,7 +625,57 @@
                 transition: margin-left 0.3s, width 0.3s;
             }
             .mobile-sidebar-toggle {
-                display: block;
+                display: none !important;
+            }
+            
+            /* Responsive layout utility overrides */
+            .resp-grid-4 { grid-template-columns: 1fr !important; }
+            .resp-grid-3 { grid-template-columns: 1fr !important; }
+            .resp-grid-2 { grid-template-columns: 1fr !important; }
+            .resp-grid-2-form { grid-template-columns: 1fr !important; }
+            .resp-grid-dob { grid-template-columns: 1fr !important; }
+            .resp-grid-2-ratio { grid-template-columns: 1fr !important; }
+            .resp-flex-between { flex-direction: column !important; align-items: flex-start !important; gap: 15px !important; }
+            
+            /* Responsive pill tabs for mobile scrolling */
+            .tabs, .resp-mobile-tabs { 
+                display: flex !important; 
+                gap: 8px !important; 
+                margin-bottom: 20px !important; 
+                width: 100% !important; 
+                overflow-x: auto !important; 
+                -webkit-overflow-scrolling: touch !important; 
+                padding-bottom: 8px !important; 
+                border-bottom: 1px solid var(--border-color, #eee) !important;
+            }
+            .tab, .resp-mobile-tab-btn {
+                flex: 1 !important;
+                min-width: max-content !important;
+                padding: 8px 16px !important;
+                border-radius: 20px !important;
+                background: var(--bg-card, #f0f4f8) !important;
+                border: 1px solid var(--border-color, #cbd5e1) !important;
+                color: var(--text-secondary, #475569) !important;
+                font-weight: 600 !important;
+                font-size: 0.85rem !important;
+                cursor: pointer !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                transition: all 0.2s ease !important;
+                font-family: 'Montserrat', sans-serif !important;
+            }
+            .tab.active, .resp-mobile-tab-btn.active {
+                background: #043263 !important;
+                color: #ffffff !important;
+                border-color: #043263 !important;
+                box-shadow: 0 4px 6px rgba(4, 50, 99, 0.15) !important;
+            }
+            html.dark-mode .tab.active, .dark-mode .tab.active,
+            html.dark-mode .resp-mobile-tab-btn.active, .dark-mode .resp-mobile-tab-btn.active {
+                background: #3b82f6 !important;
+                border-color: #3b82f6 !important;
+                color: #ffffff !important;
+                box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25) !important;
             }
             .page-header h2 { font-size: 1.8rem; }
 
@@ -587,32 +700,67 @@
         }
 
         /* --- Dark Mode Styles --- */
-        html.dark-mode body { background-color: #121212; color: #e0e0e0; }
-        html.dark-mode .top-nav-right { background-color: #121212; }
-        html.dark-mode .sidebar { background-color: #04254a; }
-        html.dark-mode .sidebar-header { border-bottom-color: rgba(255,255,255,0.1); }
-        html.dark-mode .menu-item { color: #ccc; }
-        html.dark-mode .menu-item:hover { background-color: rgba(255,255,255,0.05); color: #fff; }
-        html.dark-mode .card, html.dark-mode .settings-panel, html.dark-mode .settings-sidebar, html.dark-mode .content-section, html.dark-mode .summary-card, html.dark-mode .form-group input, html.dark-mode .form-group select { background-color: #1a1a1a; border-color: #333; color: #e0e0e0; }
-        html.dark-mode .page-header h2, html.dark-mode .panel-header h3 { color: #f0f0f0; }
-        html.dark-mode .page-header p, html.dark-mode .panel-header p { color: #aaa; }
-        html.dark-mode .burger-menu span { background-color: #e0e0e0; }
-        html.dark-mode .dropdown-menu { background-color: #222; border-color: #444; }
-        html.dark-mode .dropdown-item { color: #ccc; border-bottom-color: #333; }
-        html.dark-mode .dropdown-item:hover { background-color: #333; color: #4a90e2; }
-        html.dark-mode .modal-container { background-color: #1a1a1a; color: #e0e0e0; }
-        html.dark-mode .modal-header { border-bottom-color: #333; }
-        html.dark-mode .modal-header h3 { color: #f0f0f0; }
-        html.dark-mode .list-item, html.dark-mode .archive-box, html.dark-mode .archived-student-item { border-color: #333; }
-        html.dark-mode .item-name, html.dark-mode .year-title { color: #e0e0e0; }
-        html.dark-mode .btn-action, html.dark-mode .form-group input, html.dark-mode .form-group select, html.dark-mode .scanner-help { background-color: #222; }
-        html.dark-mode .settings-menu-item:hover { background-color: #333; }
-        html.dark-mode .settings-menu-item.active { background-color: #2a3b4c; }
-        html.dark-mode .kpi-title { color: #ccc; }
-        html.dark-mode .kpi-value { color: #f0f0f0; }
-        html.dark-mode .chart-title { color: #f0f0f0; }
-        html.dark-mode .status-pill { background-color: #222; border-color:#333; }
-        html.dark-mode .status-pill-title { color: #e0e0e0; }
+        html.dark-mode body, .dark-mode body { background-color: var(--bg-body); color: var(--text-primary); }
+        html.dark-mode .top-nav-right, .dark-mode .top-nav-right { background-color: var(--bg-body); }
+        html.dark-mode .sidebar, .dark-mode .sidebar { background-color: var(--bg-sidebar); }
+        html.dark-mode .sidebar-header, .dark-mode .sidebar-header { border-bottom-color: var(--border-color); }
+        html.dark-mode .menu-item, .dark-mode .menu-item { color: var(--text-secondary); }
+        html.dark-mode .menu-item:hover, .dark-mode .menu-item:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
+        html.dark-mode .card, 
+        html.dark-mode .settings-panel, 
+        html.dark-mode .settings-sidebar, 
+        html.dark-mode .content-section, 
+        html.dark-mode .summary-card, 
+        html.dark-mode .form-group input, 
+        html.dark-mode .form-group select,
+        .dark-mode .card, 
+        .dark-mode .settings-panel, 
+        .dark-mode .settings-sidebar, 
+        .dark-mode .content-section, 
+        .dark-mode .summary-card, 
+        .dark-mode .form-group input, 
+        .dark-mode .form-group select { 
+            background-color: var(--bg-card) !important; 
+            border-color: var(--border-color) !important; 
+            color: var(--text-primary) !important; 
+        }
+        html.dark-mode .page-header h2, html.dark-mode .panel-header h3, .dark-mode .page-header h2, .dark-mode .panel-header h3 { color: var(--text-primary); }
+        html.dark-mode .page-header p, html.dark-mode .panel-header p, .dark-mode .page-header p, .dark-mode .panel-header p { color: var(--text-secondary); }
+        html.dark-mode .burger-menu span, .dark-mode .burger-menu span { background-color: var(--text-primary); }
+        html.dark-mode .dropdown-menu, .dark-mode .dropdown-menu { background-color: var(--bg-card); border-color: var(--border-color); }
+        html.dark-mode .dropdown-item, .dark-mode .dropdown-item { color: var(--text-secondary); border-bottom-color: var(--border-color); }
+        html.dark-mode .dropdown-item:hover, .dark-mode .dropdown-item:hover { background-color: rgba(255,255,255,0.05); color: #4a90e2; }
+        html.dark-mode .modal-container, .dark-mode .modal-container { background-color: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
+        html.dark-mode .modal-header, .dark-mode .modal-header { border-bottom-color: var(--border-color); }
+        html.dark-mode .modal-header h3, .dark-mode .modal-header h3 { color: var(--text-primary); }
+        html.dark-mode .list-item, html.dark-mode .archive-box, html.dark-mode .archived-student-item, .dark-mode .list-item, .dark-mode .archive-box, .dark-mode .archived-student-item { border-color: var(--border-color) !important; background-color: var(--bg-card) !important; }
+        html.dark-mode .item-name, html.dark-mode .year-title, .dark-mode .item-name, .dark-mode .year-title { color: var(--text-primary); }
+        html.dark-mode .btn-action, html.dark-mode .form-group input, html.dark-mode .form-group select, html.dark-mode .scanner-help, .dark-mode .btn-action, .dark-mode .btn-action, .dark-mode .form-group input, .dark-mode .form-group select, .dark-mode .scanner-help { background-color: var(--input-bg) !important; border-color: var(--input-border) !important; color: var(--input-text) !important; }
+        html.dark-mode .settings-menu-item:hover, .dark-mode .settings-menu-item:hover { background-color: rgba(255,255,255,0.05); }
+        html.dark-mode .settings-menu-item.active, .dark-mode .settings-menu-item.active { background-color: #2a3b4c; }
+        html.dark-mode .kpi-title, .dark-mode .kpi-title { color: var(--text-secondary); }
+        html.dark-mode .kpi-value, .dark-mode .kpi-value { color: var(--text-primary); }
+        html.dark-mode .chart-title, .dark-mode .chart-title { color: var(--text-primary); }
+        html.dark-mode .status-pill, .dark-mode .status-pill { background-color: var(--input-bg); border-color: var(--border-color); }
+        html.dark-mode .status-pill-title, .dark-mode .status-pill-title { color: var(--text-primary); }
+
+        /* Global overrides for tables, inputs, and tabs in dark mode */
+        html.dark-mode table, .dark-mode table { border-color: var(--border-color) !important; }
+        html.dark-mode th, .dark-mode th { background-color: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; }
+        html.dark-mode td, .dark-mode td { border-color: var(--border-color) !important; color: var(--text-secondary) !important; }
+        html.dark-mode tr, .dark-mode tr { border-color: var(--border-color) !important; }
+        html.dark-mode tr:hover, .dark-mode tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+        html.dark-mode input, html.dark-mode select, html.dark-mode textarea, .dark-mode input, .dark-mode select, .dark-mode textarea {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode input:disabled, html.dark-mode select:disabled, html.dark-mode textarea:disabled, .dark-mode input:disabled, .dark-mode select:disabled, .dark-mode textarea:disabled {
+            opacity: 0.5 !important;
+        }
+        html.dark-mode .tabs, html.dark-mode .sub-tabs, html.dark-mode .tab, html.dark-mode .sub-tab, .dark-mode .tabs, .dark-mode .sub-tabs, .dark-mode .tab, .dark-mode .sub-tab {
+            border-bottom-color: var(--border-color) !important;
+        }
     </style>
 </head>
 
@@ -767,7 +915,9 @@
             if (dropdownMenu && burgerToggle && !dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
             }
-            if (mainSidebar && sidebarToggle && !mainSidebar.contains(e.target) && !sidebarToggle.contains(e.target) && window.innerWidth <= 768) {
+            const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+            const isClickInsideMore = mobileMoreBtn && mobileMoreBtn.contains(e.target);
+            if (mainSidebar && !mainSidebar.contains(e.target) && !isClickInsideMore && window.innerWidth <= 768) {
                 mainSidebar.classList.remove('active');
             }
         });

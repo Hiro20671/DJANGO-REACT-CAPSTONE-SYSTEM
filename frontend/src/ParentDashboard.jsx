@@ -419,10 +419,25 @@ function ParentDashboard() {
 
   let eccdProgress = [];
   if (eccdData.domains && eccdData.domains.length > 0) {
-      // Find the latest assessment
-      let latestAss = eccdData.ass.find(a => a.assessment_period === '3rd') || 
+      // Find the latest assessment that actually has scores
+      const periods = ['3rd', '2nd', '1st'];
+      let latestAss = null;
+      for (const p of periods) {
+          const assOpt = eccdData.ass.find(a => a.assessment_period === p);
+          if (assOpt) {
+              const hasScores = eccdData.scores.some(sc => sc.assessment === assOpt.id);
+              if (hasScores) {
+                  latestAss = assOpt;
+                  break;
+              }
+          }
+      }
+      // Fallback to latest initialized period if none have scores yet
+      if (!latestAss) {
+          latestAss = eccdData.ass.find(a => a.assessment_period === '3rd') || 
                       eccdData.ass.find(a => a.assessment_period === '2nd') || 
                       eccdData.ass.find(a => a.assessment_period === '1st');
+      }
       
       if (latestAss) {
           eccdData.domains.forEach(d => {
@@ -659,25 +674,25 @@ function ParentDashboard() {
             <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
                 <div 
                     onClick={() => setShowEnrollForm(true)}
-                    style={{ flex: 1, background: '#fff', border: '1px solid #ccc', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
+                    style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
                 >
                     <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>📝</div>
                     <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#063970' }}>Enroll New Child</h3>
-                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Fill out a new application for your child to join the center.</p>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Fill out a new application for your child to join the center.</p>
                 </div>
                 <div 
                     onClick={() => setShowLinkGuardianForm(true)}
-                    style={{ flex: 1, background: '#fff', border: '1px solid #ccc', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
+                    style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
                 >
                     <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>🔗</div>
                     <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#063970' }}>Link to Existing Child</h3>
-                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>If your child is already enrolled, set up your guardian profile and connect to their records.</p>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>If your child is already enrolled, set up your guardian profile and connect to their records.</p>
                 </div>
             </div>
         )}
 
         {showEnrollForm && (
-        <div style={{ background: '#fff', color: '#333', border: '1px solid #ccc', padding: '30px', borderRadius: '15px' }}>
+        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4rem' }}>Child Enrollment Application</h3>
             
             {enrollError && <div style={{ background: '#fdf2f2', color: '#d9534f', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #f5c6cb' }}>{enrollError}</div>}
@@ -687,37 +702,37 @@ function ParentDashboard() {
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>First Name *</label>
-                        <input required type="text" name="first_name" value={enrollForm.first_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="first_name" value={enrollForm.first_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Middle Initial</label>
-                        <input type="text" name="middle_initial" value={enrollForm.middle_initial} onChange={handleEnrollChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input type="text" name="middle_initial" value={enrollForm.middle_initial} onChange={handleEnrollChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Last Name *</label>
-                        <input required type="text" name="last_name" value={enrollForm.last_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="last_name" value={enrollForm.last_name} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div className="resp-grid-dob" style={{ gridColumn: '1 / -1' }}>
                         <div>
                             <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Date of Birth * (Must be 3-4 yrs old)</label>
-                            <input required type="date" min="2020-01-01" name="dob" value={enrollForm.dob} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
+                            <input required type="date" min="2020-01-01" name="dob" value={enrollForm.dob} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
                         </div>
                         <div>
                             <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Computed Age</label>
-                            <input type="text" readOnly value={enrollForm.dob ? calculateAge(enrollForm.dob) + ' yrs' : ''} placeholder="Auto-calculated" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#f5f5f5', color: '#666', cursor: 'not-allowed', boxSizing: 'border-box', fontWeight: 'bold' }} />
+                            <input type="text" readOnly value={enrollForm.dob ? calculateAge(enrollForm.dob) + ' yrs' : ''} placeholder="Auto-calculated" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-secondary)', cursor: 'not-allowed', boxSizing: 'border-box', fontWeight: 'bold' }} />
                         </div>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Gender</label>
-                        <select name="gender" value={enrollForm.gender} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}>
+                        <select name="gender" value={enrollForm.gender} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }}>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Child Profile Picture (Optional)</label>
-                        <input type="file" accept="image/*" onChange={(e) => setChildImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }} />
-                        <small style={{ color: '#666' }}>You can skip this and upload a picture later.</small>
+                        <input type="file" accept="image/*" onChange={(e) => setChildImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }} />
+                        <small style={{ color: 'var(--text-secondary)' }}>You can skip this and upload a picture later.</small>
                     </div>
                 </div>
 
@@ -727,17 +742,17 @@ function ParentDashboard() {
                     <textarea 
                         placeholder="e.g. 123 Mabini St., Market View, Lucena City, Quezon"
                         onChange={(e) => handleAddressPaste(e.target.value, 'enroll')} 
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', height: '60px', boxSizing: 'border-box' }}
+                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', height: '60px', boxSizing: 'border-box' }}
                     />
                 </div>
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
-                        <input required type="text" name="address_line1" value={enrollForm.address_line1} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="address_line1" value={enrollForm.address_line1} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
-                        <select required name="region" value={enrollForm.region} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="region" value={enrollForm.region} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Region</option>
                             {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
                                 <option key={r} value={r}>{r}</option>
@@ -747,7 +762,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
-                        <select required name="province" value={enrollForm.province} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="province" value={enrollForm.province} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
                             {enrollForm.region && enrollForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region] || {}).map(p => (
                                 <option key={p} value={p}>{p}</option>
@@ -757,7 +772,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
-                        <select required name="city_municipality" value={enrollForm.city_municipality} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="city_municipality" value={enrollForm.city_municipality} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
                             {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province] || {}).map(c => (
                                 <option key={c} value={c}>{c}</option>
@@ -767,7 +782,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
-                        <select required name="barangay" value={enrollForm.barangay} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="barangay" value={enrollForm.barangay} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
                             {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && enrollForm.city_municipality && enrollForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province][enrollForm.city_municipality] || []).map(b => (
                                 <option key={b} value={b}>{b}</option>
@@ -781,7 +796,7 @@ function ParentDashboard() {
                             type="text" 
                             readOnly 
                             value={`${enrollForm.address_line1 || ''}${enrollForm.barangay ? ', ' + enrollForm.barangay : ''}${enrollForm.city_municipality ? ', ' + enrollForm.city_municipality : ''}${enrollForm.province ? ', ' + enrollForm.province : ''}${enrollForm.region ? ', ' + enrollForm.region : ''}`} 
-                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#f5f5f5', color: '#666', fontWeight: 500 }} 
+                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-secondary)', fontWeight: 500 }} 
                         />
                     </div>
                 </div>
@@ -790,7 +805,7 @@ function ParentDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '30px' }}>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Allergies</label>
-                        <select name="allergies" value={enrollForm.allergies} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select name="allergies" value={enrollForm.allergies} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">None</option>
                             <option value="Peanuts">Peanuts</option>
                             <option value="Dairy / Milk">Dairy / Milk</option>
@@ -804,17 +819,17 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Other Health Conditions</label>
-                        <input type="text" name="health_conditions" placeholder="e.g., Asthma (leave blank if none)" value={enrollForm.health_conditions} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input type="text" name="health_conditions" placeholder="e.g., Asthma (leave blank if none)" value={enrollForm.health_conditions} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '40px', marginBottom: '20px' }}>Part 2: Guardian Profile Setup</h4>
-                <p style={{ color: '#666', marginBottom: '20px' }}>Fill out your information to link with this child.</p>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>Fill out your information to link with this child.</p>
                 
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Relationship to Child *</label>
-                        <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="Mother">Mother</option>
                             <option value="Father">Father</option>
                             <option value="Other Relative">Other Relative</option>
@@ -822,28 +837,28 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>First Name *</label>
-                        <input required type="text" name="first_name" value={guardianForm.first_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="first_name" value={guardianForm.first_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Middle Initial</label>
-                        <input type="text" name="middle_initial" value={guardianForm.middle_initial} onChange={handleGuardianChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input type="text" name="middle_initial" value={guardianForm.middle_initial} onChange={handleGuardianChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Last Name *</label>
-                        <input required type="text" name="last_name" value={guardianForm.last_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="last_name" value={guardianForm.last_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Email Address *</label>
-                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Contact Number *</label>
-                        <input required type="text" name="phone" value={guardianForm.phone} onChange={handleGuardianChange} placeholder="e.g. 09123456789" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="phone" value={guardianForm.phone} onChange={handleGuardianChange} placeholder="e.g. 09123456789" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Guardian Profile Picture (Optional)</label>
-                        <input type="file" accept="image/*" onChange={(e) => setParentImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }} />
-                        <small style={{ color: '#666' }}>You can skip this and upload a picture later.</small>
+                        <input type="file" accept="image/*" onChange={(e) => setParentImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }} />
+                        <small style={{ color: 'var(--text-secondary)' }}>You can skip this and upload a picture later.</small>
                     </div>
                 </div>
 
@@ -851,11 +866,11 @@ function ParentDashboard() {
                 <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
-                        <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
-                        <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Region</option>
                             <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
                             <option value="NCR">NCR</option>
@@ -864,7 +879,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
-                        <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
                             <option value="Quezon">Quezon Province</option>
                             <option value="Laguna">Laguna</option>
@@ -874,7 +889,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
-                        <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
                             <option value="Lucena City">Lucena City</option>
                             <option value="Tayabas City">Tayabas City</option>
@@ -885,7 +900,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
-                        <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
                             <option value="Market View">Market View</option>
                             <option value="Ilayang Dupay">Ilayang Dupay</option>
@@ -899,16 +914,16 @@ function ParentDashboard() {
 
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <button type="submit" style={{ padding: '12px 25px', background: '#063970', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Submit Application</button>
-                    <button type="button" onClick={() => setShowEnrollForm(false)} style={{ padding: '12px 25px', background: '#eee', color: '#333', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={() => setShowEnrollForm(false)} style={{ padding: '12px 25px', background: 'var(--btn-neutral-bg)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                 </div>
             </form>
         </div>
         )}
 
         {showLinkGuardianForm && (
-        <div style={{ background: '#fff', color: '#333', border: '1px solid #ccc', padding: '30px', borderRadius: '15px' }}>
+        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4rem' }}>Guardian Profile Setup</h3>
-            <p style={{ color: '#666', marginBottom: '20px' }}>Fill out your information to link with an enrolled child.</p>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>Fill out your information to link with an enrolled child.</p>
             
             {guardianError && <div style={{ background: '#fdf2f2', color: '#d9534f', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #f5c6cb' }}>{guardianError}</div>}
             {guardianSuccess && <div style={{ background: '#d4edda', color: '#155724', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>{guardianSuccess}</div>}
@@ -918,12 +933,12 @@ function ParentDashboard() {
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Select Child to Link *</label>
                         {guardianForm.child_id && childrenList.find(c => c.id === guardianForm.child_id) ? (
-                            <div style={{ padding: '10px', background: '#f5f5f5', border: '1px solid #ccc', borderRadius: '5px', fontWeight: 'bold' }}>
+                            <div style={{ padding: '10px', background: 'var(--input-bg)', border: '1px solid var(--border-color)', borderRadius: '5px', fontWeight: 'bold' }}>
                                 {childrenList.find(c => c.id === guardianForm.child_id).first_name} {childrenList.find(c => c.id === guardianForm.child_id).last_name}
                                 <input type="hidden" name="child_id" value={guardianForm.child_id} />
                             </div>
                         ) : (
-                            <select required name="child_id" value={guardianForm.child_id} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                            <select required name="child_id" value={guardianForm.child_id} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                                 <option value="">-- Choose Child --</option>
                                 {childrenList.map(c => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}
                             </select>
@@ -934,7 +949,7 @@ function ParentDashboard() {
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Relationship to Child *</label>
-                        <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="guardian_type" value={guardianForm.guardian_type} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="Mother">Mother</option>
                             <option value="Father">Father</option>
                             <option value="Other Relative">Other Relative</option>
@@ -942,28 +957,28 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>First Name *</label>
-                        <input required type="text" name="first_name" value={guardianForm.first_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="first_name" value={guardianForm.first_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Middle Initial</label>
-                        <input type="text" name="middle_initial" value={guardianForm.middle_initial} onChange={handleGuardianChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input type="text" name="middle_initial" value={guardianForm.middle_initial} onChange={handleGuardianChange} maxLength="5" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Last Name *</label>
-                        <input required type="text" name="last_name" value={guardianForm.last_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="last_name" value={guardianForm.last_name} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Email Address *</label>
-                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Contact Number *</label>
-                        <input required type="text" name="phone" value={guardianForm.phone} onChange={handleGuardianChange} placeholder="e.g. 09123456789" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="phone" value={guardianForm.phone} onChange={handleGuardianChange} placeholder="e.g. 09123456789" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Guardian Profile Picture (Optional)</label>
-                        <input type="file" accept="image/*" onChange={(e) => setParentImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }} />
-                        <small style={{ color: '#666' }}>You can skip this and upload a picture later.</small>
+                        <input type="file" accept="image/*" onChange={(e) => setParentImg(e.target.files[0])} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }} />
+                        <small style={{ color: 'var(--text-secondary)' }}>You can skip this and upload a picture later.</small>
                     </div>
                 </div>
 
@@ -973,17 +988,17 @@ function ParentDashboard() {
                     <textarea 
                         placeholder="e.g. 123 Mabini St., Market View, Lucena City, Quezon"
                         onChange={(e) => handleAddressPaste(e.target.value, 'guardian')} 
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', height: '60px', boxSizing: 'border-box' }}
+                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', height: '60px', boxSizing: 'border-box' }}
                     />
                 </div>
                 <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
-                        <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+                        <input required type="text" name="address_line1" value={guardianForm.address_line1} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
-                        <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Region</option>
                             {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
                                 <option key={r} value={r}>{r}</option>
@@ -993,7 +1008,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
-                        <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
                             {guardianForm.region && guardianForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region] || {}).map(p => (
                                 <option key={p} value={p}>{p}</option>
@@ -1003,7 +1018,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
-                        <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
                             {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province] || {}).map(c => (
                                 <option key={c} value={c}>{c}</option>
@@ -1013,7 +1028,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
-                        <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#fff' }}>
+                        <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
                             {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && guardianForm.city_municipality && guardianForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province][guardianForm.city_municipality] || []).map(b => (
                                 <option key={b} value={b}>{b}</option>
@@ -1027,14 +1042,14 @@ function ParentDashboard() {
                             type="text" 
                             readOnly 
                             value={`${guardianForm.address_line1 || ''}${guardianForm.barangay ? ', ' + guardianForm.barangay : ''}${guardianForm.city_municipality ? ', ' + guardianForm.city_municipality : ''}${guardianForm.province ? ', ' + guardianForm.province : ''}${guardianForm.region ? ', ' + guardianForm.region : ''}`} 
-                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', background: '#f5f5f5', color: '#666', fontWeight: 500 }} 
+                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-secondary)', fontWeight: 500 }} 
                         />
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <button type="submit" style={{ padding: '12px 25px', background: '#063970', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Submit Profile & Link</button>
-                    <button type="button" onClick={() => setShowLinkGuardianForm(false)} style={{ padding: '12px 25px', background: '#eee', color: '#333', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={() => setShowLinkGuardianForm(false)} style={{ padding: '12px 25px', background: 'var(--btn-neutral-bg)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                 </div>
             </form>
         </div>
@@ -1123,12 +1138,12 @@ function ParentDashboard() {
       )}
 
       {/* Header block */}
-      <div className="resp-flex-between" style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginBottom: '20px', opacity: (student.enrollment_status !== 'Enrolled' ? 0.6 : 1) }}>
+      <div className="resp-flex-between" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginBottom: '20px', opacity: (student.enrollment_status !== 'Enrolled' ? 0.6 : 1) }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #ccc', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e0f0ff', color: '#063970', fontWeight: 'bold', fontSize: '1.5rem' }}>
+          <div style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e0f0ff', color: '#063970', fontWeight: 'bold', fontSize: '1.5rem' }}>
             <img
               src={student.img || localStorage.getItem('bmv3_parent_profile_img') || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + student.first_name)}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#fff' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'var(--bg-card)' }}
               alt="avatar"
             />
           </div>
@@ -1136,7 +1151,7 @@ function ParentDashboard() {
               <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 {student.first_name} {student.last_name}
               </h3>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>{student.age} years old</p>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{student.age} years old</p>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -1146,11 +1161,11 @@ function ParentDashboard() {
       </div>
 
       {/* Controls Container */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', background: '#fff', padding: '20px', borderRadius: '15px', border: '1px solid #ccc' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', background: 'var(--bg-card)', padding: '20px', borderRadius: '15px', border: '1px solid var(--border-color)' }}>
           {/* Date filter */}
           <div>
             <label htmlFor="history-date" style={{ marginRight: '10px', fontWeight: 600 }}>View records for date:</label>
-            <input id="history-date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', outline: 'none' }} />
+            <input id="history-date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid var(--border-color)', outline: 'none' }} />
             <button onClick={() => setFilterDate('')} style={{ marginLeft: '10px', padding: '8px 15px', borderRadius: '5px', background: '#063970', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear to Today</button>
           </div>
       </div>
@@ -1173,19 +1188,19 @@ function ParentDashboard() {
               <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Drop-off time</div>
-                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Pick-up Status</div>
-                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Authorized Guardian</div>
-                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Session</div>
-                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
                 </div>
               </div>
 
@@ -1200,7 +1215,7 @@ function ParentDashboard() {
                 const completionPct = totalActCount > 0 ? Math.round((completedActCount / totalActCount) * 100) : 0;
 
                 return (
-                  <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f1f5f9', paddingBottom: '15px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', color: '#0369a1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
@@ -1290,7 +1305,7 @@ function ParentDashboard() {
 
           {(!isMobile || mobileTab === 'health-milestones') && (
             <div className="resp-grid-2">
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
+              <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px' }}>
                 <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Health & Nutrition</h4>
                 <div style={{ marginBottom: '15px' }}>
                   <strong style={{ fontSize: '0.9rem' }}>Snack Status</strong>
@@ -1316,7 +1331,7 @@ function ParentDashboard() {
                   {(() => {
                     const bmiRecords = student.bmi_records || [];
                     if (bmiRecords.length === 0) {
-                      return <span style={{ fontSize: '0.8rem', color: '#666', fontStyle: 'italic' }}>No growth history recorded yet.</span>;
+                      return <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>No growth history recorded yet.</span>;
                     }
                     const sortedBmis = [...bmiRecords].sort((x, y) => {
                       const quarters = { '1st': 1, '2nd': 2, '3rd': 3 };
@@ -1362,19 +1377,19 @@ function ParentDashboard() {
                 </div>
               </div>
 
-              <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', position: 'relative' }}>
+              <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', position: 'relative' }}>
                   <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>ECCD Milestone Progress</h4>
                   <div className="resp-grid-2-form">
                       {eccdProgress.length > 0 ? eccdProgress.map((p, i) => (
                           <div key={i}>
                               <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.name}</div>
-                              <div style={{ width: '100%', height: '6px', background: '#eee', borderRadius: '3px', marginTop: '5px' }}>
+                              <div style={{ width: '100%', height: '6px', background: 'var(--btn-neutral-bg)', borderRadius: '3px', marginTop: '5px' }}>
                                   <div style={{ width: `${p.pct}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div>
                               </div>
-                              <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '2px' }}>{p.pct}% Achieved</div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{p.pct}% Achieved</div>
                           </div>
                       )) : (
-                          <div style={{ fontSize: '0.8rem', color: '#555', gridColumn: '1/-1' }}>No ECCD assessment records found. Click 'Milestones' in the menu to start your first evaluation!</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', gridColumn: '1/-1' }}>No ECCD assessment records found. Click 'Milestones' in the menu to start your first evaluation!</div>
                       )}
                   </div>
               </div>
@@ -1382,8 +1397,8 @@ function ParentDashboard() {
           )}
       </>
       ) : (
-          <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '15px', border: '1px solid #ccc' }}>
-              <h3 style={{ color: '#555' }}>Profile is not currently active</h3>
+          <div style={{ textAlign: 'center', padding: '40px', background: '#f8f9fa', borderRadius: '15px', border: '1px solid var(--border-color)' }}>
+              <h3 style={{ color: 'var(--text-secondary)' }}>Profile is not currently active</h3>
               <p style={{ color: '#888' }}>You will see the dashboard once the enrollment is approved.</p>
               <button 
                   onClick={() => {
@@ -1403,7 +1418,7 @@ function ParentDashboard() {
       )}
 
       {(!isMobile || mobileTab === 'notifications') && (
-        <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
+        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
           <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent Notifications</h4>
           {notifications.map((notif, i) => (
             <div key={i} style={{ fontSize: '0.8rem', borderLeft: '2px solid #333', paddingLeft: '10px', marginBottom: '15px' }}>

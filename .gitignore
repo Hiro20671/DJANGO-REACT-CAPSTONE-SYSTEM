@@ -51,3 +51,19 @@ yarn.lock
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Databases
+*.sqlite3
+
+# Local media/uploads
+backend/media/
+media/
+
+# Collected static files
+backend/staticfiles/
+staticfiles/
+
+# Temp scripts/scratch
+backend/inspect_milestones.py
+backend/scratch/
+scratch/

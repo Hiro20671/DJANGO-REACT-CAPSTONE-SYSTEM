@@ -305,6 +305,7 @@ input:checked + .slider:before { transform: translateX(26px); }
     <div class="settings-sidebar">
         <div class="settings-menu-item active" onclick="switchSetting('account')">👤 Account</div>
         <div class="settings-menu-item" onclick="switchSetting('school')">🏫 School Settings</div>
+        <div class="settings-menu-item" onclick="switchSetting('active-year-config')">📅 Active School Year Config</div>
         <div class="settings-menu-item" onclick="switchSetting('notifications')">🔔 Notifications</div>
         <div class="settings-menu-item" onclick="switchSetting('appearance')">🎨 Appearance</div>
         <div class="settings-menu-item" onclick="switchSetting('privacy')">🔒 Privacy & Security</div>
@@ -330,7 +331,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <div class="profile-upload-preview" id="profileImagePreview">👤</div>
                     <div>
                         <input type="file" id="profImgInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-                        <button class="btn-primary" style="background:#f0f0f0; color:#333; margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
+                        <button class="btn-primary" style="background: var(--btn-neutral-bg); color: var(--btn-neutral-text); border: 1px solid var(--btn-neutral-border); margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
                         <div style="font-size:0.8rem; color:#888;">JPG, GIF or PNG. Max size of 800K</div>
                     </div>
                 </div>
@@ -345,7 +346,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 </div>
                 <div class="form-group">
                     <label>Assigned Room/Class</label>
-                    <input type="text" value="Room 1 (Toddlers & Pre-K)" disabled style="background:#f4f4f4;">
+                    <input type="text" value="Room 1 (Toddlers & Pre-K)" disabled style="background: var(--input-bg); opacity: 0.6; color: var(--input-text); border-color: var(--border-color);">
                 </div>
                 <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
             </div>
@@ -405,6 +406,23 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <button class="btn-danger" onclick="confirmReset()">Archive Current Year & Reset All Data</button>
             </div>
 
+            <div class="panel-header" style="margin-top: 30px;">
+                <h3 style="font-size: 1.1rem;">Archived School Years</h3>
+                <p>Access historical records for past enrolled batches</p>
+            </div>
+
+            <div id="archives-container">
+                <!-- Injected via JS -->
+            </div>
+
+            <h4 style="font-size: 1.05rem; margin-top: 30px; margin-bottom: 10px; color: #4a5568; font-weight: 700; font-family: 'Montserrat', sans-serif;">🗑️ Recycle Bin (Recoverable for 30 Days)</h4>
+            <div id="recycle-bin-container" style="margin-top: 15px;">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Active School Year Config Panel -->
+        <div class="settings-panel" id="panel-active-year-config">
             <!-- CONFIGURE ACTIVE SCHOOL YEAR DATES -->
             <div style="background: #fff; border: 1px solid #edf2f7; border-radius: 8px; padding: 20px; max-width: 600px; margin-bottom: 30px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
                 <h4 style="color: #2b6cb0; margin-top: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; font-family: 'Montserrat', sans-serif; font-weight: 800;">
@@ -492,14 +510,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <button class="btn-primary" id="btnSaveSchoolDates" onclick="saveSchoolYearDates()" style="font-weight: 700;">Save Configuration</button>
             </div>
 
-            <div class="panel-header">
-                <h3 style="font-size: 1.1rem;">Archived School Years</h3>
-                <p>Access historical records for past enrolled batches</p>
-            </div>
 
-            <div id="archives-container">
-                <!-- Injected via JS -->
-            </div>
         </div>
 
         <!-- 3. NOTIFICATIONS -->
@@ -671,8 +682,10 @@ input:checked + .slider:before { transform: translateX(26px); }
     function toggleTheme(mode) {
         localStorage.setItem('bmv3_theme', mode);
         if (mode === 'dark') {
+            document.documentElement.classList.add('dark-mode');
             document.body.classList.add('dark-mode');
         } else {
+            document.documentElement.classList.remove('dark-mode');
             document.body.classList.remove('dark-mode');
         }
     }
@@ -906,6 +919,7 @@ input:checked + .slider:before { transform: translateX(26px); }
             
             if (historical.length === 0) {
                 cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
+                loadRecycleBin();
                 return;
             }
             
@@ -920,10 +934,12 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <div style="display:flex; gap:8px;">
                         <button class="btn-primary" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; font-weight:700; cursor:pointer;" onclick="openArchiveViewModal(${arc.id}, '${arc.name}')">View Enrolled Children</button>
                         <button class="btn-primary" style="background:#4a90e2; color:#fff; border:none; font-weight:700; cursor:pointer;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                        <button class="btn-danger" style="font-weight:700; cursor:pointer; background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; padding: 8px 15px; border-radius: 6px;" onclick="softDeleteArchive(${arc.id}, '${arc.name}')">Delete</button>
                     </div>
                 </div>`;
             });
             cont.innerHTML = html;
+            loadRecycleBin();
         });
     }
 
@@ -1244,6 +1260,89 @@ input:checked + .slider:before { transform: translateX(26px); }
             btn.innerText = "Save Configuration";
         });
     }
+
+    window.loadRecycleBin = function() {
+        fetch('/api/school-years/recycle_bin/')
+        .then(res => res.json())
+        .then(deletedYears => {
+            let cont = document.getElementById('recycle-bin-container');
+            if (deletedYears.length === 0) {
+                cont.innerHTML = `<div style="text-align:center; padding: 15px; color: #888; border: 1px dashed #cbd5e1; border-radius: 8px;">Recycle bin is empty.</div>`;
+                return;
+            }
+            
+            let html = '';
+            deletedYears.forEach((arc) => {
+                let delDate = new Date(arc.deleted_at);
+                let now = new Date();
+                let diffTime = Math.abs(now - delDate);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let daysRemaining = Math.max(0, 30 - diffDays);
+                
+                html += `
+                <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; border:1px dashed #feb2b2; background:#fffaf5; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                    <div>
+                        <div class="year-title" style="font-weight:800; font-size:1.1rem; color:#c53030; margin-bottom:4px;">${arc.name}</div>
+                        <div class="year-stats" style="font-size:0.8rem; color:#742a2a; font-weight:600;">🗑️ Deleted &bull; ${daysRemaining} days remaining until permanent deletion</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-primary" style="background:#e6fffa; color:#0d9488; border:1px solid #99f6e4; font-weight:700; cursor:pointer;" onclick="restoreArchive(${arc.id}, '${arc.name}')">Restore</button>
+                        <button class="btn-danger" style="background:#e74a3b; color:#fff; border:none; font-weight:700; cursor:pointer;" onclick="hardDeleteArchive(${arc.id}, '${arc.name}')">Delete Permanently</button>
+                    </div>
+                </div>`;
+            });
+            cont.innerHTML = html;
+        });
+    };
+
+    window.softDeleteArchive = function(id, name) {
+        if (!confirm(`Are you sure you want to move the school year "${name}" to the Recycle Bin? It can be recovered within 30 days.`)) return;
+        
+        fetch(`/api/school-years/${id}/soft_delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert(data.message || "Moved to Recycle Bin.");
+                loadArchives();
+            }
+        });
+    };
+
+    window.restoreArchive = function(id, name) {
+        if (!confirm(`Restore the school year "${name}" from the Recycle Bin?`)) return;
+        
+        fetch(`/api/school-years/${id}/restore/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || "Restored successfully.");
+            loadArchives();
+        });
+    };
+
+    window.hardDeleteArchive = function(id, name) {
+        if (!confirm(`WARNING: Are you sure you want to permanently delete "${name}"? This will delete all historical records for this batch FOREVER and cannot be undone.`)) return;
+        
+        fetch(`/api/school-years/${id}/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(res => {
+            if (res.ok) {
+                alert(`Permanently deleted "${name}".`);
+                loadArchives();
+            } else {
+                alert("Failed to delete permanently.");
+            }
+        });
+    };
 
     loadArchives();
     loadActiveSchoolYearDates();

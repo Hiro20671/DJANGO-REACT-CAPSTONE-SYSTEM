@@ -407,17 +407,8 @@ function compileData(attendance, milestones, engagement, nutrition) {
         let totalSkills = (student.stats && typeof student.stats.milestones_total !== 'undefined') ? student.stats.milestones_total : 109;
 
         // Nutrition Logic
-        let stNut = nutrition.filter(n => n.child === student.id);
-        let nutPct = 0;
-        if (stNut.length > 0) {
-            let totalScore = 0;
-            stNut.forEach(n => {
-                if(n.snack_status === 'Finished') totalScore += 100;
-                else if(n.snack_status === 'Some Left') totalScore += 50;
-            });
-            nutPct = Math.round(totalScore / stNut.length);
-        }
-        let nutAvg = nutPct;
+        let stNut = nutrition.filter(n => n.child === student.id).sort((a,b) => new Date(b.date) - new Date(a.date));
+        let nutStatus = stNut.length > 0 ? (stNut[0].snack_status || 'No Data') : 'No Data';
 
         let avatarHtml = student.img ? `<img src="${student.img}" style="width:100%; height:100%; object-fit:cover;">` : (student.first_name[0] + student.last_name[0]);
 
@@ -431,7 +422,7 @@ function compileData(attendance, milestones, engagement, nutrition) {
             milePct: milePct,
             skillsAchieved: skillsAchieved,
             totalSkills: totalSkills,
-            nutAvg: nutAvg
+            nutStatus: nutStatus
         };
 
         // ALERTS LOGIC
@@ -531,8 +522,8 @@ function renderDigest() {
                 <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Observed Progress</div>
             </td>
             <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">
-                <strong>${d.nutAvg}%</strong> avg intake
-                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Nutrition Rating</div>
+                <strong>${d.nutStatus}</strong>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Latest Snack Status</div>
             </td>
             <td style="padding:15px; text-align:center;">
                 ${buttonHtml}
@@ -557,17 +548,17 @@ window.viewSentReportsHistory = function(studentId) {
             {
                 title: "Weekly Performance Digest (Week 12)",
                 date: "Friday, Nov 14, 2025",
-                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\n${student.first_name} participated well in circle time activities this week. Demonstrated great cooperative play.`
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Latest snack status is ${d.nutStatus}\n\nTeacher's Note:\n${student.first_name} participated well in circle time activities this week. Demonstrated great cooperative play.`
             },
             {
-                title: "Weekly Performance Digest (Week 8)",
-                date: "Friday, Oct 17, 2025",
-                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 10)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nExcellent progress in motor skills development. Shows great curiosity in block building.`
+                title: "Weekly Performance Digest (Week 11)",
+                date: "Friday, Nov 7, 2025",
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 10)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Latest snack status is ${d.nutStatus}\n\nTeacher's Note:\nExcellent progress in motor skills development. Shows great curiosity in block building.`
             },
             {
-                title: "Weekly Performance Digest (Week 4)",
-                date: "Friday, Sep 19, 2025",
-                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 20)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nInitial transition period is complete. ${student.first_name} has adapted wonderfully to the class routine and gets along great with peers.`
+                title: "Weekly Performance Digest (Week 10)",
+                date: "Friday, Oct 31, 2025",
+                body: `Teacher's Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${Math.max(0, d.skillsAchieved - 20)} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Latest snack status is ${d.nutStatus}\n\nTeacher's Note:\nInitial transition period is complete. ${student.first_name} has adapted wonderfully to the class routine and gets along great with peers.`
             }
         ];
     }
@@ -609,7 +600,7 @@ function openModal(studentId) {
     document.getElementById('m-name').innerText = d.name;
     document.getElementById('m-att').innerText = `Present ${d.daysPresent} out of ${d.totalDays} tracked days`;
     document.getElementById('m-mile').innerText = `${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated`;
-    document.getElementById('m-nut').innerText = `Average meal intake of ${d.nutAvg}%`;
+    document.getElementById('m-nut').innerText = `Latest snack status is ${d.nutStatus}`;
     document.getElementById('modal-msg-note').value = ""; // clear previous note
     
     document.getElementById('sendModal').classList.add('active');
@@ -694,7 +685,7 @@ function sendAllReports() {
         let d = globalCompiledData[st.id];
         if(!reportsDB[st.id]) reportsDB[st.id] = [];
         
-        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Average meal intake of ${d.nutAvg}%\n\nTeacher's Note:\nAutomated system delivery.`;
+        let reportBody = `Automated Weekly Performance Report\n\nAttendance: Present ${d.daysPresent} out of ${d.totalDays} tracked days\nMilestones: ${d.skillsAchieved} out of ${d.totalSkills} observed milestones demonstrated\nNutrition: Latest snack status is ${d.nutStatus}\n\nTeacher's Note:\nAutomated system delivery.`;
         
         reportsDB[st.id].unshift({
             title: "Automated Weekly Report",

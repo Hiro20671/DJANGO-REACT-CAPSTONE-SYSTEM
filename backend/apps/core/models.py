@@ -44,6 +44,9 @@ class SchoolYear(models.Model):
     eccd_3rd_start = models.DateField(null=True, blank=True)
     eccd_3rd_end = models.DateField(null=True, blank=True)
 
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return self.name
 
@@ -52,6 +55,15 @@ class SchoolYear(models.Model):
             # deactivate all other school years
             SchoolYear.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
+        
+        # Automatically update any Draft assessment dates to align with the new school year evaluation start dates
+        from apps.core.models import ECCDAssessment
+        if self.eccd_1st_start:
+            ECCDAssessment.objects.filter(school_year=self, assessment_period='1st', status='Draft').update(assessment_date=self.eccd_1st_start)
+        if self.eccd_2nd_start:
+            ECCDAssessment.objects.filter(school_year=self, assessment_period='2nd', status='Draft').update(assessment_date=self.eccd_2nd_start)
+        if self.eccd_3rd_start:
+            ECCDAssessment.objects.filter(school_year=self, assessment_period='3rd', status='Draft').update(assessment_date=self.eccd_3rd_start)
 
 class Child(models.Model):
     first_name = models.CharField(max_length=100)

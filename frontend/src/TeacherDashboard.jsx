@@ -14,7 +14,7 @@ function SVGDonutChart({ present, absent }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       <svg width="180" height="180" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="10" />
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--chart-grid)" strokeWidth="10" />
         {absent > 0 && (
           <circle 
             cx="50" 
@@ -42,10 +42,10 @@ function SVGDonutChart({ present, absent }) {
             strokeLinecap="round"
           />
         )}
-        <text x="50" y="47" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '12px', fontWeight: 800, fontFamily: 'Montserrat', fill: '#333' }}>
+        <text x="50" y="47" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '12px', fontWeight: 800, fontFamily: 'Montserrat', fill: 'var(--text-primary)' }}>
           {presentPct}%
         </text>
-        <text x="50" y="62" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '6px', fontWeight: 600, fontFamily: 'Montserrat', fill: '#777', textTransform: 'uppercase' }}>
+        <text x="50" y="62" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '6px', fontWeight: 600, fontFamily: 'Montserrat', fill: 'var(--text-muted)', textTransform: 'uppercase' }}>
           Present
         </text>
       </svg>
@@ -80,10 +80,10 @@ function SVGBarChart({ labels, data, total }) {
         const yPos = padding.top + graphHeight - (yVal / maxVal) * graphHeight;
         return (
           <g key={i}>
-            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}>
               {yVal}
             </text>
-            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2,2" />
+            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="var(--chart-grid)" strokeWidth="1" strokeDasharray="2,2" />
           </g>
         );
       })}
@@ -114,7 +114,7 @@ function SVGBarChart({ labels, data, total }) {
               x={xPos + barWidth / 2} 
               y={yPos - 4} 
               textAnchor="middle" 
-              style={{ fontSize: '8px', fontWeight: 800, fill: '#043263' }}
+              style={{ fontSize: '8px', fontWeight: 800, fill: 'var(--text-primary)' }}
             >
               {val}
             </text>
@@ -122,7 +122,7 @@ function SVGBarChart({ labels, data, total }) {
               x={padding.left + i * colWidth + colWidth / 2} 
               y={chartHeight - 10} 
               textAnchor="middle" 
-              style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+              style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}
             >
               {displayLabel}
             </text>
@@ -162,10 +162,10 @@ function SVGNutritionBarChart({ finished, someLeft, notEaten }) {
         const yPos = padding.top + graphHeight - (yVal / maxVal) * graphHeight;
         return (
           <g key={i}>
-            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+            <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}>
               {yVal}
             </text>
-            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="2,2" />
+            <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="var(--chart-grid)" strokeWidth="1" strokeDasharray="2,2" />
           </g>
         );
       })}
@@ -189,7 +189,7 @@ function SVGNutritionBarChart({ finished, someLeft, notEaten }) {
               x={xPos + barWidth / 2} 
               y={yPos - 4} 
               textAnchor="middle" 
-              style={{ fontSize: '8px', fontWeight: 800, fill: '#333' }}
+              style={{ fontSize: '8px', fontWeight: 800, fill: 'var(--text-primary)' }}
             >
               {val}
             </text>
@@ -197,7 +197,7 @@ function SVGNutritionBarChart({ finished, someLeft, notEaten }) {
               x={padding.left + i * colWidth + colWidth / 2} 
               y={chartHeight - 10} 
               textAnchor="middle" 
-              style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+              style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}
             >
               {barLabels[i]}
             </text>
@@ -262,7 +262,7 @@ function SVGEccdDomainPerformanceChart({ labels, data1, data2, data3 }) {
         <path d={getPathD(pts)} fill="none" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         {pts.map((p, i) => (
           <g key={i}>
-            <circle cx={p.x} cy={p.y} r="4.5" fill="#fff" stroke={strokeColor} strokeWidth="2" />
+            <circle cx={p.x} cy={p.y} r="4.5" fill="var(--bg-card)" stroke={strokeColor} strokeWidth="2" />
             <circle cx={p.x} cy={p.y} r="2" fill={strokeColor} />
             <text x={p.x} y={p.y - 8} textAnchor="middle" style={{ fontSize: '8px', fontWeight: 800, fill: strokeColor }}>
               {p.val}%
@@ -281,10 +281,10 @@ function SVGEccdDomainPerformanceChart({ labels, data1, data2, data3 }) {
             const yPos = padding.top + graphHeight - (val / 100) * graphHeight;
             return (
               <g key={val}>
-                <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}>
+                <text x={padding.left - 8} y={yPos + 3} textAnchor="end" style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}>
                   {val}%
                 </text>
-                <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3,3" />
+                <line x1={padding.left} y1={yPos} x2={chartWidth - padding.right} y2={yPos} stroke="var(--chart-grid)" strokeWidth="1" strokeDasharray="3,3" />
               </g>
             );
           })}
@@ -305,7 +305,7 @@ function SVGEccdDomainPerformanceChart({ labels, data1, data2, data3 }) {
                 x={xPos} 
                 y={chartHeight - 15} 
                 textAnchor="middle" 
-                style={{ fontSize: '8px', fill: '#64748b', fontWeight: 600 }}
+                style={{ fontSize: '8px', fill: 'var(--chart-text)', fontWeight: 600 }}
                 transform={`rotate(-10, ${xPos}, ${chartHeight - 15})`}
               >
                 {shortLabel}
@@ -361,7 +361,7 @@ export default function TeacherDashboard() {
   
   // Mobile Layout Management
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [mobileTab, setMobileTab] = useState('overview'); // 'overview', 'performance', 'trends'
+  const [mobileTab, setMobileTab] = useState('overview'); // 'overview', 'performance', 'attendance-nutrition'
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -576,11 +576,11 @@ export default function TeacherDashboard() {
 
       <div className="resp-flex-between" style={{ marginBottom: '25px', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#333' }}>Operational Dashboard</h2>
-          <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '0.9rem' }}>Real-time monitoring and analytics • {new Date().toLocaleDateString()}</p>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>Operational Dashboard</h2>
+          <p style={{ margin: '5px 0 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Real-time monitoring and analytics • {new Date().toLocaleDateString()}</p>
         </div>
         <div>
-            <select value={selectedYear} onChange={handleYearChange} style={{ padding: '8px 15px', borderRadius: '6px', border: '1px solid #ccc', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+            <select value={selectedYear} onChange={handleYearChange} style={{ padding: '8px 15px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--input-text)', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
                 <option value="">All Time / Default</option>
                 {schoolYears.map(y => (
                     <option key={y.id} value={y.id}>{y.name} {y.is_active ? '(Active)' : '(Archived)'}</option>
@@ -592,43 +592,43 @@ export default function TeacherDashboard() {
       {/* Mobile Tab Switcher */}
       <div className="resp-mobile-tabs">
         <button className={`resp-mobile-tab-btn ${mobileTab === 'overview' ? 'active' : ''}`} onClick={() => setMobileTab('overview')}>Overview</button>
-        <button className={`resp-mobile-tab-btn ${mobileTab === 'performance' ? 'active' : ''}`} onClick={() => setMobileTab('performance')}>Performance</button>
-        <button className={`resp-mobile-tab-btn ${mobileTab === 'trends' ? 'active' : ''}`} onClick={() => setMobileTab('trends')}>Trends</button>
+        <button className={`resp-mobile-tab-btn ${mobileTab === 'performance' ? 'active' : ''}`} onClick={() => setMobileTab('performance')}>Domain Performance</button>
+        <button className={`resp-mobile-tab-btn ${mobileTab === 'attendance-nutrition' ? 'active' : ''}`} onClick={() => setMobileTab('attendance-nutrition')}>Attendance & Nutrition</button>
       </div>
 
       {/* KPI Cards Row */}
       {(!isMobile || mobileTab === 'overview') && (
         <div className="resp-grid-4" style={{ marginBottom: '25px' }}>
           <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
               <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Total Enrolled</div>
-              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#777', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
+              <div style={{ position: 'absolute', top: '15px', right: '20px', color: 'var(--text-muted)', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
               <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
-              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Active children</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>Active children</div>
             </div>
           </a>
           <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
               <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Today's Attendance</div>
               <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-calendar-check"></i></div>
               <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.absent} absent today</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>{stats.absent} absent today</div>
             </div>
           </a>
           <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f6c23e' : '1px solid #000', height: '100%', cursor: 'pointer', position: 'relative' }}>
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f6c23e' : '1px solid var(--border-color)', height: '100%', cursor: 'pointer', position: 'relative' }}>
               <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Pending Enrollments</div>
               <div style={{ position: 'absolute', top: '15px', right: '20px', color: stats.pending > 0 ? '#f6c23e' : '#1cc88a', fontSize: '1rem' }}><i className="fa-solid fa-file-signature"></i></div>
               <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.pending}</div>
-              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>{stats.pending > 0 ? 'Requires your approval' : 'All caught up'}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>{stats.pending > 0 ? 'Requires your approval' : 'All caught up'}</div>
             </div>
           </a>
           <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: '#fff', color: '#333', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid #000', position: 'relative' }}>
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
               <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Milestone Progress</div>
               <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-chart-line"></i></div>
               <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.milestonePct}%</div>
-              <div style={{ fontSize: '0.8rem', color: '#777', marginTop: 'auto' }}>Overall completion</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>Overall completion</div>
             </div>
           </a>
         </div>
@@ -636,9 +636,9 @@ export default function TeacherDashboard() {
 
       {/* ECCD Chart Row */}
       {(!isMobile || mobileTab === 'performance') && (
-        <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', marginBottom: '25px' }}>
+        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '25px' }}>
             <div style={{ fontWeight: 600, marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
-            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Average completion percentage across 7 ECCD domains</p>
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Average completion percentage across 7 ECCD domains</p>
             <div style={{ height: '250px', position: 'relative', width: '100%' }}>
               <SVGEccdDomainPerformanceChart labels={eccdChart.labels} data1={eccdChart.data1} data2={eccdChart.data2} data3={eccdChart.data3} />
             </div>
@@ -646,32 +646,32 @@ export default function TeacherDashboard() {
       )}
 
       {/* Row 2 */}
-      {(!isMobile || mobileTab === 'trends' || mobileTab === 'overview') && (
+      {(!isMobile || mobileTab === 'attendance-nutrition') && (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
-          {(!isMobile || mobileTab === 'trends') && (
-            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
+          {(!isMobile || mobileTab === 'attendance-nutrition') && (
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Daily attendance tracking</p>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Daily attendance tracking</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
                 <SVGBarChart labels={attendanceChart.labels} data={attendanceChart.data} total={stats.total} />
               </div>
             </div>
           )}
           
-          {(!isMobile || mobileTab === 'trends') && (
-            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000', display: 'flex', flexDirection: 'column' }}>
+          {(!isMobile || mobileTab === 'attendance-nutrition') && (
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Weekly snack consumption summary</p>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Weekly snack consumption summary</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
                 <SVGNutritionBarChart finished={nutritionChart.finished} someLeft={nutritionChart.someLeft} notEaten={nutritionChart.notEaten} />
               </div>
             </div>
           )}
 
-          {(!isMobile || mobileTab === 'overview') && (
-            <div style={{ background: '#fff', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #000' }}>
+          {(!isMobile || mobileTab === 'attendance-nutrition') && (
+            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <div style={{ fontWeight: 600, marginBottom: '5px' }}>Today's Attendance</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#777' }}>Present vs Absent distribution</p>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Present vs Absent distribution</p>
               <div style={{ height: '220px', position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <SVGDonutChart present={stats.present} absent={stats.absent} />
               </div>

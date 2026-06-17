@@ -280,7 +280,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <div class="profile-upload-preview" id="profileImagePreview">👤</div>
                     <div>
                         <input type="file" id="profImgInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-                        <button class="btn-primary" style="background:#f0f0f0; color:#333; margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
+                        <button class="btn-primary" style="background: var(--btn-neutral-bg); color: var(--btn-neutral-text); border: 1px solid var(--btn-neutral-border); margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
                         <div style="font-size:0.8rem; color:#888;">JPG, GIF or PNG. Max size of 800K</div>
                     </div>
                 </div>
@@ -623,8 +623,10 @@ input:checked + .slider:before { transform: translateX(26px); }
     function toggleTheme(mode) {
         localStorage.setItem('bmv3_theme', mode);
         if (mode === 'dark') {
+            document.documentElement.classList.add('dark-mode');
             document.body.classList.add('dark-mode');
         } else {
+            document.documentElement.classList.remove('dark-mode');
             document.body.classList.remove('dark-mode');
         }
     }
