@@ -3,11 +3,25 @@ import sys
 import subprocess
 
 def start_frontend_dev_server():
+    # Only start when running local dev server
+    if 'runserver' not in sys.argv:
+        return
+
+    # Only run in development settings
+    settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+    if 'prod' in settings_module:
+        return
+
     # Launch the React/Vite dev server in a separate subprocess
     frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
-    # Use CREATE_NEW_PROCESS_GROUP on Windows to avoid signal propagation
+    
+    # Platform-agnostic subprocess flags (avoid Windows-only flags on Linux/PythonAnywhere)
+    popen_kwargs = {'cwd': frontend_path, 'shell': True}
+    if hasattr(subprocess, 'CREATE_NEW_PROCESS_GROUP'):
+        popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+        
     try:
-        subprocess.Popen(['npm', 'run', 'dev'], cwd=frontend_path, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, shell=True)
+        subprocess.Popen(['npm', 'run', 'dev'], **popen_kwargs)
     except Exception as e:
         print(f'Failed to start frontend dev server: {e}')
 
