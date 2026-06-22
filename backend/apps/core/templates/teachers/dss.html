@@ -1,0 +1,122 @@
+<script>
+    // Centralized heuristic rules for the Decision Support System (DSS)
+    window.DSS = {
+        // 1. Heuristics for Milestone Deficits (<60% completion)
+        getMilestoneAdvisory: function(completionPct, domainName) {
+            const recommendationCatalog = {
+                'gross motor': [
+                    'Organize outdoor activities like hopping, crawling under obstacles, and simple catch-and-throw games.',
+                    'Encourage walking along drawn straight lines on the floor or playing on playground slides and swings.',
+                    'Promote balance exercises such as standing on one foot for 5 seconds.'
+                ],
+                'fine motor': [
+                    'Engage the child in clay modeling, playdough manipulation, or tearing/crumpling paper to strengthen finger muscles.',
+                    'Provide exercises in bead-stringing, large-button buttoning, and drawing simple shapes or coloring within lines.',
+                    'Encourage kid-safe scissors cutting and block-building activities.'
+                ],
+                'self-help': [
+                    'Encourage and guide the child to dress independently (e.g. putting on socks, pulling up pants).',
+                    'Establish routines for washing hands, brushing teeth, and using the restroom with minimal assistance.',
+                    'Practice self-feeding and cleaning up their own eating area after meals.'
+                ],
+                'receptive': [
+                    'Read interactive storybooks daily and ask basic questions like "Where is the dog?" or "What happens next?"',
+                    'Give multi-step instructions during tasks (e.g., "Pick up the toy and put it in the box").',
+                    'Play "Simon Says" to develop listening comprehension and following instructions.'
+                ],
+                'expressive': [
+                    'Prompt the child to describe their drawings, tell stories, or detail their daily experiences in full sentences.',
+                    'Encourage the child to express their emotions, needs, and opinions verbally instead of pointing.',
+                    'Sing nursery rhymes and practice vocabulary words during daily activities.'
+                ],
+                'cognitive': [
+                    'Introduce sorting and classifying games by shape, color, or size.',
+                    'Solve simple 4-to-8 piece puzzles together and build pattern sequences with colorful blocks.',
+                    'Play memory matching cards and counting games up to 10.'
+                ],
+                'social': [
+                    'Facilitate cooperative play sessions (e.g. taking turns, building a collaborative block tower).',
+                    'Role-play social scenarios to teach sharing, greetings, saying "please" and "thank you", and expressing empathy.',
+                    'Help the child label their emotions (happy, sad, frustrated) and discuss positive ways to handle them.'
+                ]
+            };
+
+            const dName = domainName.toLowerCase();
+            let matchedRecs = [];
+            for (let key in recommendationCatalog) {
+                if (dName.includes(key) || key.includes(dName)) {
+                    matchedRecs = recommendationCatalog[key];
+                    break;
+                }
+            }
+            if (matchedRecs.length === 0) {
+                matchedRecs = [
+                    'Encourage targeted practice and games related to this developmental area.',
+                    'Observe and document child\'s specific challenges in this domain.'
+                ];
+            }
+            return matchedRecs;
+        },
+
+        // 2. Heuristics for Nutrition & Growth (BMI Status)
+        getBmiAdvisory: function(bmiVal) {
+            const bmi = parseFloat(bmiVal);
+            if (isNaN(bmi)) return { status: 'Unknown', recommendations: [], color: '#718096' };
+            
+            // Standard ECCD ranges for age 3-5
+            if (bmi < 14.0) {
+                return {
+                    status: 'Underweight',
+                    color: 'var(--warning, #f6c23e)',
+                    recommendations: [
+                        'Ensure high-protein and nutrient-dense meals containing eggs, lean meats, milk, cheese, and legumes.',
+                        'Incorporate healthy fats such as avocados, peanut butter, and olive oil in snacks.',
+                        'Recommend structured snack times with small, frequent, and appetizing portions.',
+                        'Avoid sugary beverages or drinking water right before meals to preserve appetite.',
+                        'Consult with a child care nutritionist or pediatrician for a personalized weight-gain plan.'
+                    ]
+                };
+            } else if (bmi >= 18.0) {
+                return {
+                    status: 'Overweight/Obese',
+                    color: 'var(--danger, #e74a3b)',
+                    recommendations: [
+                        'Promote balanced portions consisting of 50% fresh vegetables and fruits, 25% lean protein, and 25% whole grains.',
+                        'Substitute sugary and processed snacks with fresh fruit slices, cucumber sticks, or plain yogurt.',
+                        'Encourage at least 60 minutes of active physical play daily (running, tag, jumping).',
+                        'Limit sedentary screen time to under 1 hour per day.',
+                        'Ensure the child stays well-hydrated with plain water instead of sweetened juices or sodas.'
+                    ]
+                };
+            } else {
+                return {
+                    status: 'Normal',
+                    color: 'var(--success, #1cc88a)',
+                    recommendations: [
+                        'Maintain a diverse diet containing a colorful variety of fruits, vegetables, grains, and proteins.',
+                        'Keep encouraging active outdoor play to develop motor skills and strength.',
+                        'Maintain consistent sleeping schedules (10-13 hours per day for ages 3-5).'
+                    ]
+                };
+            }
+        },
+
+        // 3. Heuristics for Attendance Alerts (>3 consecutive absences)
+        getAttendanceAdvisory: function(consecutiveAbsences) {
+            if (consecutiveAbsences > 3) {
+                return {
+                    alert: true,
+                    status: 'High Absence Alert',
+                    color: 'var(--danger, #e74a3b)',
+                    recommendations: [
+                        `Child has logged ${consecutiveAbsences} consecutive absences.`,
+                        'Initiate direct contact with the parent or guardian to verify health status or family emergency.',
+                        'Schedule a parent consultation to discuss potential learning gaps or support mechanisms.',
+                        'Ensure make-up worksheets or activities are prepared for the child\'s return.'
+                    ]
+                };
+            }
+            return { alert: false };
+        }
+    };
+</script>

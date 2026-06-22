@@ -11,7 +11,37 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
+        
+        from django.contrib.auth.models import User
+        user = None
+        if username and '@' in username:
+            # Gather all candidate users that have this email address
+            candidate_users = list(User.objects.filter(email__iexact=username))
+            
+            # Fallback to look up email in Child guardian contacts
+            from django.db.models import Q
+            from .models import Child
+            matching_children = Child.objects.filter(
+                Q(mother_email__iexact=username) |
+                Q(father_email__iexact=username) |
+                Q(other_guardian_email__iexact=username) |
+                Q(email__iexact=username)
+            )
+            for child in matching_children:
+                for profile in child.parents.all():
+                    if profile.user and profile.user not in candidate_users:
+                        candidate_users.append(profile.user)
+            
+            # Try to authenticate each candidate user
+            for candidate in candidate_users:
+                authenticated_user = authenticate(request, username=candidate.username, password=password)
+                if authenticated_user:
+                    user = authenticated_user
+                    break
+        
+        # If no user authenticated via email candidates, fall back to standard username authentication
+        if not user:
+            user = authenticate(request, username=username, password=password)
 
         if user:
             try:

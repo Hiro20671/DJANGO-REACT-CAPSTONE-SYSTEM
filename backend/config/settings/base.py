@@ -142,3 +142,9 @@ else:
         EMAIL_HOST = 'smtp-relay.brevo.com'
         EMAIL_PORT = 587
         EMAIL_USE_TLS = True
+
+# Session settings for permanent device session caching
+LOGIN_URL = 'login'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+SESSION_SAVE_EVERY_REQUEST = True

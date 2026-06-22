@@ -354,6 +354,7 @@ export default function TeacherDashboard() {
   const [attendanceChart, setAttendanceChart] = useState({ labels: [], data: [] });
   const [nutritionChart, setNutritionChart] = useState({ finished: 0, someLeft: 0, notEaten: 0 });
   const [eccdChart, setEccdChart] = useState({ labels: [], data1: [], data2: [], data3: [] });
+  const [dssAlerts, setDssAlerts] = useState([]);
   
   // School Year Management
   const [schoolYears, setSchoolYears] = useState([]);
@@ -395,9 +396,10 @@ export default function TeacherDashboard() {
         } else if (st.enrollment_status === 'Enrolled') {
             enrolledStudents.push(st);
             const todayAtt = attRecords.find(a => a.child === st.id && isToday(a.date));
-            if (todayAtt) {
-              if (todayAtt.status.toLowerCase() === 'present') presentCount++;
-              else if (todayAtt.status.toLowerCase() === 'absent') absentCount++;
+            if (todayAtt && todayAtt.status) {
+              const statusLower = todayAtt.status.toLowerCase();
+              if (statusLower === 'present') presentCount++;
+              else if (statusLower === 'absent') absentCount++;
             }
         }
       });
@@ -425,7 +427,7 @@ export default function TeacherDashboard() {
         
         let presentOnDay = 0;
         attRecords.forEach(a => {
-           if (isSameDay(d, a.date) && a.status.toLowerCase() === 'present') {
+           if (isSameDay(d, a.date) && a.status && a.status.toLowerCase() === 'present') {
                presentOnDay++;
            }
         });
@@ -476,6 +478,78 @@ export default function TeacherDashboard() {
           d3.push(getPeriodPct('3rd'));
       });
       setEccdChart({ labels: eccdLabels, data1: d1, data2: d2, data3: d3 });
+
+      // Heuristic DSS Alerts
+      let computedAlerts = [];
+      enrolledStudents.forEach(st => {
+         const studentAtt = attRecords
+             .filter(a => a.child === st.id)
+             .sort((a,b) => new Date(b.date) - new Date(a.date));
+             
+         let consecutiveAbsences = 0;
+         for (let att of studentAtt) {
+             const statusLower = (att.status || '').toLowerCase();
+             if (statusLower === 'absent') {
+                 consecutiveAbsences++;
+             } else if (statusLower === 'present') {
+                 break;
+             }
+         }
+         
+         let studentAlerts = [];
+         if (consecutiveAbsences > 3) {
+             studentAlerts.push({
+                 type: 'attendance',
+                 message: `Logged ${consecutiveAbsences} consecutive absences.`,
+                 severity: 'danger',
+                 recommendation: 'Initiate contact with parent/guardian to check status, schedule support.'
+             });
+         }
+         
+         const milestonePct = (st.stats && typeof st.stats.milestones !== 'undefined') ? st.stats.milestones : 0;
+         if (milestonePct < 60) {
+             studentAlerts.push({
+                 type: 'milestone',
+                 message: `Milestone completion is low (${milestonePct}%).`,
+                 severity: 'warning',
+                 recommendation: 'Target Gross/Fine Motor exercises or refer to developmental boosting activities in the Milestones tab.'
+             });
+         }
+         
+         const bmiRecs = st.bmi_records || [];
+         const finalizedBmi = bmiRecs
+             .filter(r => r.status === 'Finalized')
+             .sort((a,b) => new Date(b.measurement_date) - new Date(a.measurement_date))[0];
+             
+         if (finalizedBmi) {
+             const w = parseFloat(finalizedBmi.weight);
+             const h = parseFloat(finalizedBmi.height) / 100;
+             const bmiVal = w / (h * h);
+             if (bmiVal < 14.0) {
+                 studentAlerts.push({
+                     type: 'nutrition',
+                     message: `Underweight BMI of ${bmiVal.toFixed(1)} recorded.`,
+                     severity: 'warning',
+                     recommendation: 'Encourage protein/healthy fats snacks; monitor dietary intake closely.'
+                 });
+             } else if (bmiVal >= 18.0) {
+                 studentAlerts.push({
+                     type: 'nutrition',
+                     message: `Overweight/Obese BMI of ${bmiVal.toFixed(1)} recorded.`,
+                     severity: 'danger',
+                     recommendation: 'Limit sugary snacks, promote active physical play.'
+                 });
+             }
+         }
+         
+         if (studentAlerts.length > 0) {
+             computedAlerts.push({
+                 student: st,
+                 alerts: studentAlerts
+             });
+         }
+      });
+      setDssAlerts(computedAlerts);
 
       setStats({ total: enrolledStudents.length, present: presentCount, absent: absentCount, pending: pendingCount, milestonePct: avgMilestone, nutritionPct: avgNut });
     }).catch(err => console.error(err));
@@ -631,6 +705,59 @@ export default function TeacherDashboard() {
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>Overall completion</div>
             </div>
           </a>
+        </div>
+      )}
+
+      {/* Decision Support System (DSS) Advisory Panel */}
+      {(!isMobile || mobileTab === 'overview') && (
+        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', borderLeft: `5px solid ${dssAlerts.length > 0 ? '#f6c23e' : '#1cc88a'}`, marginBottom: '25px' }}>
+          <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="fa-solid fa-lightbulb" style={{ color: dssAlerts.length > 0 ? '#f6c23e' : '#1cc88a' }}></i>
+            <span>Decision Support System (DSS) Advisory</span>
+          </div>
+          {dssAlerts.length > 0 ? (
+            <>
+              <p style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                 The following students have flag-worthy attendance, growth, or milestone metrics:
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {dssAlerts.map(({ student, alerts }) => (
+                  <div key={student.id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                      {student.first_name} {student.last_name}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingLeft: '10px' }}>
+                      {alerts.map((alert, idx) => (
+                        <div key={idx} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <strong style={{ color: alert.severity === 'danger' ? '#e74a3b' : '#f6c23e' }}>
+                             {alert.message}
+                          </strong>
+                          <span style={{ marginLeft: '8px' }}>
+                             Advisory: {alert.recommendation}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 600, color: 'var(--success, #1cc88a)', marginBottom: '8px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="fa-solid fa-circle-check" style={{ color: '#1cc88a' }}></i> All classroom milestones, attendance, and nutritional indicators are on track!
+              </div>
+              <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                General child development guidelines to maintain this excellent progress:
+              </p>
+              <ul style={{ margin: '0 0 0 20px', padding: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                <li style={{ marginBottom: '4px' }}>Maintain active outdoor play daily to support motor coordination and bone strength.</li>
+                <li style={{ marginBottom: '4px' }}>Integrate interactive drawing and modeling tasks to build finger muscle strength.</li>
+                <li style={{ marginBottom: '4px' }}>Provide fresh water and nutritional snacks while limiting processed foods and screen time.</li>
+                <li style={{ marginBottom: '4px' }}>Establish clear schedules for sleep, hygiene, and developmental routines.</li>
+              </ul>
+            </>
+          )}
         </div>
       )}
 

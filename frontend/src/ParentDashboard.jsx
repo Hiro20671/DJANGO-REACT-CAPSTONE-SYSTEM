@@ -202,6 +202,7 @@ function ParentDashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   const [parentPic, setParentPic] = useState(null);
+  const [parentEmail, setParentEmail] = useState('');
   const [linkedChildId, setLinkedChildId] = useState(null);
   const [student, setStudent] = useState(null);
   
@@ -282,12 +283,16 @@ function ParentDashboard() {
         }
     }
     
-    // Fetch user settings for profile pic
-    fetch('/api/settings/')
+    // Fetch user settings for profile pic and email
+    fetch('/api/user/settings/')
       .then(res => res.json())
       .then(data => {
           if (data.profile_pic) {
               setParentPic(data.profile_pic);
+          }
+          if (data.email) {
+              setParentEmail(data.email);
+              setGuardianForm(prev => ({ ...prev, email: data.email }));
           }
       }).catch(e => console.error("Error fetching settings:", e));
   }, []);
@@ -351,7 +356,7 @@ function ParentDashboard() {
 
             // Populate some basic today notifications if they exist
             const todayAtt = childAtt.find((a) => a.date.startsWith(todayStr));
-            if (todayAtt && todayAtt.status.toLowerCase() === 'present') {
+            if (todayAtt && todayAtt.status && todayAtt.status.toLowerCase() === 'present') {
                  notifs.push({ title: 'Drop-off confirmed', desc: 'Drop-off by ' + (todayAtt.authorized_guardian || '--'), date: todayStr });
             }
             if (childNut.find((n) => n.date.startsWith(todayStr))) {
@@ -397,16 +402,17 @@ function ParentDashboard() {
   let attendanceToday = 'NO RECORD';
   let dropoffInfo = { time: '--', status: '--', guardian: '--', session: '--' };
   
-  if (activeAtt) {
+  if (activeAtt && activeAtt.status) {
       attendanceToday = activeAtt.status.toUpperCase();
-      if (activeAtt.status.toLowerCase() === 'present' || activeAtt.status.toLowerCase() === 'late') {
+      const statusLower = activeAtt.status.toLowerCase();
+      if (statusLower === 'present' || statusLower === 'late') {
           dropoffInfo = {
               time: activeAtt.dropoff_time || '--',
-              status: activeAtt.status === 'late' ? 'Late Arrival' : 'Successful',
+              status: statusLower === 'late' ? 'Late Arrival' : 'Successful',
               guardian: activeAtt.authorized_guardian || '--',
               session: activeAtt.session || 'Morning'
           };
-      } else if (activeAtt.status.toLowerCase() === 'absent') {
+      } else if (statusLower === 'absent') {
           dropoffInfo = { time: '--', status: 'Absent', guardian: '--', session: '--' };
       }
   }
@@ -557,7 +563,13 @@ function ParentDashboard() {
           
           // Fire the Guardian linking API immediately
           const gData = new FormData();
-          Object.keys(guardianForm).forEach(key => gData.append(key, guardianForm[key]));
+          Object.keys(guardianForm).forEach(key => {
+              if (key === 'email') {
+                  gData.append('email', parentEmail);
+              } else {
+                  gData.append(key, guardianForm[key]);
+              }
+          });
           gData.append('child_id', data.id);
           if (parentImg) {
               gData.append('profile_pic', parentImg);
@@ -615,7 +627,13 @@ function ParentDashboard() {
       }
 
       const formData = new FormData();
-      Object.keys(guardianForm).forEach(key => formData.append(key, guardianForm[key]));
+      Object.keys(guardianForm).forEach(key => {
+          if (key === 'email') {
+              formData.append('email', parentEmail);
+          } else {
+              formData.append(key, guardianForm[key]);
+          }
+      });
       if (parentImg) {
           formData.append('profile_pic', parentImg);
       }
@@ -849,7 +867,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Email Address *</label>
-                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
+                        <input required type="email" name="email" value={parentEmail || guardianForm.email} readOnly style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', backgroundColor: 'var(--btn-neutral-bg)', cursor: 'not-allowed' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Contact Number *</label>
@@ -969,7 +987,7 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Email Address *</label>
-                        <input required type="email" name="email" value={guardianForm.email} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }} />
+                        <input required type="email" name="email" value={parentEmail || guardianForm.email} readOnly style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', backgroundColor: 'var(--btn-neutral-bg)', cursor: 'not-allowed' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Contact Number *</label>
@@ -1091,9 +1109,9 @@ function ParentDashboard() {
                           padding: '12px 20px',
                           borderRadius: '12px',
                           cursor: 'pointer',
-                          background: isSelected ? 'linear-gradient(135deg, #063970, #1b4f91)' : '#fff',
-                          color: isSelected ? '#fff' : '#333',
-                          border: isSelected ? '2px solid #063970' : '1px solid #ddd',
+                          background: isSelected ? 'linear-gradient(135deg, #063970, #1b4f91)' : 'var(--bg-card)',
+                          color: isSelected ? '#fff' : 'var(--text-primary)',
+                          border: isSelected ? '2px solid #063970' : '1px solid var(--border-color)',
                           boxShadow: isSelected ? '0 4px 15px rgba(6, 57, 112, 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
                           transition: 'all 0.2s ease',
                           transform: isSelected ? 'scale(1.02)' : 'none',
@@ -1300,6 +1318,97 @@ function ParentDashboard() {
                   </div>
                 );
               })()}
+
+              {/* Development & Growth Advisor Card */}
+              {(() => {
+                const bmiRecs = student.bmi_records || [];
+                const finalizedBmi = bmiRecs
+                  .filter(r => r.status === 'Finalized')
+                  .sort((a, b) => new Date(b.measurement_date) - new Date(a.measurement_date))[0];
+
+                let bmiStatus = 'normal';
+                let bmiVal = null;
+                if (finalizedBmi) {
+                  const w = parseFloat(finalizedBmi.weight);
+                  const h = parseFloat(finalizedBmi.height) / 100;
+                  bmiVal = w / (h * h);
+                  if (bmiVal < 14.0) bmiStatus = 'underweight';
+                  else if (bmiVal >= 18.0) bmiStatus = 'overweight';
+                }
+
+                // Check milestone progress
+                const milestonePct = (student.stats && typeof student.stats.milestones !== 'undefined') ? student.stats.milestones : 0;
+                const lowMilestones = milestonePct < 60;
+
+                const hasIssues = (bmiStatus === 'underweight' || bmiStatus === 'overweight' || lowMilestones);
+
+                return (
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderLeft: `5px solid ${hasIssues ? '#f6c23e' : '#1cc88a'}`, padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                      <i className="fa-solid fa-lightbulb" style={{ color: hasIssues ? '#f6c23e' : '#1cc88a', fontSize: '1.4rem' }}></i>
+                      <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800 }}>Development & Growth Advisor</h4>
+                    </div>
+                    
+                    {bmiStatus === 'underweight' && (
+                      <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--warning, #f6c23e)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                          ⚠️ Growth Status: Underweight (BMI: {bmiVal.toFixed(1)})
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <li>Ensure protein-dense and nutrient-rich meals (eggs, milk, legumes).</li>
+                          <li>Offer small, frequent, and visually appealing healthy snacks.</li>
+                          <li>Avoid excessive liquids immediately before meals to preserve appetite.</li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {bmiStatus === 'overweight' && (
+                      <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--danger, #e74a3b)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                          ⚠️ Growth Status: Overweight/Obese (BMI: {bmiVal.toFixed(1)})
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <li>Include more fresh vegetables and fiber-rich grains in daily meals.</li>
+                          <li>Substitute sweet or processed snacks with fresh fruit slices or water.</li>
+                          <li>Encourage at least 60 minutes of active physical play daily.</li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {lowMilestones && (
+                      <div style={{ marginBottom: hasIssues && (bmiStatus === 'underweight' || bmiStatus === 'overweight') ? '20px' : 0 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--warning, #f6c23e)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                          ⚠️ Learning Progress: Milestone delay trends detected ({milestonePct}% completion)
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 8px 0' }}>
+                          Consider implementing these developmental exercises at home:
+                        </p>
+                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <li><strong>Motor Skills</strong>: Play catch with soft balls, practice safety scissors cutting, and string large beads.</li>
+                          <li><strong>Language & Logic</strong>: Read stories together daily and ask "what is happening?" questions. Practice pattern block building.</li>
+                          <li><strong>Self-Help & Social</strong>: Encourage independent dressing and establish routines for teeth brushing and handwashing.</li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {!hasIssues && (
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--success, #1cc88a)', fontSize: '0.95rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <i className="fa-solid fa-circle-check" style={{ color: '#1cc88a' }}></i> Great job! Your child is growing and learning on track.
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 8px 0' }}>
+                          To support their ongoing development:
+                        </p>
+                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          <li><strong>Active Play</strong>: Try to get at least 60 minutes of fun physical activity each day.</li>
+                          <li><strong>Story Time</strong>: Keep reading together daily to enrich vocabulary and logic.</li>
+                          <li><strong>Balanced Nutrition</strong>: Keep meals diverse and hydrated with fresh water.</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </>
           )}
 
@@ -1354,15 +1463,15 @@ function ParentDashboard() {
                           const isDraft = rec.status === 'Draft';
 
                           return (
-                            <div key={index} style={{ padding: '10px', background: isDraft ? '#fffbeb' : '#f8fafc', border: isDraft ? '1px dashed #f59e0b' : '1px solid #e2e8f0', borderRadius: '8px' }}>
+                            <div key={index} style={{ padding: '10px', background: isDraft ? 'rgba(245, 158, 11, 0.1)' : 'var(--input-bg)', border: isDraft ? '1px dashed #f59e0b' : '1px solid var(--border-color)', borderRadius: '8px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#063970' }}>{qName}</div>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{qName}</div>
                                 {isDraft && (
                                   <span style={{ fontSize: '0.7rem', fontWeight: 'bold', background: '#fef3c7', color: '#d97706', padding: '2px 6px', borderRadius: '4px' }}>Ongoing / Draft</span>
                                 )}
                               </div>
-                              <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>Date: {new Date(rec.measurement_date).toLocaleDateString()}</div>
-                              <div style={{ fontSize: '0.8rem', color: '#334155' }}>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Date: {new Date(rec.measurement_date).toLocaleDateString()}</div>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                                 Weight: <strong>{rec.weight} kg</strong> &bull; Height: <strong>{rec.height} cm</strong>
                               </div>
                               <div style={{ fontSize: '0.8rem', fontWeight: 700, marginTop: '2px', color: bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#0f766e' : '#b91c1c') }}>

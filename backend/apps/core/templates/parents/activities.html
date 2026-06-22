@@ -210,6 +210,70 @@
         border-radius: 4px;
         transition: width 0.8s ease;
     }
+
+    /* Dark Mode Overrides */
+    html.dark-mode .premium-card, .dark-mode .premium-card {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: none !important;
+    }
+    html.dark-mode .card-title, .dark-mode .card-title {
+        color: var(--text-primary) !important;
+        border-bottom-color: var(--border-color) !important;
+    }
+    html.dark-mode .child-badge, .dark-mode .child-badge {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: none !important;
+    }
+    html.dark-mode .child-badge.selected, .dark-mode .child-badge.selected {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+        border-color: var(--primary) !important;
+        color: #fff !important;
+    }
+    html.dark-mode .checklist-item, .dark-mode .checklist-item {
+        background: var(--input-bg) !important;
+        border-left-color: var(--border-color) !important;
+    }
+    html.dark-mode .checklist-item.completed, .dark-mode .checklist-item.completed {
+        background: rgba(28, 200, 138, 0.1) !important;
+        border-left-color: var(--success) !important;
+    }
+    html.dark-mode .checklist-item.missed, .dark-mode .checklist-item.missed {
+        background: rgba(231, 74, 59, 0.1) !important;
+        border-left-color: var(--danger) !important;
+    }
+    html.dark-mode .checklist-item-title, .dark-mode .checklist-item-title {
+        color: var(--text-primary) !important;
+    }
+    html.dark-mode .checklist-item-desc, .dark-mode .checklist-item-desc {
+        color: var(--text-muted) !important;
+    }
+    html.dark-mode .status-badge.completed, .dark-mode .status-badge.completed {
+        background: rgba(28, 200, 138, 0.2) !important;
+        color: #1cc88a !important;
+    }
+    html.dark-mode .status-badge.missed, .dark-mode .status-badge.missed {
+        background: rgba(231, 74, 59, 0.2) !important;
+        color: #e74a3b !important;
+    }
+    html.dark-mode .remarks-box, .dark-mode .remarks-box {
+        background: var(--input-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-secondary) !important;
+    }
+    html.dark-mode .weekly-stat-label, .dark-mode .weekly-stat-label {
+        color: var(--text-secondary) !important;
+    }
+    html.dark-mode .weekly-stat-progress, .dark-mode .weekly-stat-progress {
+        background: var(--input-bg) !important;
+    }
+    html.dark-mode #filterDate, .dark-mode #filterDate {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+    }
 </style>
 
 <div class="container-fluid" style="padding: 20px;">

@@ -23,6 +23,36 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
+        :root {
+            /* Light mode variables */
+            --bg-body: #f8f9fa;
+            --bg-sidebar: #063970;
+            --bg-card: #ffffff;
+            --border-color: #dcdcdc;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+            --input-text: #333333;
+        }
+
+        html.dark-mode, .dark-mode {
+            /* Premium dark slate theme */
+            --bg-body: #0b0f19;
+            --bg-sidebar: #090d16;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            
+            --input-bg: #0f172a;
+            --input-border: #334155;
+            --input-text: #f8fafc;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -561,54 +591,228 @@
         }
         
         /* --- Dark Mode Styles --- */
-        html.dark-mode body { background-color: #121212; color: #e0e0e0; }
-        html.dark-mode .sidebar { background-color: #1a1a1a; border-right-color: #333; }
-        html.dark-mode .sidebar-header { border-bottom-color: #333; }
-        html.dark-mode .sidebar-footer { border-top-color: #333; color: #888; }
-        html.dark-mode .logo-text h1 { color: #f0f0f0; }
-        html.dark-mode .logo-text span { color: #aaa; }
-        html.dark-mode .menu-item { color: #ccc; }
-        html.dark-mode .menu-item:hover { background-color: #333; color: #4a90e2; }
-        html.dark-mode .card, html.dark-mode .settings-panel, html.dark-mode .settings-sidebar, html.dark-mode .content-section, html.dark-mode .summary-card, html.dark-mode .form-group input, html.dark-mode .form-group select { background-color: #1a1a1a; border-color: #333; color: #e0e0e0; }
-        html.dark-mode .page-header h2, html.dark-mode .panel-header h3 { color: #f0f0f0; }
-        html.dark-mode .page-header p, html.dark-mode .panel-header p { color: #aaa; }
-        html.dark-mode .burger-menu span { background-color: #e0e0e0; }
-        html.dark-mode .dropdown-menu { background-color: #222; border-color: #444; }
-        html.dark-mode .dropdown-item { color: #ccc; border-bottom-color: #333; }
-        html.dark-mode .dropdown-item:hover { background-color: #333; color: #4a90e2; }
-        html.dark-mode .modal-container { background-color: #1a1a1a; color: #e0e0e0; }
-        html.dark-mode .modal-header { border-bottom-color: #333; }
-        html.dark-mode .modal-header h3 { color: #f0f0f0; }
-        html.dark-mode .list-item, html.dark-mode .archive-box, html.dark-mode .archived-student-item { border-color: #333; }
-        html.dark-mode .item-name, html.dark-mode .year-title { color: #e0e0e0; }
-        html.dark-mode .btn-action, html.dark-mode .form-group input, html.dark-mode .form-group select, html.dark-mode .scanner-help { background-color: #222; }
-        html.dark-mode .settings-menu-item:hover { background-color: #333; }
-        html.dark-mode .settings-menu-item.active { background-color: #2a3b4c; }
-        html.dark-mode .kpi-title { color: #ccc; }
-        html.dark-mode .kpi-value { color: #f0f0f0; }
-        html.dark-mode .chart-title { color: #f0f0f0; }
-        html.dark-mode .status-pill { background-color: #222; border-color:#333; }
-        html.dark-mode .status-pill-title { color: #e0e0e0; }
+        html.dark-mode body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .sidebar {
+            background-color: var(--bg-sidebar);
+            border-right-color: var(--border-color);
+        }
+
+        html.dark-mode .sidebar-header {
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .sidebar-footer {
+            border-top-color: var(--border-color);
+            color: var(--text-muted);
+        }
+
+        html.dark-mode .logo-text h1 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .logo-text span {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .menu-item {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .menu-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #4a90e2;
+        }
+
+        html.dark-mode .card,
+        html.dark-mode .settings-panel,
+        html.dark-mode .settings-sidebar,
+        html.dark-mode .content-section,
+        html.dark-mode .summary-card,
+        html.dark-mode .form-group input,
+        html.dark-mode .form-group select {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .page-header h2,
+        html.dark-mode .panel-header h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .page-header p,
+        html.dark-mode .panel-header p {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .burger-menu span {
+            background-color: var(--text-primary);
+        }
+
+        html.dark-mode .dropdown-menu {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .dropdown-item {
+            color: var(--text-secondary);
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .dropdown-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #4a90e2;
+        }
+
+        html.dark-mode .modal-container {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .modal-header {
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .modal-header h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .list-item,
+        html.dark-mode .archive-box,
+        html.dark-mode .archived-student-item {
+            border-color: var(--border-color);
+            background-color: var(--bg-card);
+        }
+
+        html.dark-mode .item-name,
+        html.dark-mode .year-title {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .btn-action,
+        html.dark-mode .form-group input,
+        html.dark-mode .form-group select,
+        html.dark-mode .scanner-help {
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .settings-menu-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        html.dark-mode .settings-menu-item.active {
+            background-color: #2a3b4c;
+        }
+
+        html.dark-mode .kpi-title {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .kpi-value {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .chart-title {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .status-pill {
+            background-color: var(--input-bg);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .status-pill-title {
+            color: var(--text-primary);
+        }
+
         /* Home page specifics */
-        html.dark-mode .navbar, html.dark-mode nav { background-color: #1a1a1a; border-bottom-color:#333; }
-        html.dark-mode .nav-title h1 { color: #e0e0e0; }
-        html.dark-mode .nav-title span { color: #aaa; }
-        html.dark-mode .nav-right a { color: #ccc; }
-        html.dark-mode .nav-right a:not(.btn-dashboard):hover { color: #4a90e2; }
-        html.dark-mode .welcome-text { color: #aaa; border-color: #333;}
-        html.dark-mode .section-container { background-color: #121212; }
-        html.dark-mode .section-container.alt-bg { background-color: #1a1a1a; }
-        html.dark-mode .section-title { color: #f0f0f0; }
-        html.dark-mode .section-subtitle { color: #aaa; }
-        html.dark-mode .card h3 { color: #e0e0e0; }
-        html.dark-mode .card p { color: #999; }
-        html.dark-mode footer { background-color: #1a1a1a; color: #aaa; border-top-color: #4a90e2;}
-        html.dark-mode .footer-logo-text h2 { color: #f0f0f0; }
-        html.dark-mode .footer-logo-text span { color: #888; }
-        html.dark-mode .footer-links h3, html.dark-mode .footer-contact h3 { color: #f0f0f0; }
-        html.dark-mode .footer-links a { color: #999; }
-        html.dark-mode .footer-links a:hover { color: #4a90e2; }
-        html.dark-mode .beneficiary-card ul { color: #aaa; }
+        html.dark-mode .navbar,
+        html.dark-mode nav {
+            background-color: var(--bg-sidebar);
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .nav-title h1 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .nav-title span {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .nav-right a {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .nav-right a:not(.btn-dashboard):hover {
+            color: #4a90e2;
+        }
+
+        html.dark-mode .welcome-text {
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .section-container {
+            background-color: var(--bg-body);
+        }
+
+        html.dark-mode .section-container.alt-bg {
+            background-color: var(--bg-card);
+        }
+
+        html.dark-mode .section-title {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .section-subtitle {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .card h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .card p {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode footer {
+            background-color: var(--bg-sidebar);
+            color: var(--text-secondary);
+            border-top-color: #4a90e2;
+        }
+
+        html.dark-mode .footer-logo-text h2 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .footer-logo-text span {
+            color: var(--text-muted);
+        }
+
+        html.dark-mode .footer-links h3,
+        html.dark-mode .footer-contact h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .footer-links a {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .footer-links a:hover {
+            color: #4a90e2;
+        }
+
+        html.dark-mode .beneficiary-card ul {
+            color: var(--text-secondary);
+        }
 
         /* PWA Install Banner Style */
         #pwa-install-banner {

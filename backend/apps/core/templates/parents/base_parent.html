@@ -748,6 +748,15 @@
         html.dark-mode .settings-sidebar, 
         html.dark-mode .content-section, 
         html.dark-mode .summary-card, 
+        html.dark-mode .kpi-card,
+        html.dark-mode .student-card,
+        html.dark-mode .behavior-section,
+        html.dark-mode .digest-section,
+        html.dark-mode .search-container,
+        html.dark-mode .empty-state,
+        html.dark-mode .meal-block,
+        html.dark-mode .box-nut,
+        html.dark-mode .type-btn,
         html.dark-mode .form-group input, 
         html.dark-mode .form-group select,
         .dark-mode .card, 
@@ -755,6 +764,15 @@
         .dark-mode .settings-sidebar, 
         .dark-mode .content-section, 
         .dark-mode .summary-card, 
+        .dark-mode .kpi-card,
+        .dark-mode .student-card,
+        .dark-mode .behavior-section,
+        .dark-mode .digest-section,
+        .dark-mode .search-container,
+        .dark-mode .empty-state,
+        .dark-mode .meal-block,
+        .dark-mode .box-nut,
+        .dark-mode .type-btn,
         .dark-mode .form-group input, 
         .dark-mode .form-group select { 
             background-color: var(--bg-card) !important; 
@@ -798,6 +816,356 @@
         }
         html.dark-mode .tabs, html.dark-mode .sub-tabs, html.dark-mode .tab, html.dark-mode .sub-tab, .dark-mode .tabs, .dark-mode .sub-tabs, .dark-mode .tab, .dark-mode .sub-tab {
             border-bottom-color: var(--border-color) !important;
+        }
+
+        /* Milestones, Nutrition, and inline white overrides in dark mode */
+        html.dark-mode .assess-table td span.pill, .dark-mode .assess-table td span.pill {
+            background-color: var(--input-bg) !important;
+            color: var(--text-secondary) !important;
+        }
+        html.dark-mode .domain-card, .dark-mode .domain-card {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+        html.dark-mode .domain-card *, .dark-mode .domain-card * {
+            color: var(--text-secondary) !important;
+        }
+        html.dark-mode .domain-card .domain-title, .dark-mode .domain-card .domain-title {
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode .domain-card div[style*="background: #f1f5f9"], .dark-mode .domain-card div[style*="background: #f1f5f9"] {
+            background-color: var(--input-bg) !important;
+        }
+        html.dark-mode #assessmentPhaseCards > div, .dark-mode #assessmentPhaseCards > div {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode #assessmentPhaseCards > div *, .dark-mode #assessmentPhaseCards > div * {
+            color: var(--text-secondary) !important;
+        }
+        html.dark-mode #assessmentPhaseCards > div span, .dark-mode #assessmentPhaseCards > div span {
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode #assessmentPhaseCards > div input[type="date"], .dark-mode #assessmentPhaseCards > div input[type="date"] {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        html.dark-mode #assessmentPhaseCards > div div[style*="background:#f1f5f9"], .dark-mode #assessmentPhaseCards > div div[style*="background:#f1f5f9"] {
+            background-color: var(--input-bg) !important;
+        }
+        html.dark-mode #bmiPhaseCards > div, .dark-mode #bmiPhaseCards > div {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode #bmiPhaseCards > div *, .dark-mode #bmiPhaseCards > div * {
+            color: var(--text-secondary) !important;
+        }
+        html.dark-mode #bmiPhaseCards > div span, .dark-mode #bmiPhaseCards > div span {
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode #bmiPhaseCards > div input, .dark-mode #bmiPhaseCards > div input {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        html.dark-mode div[style*="background:#fff"], .dark-mode div[style*="background:#fff"],
+        html.dark-mode div[style*="background: #fff"], .dark-mode div[style*="background: #fff"],
+        html.dark-mode div[style*="background:white"], .dark-mode div[style*="background:white"],
+        html.dark-mode div[style*="background: white"], .dark-mode div[style*="background: white"] {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode div[style*="background:#f8fafc"], .dark-mode div[style*="background:#f8fafc"],
+        html.dark-mode div[style*="background: #f8fafc"], .dark-mode div[style*="background: #f8fafc"] {
+            background-color: var(--input-bg) !important;
+        }
+        html.dark-mode .cell-white, .dark-mode .cell-white {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode #parentRequestsAlertSection, .dark-mode #parentRequestsAlertSection {
+            background-color: #2c1d0f !important;
+            border-color: #4a341e !important;
+        }
+        html.dark-mode #dateConfigAlertSection, .dark-mode #dateConfigAlertSection {
+            background-color: #2c1d0f !important;
+            border-color: #4a341e !important;
+        }
+        
+        /* Attendance Calendar Cells */
+        html.dark-mode .cal-cell, .dark-mode .cal-cell {
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode .cell-grey, .dark-mode .cell-grey {
+            color: transparent !important;
+        }
+        html.dark-mode .cell-green, .dark-mode .cell-green {
+            color: #111 !important;
+        }
+
+        /* --- Extra Feature-Specific Dark Mode Overrides --- */
+        html.dark-mode .msg-item,
+        html.dark-mode .chat-section,
+        html.dark-mode .chat-sidebar,
+        html.dark-mode .chat-sidebar-left,
+        html.dark-mode .dual-pane-chat,
+        html.dark-mode .messenger-container,
+        html.dark-mode .messenger-chat-workspace,
+        html.dark-mode .messenger-chat-header,
+        html.dark-mode .messenger-chat-footer,
+        html.dark-mode .chat-header,
+        html.dark-mode .chat-footer,
+        html.dark-mode .full-width-section,
+        html.dark-mode .assess-header,
+        html.dark-mode .assess-table,
+        .dark-mode .msg-item,
+        .dark-mode .chat-section,
+        .dark-mode .chat-sidebar,
+        .dark-mode .chat-sidebar-left,
+        .dark-mode .dual-pane-chat,
+        .dark-mode .messenger-container,
+        .dark-mode .messenger-chat-workspace,
+        .dark-mode .messenger-chat-header,
+        .dark-mode .messenger-chat-footer,
+        .dark-mode .chat-header,
+        .dark-mode .chat-footer,
+        .dark-mode .full-width-section,
+        .dark-mode .assess-header,
+        .dark-mode .assess-table {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        html.dark-mode .messenger-chat-body,
+        html.dark-mode .chat-body,
+        html.dark-mode #teacher-chat-messages,
+        .dark-mode .messenger-chat-body,
+        .dark-mode .chat-body,
+        .dark-mode #teacher-chat-messages {
+            background-color: var(--bg-body) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        html.dark-mode .msg-item:hover,
+        .dark-mode .msg-item:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        html.dark-mode .msg-item.urgent,
+        .dark-mode .msg-item.urgent {
+            background-color: #2c1d0f !important;
+            border-color: #e74a3b !important;
+        }
+        html.dark-mode .msg-item.urgent:hover,
+        .dark-mode .msg-item.urgent:hover {
+            background-color: #3b2818 !important;
+        }
+
+        /* Inline styled elements color overrides */
+        html.dark-mode *[style*="color:#043263"],
+        html.dark-mode *[style*="color: #043263"],
+        html.dark-mode *[style*="color:#2d3748"],
+        html.dark-mode *[style*="color: #2d3748"],
+        html.dark-mode *[style*="color:#1e293b"],
+        html.dark-mode *[style*="color: #1e293b"],
+        html.dark-mode *[style*="color:#0f172a"],
+        html.dark-mode *[style*="color: #0f172a"],
+        .dark-mode *[style*="color:#043263"],
+        .dark-mode *[style*="color: #043263"],
+        .dark-mode *[style*="color:#2d3748"],
+        .dark-mode *[style*="color: #2d3748"],
+        .dark-mode *[style*="color:#1e293b"],
+        .dark-mode *[style*="color: #1e293b"],
+        .dark-mode *[style*="color:#0f172a"],
+        .dark-mode *[style*="color: #0f172a"] {
+            color: var(--text-primary) !important;
+        }
+
+        html.dark-mode *[style*="color:#718096"],
+        html.dark-mode *[style*="color: #718096"],
+        html.dark-mode *[style*="color:#64748b"],
+        html.dark-mode *[style*="color: #64748b"],
+        html.dark-mode *[style*="color:#4a5568"],
+        html.dark-mode *[style*="color: #4a5568"],
+        .dark-mode *[style*="color:#718096"],
+        .dark-mode *[style*="color: #718096"],
+        .dark-mode *[style*="color:#64748b"],
+        .dark-mode *[style*="color: #64748b"],
+        .dark-mode *[style*="color:#4a5568"],
+        .dark-mode *[style*="color: #4a5568"] {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Chat bubbles customization in dark mode */
+        html.dark-mode .chat-bubble,
+        .dark-mode .chat-bubble {
+            box-shadow: none !important;
+        }
+        html.dark-mode .chat-bubble[style*="background-color: #e2e3e5"],
+        html.dark-mode .chat-bubble[style*="background-color:#e2e3e5"],
+        .dark-mode .chat-bubble[style*="background-color: #e2e3e5"],
+        .dark-mode .chat-bubble[style*="background-color:#e2e3e5"] {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode .chat-bubble[style*="background-color: #d2f4ea"],
+        html.dark-mode .chat-bubble[style*="background-color:#d2f4ea"],
+        .dark-mode .chat-bubble[style*="background-color: #d2f4ea"],
+        .dark-mode .chat-bubble[style*="background-color:#d2f4ea"] {
+            background-color: #0f5132 !important;
+            color: #d2f4ea !important;
+        }
+
+        /* Border colors override in dark mode */
+        html.dark-mode *[style*="border-color:#e2e8f0"],
+        html.dark-mode *[style*="border-color: #e2e8f0"],
+        html.dark-mode *[style*="border: 1px solid #e2e8f0"],
+        html.dark-mode *[style*="border:1px solid #e2e8f0"],
+        html.dark-mode *[style*="border: 1px solid #edf2f7"],
+        html.dark-mode *[style*="border:1px solid #edf2f7"],
+        html.dark-mode *[style*="border: 1px solid #ddd"],
+        html.dark-mode *[style*="border:1px solid #ddd"],
+        .dark-mode *[style*="border-color:#e2e8f0"],
+        .dark-mode *[style*="border-color: #e2e8f0"],
+        .dark-mode *[style*="border: 1px solid #e2e8f0"],
+        .dark-mode *[style*="border:1px solid #e2e8f0"],
+        .dark-mode *[style*="border: 1px solid #edf2f7"],
+        .dark-mode *[style*="border:1px solid #edf2f7"],
+        .dark-mode *[style*="border: 1px solid #ddd"],
+        .dark-mode *[style*="border:1px solid #ddd"],
+        html.dark-mode *[style*="border-color:#cbd5e1"],
+        html.dark-mode *[style*="border-color: #cbd5e1"],
+        html.dark-mode *[style*="border: 1px solid #cbd5e1"],
+        html.dark-mode *[style*="border:1px solid #cbd5e1"],
+        html.dark-mode *[style*="border: 1px solid #eaeaea"],
+        html.dark-mode *[style*="border:1px solid #eaeaea"],
+        html.dark-mode *[style*="border: 1px solid #dcdcdc"],
+        html.dark-mode *[style*="border:1px solid #dcdcdc"],
+        html.dark-mode *[style*="border: 1px solid #eee"],
+        html.dark-mode *[style*="border:1px solid #eee"],
+        html.dark-mode *[style*="border: 1px solid #ccc"],
+        html.dark-mode *[style*="border:1px solid #ccc"],
+        .dark-mode *[style*="border-color:#cbd5e1"],
+        .dark-mode *[style*="border-color: #cbd5e1"],
+        .dark-mode *[style*="border: 1px solid #cbd5e1"],
+        .dark-mode *[style*="border:1px solid #cbd5e1"],
+        .dark-mode *[style*="border: 1px solid #eaeaea"],
+        .dark-mode *[style*="border:1px solid #eaeaea"],
+        .dark-mode *[style*="border: 1px solid #dcdcdc"],
+        .dark-mode *[style*="border:1px solid #dcdcdc"],
+        .dark-mode *[style*="border: 1px solid #eee"],
+        .dark-mode *[style*="border:1px solid #eee"],
+        .dark-mode *[style*="border: 1px solid #ccc"],
+        .dark-mode *[style*="border:1px solid #ccc"] {
+            border-color: var(--border-color) !important;
+        }
+
+        /* --- Additional Parent Dark Mode Overrides --- */
+        html.dark-mode .qr-container, .dark-mode .qr-container {
+            background-color: white !important;
+            color: #000 !important;
+        }
+        html.dark-mode .qr-container *, .dark-mode .qr-container * {
+            color: #000 !important;
+        }
+
+        /* Standardizing Cards and Sections */
+        html.dark-mode .stat-box, .dark-mode .stat-box,
+        html.dark-mode .history-card, .dark-mode .history-card,
+        html.dark-mode .history-item, .dark-mode .history-item,
+        html.dark-mode .summary-card, .dark-mode .summary-card,
+        html.dark-mode .content-section, .dark-mode .content-section,
+        html.dark-mode .list-item, .dark-mode .list-item,
+        html.dark-mode #modal-guardians-body, .dark-mode #modal-guardians-body,
+        html.dark-mode #childRecordModalBody, .dark-mode #childRecordModalBody {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Card text element colors */
+        html.dark-mode .stat-label, .dark-mode .stat-label,
+        html.dark-mode .history-header, .dark-mode .history-header,
+        html.dark-mode .history-date, .dark-mode .history-date {
+            color: var(--text-primary) !important;
+        }
+        html.dark-mode .stat-sub, .dark-mode .stat-sub,
+        html.dark-mode .history-sub, .dark-mode .history-sub,
+        html.dark-mode .history-time, .dark-mode .history-time,
+        html.dark-mode .history-guardian, .dark-mode .history-guardian {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Inline background color wildcard overrides */
+        html.dark-mode *[style*="background:#fff"]:not(.qr-container), html.dark-mode *[style*="background: #fff"]:not(.qr-container),
+        html.dark-mode *[style*="background:white"]:not(.qr-container), html.dark-mode *[style*="background: white"]:not(.qr-container),
+        html.dark-mode *[style*="background-color:#fff"]:not(.qr-container), html.dark-mode *[style*="background-color: #fff"]:not(.qr-container),
+        html.dark-mode *[style*="background-color:white"]:not(.qr-container), html.dark-mode *[style*="background-color: white"]:not(.qr-container),
+        .dark-mode *[style*="background:#fff"]:not(.qr-container), .dark-mode *[style*="background: #fff"]:not(.qr-container),
+        .dark-mode *[style*="background:white"]:not(.qr-container), .dark-mode *[style*="background: white"]:not(.qr-container),
+        .dark-mode *[style*="background-color:#fff"]:not(.qr-container), .dark-mode *[style*="background-color: #fff"]:not(.qr-container),
+        .dark-mode *[style*="background-color:white"]:not(.qr-container), .dark-mode *[style*="background-color: white"]:not(.qr-container) {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        html.dark-mode *[style*="background:#f9f9f9"], html.dark-mode *[style*="background: #f9f9f9"],
+        html.dark-mode *[style*="background-color:#f9f9f9"], html.dark-mode *[style*="background-color: #f9f9f9"],
+        html.dark-mode *[style*="background:#fafafa"], html.dark-mode *[style*="background: #fafafa"],
+        html.dark-mode *[style*="background-color:#fafafa"], html.dark-mode *[style*="background-color: #fafafa"],
+        html.dark-mode *[style*="background:#f8fafc"], html.dark-mode *[style*="background: #f8fafc"],
+        html.dark-mode *[style*="background-color:#f8fafc"], html.dark-mode *[style*="background-color: #f8fafc"],
+        html.dark-mode *[style*="background:#f1f5f9"], html.dark-mode *[style*="background: #f1f5f9"],
+        html.dark-mode *[style*="background-color:#f1f5f9"], html.dark-mode *[style*="background-color: #f1f5f9"],
+        html.dark-mode *[style*="background:#f8f9fa"], html.dark-mode *[style*="background: #f8f9fa"],
+        html.dark-mode *[style*="background-color:#f8f9fa"], html.dark-mode *[style*="background-color: #f8f9fa"],
+        html.dark-mode *[style*="background:#fcfcfc"], html.dark-mode *[style*="background: #fcfcfc"],
+        html.dark-mode *[style*="background-color:#fcfcfc"], html.dark-mode *[style*="background-color: #fcfcfc"],
+        .dark-mode *[style*="background:#f9f9f9"], .dark-mode *[style*="background: #f9f9f9"],
+        .dark-mode *[style*="background-color:#f9f9f9"], .dark-mode *[style*="background-color: #f9f9f9"],
+        .dark-mode *[style*="background:#fafafa"], .dark-mode *[style*="background: #fafafa"],
+        .dark-mode *[style*="background-color:#fafafa"], .dark-mode *[style*="background-color: #fafafa"],
+        .dark-mode *[style*="background:#f8fafc"], .dark-mode *[style*="background: #f8fafc"],
+        .dark-mode *[style*="background-color:#f8fafc"], .dark-mode *[style*="background-color: #f8fafc"],
+        .dark-mode *[style*="background:#f1f5f9"], .dark-mode *[style*="background: #f1f5f9"],
+        .dark-mode *[style*="background-color:#f1f5f9"], .dark-mode *[style*="background-color: #f1f5f9"],
+        .dark-mode *[style*="background:#f8f9fa"], .dark-mode *[style*="background: #f8f9fa"],
+        .dark-mode *[style*="background-color:#f8f9fa"], .dark-mode *[style*="background-color: #f8f9fa"],
+        .dark-mode *[style*="background:#fcfcfc"], .dark-mode *[style*="background: #fcfcfc"],
+        .dark-mode *[style*="background-color:#fcfcfc"], .dark-mode *[style*="background-color: #fcfcfc"] {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Near-black inline text color wildcard overrides */
+        html.dark-mode *[style*="color:#333"], html.dark-mode *[style*="color: #333"],
+        html.dark-mode *[style*="color:#111"], html.dark-mode *[style*="color: #111"],
+        html.dark-mode *[style*="color:#000"], html.dark-mode *[style*="color: #000"],
+        html.dark-mode *[style*="color:black"], html.dark-mode *[style*="color: black"],
+        .dark-mode *[style*="color:#333"], .dark-mode *[style*="color: #333"],
+        .dark-mode *[style*="color:#111"], .dark-mode *[style*="color: #111"],
+        .dark-mode *[style*="color:#000"], .dark-mode *[style*="color: #000"],
+        .dark-mode *[style*="color:black"], .dark-mode *[style*="color: black"] {
+            color: var(--text-primary) !important;
+        }
+
+        /* Muted inline text color wildcard overrides */
+        html.dark-mode *[style*="color:#777"], html.dark-mode *[style*="color: #777"],
+        html.dark-mode *[style*="color:#666"], html.dark-mode *[style*="color: #666"],
+        html.dark-mode *[style*="color:#888"], html.dark-mode *[style*="color: #888"],
+        html.dark-mode *[style*="color:#555"], html.dark-mode *[style*="color: #555"],
+        .dark-mode *[style*="color:#777"], .dark-mode *[style*="color: #777"],
+        .dark-mode *[style*="color:#666"], .dark-mode *[style*="color: #666"],
+        .dark-mode *[style*="color:#888"], .dark-mode *[style*="color: #888"],
+        .dark-mode *[style*="color:#555"], .dark-mode *[style*="color: #555"] {
+            color: var(--text-secondary) !important;
         }
     </style>
 </head>

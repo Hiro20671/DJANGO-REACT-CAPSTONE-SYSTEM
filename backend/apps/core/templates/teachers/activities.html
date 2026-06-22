@@ -336,6 +336,61 @@
         text-overflow: ellipsis;
         width: 100%;
     }
+
+    /* Dark Mode Overrides */
+    html.dark-mode .premium-card, .dark-mode .premium-card {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: none !important;
+    }
+    html.dark-mode .card-title, .dark-mode .card-title {
+        color: var(--text-primary) !important;
+    }
+    html.dark-mode .table-container, .dark-mode .table-container {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: none !important;
+    }
+    html.dark-mode .table-header, .dark-mode .table-header {
+        border-bottom-color: var(--border-color) !important;
+    }
+    html.dark-mode .table-title, .dark-mode .table-title {
+        color: var(--text-primary) !important;
+    }
+    html.dark-mode .activities-table th, .dark-mode .activities-table th {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border-bottom-color: var(--border-color) !important;
+    }
+    html.dark-mode .activities-table td, .dark-mode .activities-table td {
+        color: var(--text-secondary) !important;
+        border-bottom-color: var(--border-color) !important;
+    }
+    html.dark-mode .activities-table tr:hover, .dark-mode .activities-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    html.dark-mode .remarks-input, .dark-mode .remarks-input {
+        background-color: var(--input-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-primary) !important;
+    }
+    html.dark-mode .remarks-input:focus, .dark-mode .remarks-input:focus {
+        border-color: var(--secondary) !important;
+    }
+    html.dark-mode .modal-content, .dark-mode .modal-content {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-primary) !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3) !important;
+    }
+    html.dark-mode .bar-chart-container, .dark-mode .bar-chart-container {
+        border-bottom-color: var(--border-color) !important;
+    }
+    html.dark-mode #activityDate, .dark-mode #activityDate {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+    }
 </style>
 
 <div class="container-fluid" style="padding: 20px;">

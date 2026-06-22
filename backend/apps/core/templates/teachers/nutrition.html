@@ -1,6 +1,7 @@
 {% extends "teachers/base_teacher.html" %}
 
 {% block content %}
+{% include "teachers/dss.html" %}
 <style>
 /* Page Layout */
 .page-header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -168,6 +169,17 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                     <!-- Dynamically populated -->
                 </div>
             </div>
+
+            <!-- DSS Growth Guidance Section (Always Visible) -->
+            <div id="dssBmiPanel" class="card" style="margin-top:25px; border-left: 5px solid var(--warning, #f6c23e); background:#fff;">
+                <div class="card-title" style="font-weight:750; font-size:1.1rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-heart-pulse" style="color: var(--warning, #f6c23e); font-size: 1.2rem;"></i>
+                    <span>Nutritional & Growth Advisor</span>
+                </div>
+                <div id="dssBmiContent" style="font-size:0.9rem; color:var(--text-secondary);">
+                    <!-- DSS Recommendations will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -292,6 +304,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 renderStudentBmiQuarters(selectedBmiChild);
             } else {
                 document.getElementById('bmiQuartersContainer').style.display = 'none';
+                updateDSSBmiRecommendations(null);
             }
 
             const selectedHistChild = historyStudentDropdown.value;
@@ -331,6 +344,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         const container = document.getElementById('bmiQuartersContainer');
         if (!studentId) {
             container.style.display = 'none';
+            updateDSSBmiRecommendations(null);
             return;
         }
         container.style.display = 'block';
@@ -459,6 +473,85 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             </div>`;
             cardsContainer.innerHTML += cardHtml;
         });
+        updateDSSBmiRecommendations(student);
+    }
+
+    function updateDSSBmiRecommendations(student) {
+        const panel = document.getElementById('dssBmiPanel');
+        const content = document.getElementById('dssBmiContent');
+        if (!panel || !content) return;
+        
+        if (!student) {
+            panel.style.display = 'block';
+            panel.style.borderLeftColor = 'var(--warning, #f6c23e)';
+            content.innerHTML = `
+                <div style="font-weight: 700; color: #4a90e2; margin-bottom: 8px; font-size: 0.95rem;">
+                     ℹ️ General Nutritional & Growth Guidelines
+                </div>
+                <div style="margin-bottom: 10px; font-weight:600; color:var(--text-primary);">Dietary & Activity Recommendations:</div>
+                <ul style="margin: 0 0 0 20px; padding: 0; line-height: 1.5; font-size: 0.85rem; color: var(--text-secondary);">
+                    <li style="margin-bottom: 4px;"><strong>Balanced Portions:</strong> Promote balanced portions consisting of 50% fresh vegetables and fruits, 25% lean protein, and 25% whole grains.</li>
+                    <li style="margin-bottom: 4px;"><strong>Healthy Snacking:</strong> Substitute sugary and processed snacks with fresh fruit slices, cucumber sticks, or plain yogurt.</li>
+                    <li style="margin-bottom: 4px;"><strong>Physical Activity:</strong> Encourage at least 60 minutes of active physical play daily (running, tag, jumping) to support bone and muscle development.</li>
+                    <li style="margin-bottom: 4px;"><strong>Hydration:</strong> Ensure the child stays well-hydrated with plain water instead of sweetened juices or sodas.</li>
+                    <li style="margin-bottom: 4px;"><strong>Consistent Sleep:</strong> Maintain consistent sleeping schedules (10-13 hours per day for ages 3-5) to support cognitive development and growth.</li>
+                </ul>
+            `;
+            return;
+        }
+        
+        const bmiRecords = student.bmi_records || [];
+        const finalizedRecords = bmiRecords.filter(r => r.status === 'Finalized');
+        
+        if (finalizedRecords.length === 0) {
+            panel.style.display = 'block';
+            panel.style.borderLeftColor = 'var(--warning, #f6c23e)';
+            content.innerHTML = `
+                <div style="font-weight: 700; color: #4a90e2; margin-bottom: 8px; font-size: 0.95rem;">
+                     ℹ️ General Nutritional & Growth Guidelines (No finalized records found for ${student.first_name})
+                </div>
+                <div style="margin-bottom: 10px; font-weight:600; color:var(--text-primary);">Dietary & Activity Recommendations:</div>
+                <ul style="margin: 0 0 0 20px; padding: 0; line-height: 1.5; font-size: 0.85rem; color: var(--text-secondary);">
+                    <li style="margin-bottom: 4px;"><strong>Balanced Portions:</strong> Promote balanced portions consisting of 50% fresh vegetables and fruits, 25% lean protein, and 25% whole grains.</li>
+                    <li style="margin-bottom: 4px;"><strong>Healthy Snacking:</strong> Substitute sugary and processed snacks with fresh fruit slices, cucumber sticks, or plain yogurt.</li>
+                    <li style="margin-bottom: 4px;"><strong>Physical Activity:</strong> Encourage at least 60 minutes of active physical play daily (running, tag, jumping) to support bone and muscle development.</li>
+                    <li style="margin-bottom: 4px;"><strong>Hydration:</strong> Ensure the child stays well-hydrated with plain water instead of sweetened juices or sodas.</li>
+                    <li style="margin-bottom: 4px;"><strong>Consistent Sleep:</strong> Maintain consistent sleeping schedules (10-13 hours per day for ages 3-5) to support cognitive development and growth.</li>
+                </ul>
+            `;
+            return;
+        }
+        
+        // Get the latest finalized record
+        const latest = finalizedRecords.sort((a,b) => new Date(b.measurement_date) - new Date(a.measurement_date))[0];
+        
+        const bmiVal = parseFloat(latest.bmi);
+        const advisory = window.DSS.getBmiAdvisory(bmiVal);
+        
+        panel.style.display = 'block';
+        panel.style.borderLeftColor = advisory.color;
+        
+        const formatDate = (ds) => {
+            if(!ds) return '';
+            const parts = ds.split('-');
+            if(parts.length !== 3) return ds;
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return `${months[parseInt(parts[1])-1]} ${parseInt(parts[2])}, ${parts[0]}`;
+        };
+        
+        const formattedDate = formatDate(latest.measurement_date);
+        const statusColor = advisory.status === 'Normal' ? 'var(--success, #1cc88a)' : (advisory.status === 'Underweight' ? 'var(--warning, #f6c23e)' : 'var(--danger, #e74a3b)');
+        const statusIcon = advisory.status === 'Normal' ? '🟢' : '⚠️';
+        
+        content.innerHTML = `
+            <div style="font-weight: 700; color: ${statusColor}; margin-bottom: 8px; font-size: 0.95rem;">
+                ${statusIcon} Status: ${advisory.status} (BMI: ${bmiVal.toFixed(1)} on ${formattedDate})
+            </div>
+            <div style="margin-bottom: 10px; font-weight:600; color:var(--text-primary);">Dietary & Activity Recommendations:</div>
+            <ul style="margin: 0 0 0 20px; padding: 0; line-height: 1.5; font-size: 0.85rem; color: var(--text-secondary);">
+                ${advisory.recommendations.map(r => `<li style="margin-bottom: 4px;">${r}</li>`).join('')}
+            </ul>
+        `;
     }
 
     window.saveBmiQuarter = function(quarter, status, childId, recordId) {

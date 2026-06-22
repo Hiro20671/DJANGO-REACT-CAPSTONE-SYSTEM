@@ -88,7 +88,7 @@
             <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;">Digital ID Pass</div>
             <p style="font-size: 0.9rem; color: #a4ceeb; margin-bottom: 35px; line-height: 1.5;">Present this secure QR code to the teacher's scanner for instant drop-off and pickup authorization.</p>
             
-            <div style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 30px;">
+            <div class="qr-container" style="background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin-bottom: 30px;">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=BMV3-AUTH-{{ request.user.username }}" alt="Secure QR Auth" style="width: 200px; height: 200px;">
             </div>
             

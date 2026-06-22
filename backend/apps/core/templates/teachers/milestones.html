@@ -1,6 +1,7 @@
 {% extends "teachers/base_teacher.html" %}
 
 {% block content %}
+{% include "teachers/dss.html" %}
 <style>
 /* Base Styles */
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
@@ -263,6 +264,47 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Overview DSS Advisory Section -->
+    <div id="dssMilestoneOverviewPanel" class="card" style="margin-top:25px; border-left: 5px solid var(--warning, #f6c23e); background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <div class="card-title" style="font-weight: 750; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-lightbulb" style="color: var(--warning, #f6c23e); font-size: 1.2rem;"></i>
+            <span>Developmental Decision Support Advisory</span>
+        </div>
+        <div id="dssMilestoneOverviewContent" style="font-size:0.9rem; color:var(--text-secondary);">
+            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary);">General early childhood care and development recommendations across the 7 major domains:</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">📅 Gross Motor</strong>
+                    Organize outdoor activities like hopping, crawling under obstacles, and simple catch-and-throw games. Promote balance exercises such as standing on one foot.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">✍️ Fine Motor</strong>
+                    Engage the child in clay modeling, playdough manipulation, or tearing/crumpling paper. Provide exercises in bead-stringing and block-building.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">🧼 Self-Help</strong>
+                    Encourage children to dress independently (e.g. putting on socks/pants), establish routines for handwashing, and practice self-feeding.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">👂 Receptive Language</strong>
+                    Read storybooks daily, ask basic questions ("Where is the dog?"), and give multi-step instructions during simple tasks.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">🗣️ Expressive Language</strong>
+                    Prompt children to describe their drawings, tell simple stories, and express their feelings verbally.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">🧠 Cognitive</strong>
+                    Introduce sorting/classifying games by shape/color/size, solve simple puzzles, and play memory matching games.
+                </div>
+                <div>
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">🤝 Social-Emotional</strong>
+                    Facilitate cooperative play sessions, role-play sharing and greetings, and help children label their emotions (happy, sad, etc.).
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- DASHBOARD -->
@@ -289,6 +331,17 @@
     
     <div class="domain-grid" id="domainCardsContainer">
         <div style="text-align:center; width:100%; grid-column: 1/-1; padding:40px; color:#888;">Loading domains...</div>
+    </div>
+
+    <!-- DSS Advisory Section -->
+    <div id="dssMilestonePanel" class="card" style="display:none; margin-top:25px; border-left: 5px solid var(--warning, #f6c23e);">
+        <div class="card-title" style="font-weight: 750; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-lightbulb" style="color: var(--warning, #f6c23e); font-size: 1.2rem;"></i>
+            <span>Developmental Decision Support Advisory</span>
+        </div>
+        <div id="dssMilestoneContent">
+            <!-- DSS Recommendations populated dynamically -->
+        </div>
     </div>
 
     <!-- Toggle Button Container -->
@@ -836,6 +889,7 @@ async function loadChildAssessment() {
         }
         
         renderDomainCards();
+        updateDSSRecommendations();
         return;
     }
 
@@ -917,11 +971,74 @@ async function loadChildAssessment() {
         
         loadScoringSummary();
         updatePeriodTabButtons();
+        updateDSSRecommendations();
         if (document.getElementById('tab-scoring-details').classList.contains('active')) {
             const period = window.lastScoringPeriod || 'Overall';
             viewScoringDetails(period);
         }
     } catch(e) { console.error(e); }
+}
+
+function updateDSSRecommendations() {
+    const childId = document.getElementById('childSelect').value;
+    const panel = document.getElementById('dssMilestonePanel');
+    const content = document.getElementById('dssMilestoneContent');
+    const overviewPanel = document.getElementById('dssMilestoneOverviewPanel');
+    
+    if (overviewPanel) {
+        overviewPanel.style.display = childId ? 'none' : 'block';
+    }
+    
+    if (!panel || !content) return;
+    
+    if (!childId || !window.currentChildReports || !window.currentChildReports['Overall']) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    const overallReport = window.currentChildReports['Overall'];
+    if (!overallReport.domains) {
+        panel.style.display = 'none';
+        return;
+    }
+    
+    // Heuristic: Check domains with completion < 60%
+    const lowDomains = overallReport.domains.filter(d => d.completion_pct < 60);
+    
+    if (lowDomains.length === 0) {
+        panel.style.display = 'block';
+        panel.style.borderLeftColor = 'var(--success, #1cc88a)';
+        content.innerHTML = `
+            <div style="font-weight: 600; color: var(--success, #1cc88a); margin-bottom: 5px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-check"></i> All developmental domains are on track (60%+ completion).
+            </div>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Continue regular monitoring and encouraging age-appropriate activities to maintain developmental progress.</p>
+        `;
+        return;
+    }
+    
+    panel.style.display = 'block';
+    panel.style.borderLeftColor = 'var(--warning, #f6c23e)';
+    
+    let html = `<p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary);">The child is currently performing below 60% completion in the following domains. Consider implementing the recommended development-boosting exercises:</p>`;
+    
+    lowDomains.forEach(ld => {
+        const matchedRecs = window.DSS.getMilestoneAdvisory(ld.completion_pct, ld.domain_name);
+        
+        html += `
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f6c23e;"></span>
+                    ${ld.domain_name} (${ld.completion_pct}% completion)
+                </div>
+                <ul style="margin: 5px 0 0 20px; font-size: 0.85rem; color: var(--text-secondary); padding: 0;">
+                    ${matchedRecs.map(r => `<li style="margin-bottom: 4px;">${r}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    });
+    
+    content.innerHTML = html;
 }
 
 function renderCentralizedAssessmentCards() {
