@@ -50,7 +50,7 @@ def generate_parent_account(request):
         send_mail(
             subject,
             message,
-            "noreply@bmv3.com",
+            settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=True
         )
@@ -1045,7 +1045,7 @@ class RequestPasswordChangeAPIView(APIView):
             send_mail(
                 'Password Verification Code - BMV3 Child Care',
                 f'Your password verification code is: {otp_code}\n\nThis code will expire in 5 minutes.',
-                'jeremybryanvillanueva@gmail.com',
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
@@ -1265,7 +1265,7 @@ class RequestPasswordOTPAPIView(APIView):
             send_mail(
                 "BMV3 Childcare - Password Reset Code",
                 f"Hello {user.username},\n\nYour password reset code is: {otp_code}\n\nThis code will expire in 10 minutes.",
-                "noreply@bmv3.com",
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=True
             )

@@ -121,6 +121,7 @@ DJANGO_VITE_DEV_MODE = False
 
 # Email Configuration
 BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'jeremybryanvillanueva@gmail.com')
 
 if BREVO_API_KEY:
     # Use django-anymail for Brevo HTTP API (works on PythonAnywhere free tier)
