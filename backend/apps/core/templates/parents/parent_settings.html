@@ -1,0 +1,1133 @@
+{% extends "parents/base_parent.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.min.js"></script>
+
+<style>
+
+/* Page Layout */
+.page-header { margin-bottom: 25px; }
+.page-header h2 { font-size: 1.8rem; font-weight: 800; margin: 0; color: #333; }
+.page-header p { font-size: 0.95rem; color: #777; margin: 5px 0 0 0; }
+
+.settings-container {
+    display: flex;
+    gap: 30px;
+    background: transparent;
+}
+
+/* Sidebar Menu inside Settings */
+.settings-sidebar {
+    width: 250px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px 0;
+    height: fit-content;
+}
+
+.settings-menu-item {
+    padding: 12px 25px;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-menu-item:hover {
+    background-color: #f8f9fa;
+    color: #4a90e2;
+}
+
+.settings-menu-item.active {
+    background-color: #eef5fc;
+    color: #4a90e2;
+    border-left: 3px solid #4a90e2;
+}
+
+/* Content Area */
+.settings-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-panel {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 30px;
+    display: none;
+}
+
+.settings-panel.active {
+    display: block;   
+}
+
+.panel-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.panel-header h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.panel-header p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.btn-primary {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #357abd;
+}
+
+/* Switches / Toggles */
+.toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    max-width: 500px;
+}
+
+.toggle-info strong {
+    display: block;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.toggle-info span {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc; transition: .4s; border-radius: 24px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 18px; width: 18px;
+  left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: #4a90e2; }
+input:focus + .slider { box-shadow: 0 0 1px #4a90e2; }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* Archival History Box */
+.archive-box {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.archive-box .year-title {
+    font-weight: 700; color: #333; font-size: 1.1rem;
+}
+.archive-box .year-stats {
+    font-size: 0.85rem; color: #777; margin-top: 3px;
+}
+
+/* Profile Image Upload */
+.profile-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+.profile-upload-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #e0f0ff;
+    border: 2px solid #4a90e2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: #4a90e2;
+    overflow: hidden;
+}
+.profile-upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Toast */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 3000; }
+.toast { background-color: #333; color: #fff; padding: 15px 25px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.3s; font-weight: 600; }
+.toast.show { opacity: 1; }
+.toast-success { border-left: 5px solid #28a745; }
+.toast-error { border-left: 5px solid #d9534f; }
+
+/* Sub-nav inside Account */
+.sub-tabs { display: flex; gap: 20px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+.sub-tab { padding: 10px 0; color: #888; cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent; font-size: 0.9rem; }
+.sub-tab.active { color: #4a90e2; border-color: #4a90e2; }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* Modal Adjustments */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay.active { display: flex; }
+.modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
+.btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
+.modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
+.archived-student-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+@media (max-width: 768px) {
+    .settings-container { flex-direction: column; }
+    .settings-sidebar { width: 100%; display: flex; overflow-x: auto; white-space: nowrap; padding: 0; }
+    .settings-menu-item { flex-shrink: 0; border-left: none; border-bottom: 3px solid transparent; }
+    .settings-menu-item.active { border-left: none; border-bottom: 3px solid #4a90e2; }
+}
+</style>
+
+<div class="page-header">
+    <h2>Account Settings</h2>
+    <p>Manage your parent portal preferences, profile, and system access</p>
+</div>
+
+<div class="settings-container">
+    <div class="settings-sidebar">
+        <div class="settings-menu-item active" onclick="switchSetting('account')">👤 Account</div>
+        <div class="settings-menu-item" onclick="switchSetting('maproute')">📍 Route to BMV3 Center</div>
+        <div class="settings-menu-item" onclick="switchSetting('school')">🏫 Historical Archives</div>
+        <div class="settings-menu-item" onclick="switchSetting('notifications')">🔔 Notifications</div>
+        <div class="settings-menu-item" onclick="switchSetting('appearance')">🎨 Appearance</div>
+        <div class="settings-menu-item" onclick="switchSetting('privacy')">🔒 Privacy & Security</div>
+    </div>
+
+
+    <div class="settings-content">
+        <!-- 1. ACCOUNT PANEL -->
+        <div class="settings-panel active" id="panel-account">
+            <div class="panel-header">
+                <h3>Account Management</h3>
+                <p>Update your personal information and credentials</p>
+            </div>
+            
+            <div class="sub-tabs">
+                <div class="sub-tab active" id="tab-profile" onclick="switchSub('profile')">Edit Profile</div>
+                <div class="sub-tab" id="tab-child" onclick="switchSub('child')">Child Profile</div>
+                <div class="sub-tab" id="tab-password" onclick="switchSub('password')">Change Password</div>
+            </div>
+
+            <!-- Profile Sub -->
+            <div class="sub-panel active" id="sub-profile">
+                <div class="profile-upload-container">
+                    <div class="profile-upload-preview" id="profileImagePreview">👤</div>
+                    <div>
+                        <input type="file" id="profImgInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                        <button class="btn-primary" style="background: var(--btn-neutral-bg); color: var(--btn-neutral-text); border: 1px solid var(--btn-neutral-border); margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
+                        <div style="font-size:0.8rem; color:#888;">JPG, GIF or PNG. Max size of 800K</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="profUsername">
+                </div>
+                <div class="form-group">
+                    <label>Guardian First Name</label>
+                    <input type="text" id="profFirstName">
+                </div>
+                <div class="form-group">
+                    <label>Guardian Last Name</label>
+                    <input type="text" id="profLastName">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" value="parent@bmv3.com" id="profEmail">
+                </div>
+                <div class="form-group">
+                    <label>Contact Number</label>
+                    <input type="text" placeholder="+1-555-0000" id="profContact">
+                </div>
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Address Details</h4>
+                <div class="form-group">
+                    <label>Address Line 1 (Street/House) *</label>
+                    <input type="text" id="profAddressLine1">
+                </div>
+                <div class="form-group">
+                    <label>Barangay *</label>
+                    <select id="profBarangay">
+                        <option value="">Select Barangay</option>
+                        <option value="Market View">Market View</option>
+                        <option value="Ilayang Dupay">Ilayang Dupay</option>
+                        <option value="Ibabang Dupay">Ibabang Dupay</option>
+                        <option value="Cotta">Cotta</option>
+                        <option value="Gulang-Gulang">Gulang-Gulang</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>City/Municipality *</label>
+                    <select id="profCity">
+                        <option value="">Select City/Municipality</option>
+                        <option value="Lucena City">Lucena City</option>
+                        <option value="Tayabas City">Tayabas City</option>
+                        <option value="Pagbilao">Pagbilao</option>
+                        <option value="Sariaya">Sariaya</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Province *</label>
+                    <select id="profProvince">
+                        <option value="">Select Province</option>
+                        <option value="Quezon">Quezon Province</option>
+                        <option value="Laguna">Laguna</option>
+                        <option value="Batangas">Batangas</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Region *</label>
+                    <select id="profRegion">
+                        <option value="">Select Region</option>
+                        <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+                        <option value="NCR">NCR</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Linked Child</h4>
+                <div class="form-group">
+                    <label>Enrolled Child's Name</label>
+                    <input type="text" placeholder="Child's Full Name" id="profChild">
+                </div>
+                <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+            </div>
+
+            <!-- Child Sub -->
+            <div class="sub-panel" id="sub-child">
+                <input type="hidden" id="childId">
+                <p id="noChildMsg" style="display:none; color:#888;">No child is currently linked to this account.</p>
+                <div id="childEditForm">
+                    <div class="form-group">
+                        <label>Child's First Name</label>
+                        <input type="text" id="childFirstName">
+                    </div>
+                    <div class="form-group">
+                        <label>Child's Last Name</label>
+                        <input type="text" id="childLastName">
+                    </div>
+                    <div class="form-group">
+                        <label>Child's Allergies</label>
+                        <select id="childAllergies">
+                            <option value="">None</option>
+                            <option value="Peanuts">Peanuts</option>
+                            <option value="Dairy / Milk">Dairy / Milk</option>
+                            <option value="Seafood / Shellfish">Seafood / Shellfish</option>
+                            <option value="Eggs">Eggs</option>
+                            <option value="Soy">Soy</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Tree Nuts">Tree Nuts</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Other Health Conditions</label>
+                        <input type="text" id="childHealthConditions" placeholder="e.g. Asthma">
+                    </div>
+                    <button class="btn-primary" onclick="saveChildProfile()">Save Child Profile</button>
+                </div>
+            </div>
+
+            <!-- Password Sub -->
+            <div class="sub-panel" id="sub-password">
+                <div id="otp-request-section">
+                    <p>To change your password, you must first verify your email address.</p>
+                    <button class="btn-primary" onclick="requestOTP()" id="btnRequestOTP">Verify Email</button>
+                    <div id="otp-message" style="margin-top:10px; font-weight:600; color:#28a745;"></div>
+                </div>
+                <div id="otp-verify-section" style="display:none; margin-top:20px;">
+                    <div class="form-group" id="otpInputGroup">
+                        <label>Verification Code (Sent to Email)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="otpCode" placeholder="Enter 6-digit code" style="flex: 1;">
+                            <button class="btn-primary" style="width: auto;" id="btnVerifyOTP" onclick="verifyOTPOnly()">Verify Code</button>
+                        </div>
+                        <div id="otpTimer" style="font-size: 0.85rem; color: #d9534f; margin-top: 5px; font-weight: bold;"></div>
+                        <button class="btn-primary" style="background: transparent; color: #4a90e2; border: 1px solid #4a90e2; padding: 8px 15px; margin-top: 10px; display: none; width: auto; font-size: 0.9rem;" id="btnResendOTP" onclick="requestOTP()">Resend Code</button>
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="pwNew" placeholder="Enter new password" disabled>
+                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">Must be at least 8 characters long.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="pwConf" placeholder="Confirm new password" disabled>
+                    </div>
+                    <button class="btn-primary" id="btnSubmitPassword" onclick="submitPasswordChange()" disabled>Change Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROUTE TO BMV3 CENTER PANEL -->
+        <div class="settings-panel" id="panel-maproute">
+            <div class="panel-header">
+                <h3>📍 House Location & Route to BMV3 Center</h3>
+                <p>Pin your home location on the interactive map and view live Waze-style driving directions to daycare center</p>
+            </div>
+
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <div style="background: #e0f2fe; padding: 12px 18px; border-radius: 10px; flex: 1; border: 1px solid #38bdf8;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #0369a1;">DESTINATION</div>
+                    <div style="font-weight: 800; color: #063970; font-size: 1rem;">BMV3 Child Development Center</div>
+                </div>
+                <div style="background: #f0fdf4; padding: 12px 18px; border-radius: 10px; flex: 1; border: 1px solid #4ade80;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #15803d;">ESTIMATED DISTANCE</div>
+                    <div style="font-weight: 800; color: #166534; font-size: 1.1rem;" id="settingsRouteDistance">Calculating...</div>
+                </div>
+                <div style="background: #fef3c7; padding: 12px 18px; border-radius: 10px; flex: 1; border: 1px solid #fde047;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #b45309;">ESTIMATED TRAVEL TIME</div>
+                    <div style="font-weight: 800; color: #92400e; font-size: 1.1rem;" id="settingsRouteDuration">⏱️ -- mins</div>
+                </div>
+            </div>
+
+            <div id="settingsMap" style="height: 380px; width:100%; border-radius: 12px; border: 2px solid #063970; margin-bottom: 20px;"></div>
+
+            <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+                <button onclick="saveHomeMapLocation()" class="btn-primary" style="background: #063970; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Pinned Location
+                </button>
+                <button onclick="openExternalWaze()" class="btn-primary" style="background: #38bdf8; color: #0f172a; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-diamond-turn-right"></i> Open in Waze
+                </button>
+                <button onclick="openExternalGoogleMaps()" class="btn-primary" style="background: #4285F4; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-map-location-dot"></i> Open in Google Maps
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. SCHOOL SETTINGS -->
+        <div class="settings-panel" id="panel-school">
+
+            <div class="panel-header">
+                <h3 style="font-size: 1.1rem;">Archived School Years</h3>
+                <p>Access historical records for past enrolled batches</p>
+            </div>
+
+            <div id="archives-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- 3. NOTIFICATIONS -->
+        <div class="settings-panel" id="panel-notifications">
+            <div class="panel-header">
+                <h3>Manage Alerts</h3>
+                <p>Configure which system events trigger notifications</p>
+            </div>
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <strong>Weekly Progress Reports</strong>
+                    <span>Receive digest logs evaluating child progress</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <strong>Direct Teacher Messages</strong>
+                    <span>Receive direct messages from classroom teachers</span>
+                </div>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <!-- 4. APPEARANCE -->
+        <div class="settings-panel" id="panel-appearance">
+            <div class="panel-header">
+                <h3>Theme & Display</h3>
+                <p>Customize the visual interface of the portal</p>
+            </div>
+            <div class="form-group">
+                <label>Theme Mode</label>
+                <select id="themeSelect" onchange="toggleTheme(this.value)" style="max-width: 300px;">
+                    <option value="light">Light Mode (Default)</option>
+                    <option value="dark">Dark Mode</option>
+                </select>
+            </div>
+            <p style="font-size:0.85rem; color:#888;">Note: System Default respects your browser's preference.</p>
+        </div>
+
+        <!-- 5. PRIVACY -->
+        <div class="settings-panel" id="panel-privacy">
+            <div class="panel-header">
+                <h3>Security Options</h3>
+                <p>Manage secondary authentication and data integrity</p>
+            </div>
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <strong>Two-Factor Authentication (2FA)</strong>
+                    <span>Require a code from an authenticator app on login</span>
+                </div>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Viewer Modal -->
+<div class="modal-overlay" id="archiveViewModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Archived Batch Details</h3>
+            <button class="btn-close" onclick="closeArchiveModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 20px;">
+                <h4 id="av-name" style="margin:0 0 5px 0;">Batch Name</h4>
+                <div style="font-size:0.9rem; color:#777;" id="av-meta">Archived on...</div>
+            </div>
+            <h5 style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">Enrolled Students</h5>
+            <div id="av-students">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // PROFILE IMAGE LOGIC
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // LOAD SETTINGS FROM API
+    window.addEventListener('load', () => {
+        fetch('/api/user/settings/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('profUsername').value = data.username || '';
+                document.getElementById('profFirstName').value = data.first_name || '';
+                document.getElementById('profLastName').value = data.last_name || '';
+                document.getElementById('profEmail').value = data.email || '';
+                if(data.phone) document.getElementById('profContact').value = data.phone;
+                
+                if(data.address) {
+                    let parts = data.address.split(', ');
+                    if(parts.length > 0) document.getElementById('profAddressLine1').value = parts[0];
+                    if(parts.length > 1) document.getElementById('profBarangay').value = parts[1];
+                    if(parts.length > 2) document.getElementById('profCity').value = parts[2];
+                    if(parts.length > 3) document.getElementById('profProvince').value = parts[3];
+                    if(parts.length > 4) document.getElementById('profRegion').value = parts[4];
+                }
+
+                if (data.child_id) {
+                    document.getElementById('childId').value = data.child_id;
+                    document.getElementById('childFirstName').value = data.child_first_name || '';
+                    document.getElementById('childLastName').value = data.child_last_name || '';
+                    document.getElementById('childAllergies').value = data.child_allergies || '';
+                    document.getElementById('childHealthConditions').value = data.child_health_conditions || '';
+                    document.getElementById('profChild').value = data.child_first_name + ' ' + data.child_last_name;
+                    document.getElementById('profChild').disabled = true;
+                    document.getElementById('profChild').style.backgroundColor = '#f0f0f0';
+                    
+                    if (data.guardian_type) {
+                        window.parentGuardianType = data.guardian_type;
+                    }
+                } else {
+                    document.getElementById('childEditForm').style.display = 'none';
+                    document.getElementById('noChildMsg').style.display = 'block';
+                }
+            })
+            .catch(err => console.error("Error loading profile", err));
+
+        let fallbackImg = localStorage.getItem('bmv3_parent_profile_img');
+        if(fallbackImg) {
+            document.getElementById('profileImagePreview').innerHTML = `<img src="${fallbackImg}">`;
+        }
+
+        let currentTheme = localStorage.getItem('bmv3_theme') || 'light';
+        document.getElementById('themeSelect').value = currentTheme;
+    });
+
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+                    
+                    const MAX_WIDTH = 300;
+                    const MAX_HEIGHT = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    localStorage.setItem('bmv3_parent_profile_img', compressedBase64);
+                    document.getElementById('profileImagePreview').innerHTML = `<img src="${compressedBase64}">`;
+                    showToast("Profile image updated locally", "success");
+                };
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function toggleTheme(mode) {
+        localStorage.setItem('bmv3_theme', mode);
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.body.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
+    // STANDARD SETTINGS UI
+    function switchSetting(menu) {
+        document.querySelectorAll('.settings-menu-item').forEach(e => e.classList.remove('active'));
+        document.querySelectorAll('.settings-panel').forEach(e => e.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById('panel-' + menu).classList.add('active');
+    }
+
+    function switchSub(tab) {
+        document.querySelectorAll('.sub-tab').forEach(e => e.classList.remove('active'));
+        document.querySelectorAll('.sub-panel').forEach(e => e.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById('sub-' + tab).classList.add('active');
+    }
+
+    function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function saveProfile() { 
+        const payload = {
+            username: document.getElementById('profUsername').value,
+            first_name: document.getElementById('profFirstName').value,
+            last_name: document.getElementById('profLastName').value,
+            email: document.getElementById('profEmail').value,
+            phone: document.getElementById('profContact').value,
+            address: [
+                document.getElementById('profAddressLine1').value,
+                document.getElementById('profBarangay').value,
+                document.getElementById('profCity').value,
+                document.getElementById('profProvince').value,
+                document.getElementById('profRegion').value
+            ].filter(Boolean).join(", "),
+            guardian_type: window.parentGuardianType || 'Mother'
+        };
+
+        fetch('/api/user/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || 'Failed to update profile');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Profile updated successfully", "success");
+            let sName = document.getElementById('sidebar-name');
+            if(sName) sName.innerText = payload.first_name + ' ' + payload.last_name;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+        });
+    }
+
+    function saveChildProfile() {
+        const childId = document.getElementById('childId').value;
+        if (!childId) return;
+        
+        const payload = {
+            first_name: document.getElementById('childFirstName').value,
+            last_name: document.getElementById('childLastName').value,
+            allergies: document.getElementById('childAllergies').value,
+            health_conditions: document.getElementById('childHealthConditions').value
+        };
+
+        fetch('/api/children/' + childId + '/update_profile/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async res => {
+            if(!res.ok) throw new Error('Failed to update child profile');
+            return res.json();
+        })
+        .then(data => {
+            showToast("Child profile updated", "success");
+        })
+        .catch(err => showToast(err.message, "error"));
+    }
+
+    let otpInterval;
+    function startOTPTimer() {
+        clearInterval(otpInterval);
+        let timeLeft = 300; // 5 minutes
+        const timerEl = document.getElementById('otpTimer');
+        const resendBtn = document.getElementById('btnResendOTP');
+        const verifyBtn = document.getElementById('btnVerifyOTP');
+        
+        resendBtn.style.display = 'none';
+        timerEl.style.display = 'block';
+        
+        otpInterval = setInterval(() => {
+            timeLeft--;
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerEl.innerText = `Code expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(otpInterval);
+                timerEl.innerText = "Verification code expired.";
+                resendBtn.style.display = 'inline-block';
+                verifyBtn.disabled = true;
+            }
+        }, 1000);
+    }
+
+    function requestOTP() {
+        document.getElementById('btnRequestOTP').disabled = true;
+        document.getElementById('btnRequestOTP').innerText = "Requesting...";
+        document.getElementById('btnVerifyOTP').disabled = false;
+        
+        fetch('/api/request-password-change/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to send verification code.');
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.dev_otp) {
+                document.getElementById('otp-message').innerHTML = `Verification code generated locally! Your code is: <strong style="color:#d9534f; font-size:1.1rem; letter-spacing:2px;">${data.dev_otp}</strong>`;
+            } else {
+                document.getElementById('otp-message').innerText = "Verification code sent to your email!";
+            }
+            document.getElementById('otp-request-section').style.display = 'none';
+            document.getElementById('otp-verify-section').style.display = 'block';
+            startOTPTimer();
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
+        });
+    }
+
+    function verifyOTPOnly() {
+        let otpCode = document.getElementById('otpCode').value;
+        if(!otpCode) { showToast("Please enter the verification code", "error"); return; }
+        
+        document.getElementById('btnVerifyOTP').disabled = true;
+        document.getElementById('btnVerifyOTP').innerText = "Verifying...";
+        
+        fetch('/api/verify-otp-only/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ otp_code: otpCode })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Email verified successfully!", "success");
+            clearInterval(otpInterval);
+            document.getElementById('otpTimer').style.display = 'none';
+            document.getElementById('btnVerifyOTP').innerText = "Verified";
+            document.getElementById('btnResendOTP').style.display = 'none';
+            
+            // Enable password inputs
+            document.getElementById('pwNew').disabled = false;
+            document.getElementById('pwConf').disabled = false;
+            document.getElementById('btnSubmitPassword').disabled = false;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            document.getElementById('btnVerifyOTP').disabled = false;
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+        });
+    }
+
+    function submitPasswordChange() {
+        let otpCode = document.getElementById('otpCode').value;
+        let pNew = document.getElementById('pwNew').value;
+        let pConf = document.getElementById('pwConf').value;
+
+        if(!pNew || !pConf) { showToast("Please fill all fields", "error"); return; }
+        if(pNew !== pConf) { showToast("New passwords do not match", "error"); return; }
+        if(pNew.length < 8) { showToast("Password must be at least 8 characters long", "error"); return; }
+        
+        const btn = document.getElementById('btnSubmitPassword');
+        btn.disabled = true;
+        btn.innerText = "Changing...";
+        
+        fetch('/api/verify-password-change/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                otp_code: otpCode,
+                new_password: pNew
+            })
+        })
+        .then(async res => {
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to verify');
+            }
+            return res.json();
+        })
+        .then(data => {
+            showToast("Password successfully changed", "success");
+            document.getElementById('otpCode').value = '';
+            document.getElementById('pwNew').value = '';
+            document.getElementById('pwConf').value = '';
+            document.getElementById('pwNew').disabled = true;
+            document.getElementById('pwConf').disabled = true;
+            btn.disabled = true;
+            btn.innerText = "Change Password";
+            
+            document.getElementById('otp-request-section').style.display = 'block';
+            document.getElementById('otp-verify-section').style.display = 'none';
+            document.getElementById('btnRequestOTP').disabled = false;
+            document.getElementById('btnRequestOTP').innerText = "Verify Email";
+            document.getElementById('otp-message').innerText = "";
+            document.getElementById('btnVerifyOTP').innerText = "Verify Code";
+            document.getElementById('btnVerifyOTP').disabled = false;
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+            btn.disabled = false;
+            btn.innerText = "Change Password";
+        });
+    }
+
+    // ARCHIVAL LOGIC
+    function loadArchives() {
+        fetch('/api/school-years/')
+        .then(res => res.json())
+        .then(archives => {
+            let cont = document.getElementById('archives-container');
+            let historical = archives.filter(a => !a.is_active);
+            
+            if (historical.length === 0) {
+                cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
+                return;
+            }
+            
+            let html = '';
+            historical.forEach((arc) => {
+                html += `
+                <div class="archive-box">
+                    <div>
+                        <div class="year-title">${arc.name}</div>
+                        <div class="year-stats">Status: Archived</div>
+                    </div>
+                    <div>
+                        <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                    </div>
+                </div>`;
+            });
+            cont.innerHTML = html;
+        });
+    }
+
+    function viewArchive(id, name) {
+        sessionStorage.setItem('bmv3_archive_year_id', id);
+        sessionStorage.setItem('bmv3_archive_year_name', name);
+        window.location.href = "{% url 'parent_dashboard' %}";
+    }
+
+    function closeArchiveModal() {
+        // Obsolete
+    }
+
+    // Map & Route Settings Logic
+    const bmv3CenterCoords = [13.9380, 121.6146];
+    let parentHomeCoords = [13.9395, 121.6160];
+    let settingsMapObj = null, settingsHouseMarker = null, settingsCenterMarker = null, settingsRoutingCtrl = null;
+
+    function initSettingsMap() {
+        if (settingsMapObj) {
+            setTimeout(() => settingsMapObj.invalidateSize(), 200);
+            return;
+        }
+
+        settingsMapObj = L.map('settingsMap').setView(bmv3CenterCoords, 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(settingsMapObj);
+
+        const schoolIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#063970; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;">🏫</div>',
+            iconSize: [38, 38],
+            iconAnchor: [19, 19]
+        });
+
+        const houseIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#ef4444; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;">🏠</div>',
+            iconSize: [38, 38],
+            iconAnchor: [19, 19]
+        });
+
+        settingsCenterMarker = L.marker(bmv3CenterCoords, { icon: schoolIcon }).addTo(settingsMapObj)
+            .bindPopup('<b>BMV3 Child Development Center</b><br>Barangay Market View 3, Lucena City');
+
+        fetch('/api/user/settings/')
+            .then(res => res.json())
+            .then(data => {
+                if (data.home_latitude && data.home_longitude) {
+                    parentHomeCoords = [data.home_latitude, data.home_longitude];
+                }
+                settingsHouseMarker = L.marker(parentHomeCoords, { icon: houseIcon, draggable: true }).addTo(settingsMapObj)
+                    .bindPopup('<b>Your House Location</b><br>Drag pin or click map to re-locate').openPopup();
+
+                updateSettingsRoute(parentHomeCoords);
+
+                settingsHouseMarker.on('dragend', function (e) {
+                    const latlng = settingsHouseMarker.getLatLng();
+                    parentHomeCoords = [latlng.lat, latlng.lng];
+                    updateSettingsRoute(parentHomeCoords);
+                });
+
+                settingsMapObj.on('click', function(e) {
+                    settingsHouseMarker.setLatLng(e.latlng);
+                    parentHomeCoords = [e.latlng.lat, e.latlng.lng];
+                    updateSettingsRoute(parentHomeCoords);
+                });
+            })
+            .catch(e => {
+                settingsHouseMarker = L.marker(parentHomeCoords, { icon: houseIcon, draggable: true }).addTo(settingsMapObj);
+                updateSettingsRoute(parentHomeCoords);
+            });
+    }
+
+    function updateSettingsRoute(houseCoords) {
+        if (settingsRoutingCtrl && settingsMapObj) {
+            try { settingsMapObj.removeControl(settingsRoutingCtrl); } catch(err){}
+        }
+
+        if (typeof L !== 'undefined' && typeof L.Routing !== 'undefined') {
+            settingsRoutingCtrl = L.Routing.control({
+                waypoints: [
+                    L.latLng(houseCoords[0], houseCoords[1]),
+                    L.latLng(bmv3CenterCoords[0], bmv3CenterCoords[1])
+                ],
+                lineOptions: {
+                    styles: [{ color: '#0284c7', weight: 6, opacity: 0.85 }]
+                },
+                createMarker: function() { return null; },
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: false,
+                show: false
+            }).addTo(settingsMapObj);
+
+            settingsRoutingCtrl.on('routesfound', function(e) {
+                if (e.routes && e.routes[0] && e.routes[0].summary) {
+                    const summary = e.routes[0].summary;
+                    const distKm = (summary.totalDistance / 1000).toFixed(2);
+                    const timeMins = Math.round(summary.totalTime / 60);
+
+                    document.getElementById('settingsRouteDistance').innerText = `${distKm} km to BMV3 Center`;
+                    document.getElementById('settingsRouteDuration').innerText = `⏱️ ~${timeMins} mins drive`;
+                }
+            });
+        }
+    }
+
+    function saveHomeMapLocation() {
+        if (!parentHomeCoords) return;
+        fetch('/api/user/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                home_latitude: parentHomeCoords[0],
+                home_longitude: parentHomeCoords[1]
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            showToast("House location updated successfully!", "success");
+        })
+        .catch(err => {
+            showToast("Error updating house location.", "error");
+        });
+    }
+
+    function openExternalWaze() {
+        const url = `https://www.waze.com/ul?ll=${bmv3CenterCoords[0]},${bmv3CenterCoords[1]}&navigate=yes`;
+        window.open(url, '_blank');
+    }
+
+    function openExternalGoogleMaps() {
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${parentHomeCoords[0]},${parentHomeCoords[1]}&destination=${bmv3CenterCoords[0]},${bmv3CenterCoords[1]}&travelmode=driving`;
+        window.open(url, '_blank');
+    }
+
+    const origSwitchSetting = window.switchSetting;
+    window.switchSetting = function(tabName) {
+        document.querySelectorAll('.settings-menu-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.settings-panel').forEach(el => el.classList.remove('active'));
+
+        const targetPanel = document.getElementById('panel-' + tabName);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+
+        const menuItems = document.querySelectorAll('.settings-menu-item');
+        menuItems.forEach(item => {
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${tabName}'`)) {
+                item.classList.add('active');
+            }
+        });
+
+        if (tabName === 'maproute') {
+            setTimeout(initSettingsMap, 200);
+        }
+    };
+
+    loadArchives();
+</script>
+{% endblock content %}
+

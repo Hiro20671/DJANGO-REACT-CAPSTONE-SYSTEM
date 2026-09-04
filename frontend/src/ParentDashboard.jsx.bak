@@ -1,0 +1,450 @@
+import React, { useState, useEffect } from 'react';
+import './AttendanceCalendar.css';
+import AttendanceCalendar from './AttendanceCalendar';
+
+function ParentDashboard() {
+  // Core state
+  const [parentName, setParentName] = useState(window.CURRENT_USER_NAME || 'Parent Guardian');
+  const [linkedChildId, setLinkedChildId] = useState(null);
+  const [student, setStudent] = useState(null);
+  const [attendanceToday, setAttendanceToday] = useState('NO RECORD');
+  const [dropoffInfo, setDropoffInfo] = useState({ time: '--', status: '--', guardian: '--', session: 'Morning' });
+  const [nutrition, setNutrition] = useState({ breakfast: false, snack1: false, lunch: false, snack2: false, allergies: 'None' });
+  const [activities, setActivities] = useState(['Waiting for teacher logs']);
+  const [teacherNote, setTeacherNote] = useState('None');
+  const [milestones, setMilestones] = useState({ motor: [], cognitive: [] });
+  const [notifications, setNotifications] = useState([]);
+  const [childrenList, setChildrenList] = useState([]);
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [history, setHistory] = useState({ attendance: [], nutrition: [], behavior: [], milestones: [] });
+  const [filterDate, setFilterDate] = useState(''); // YYYY‑MM‑DD
+  const [loading, setLoading] = useState(true);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isToday = (dateStr) => dateStr === todayStr || (dateStr && dateStr.startsWith(todayStr));
+
+  // Load parent profile (name & linked child id) from localStorage
+  useEffect(() => {
+    const currentUser = window.CURRENT_USER_USERNAME;
+    let pStr = null;
+    if (currentUser) {
+      pStr = localStorage.getItem('bmv3_parent_profile_' + currentUser);
+    }
+    if (!pStr) {
+      pStr = localStorage.getItem('bmv3_parent_profile_data');
+    }
+    if (!pStr) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img') {
+          pStr = localStorage.getItem(key);
+          break;
+        }
+      }
+    }
+    if (pStr) {
+      try {
+        const parsed = JSON.parse(pStr);
+        if (!window.CURRENT_USER_NAME && parsed.name) {
+            setParentName(parsed.name);
+        }
+        if (parsed.child_id) setLinkedChildId(parsed.child_id);
+      } catch (e) { }
+    }
+  }, []);
+
+  // Fetch child and related data
+  useEffect(() => {
+    fetch('/api/children/')
+      .then((res) => res.json())
+      .then((children) => {
+        setChildrenList(children);
+        setLoading(false);
+        // If no child is linked yet, default to the first child
+        if (!linkedChildId && children.length > 0) {
+            const firstChildId = children[0].id;
+            setLinkedChildId(firstChildId);
+            // Persist selection for the session (optional)
+            localStorage.setItem('linked_child_id', firstChildId);
+        }
+        let myChild = null;
+        if (linkedChildId) {
+          myChild = children.find((c) => c.id === linkedChildId);
+        }
+        if (!myChild && children.length > 0) {
+          myChild = children[0];
+        }
+        if (!myChild) return;
+        setStudent(myChild);
+        const childId = myChild.id;
+        const notifs = [];
+
+        // Attendance
+        fetch('/api/attendance/')
+          .then((r) => r.json())
+          .then((attData) => {
+            setAttendanceData(attData.filter((a) => a.child === childId));
+            const todayAtt = attData.find((a) => a.child === childId && isToday(a.date));
+            if (todayAtt) {
+              const statusUpper = todayAtt.status.toUpperCase();
+              setAttendanceToday(statusUpper);
+              if (todayAtt.status.toLowerCase() === 'present') {
+                setDropoffInfo({
+                  time: todayAtt.dropoff_time || '--',
+                  status: 'Successful',
+                  guardian: todayAtt.authorized_guardian || '--',
+                  session: todayAtt.session || '--',
+                });
+                notifs.push({
+                  title: 'Drop‑off confirmed',
+                  desc: `Drop‑off by ${todayAtt.authorized_guardian || '--'} at ${todayAtt.dropoff_time || '--'}`,
+                  date: todayStr,
+                });
+              } else if (todayAtt.status.toLowerCase() === 'absent') {
+                setDropoffInfo({ time: '--', status: 'Absent', guardian: '--', session: '--' });
+                notifs.push({ title: 'Attendance Notice', desc: 'Child marked absent for today.', date: todayStr });
+              }
+            }
+          });
+
+        // Nutrition
+        fetch('/api/nutrition/')
+          .then((r) => r.json())
+          .then((nutData) => {
+            const todayNut = nutData.find((n) => n.child === childId && isToday(n.date));
+            if (todayNut) {
+              setNutrition({
+                breakfast: todayNut.breakfast,
+                snack1: todayNut.snack1,
+                lunch: todayNut.lunch,
+                snack2: todayNut.snack2,
+                allergies: myChild.allergies || 'None',
+              });
+              notifs.push({ title: 'Health & Nutrition', desc: 'Nutrition logs updated for today.', date: todayStr });
+            } else {
+              setNutrition((prev) => ({ ...prev, allergies: myChild.allergies || 'None' }));
+            }
+          });
+
+        // Behavior
+        fetch('/api/behavior/')
+          .then((r) => r.json())
+          .then((behData) => {
+            const childLogs = behData.filter((b) => b.child === childId);
+            if (childLogs.length > 0) {
+              const todayLogs = childLogs.filter((l) => isToday(l.date));
+              if (todayLogs.length > 0) {
+                setActivities(todayLogs.map((l) => l.note));
+                setTeacherNote(todayLogs[todayLogs.length - 1].note);
+                notifs.push({ title: 'Behavior Update', desc: 'New behavioral note logged by teacher.', date: todayStr });
+              } else {
+                setActivities([childLogs[childLogs.length - 1].note]);
+                setTeacherNote(childLogs[childLogs.length - 1].note);
+              }
+            }
+          });
+
+        // Milestones
+        fetch('/api/milestones/')
+          .then((r) => r.json())
+          .then((mileData) => {
+            const childMile = mileData.find((m) => m.child === childId);
+            if (childMile && childMile.tasks) {
+              const mot = [];
+              const cog = [];
+              if (childMile.tasks['mot-1'] === 'achieved') mot.push('Hops on one foot');
+              if (childMile.tasks['mot-2'] === 'achieved') mot.push('Draws shapes');
+              if (childMile.tasks['mot-3'] === 'achieved') mot.push('Catches ball');
+              if (childMile.tasks['mot-4'] === 'achieved') mot.push('Uses scissors');
+              if (childMile.tasks['comm-1'] === 'achieved') cog.push('Speaks in complete sentences');
+              if (childMile.tasks['comm-2'] === 'achieved') cog.push('Tells stories');
+              if (childMile.tasks['soc-1'] === 'achieved') cog.push('Plays cooperatively');
+              if (childMile.tasks['self-1'] === 'achieved') cog.push('Uses toilet independently');
+              setMilestones({ motor: mot, cognitive: cog });
+              if (mot.length > 0 || cog.length > 0) {
+                notifs.push({ title: 'New milestone recorded', desc: 'Skills progression updated.', date: new Date().toLocaleDateString() });
+              }
+            }
+          });
+
+        // Historical data (last 30 days)
+        fetch('/api/parent/history/')
+          .then((r) => r.json())
+          .then((hist) => {
+            setHistory({
+              attendance: hist.attendance || [],
+              nutrition: hist.nutrition || [],
+              behavior: hist.behavior || [],
+              milestones: hist.milestones || [],
+            });
+          })
+          .catch((err) => console.error('History fetch error', err));
+
+        if (notifs.length === 0) {
+          notifs.push({ title: 'System', desc: 'No new notifications at this time.', date: new Date().toLocaleDateString() });
+        }
+        setNotifications(notifs.slice(0, 4));
+      })
+      .catch((e) => console.error('Children fetch error', e));
+  }, [linkedChildId]);
+
+  const dateDisplay = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const getAttColor = (status) => {
+    if (status === 'PRESENT') return '#00cc00';
+    if (status === 'ABSENT') return '#e74a3b';
+    return '#888';
+  };
+
+  // Helpers to filter history by selected date
+  const filteredAttendance = filterDate ? history.attendance.filter((rec) => rec.date.startsWith(filterDate)) : [];
+  const filteredNutrition = filterDate ? history.nutrition.filter((rec) => rec.date.startsWith(filterDate)) : [];
+  const filteredBehavior = filterDate ? history.behavior.filter((rec) => rec.date.startsWith(filterDate)) : [];
+  const filteredMilestones = filterDate ? history.milestones.filter((rec) => rec.date && rec.date.startsWith(filterDate)) : [];
+
+  if (loading) {
+    return (
+      <div style={{ animation: 'fadeIn 0.5s ease-in', padding: '40px', textAlign: 'center' }}>
+        <h2>Welcome back, {parentName}</h2>
+        <p>Loading dashboard data…</p>
+      </div>
+    );
+  }
+
+  if (!student) {
+    return (
+      <div style={{ animation: 'fadeIn 0.5s ease-in', padding: '40px', textAlign: 'center' }}>
+        <h2>Welcome back, {parentName}</h2>
+        <p>No child profile linked to this account yet. Please contact the administrator.</p>
+      </div>
+    );
+  }
+
+  // Meals list for today
+  const mealsList = [];
+  if (nutrition.breakfast) mealsList.push('Breakfast');
+  if (nutrition.snack1) mealsList.push('Morning Snack');
+  if (nutrition.lunch) mealsList.push('Lunch');
+  if (nutrition.snack2) mealsList.push('Afternoon Snack');
+
+  return (
+    <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
+      <div style={{ marginBottom: '30px' }}>
+        <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#063970', margin: 0 }}>Welcome back, {parentName}</h2>
+        <p style={{ margin: '5px 0 0 0', color: '#777', fontSize: '1rem' }}>Date: {dateDisplay}</p>
+      </div>
+
+      {/* Header block */}
+      <div className="resp-flex-between" style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #ccc', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e0f0ff', color: '#063970', fontWeight: 'bold', fontSize: '1.5rem' }}>
+            <img
+              src={student.img || localStorage.getItem('bmv3_parent_profile_img') || `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${student.first_name}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#fff' }}
+              alt="avatar"
+            />
+          </div>
+          <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {student.first_name} {student.last_name}
+          </h3>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '8px' }}>ATTENDANCE TODAY</div>
+          <div style={{ background: getAttColor(attendanceToday), color: '#fff', padding: '5px 20px', borderRadius: '20px', display: 'inline-block', fontWeight: 800, fontSize: '0.9rem' }}>{attendanceToday}</div>
+        </div>
+      </div>
+
+      {/* Child selector */}
+      <div style={{ marginBottom: '20px' }}>
+        <label htmlFor="child-select" style={{ marginRight: '10px', fontWeight: 600 }}>Select Child:</label>
+        <select id="child-select" value={linkedChildId || ''} onChange={(e) => {
+          const newId = e.target.value ? parseInt(e.target.value) : null;
+          setLinkedChildId(newId);
+          if (newId) localStorage.setItem('linked_child_id', newId);
+        }} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ccc' }}>
+          <option value="">-- Choose --</option>
+          {childrenList.map((c) => (
+            <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>
+          ))}
+        </select>
+      </div>
+
+      {linkedChildId && <AttendanceCalendar attendanceRecords={attendanceData} childId={linkedChildId} />}
+
+      {/* Date filter */}
+      <div style={{ marginBottom: '20px' }}>
+        <label htmlFor="history-date" style={{ marginRight: '10px', fontWeight: 600 }}>View records for date:</label>
+        <input id="history-date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ccc' }} />
+        <button onClick={() => setFilterDate('')} style={{ marginLeft: '10px', padding: '5px 10px', borderRadius: '5px', background: '#063970', color: '#fff', border: 'none', cursor: 'pointer' }}>Clear</button>
+      </div>
+
+      {/* Attendance History */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px' }}>Attendance History{filterDate ? ` for ${new Date(filterDate).toLocaleDateString()}` : ''}</h4>
+        {filterDate ? (
+          filteredAttendance.length > 0 ? (
+            <ul style={{ paddingLeft: '20px' }}>
+              {filteredAttendance.map((rec, idx) => (
+                <li key={idx}>{new Date(rec.date).toLocaleDateString()} - {rec.status}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No attendance records for this date.</p>
+          )
+        ) : (
+          <p>Select a date to view specific attendance records.</p>
+        )}
+      </div>
+
+      {/* Nutrition History */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px' }}>Nutrition History{filterDate ? ` for ${new Date(filterDate).toLocaleDateString()}` : ''}</h4>
+        {filterDate ? (
+          filteredNutrition.length > 0 ? (
+            <ul style={{ paddingLeft: '20px' }}>
+              {filteredNutrition.map((rec, idx) => (
+                <li key={idx}>
+                  {new Date(rec.date).toLocaleDateString()}: {rec.breakfast && 'Breakfast '} {rec.snack1 && 'Snack1 '} {rec.lunch && 'Lunch '} {rec.snack2 && 'Snack2'}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No nutrition records for this date.</p>
+          )
+        ) : (
+          <p>Select a date to view specific nutrition records.</p>
+        )}
+      </div>
+
+      {/* Behavior History */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px' }}>Behavior History{filterDate ? ` for ${new Date(filterDate).toLocaleDateString()}` : ''}</h4>
+        {filterDate ? (
+          filteredBehavior.length > 0 ? (
+            <ul style={{ paddingLeft: '20px' }}>
+              {filteredBehavior.map((rec, idx) => (
+                <li key={idx}>{new Date(rec.date).toLocaleDateString()}: {rec.note}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No behavior records for this date.</p>
+          )
+        ) : (
+          <p>Select a date to view specific behavior notes.</p>
+        )}
+      </div>
+
+      {/* Milestones History */}
+      <div style={{ marginTop: '20px' }}>
+        <h4 style={{ marginBottom: '10px' }}>Milestones History{filterDate ? ` for ${new Date(filterDate).toLocaleDateString()}` : ''}</h4>
+        {filterDate ? (
+          filteredMilestones.length > 0 ? (
+            <ul style={{ paddingLeft: '20px' }}>
+              {filteredMilestones.map((rec, idx) => (
+                <li key={idx}>
+                  {new Date(rec.date).toLocaleDateString()}: {rec.tasks ? Object.entries(rec.tasks).filter(([k, v]) => v === 'achieved').map(([k]) => k).join(', ') : 'No tasks'}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No milestone records for this date.</p>
+          )
+        ) : (
+          <p>Select a date to view specific milestone records.</p>
+        )}
+      </div>
+
+      {/* Today's detailed sections */}
+      <h4 style={{ margin: '20px 0 10px 0', fontSize: '1.1rem' }}>Today</h4>
+      <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
+        <div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Drop‑off time</div>
+          <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Pick‑up Status</div>
+          <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Authorized Guardian</div>
+          <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Session</div>
+          <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
+        </div>
+      </div>
+
+      <div className="resp-grid-2">
+        <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Today's health & nutrition</h4>
+          <div style={{ marginBottom: '15px' }}>
+            <strong style={{ fontSize: '0.9rem' }}>Meals logged</strong>
+            {mealsList.length > 0 ? (
+              <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.85rem' }}>
+                {mealsList.map((m) => (
+                  <li key={m}>{m} served</li>
+                ))}
+              </ul>
+            ) : (
+              <div style={{ fontSize: '0.85rem', marginTop: '5px', color: '#555' }}>No meals logged yet</div>
+            )}
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <strong style={{ fontSize: '0.9rem' }}>Health observation</strong>
+            <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', fontSize: '0.85rem' }}>
+              <li>Healthy</li>
+              <li>Active</li>
+              <li>No fever</li>
+            </ul>
+          </div>
+          <div>
+            <strong style={{ fontSize: '0.9rem' }}>Allergies on record</strong>
+            <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>{nutrition.allergies}</div>
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
+          <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent activities & notes</h4>
+          <ul style={{ margin: '0 0 30px 0', paddingLeft: '20px', fontSize: '0.85rem' }}>
+            {activities.map((act, i) => (
+              <li key={i}>{act}</li>
+            ))}
+          </ul>
+          <strong style={{ fontSize: '0.9rem' }}>Teacher's Note</strong>
+          <div style={{ fontSize: '0.85rem', marginTop: '5px' }}>{teacherNote}</div>
+        </div>
+      </div>
+
+      <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', paddingBottom: '60px', borderRadius: '15px', position: 'relative' }}>
+        <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Latest milestone update</h4>
+        <div className="resp-flex-between" style={{ gap: '30px', alignItems: 'flex-start' }}>
+          <div>
+            <strong style={{ fontSize: '0.9rem' }}>Motor Skills</strong>
+            {milestones.motor.length > 0 ? milestones.motor.map((m, i) => (
+              <div key={i} style={{ fontSize: '0.8rem', marginTop: '10px' }}>☑ {m}</div>
+            )) : (<div style={{ fontSize: '0.8rem', marginTop: '10px', color: '#555' }}>Not started</div>)}
+          </div>
+          <div>
+            <strong style={{ fontSize: '0.9rem' }}>Cognitive & Social</strong>
+            {milestones.cognitive.length > 0 ? milestones.cognitive.map((m, i) => (
+              <div key={i} style={{ fontSize: '0.8rem', marginTop: '10px' }}>☑ {m}</div>
+            )) : (<div style={{ fontSize: '0.8rem', marginTop: '10px', color: '#555' }}>Not started</div>)}
+          </div>
+        </div>
+        <a href="/parent/milestones/" style={{ position: 'absolute', bottom: '20px', right: '20px', background: '#063970', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: '15px', fontWeight: 600, cursor: 'pointer', textDecoration: 'none', fontSize: '0.85rem' }}>See More</a>
+      </div>
+
+      <div style={{ background: '#fff', color: '#333', border: '1px solid #000', padding: '25px', borderRadius: '15px' }}>
+        <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent notifications</h4>
+        {notifications.map((notif, i) => (
+          <div key={i} style={{ fontSize: '0.8rem', borderLeft: '2px solid #333', paddingLeft: '10px', marginBottom: '15px' }}>
+            <strong>{notif.title}</strong><br />
+            <span style={{ opacity: 0.8 }}>{notif.desc} - {notif.date}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default ParentDashboard;

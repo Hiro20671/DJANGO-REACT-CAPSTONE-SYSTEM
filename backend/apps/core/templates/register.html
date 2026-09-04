@@ -1,0 +1,754 @@
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - BMV3 CDC</title>
+    <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#090d16">
+    <link rel="apple-touch-icon" href="{% static 'core/image/bmv3_logo.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.min.js"></script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        background-color: #f7f9fa;
+        color: #333;
+    }
+
+    .split-container {
+        display: flex;
+        flex: 1;
+        width: 100%;
+    }
+
+    .left-panel {
+        flex: 1;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url("{% static 'core/image/background_pic.png' %}") no-repeat center center / cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem;
+        color: white;
+    }
+
+    .left-panel-content {
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+
+    .left-panel h1 {
+        font-size: 3.4rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+    }
+
+    .left-panel p.desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #e0e0e0;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .feature-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .right-panel {
+        flex: 1;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4rem;
+        position: relative;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .greeting-info {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .greeting-info h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1b3b5c;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .register-title {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    form p {
+        margin: 0;
+    }
+
+    form label {
+        display: none;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.8rem 0;
+        border: none;
+        border-bottom: 1px solid #aaa;
+        font-size: 0.85rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.3s;
+        margin-bottom: 0.8rem;
+        background: transparent;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-bottom: 2px solid #1b3b5c;
+    }
+
+    .submit-btn {
+        width: 100%;
+        max-width: 150px;
+        margin: 1.5rem auto 0;
+        display: block;
+        padding: 0.8rem;
+        border: 1px solid #1b3b5c;
+        background: transparent;
+        color: #1b3b5c;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background: #1b3b5c;
+        color: white;
+    }
+
+    .login-link {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 1.5rem;
+    }
+
+    .login-link a {
+        color: #333;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    .footer-text {
+        position: absolute;
+        bottom: 20px;
+        text-align: center;
+        width: 100%;
+        left: 0;
+        font-size: 0.7rem;
+        color: #1b3b5c;
+        font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+        .split-container {
+            flex-direction: column;
+        }
+
+        .left-panel,
+        .right-panel {
+            padding: 3rem 2rem;
+        }
+
+        .footer-text {
+            position: relative;
+            margin-top: 3rem;
+            bottom: 0;
+        }
+    }
+</style>
+
+<div class="split-container">
+    <div class="left-panel">
+        <div class="left-panel-content">
+            <h1>Child Care Management</h1>
+            <p class="desc">A digital platform designed to digitize attendance, track developmental milestones, monitor
+                health and nutrition, and strengthen parent communication for the Barangay Market View 3 Child
+                Development Center.</p>
+            <ul class="feature-list">
+                <li>📅 QR-based drop-off & pick-up authorization</li>
+                <li>🔔 Parent notification</li>
+                <li>👶 Developmental milestone tracking</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="right-panel">
+            <div class="form-wrapper">
+                <div class="greeting-info">
+                    <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3 Logo" style="height: 80px; margin-bottom: 15px;">
+                    <h2 id="reg-title">CREATE PARENT ACCOUNT</h2>
+                </div>
+    
+                <!-- Show Django errors if any -->
+                {% if form.errors %}
+                    <div style="color: #d9534f; font-size:0.85rem; margin-bottom: 15px; padding: 10px; background: #fdf2f2; border: 1px solid #d9534f; border-radius: 8px;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+    
+                <form method="POST" id="mainForm" novalidate>
+                    {% csrf_token %}
+                    <!-- We keep the real Django form hidden, and populate it via JS right before submit -->
+                    <div id="djangoFormArea" style="display:none;">
+                        {{ form.as_p }}
+                    </div>
+    
+                    <!-- STEP 1: PARENT INFO -->
+                    <div class="step-pane active" id="step1">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 1: Account Details</p>
+                        <input type="text" id="js-username" placeholder="Choose a Username" required>
+                        <input type="email" id="js-email" placeholder="Email Address" required>
+                        <input type="password" id="js-pass1" placeholder="Password" required>
+                        <input type="password" id="js-pass2" placeholder="Confirm Password" required>
+                        
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 20px; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="show-pass-register" onclick="toggleRegisterPassword()" style="width: auto; margin: 0;">
+                            <label for="show-pass-register" style="display: inline; cursor: pointer;">Show Passwords</label>
+                        </div>
+                        
+                        <input type="text" id="js-fullname" placeholder="Parent's Full Name" required>
+                        <select id="js-relationship" required style="margin-bottom: 0.8rem; background: transparent; padding: 0.8rem 0; width: 100%; border: none; border-bottom: 1px solid #aaa; font-family: inherit; font-size: 0.85rem; outline: none; transition: border-color 0.3s;">
+                            <option value="" disabled selected>Relationship to Child</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Other Guardian">Other Guardian / Relative</option>
+                        </select>
+                        <input type="text" id="js-contact" placeholder="Contact Number">
+
+                        <!-- INTERACTIVE WAZE-STYLE HOUSE MAP -->
+                        <div style="margin-top: 15px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; background: #f8fafc;">
+                            <label style="font-weight: 800; font-size: 0.85rem; color: #063970; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <i class="fa-solid fa-map-location-dot" style="color: #0284c7;"></i> Pin Your House (Waze Route to BMV3 Center)
+                            </label>
+                            <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 10px; line-height: 1.3;">
+                                Click or drag the house pin 🏠 to set your home address. The blue Waze route line to BMV3 Center 🏫 will calculate live!
+                            </p>
+
+                            <div id="registerMap" style="height: 200px; width: 100%; border-radius: 10px; border: 2px solid #063970; margin-bottom: 10px;"></div>
+                            
+                            <div id="routeInfoBox" style="background: #e0f2fe; border: 1px solid #38bdf8; border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; color: #0369a1;">
+                                <div>
+                                    <span style="font-weight: 800; color: #063970;"><i class="fa-solid fa-route"></i> Distance:</span>
+                                    <span id="routeDistanceText" style="font-weight: 800; margin-left: 4px; color: #15803d;">Calculating...</span>
+                                </div>
+                                <div>
+                                    <span id="routeDurationText" style="font-weight: 800; color: #0284c7;">⏱️ -- mins</span>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="js-home-lat" value="13.9395">
+                            <input type="hidden" id="js-home-lng" value="121.6160">
+                            <input type="hidden" id="js-home-address" value="Barangay Market View 3, Lucena City">
+                        </div>
+
+                        <button type="button" class="submit-btn" onclick="nextStep(1)">Next Step: Verification</button>
+
+                    </div>
+    
+                    <!-- STEP 2: CHILD VERIFICATION -->
+                    <div class="step-pane" id="step2" style="display:none; flex-direction:column;">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 2: Child Verification</p>
+                        <p style="font-size:0.8rem; color:#666; text-align:center; margin-bottom:15px; line-height:1.4;">
+                            For high security, you must exactly match a registered child in the teacher's enrollment database to proceed.
+                        </p>
+                        <input type="text" id="js-childname" placeholder="Enrolled Child's Full Name" required autocomplete="off">
+                        <button type="button" class="submit-btn" style="max-width:100%; border-radius:8px; margin-top:5px; margin-bottom:15px; background:white; color:#1b3b5c; border:1px solid #1b3b5c;" onclick="verifyChild()">Verify Child Record</button>
+                        
+                        <div id="verify-error" style="color:#d9534f; font-size:0.85rem; text-align:center; display:none; background:#fdf2f2; padding:10px; border-radius:8px; margin-bottom:15px;">
+                            No match found. Please check spelling or contact the teacher.
+                        </div>
+                        
+                        <div id="childMatchCard" style="display:none; background:#eef5fc; border:1px dashed #4a90e2; padding:15px; border-radius:8px; margin-bottom:15px; text-align:center;">
+                            <div style="font-size:0.85rem; color:#28a745; font-weight:800; margin-bottom:5px;">✓ AUTHORIZED LINK</div>
+                            <div id="verifiedChildName" style="font-weight:800; color:#1b3b5c; font-size:1.1rem;"></div>
+                            <div id="verifiedChildAge" style="font-size:0.8rem; color:#666; margin-top:3px;"></div>
+                        </div>
+    
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <button type="button" class="submit-btn" style="background:#e0e0e0; color:#333; border:none; margin-top:0;" onclick="prevStep(2)">Back</button>
+                            <button type="button" class="submit-btn" id="btn-next-2" style="opacity:0.5; pointer-events:none; margin-top:0;" onclick="nextStep(2)">Next Step: Photos</button>
+                        </div>
+                    </div>
+    
+                    <!-- STEP 3: PHOTO UPLOADS & FINALIZE -->
+                    <div class="step-pane" id="step3" style="display:none; flex-direction:column;">
+                        <p class="subtitle" style="text-align:center; margin-bottom:15px; font-weight:700;">Step 3: Setup Profiles</p>
+                        
+                        <div style="display:flex; justify-content:center; gap:20px; margin-bottom:20px;">
+                            <div style="text-align:center; flex:1;">
+                                <div style="border:2px dashed #ccc; padding:20px; border-radius:12px; cursor:pointer; font-size:0.8rem; color:#666; transition:0.3s;" onclick="document.getElementById('parentPic').click()" id="parentBtn">
+                                    <i class="fa-solid fa-user" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
+                                    Parent Photo
+                                </div>
+                                <img id="parentPreview" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto 0; border:3px solid #1b3b5c;">
+                                <input type="file" id="parentPic" accept="image/*" style="display:none;" onchange="readImage(this, 'parentPreview', 'parentBtn', 'parentImgData')">
+                                <input type="hidden" id="parentImgData">
+                            </div>
+                            <div style="text-align:center; flex:1;">
+                                <div style="border:2px dashed #ccc; padding:20px; border-radius:12px; cursor:pointer; font-size:0.8rem; color:#666; transition:0.3s;" onclick="document.getElementById('childPic').click()" id="childBtn">
+                                    <i class="fa-solid fa-child" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
+                                    Child Photo
+                                </div>
+                                <img id="childPreview" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto 0; border:3px solid #1b3b5c;">
+                                <input type="file" id="childPic" accept="image/*" style="display:none;" onchange="readImage(this, 'childPreview', 'childBtn', 'childImgData')">
+                                <input type="hidden" id="childImgData">
+                            </div>
+                        </div>
+    
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <button type="button" class="submit-btn" style="background:#e0e0e0; color:#333; border:none; margin-top:0;" onclick="prevStep(3)">Back</button>
+                            <button type="button" class="submit-btn" style="background:#28a745; color:white; border:none; margin-top:0;" onclick="finalizeRegistration()">Create Account</button>
+                        </div>
+                    </div>
+                </form>
+    
+                <div class="login-link">
+                    Created an account already? <a href="{% url 'login' %}">Go back to login</a>
+                </div>
+            </div>
+
+        <div class="footer-text">
+            Child Care Management<br>Barangay Market View 3 Child Development Center
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    let validChildId = null;
+
+    function nextStep(current) {
+        if(current === 1) {
+            // Basic validation
+            let u = document.getElementById('js-username').value;
+            let p1 = document.getElementById('js-pass1').value;
+            let p2 = document.getElementById('js-pass2').value;
+            let fn = document.getElementById('js-fullname').value;
+            let rel = document.getElementById('js-relationship').value;
+            if(!u || !p1 || !p2 || !fn || !rel) {
+                alert("Please fill all required fields in Step 1."); return;
+            }
+            if(p1 !== p2) {
+                alert("Passwords do not match."); return;
+            }
+
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
+        } else if (current === 2) {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'flex';
+        }
+    }
+
+    function prevStep(current) {
+        if(current === 2) {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'flex';
+        } else if (current === 3) {
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
+        }
+    }
+
+    function toggleRegisterPassword() {
+        var p1 = document.getElementById("js-pass1");
+        var p2 = document.getElementById("js-pass2");
+        if (p1.type === "password") {
+            p1.type = "text";
+            p2.type = "text";
+        } else {
+            p1.type = "password";
+            p2.type = "password";
+        }
+    }
+
+    function verifyChild() {
+        const inputName = document.getElementById('js-childname').value.trim().toLowerCase();
+        if(!inputName) return;
+
+        // Search in local storage prototype DB
+        let studentsMaster = JSON.parse(localStorage.getItem('bmv3_students')) || [];
+        let match = studentsMaster.find(st => st.name.toLowerCase() === inputName);
+
+        if(match) {
+            // Strict identity validation based on relationship
+            let pName = document.getElementById('js-fullname').value.trim().toLowerCase();
+            let relationship = document.getElementById('js-relationship').value;
+            let mName = (match.mother_name || "").trim().toLowerCase();
+            let fName = (match.father_name || "").trim().toLowerCase();
+            let oName = (match.other_guardian_name || "").trim().toLowerCase();
+            
+            if (relationship === "Mother" && pName !== mName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Mother for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            } else if (relationship === "Father" && pName !== fName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Father for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            } else if (relationship === "Other Guardian" && pName !== oName) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: Your name does not match the registered Other Guardian for this child.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
+            // Enforce max 1 account per relationship type
+            let parentCount = 0;
+            let relationshipExists = false;
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('bmv3_parent_profile_') && key !== 'bmv3_parent_profile_img' && key !== 'bmv3_parent_profile_data') {
+                    try {
+                        let pData = JSON.parse(localStorage.getItem(key));
+                        if (pData && pData.child_id === match.id) {
+                            parentCount++;
+                            if (pData.relationship === relationship) {
+                                relationshipExists = true;
+                            }
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            if (relationshipExists) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = `Registration blocked: A ${relationship} account has already been registered for this child.`;
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
+            if (parentCount >= 3) {
+                validChildId = null;
+                let errDiv = document.getElementById('verify-error');
+                errDiv.innerText = "Registration blocked: This child already has the maximum of 3 parent/guardian accounts linked.";
+                errDiv.style.display = 'block';
+                document.getElementById('childMatchCard').style.display = 'none';
+                document.getElementById('btn-next-2').style.opacity = '0.5';
+                document.getElementById('btn-next-2').style.pointerEvents = 'none';
+                return;
+            }
+
+            validChildId = match.id;
+            let errDiv = document.getElementById('verify-error');
+            errDiv.innerText = "No match found. Please check spelling or contact the teacher."; // reset to default
+            errDiv.style.display = 'none';
+            document.getElementById('childMatchCard').style.display = 'block';
+            document.getElementById('verifiedChildName').innerText = match.name;
+            document.getElementById('verifiedChildAge').innerText = "Student ID: " + match.id + " | Age: " + match.age;
+            
+            // Enable next
+            document.getElementById('btn-next-2').style.opacity = '1';
+            document.getElementById('btn-next-2').style.pointerEvents = 'all';
+        } else {
+            validChildId = null;
+            let errDiv = document.getElementById('verify-error');
+            errDiv.innerText = "No match found. Please check spelling or contact the teacher.";
+            errDiv.style.display = 'block';
+            document.getElementById('childMatchCard').style.display = 'none';
+            
+            // Disable next
+            document.getElementById('btn-next-2').style.opacity = '0.5';
+            document.getElementById('btn-next-2').style.pointerEvents = 'none';
+        }
+    }
+
+    function readImage(input, previewId, btnId, dataId) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                // Create an image element to draw onto canvas
+                let img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('react-2d') || canvas.getContext('2d');
+                    
+                    // Max constraints for compression
+                    const MAX_WIDTH = 300;
+                    const MAX_HEIGHT = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Export as highly compressed JPEG
+                    let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    document.getElementById(previewId).src = compressedBase64;
+                    document.getElementById(previewId).style.display = 'block';
+                    document.getElementById(btnId).style.display = 'none';
+                    document.getElementById(dataId).value = compressedBase64;
+                };
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function finalizeRegistration() {
+        try {
+            // Sync JS inputs to hidden Django inputs
+            const dFormFields = document.getElementById('djangoFormArea').querySelectorAll('input');
+            
+            let d_uname = null, d_email = null, d_pass1 = null, d_pass2 = null;
+            dFormFields.forEach(inp => {
+                if(inp.name === 'username') d_uname = inp;
+                if(inp.name === 'email') d_email = inp;
+                if(inp.name === 'password1') d_pass1 = inp;
+                if(inp.name === 'password2') d_pass2 = inp;
+            });
+
+            if(d_uname) d_uname.value = document.getElementById('js-username').value;
+            if(d_email) d_email.value = document.getElementById('js-email').value;
+            if(d_pass1) d_pass1.value = document.getElementById('js-pass1').value;
+            if(d_pass2) d_pass2.value = document.getElementById('js-pass2').value;
+
+            // Set LocalStorage linking data for Prototype Use Later
+            const username = document.getElementById('js-username').value;
+            
+            let parentProfile = {
+                name: document.getElementById('js-fullname').value,
+                relationship: document.getElementById('js-relationship').value,
+                contact: document.getElementById('js-contact').value,
+                email: document.getElementById('js-email').value,
+                child_id: validChildId,
+                child_name: document.getElementById('verifiedChildName').innerText || "Verified",
+                parent_img: document.getElementById('parentImgData') ? document.getElementById('parentImgData').value : "",
+                child_img: document.getElementById('childImgData') ? document.getElementById('childImgData').value : ""
+            };
+
+            // Save exactly to the specific username to support multiple accounts
+            localStorage.setItem('bmv3_parent_profile_' + username, JSON.stringify(parentProfile));
+            
+            // Also set the current data to the global 'bmv3_parent_profile_data' so immediately on dashboard it has it
+            localStorage.setItem('bmv3_parent_profile_data', JSON.stringify({
+                name: parentProfile.name,
+                email: parentProfile.email,
+                contact: parentProfile.contact,
+                child: parentProfile.child_name,
+                child_id: parentProfile.child_id
+            }));
+            
+            if(parentProfile.parent_img) {
+                localStorage.setItem('bmv3_parent_profile_img', parentProfile.parent_img);
+            }
+
+            // Submit physical django form to create actual user
+            // We use HTMLFormElement.prototype.submit.call to bypass any input named submit just in case
+            HTMLFormElement.prototype.submit.call(document.getElementById('mainForm'));
+            
+        } catch (error) {
+            alert("Sorry, an error occurred: " + error.message);
+            console.error(error);
+        }
+    }
+
+    // Map & Route logic for Registration
+    const bmv3CenterCoords = [13.9380, 121.6146];
+    let parentHouseCoords = [13.9395, 121.6160];
+    let regMap, parentMarker, centerMarker, routingControl;
+
+    function initRegisterMap() {
+        if (regMap) return;
+        regMap = L.map('registerMap').setView(bmv3CenterCoords, 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(regMap);
+
+        const schoolIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#063970; color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-size:1.1rem;">🏫</div>',
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
+        });
+
+        const houseIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#ef4444; color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-size:1.1rem;">🏠</div>',
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
+        });
+
+        centerMarker = L.marker(bmv3CenterCoords, { icon: schoolIcon }).addTo(regMap)
+            .bindPopup('<b>BMV3 Child Development Center</b><br>Barangay Market View 3');
+
+        parentMarker = L.marker(parentHouseCoords, { icon: houseIcon, draggable: true }).addTo(regMap)
+            .bindPopup('<b>Your Pinned House</b><br>Drag me to adjust').openPopup();
+
+        updateRegisterRoute(parentHouseCoords);
+
+        parentMarker.on('dragend', function (e) {
+            const latlng = parentMarker.getLatLng();
+            parentHouseCoords = [latlng.lat, latlng.lng];
+            document.getElementById('js-home-lat').value = latlng.lat.toFixed(7);
+            document.getElementById('js-home-lng').value = latlng.lng.toFixed(7);
+            updateRegisterRoute(parentHouseCoords);
+        });
+
+        regMap.on('click', function(e) {
+            parentMarker.setLatLng(e.latlng);
+            parentHouseCoords = [e.latlng.lat, e.latlng.lng];
+            document.getElementById('js-home-lat').value = e.latlng.lat.toFixed(7);
+            document.getElementById('js-home-lng').value = e.latlng.lng.toFixed(7);
+            updateRegisterRoute(parentHouseCoords);
+        });
+    }
+
+    function updateRegisterRoute(houseCoords) {
+        if (routingControl && regMap) {
+            try { regMap.removeControl(routingControl); } catch(err){}
+        }
+
+        if (typeof L !== 'undefined' && typeof L.Routing !== 'undefined') {
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(houseCoords[0], houseCoords[1]),
+                    L.latLng(bmv3CenterCoords[0], bmv3CenterCoords[1])
+                ],
+                lineOptions: {
+                    styles: [{ color: '#0284c7', weight: 6, opacity: 0.85 }]
+                },
+                createMarker: function() { return null; },
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: false,
+                show: false
+            }).addTo(regMap);
+
+            routingControl.on('routesfound', function(e) {
+                if (e.routes && e.routes[0] && e.routes[0].summary) {
+                    const summary = e.routes[0].summary;
+                    const distKm = (summary.totalDistance / 1000).toFixed(2);
+                    const timeMins = Math.round(summary.totalTime / 60);
+
+                    document.getElementById('routeDistanceText').innerText = `${distKm} km to BMV3 Center`;
+                    document.getElementById('routeDurationText').innerText = `⏱️ ~${timeMins} mins`;
+                }
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initRegisterMap, 300);
+    });
+
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('PWA Service Worker registered successfully.', reg.scope))
+                .catch(err => console.error('PWA Service Worker registration failed.', err));
+        });
+    }
+</script>
+</body>
+
+</html>
+{% endblock %}

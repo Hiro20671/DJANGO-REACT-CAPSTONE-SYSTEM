@@ -1,0 +1,222 @@
+{% extends "parents/base_parent.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.min.js"></script>
+
+    <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom: 24px;">
+
+        <div>
+            <h2 style="font-weight: 800; color: var(--text-primary);">🗺️ Daycare Center Route & Waze Navigation</h2>
+            <p style="color: var(--text-secondary);">View live turn-by-turn driving directions from your pinned home to Barangay Market View 3 Child Development Center.</p>
+        </div>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="card" style="padding: 20px; border-radius: 16px; background: #e0f2fe; border: 1px solid #38bdf8;">
+            <div style="font-size: 0.8rem; font-weight: 800; color: #0369a1; text-transform: uppercase;">Destination</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #063970; margin-top: 4px;">BMV3 Child Development Center</div>
+            <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">Barangay Market View 3, Lucena City</div>
+        </div>
+
+        <div class="card" style="padding: 20px; border-radius: 16px; background: #f0fdf4; border: 1px solid #4ade80;">
+            <div style="font-size: 0.8rem; font-weight: 800; color: #15803d; text-transform: uppercase;">Estimated Distance</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: #166534; margin-top: 4px;" id="parentRouteDist">Calculating...</div>
+            <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">From your pinned home marker 🏠</div>
+        </div>
+
+        <div class="card" style="padding: 20px; border-radius: 16px; background: #fef3c7; border: 1px solid #fde047;">
+            <div style="font-size: 0.8rem; font-weight: 800; color: #b45309; text-transform: uppercase;">Estimated Travel Time</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: #92400e; margin-top: 4px;" id="parentRouteTime">⏱️ -- mins</div>
+            <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">Live OSRM route duration estimate</div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="card" style="padding: 20px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+            <span style="font-weight:800; font-size:1rem; color:var(--text-primary);">
+                <i class="fa-solid fa-location-dot" style="color:#ef4444;"></i> Pinned House Location & Route Line
+            </span>
+            <span style="font-size:0.85rem; color:var(--text-muted);">
+                Drag house pin 🏠 or click map to update home position
+            </span>
+        </div>
+
+        <div id="parentMainMap" style="height: 480px; width: 100%; border-radius: 14px; border: 2px solid #063970;"></div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <button onclick="saveParentMapPin()" class="btn-primary" style="background: #063970; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1rem;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Pinned Location
+        </button>
+        <button onclick="launchWazeNav()" class="btn-primary" style="background: #38bdf8; color: #0f172a; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1rem;">
+            <i class="fa-solid fa-diamond-turn-right"></i> Open in Waze
+        </button>
+        <button onclick="launchGoogleMapsNav()" class="btn-primary" style="background: #4285F4; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 1rem;">
+            <i class="fa-solid fa-map-location-dot"></i> Open in Google Maps
+        </button>
+    </div>
+
+<script>
+
+    let bmv3CenterCoords = [13.9380, 121.6146];
+    let parentHomeCoords = [13.9395, 121.6160];
+    let mapObj = null, houseMarker = null, centerMarker = null, routingCtrl = null;
+
+    async function initParentMainMap() {
+        if (mapObj) return;
+
+        try {
+            const centerRes = await fetch('/api/center-settings/');
+            const centerData = await centerRes.json();
+            if (centerData.center_latitude && centerData.center_longitude) {
+                bmv3CenterCoords = [centerData.center_latitude, centerData.center_longitude];
+            }
+        } catch(e) {}
+
+        mapObj = L.map('parentMainMap').setView(bmv3CenterCoords, 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(mapObj);
+
+        const schoolIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#063970; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;">🏫</div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        const houseIcon = L.divIcon({
+            className: 'custom-map-icon',
+            html: '<div style="background:#ef4444; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;">🏠</div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        centerMarker = L.marker(bmv3CenterCoords, { icon: schoolIcon }).addTo(mapObj)
+            .bindPopup('<b>School / Daycare Center</b>');
+
+        fetch('/api/user/settings/')
+
+            .then(res => res.json())
+            .then(data => {
+                if (data.home_latitude && data.home_longitude) {
+                    parentHomeCoords = [data.home_latitude, data.home_longitude];
+                }
+                houseMarker = L.marker(parentHomeCoords, { icon: houseIcon, draggable: true }).addTo(mapObj)
+                    .bindPopup('<b>Your Pinned House</b><br>Drag pin or click map to update').openPopup();
+
+                updateParentRoute(parentHomeCoords);
+
+                houseMarker.on('dragend', function (e) {
+                    const latlng = houseMarker.getLatLng();
+                    parentHomeCoords = [latlng.lat, latlng.lng];
+                    updateParentRoute(parentHomeCoords);
+                });
+
+                mapObj.on('click', function(e) {
+                    houseMarker.setLatLng(e.latlng);
+                    parentHomeCoords = [e.latlng.lat, e.latlng.lng];
+                    updateParentRoute(parentHomeCoords);
+                });
+            })
+            .catch(e => {
+                houseMarker = L.marker(parentHomeCoords, { icon: houseIcon, draggable: true }).addTo(mapObj);
+                updateParentRoute(parentHomeCoords);
+            });
+    }
+
+    function updateParentRoute(houseCoords) {
+        if (routingCtrl && mapObj) {
+            try { mapObj.removeControl(routingCtrl); } catch(err){}
+        }
+
+        if (typeof L !== 'undefined' && typeof L.Routing !== 'undefined') {
+            routingCtrl = L.Routing.control({
+                waypoints: [
+                    L.latLng(houseCoords[0], houseCoords[1]),
+                    L.latLng(bmv3CenterCoords[0], bmv3CenterCoords[1])
+                ],
+                lineOptions: {
+                    styles: [{ color: '#0284c7', weight: 6, opacity: 0.85 }]
+                },
+                createMarker: function() { return null; },
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: false,
+                show: false
+            }).addTo(mapObj);
+
+            routingCtrl.on('routesfound', function(e) {
+                if (e.routes && e.routes[0] && e.routes[0].summary) {
+                    const summary = e.routes[0].summary;
+                    const distKm = (summary.totalDistance / 1000).toFixed(2);
+                    const timeMins = Math.round(summary.totalTime / 60);
+
+                    document.getElementById('parentRouteDist').innerText = `${distKm} km`;
+                    document.getElementById('parentRouteTime').innerText = `⏱️ ~${timeMins} mins drive`;
+                }
+            });
+        }
+    }
+
+    function saveParentMapPin() {
+        if (!parentHomeCoords) return;
+        fetch('/api/user/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                home_latitude: parentHomeCoords[0],
+                home_longitude: parentHomeCoords[1]
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert("House location updated successfully!");
+        })
+        .catch(err => {
+            alert("Error saving house location.");
+        });
+    }
+
+    function launchWazeNav() {
+        const url = `https://www.waze.com/ul?ll=${bmv3CenterCoords[0]},${bmv3CenterCoords[1]}&navigate=yes`;
+        window.open(url, '_blank');
+    }
+
+    function launchGoogleMapsNav() {
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${parentHomeCoords[0]},${parentHomeCoords[1]}&destination=${bmv3CenterCoords[0]},${bmv3CenterCoords[1]}&travelmode=driving`;
+        window.open(url, '_blank');
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initParentMainMap, 300);
+    });
+</script>
+{% endblock content %}

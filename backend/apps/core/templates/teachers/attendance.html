@@ -1,0 +1,855 @@
+{% extends "teachers/base_teacher.html" %}
+
+{% block content %}
+{% include "teachers/dss.html" %}
+<style>
+/* Page Specific styling */
+.summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+.summary-card { background-color: #fff; border: 1px solid #dcdcdc; border-radius: 12px; padding: 20px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+.summary-title { font-size: 1.0rem; font-weight: 700; color: #555; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+.card-absences .summary-card:hover { border-color: #777; }
+.card-poor .summary-card:hover { border-color: #f6c23e; }
+.card-late .summary-card:hover { border-color: #e74a3b; }
+.summary-value { font-size: 1.8rem; font-weight: 800; color: #000; transition: color 0.3s; }
+.card-poor .summary-value { color: #f6c23e; }
+.card-late .summary-value { color: #e74a3b; }
+.summary-sub { font-size: 0.75rem; color: #888; margin-top: 5px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.tab { font-weight: 700; color: #888; cursor: pointer; font-size: 0.95rem; padding-bottom: 8px; border-bottom: 3px solid transparent; }
+.tab.active { color: #4a90e2; border-bottom: 3px solid #4a90e2; }
+
+/* Base Sections */
+.content-section { background-color: #f8f9fa; border: 1px solid #dcdcdc; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; color: #333; }
+.section-subtitle { font-size: 0.85rem; color: #777; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.date-picker { padding: 5px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; color: #333; font-weight: 600; }
+
+/* List Item Styles */
+.student-list { display: flex; flex-direction: column; gap: 12px; }
+.list-item { background-color: #fff; padding: 15px; border: 1px solid #dcdcdc; border-radius: 8px; display: flex; align-items: center; gap: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+.list-item.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-color: #ccc; cursor: pointer; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #e0f0ff; color: #4a90e2; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.1rem; overflow: hidden; }
+.item-details { flex-grow: 1; }
+.item-name { font-weight: 700; color: #333; font-size: 0.95rem; }
+.item-sub { font-size: 0.8rem; color: #777; margin-top: 3px; }
+
+.attendance-stats { text-align: right; margin-right: 20px; }
+.attendance-stats .days { font-size: 0.9rem; font-weight: 700; color: #333; }
+.attendance-stats .rate { font-size: 0.75rem; color: #777; }
+.status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: white; }
+.status-badge.excellent { background-color: #1cc88a; }
+.status-badge.warning { background-color: #f6c23e; }
+.status-badge.poor { background-color: #e74a3b; }
+
+/* Toggle Buttons */
+.attendance-action-area { display: flex; align-items: center; gap: 15px; }
+.attendance-toggles { display: flex; gap: 5px; }
+.btn-toggle { border: 1px solid #ccc; background-color: #f8f9fa; color: #555; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-toggle:hover { background-color: #eee; }
+.btn-toggle.present.active { background-color: #1cc88a; border-color: #1cc88a; color: white; }
+.btn-toggle.late.active { background-color: #f6c23e; border-color: #f6c23e; color: white; }
+.btn-toggle.absent.active { background-color: #e74a3b; border-color: #e74a3b; color: white; }
+.btn-confirm { background-color: #4a90e2; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.btn-confirm:hover { background-color: #357abd; }
+
+
+
+/* Empty State */
+.empty-state { text-align: center; padding: 40px; color: #888; background: #fff; border-radius: 12px; border: 1px solid #ddd; }
+.empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
+
+/* Calendar Styles */
+.cal-card { background-color: #043263; border-radius: 12px; padding: 30px; display: flex; align-items: flex-start; gap: 60px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); width: 100%; margin-bottom: 30px; }
+.cal-left-col { flex-grow: 1; display: flex; flex-direction: column; }
+.cal-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; color: white; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; width: 100%; }
+.cal-day-label { text-align: center; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: white; margin-bottom: 10px; }
+.cal-cell { width: 100%; aspect-ratio: 1 / 1; max-height: 80px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.2rem; color: #111; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+.cal-cell:hover:not(.cell-grey) { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.cell-white { background-color: #fff; }
+.cell-green { background-color: #70e086; color: #111; }
+.cell-red { background-color: #dd6a6a; color: white; }
+.cell-grey { background-color: #5e5e5e; color: transparent; }
+.cell-noclass { background-color: #5e5e5e; color: white; }
+.legend-box { display: flex; flex-direction: column; gap: 30px; flex-shrink: 0; min-width: 150px; margin-top: 60px; }
+.legend-item { display: flex; align-items: center; gap: 15px; }
+.legend-color { width: 32px; height: 32px; border-radius: 6px; }
+.legend-text { font-size: 1.1rem; font-weight: 700; color: white; }
+
+/* Modals */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay.active { display: flex; }
+.modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
+.btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
+.modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
+.pill { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+.pill.success { background-color: #d4edda; color: #155724; }
+.pill.warning { background-color: #fff3cd; color: #856404; }
+.pill.danger { background-color: #fdf2f2; color: #d9534f; }
+
+@media (max-width: 768px) {
+    .summary-container { grid-template-columns: 1fr; }
+    .list-item { flex-direction: column; align-items: flex-start; }
+    .attendance-action-area { flex-wrap: wrap; width: 100%; }
+    .attendance-toggles { flex-wrap: wrap; width: 100%; gap: 10px; }
+    .btn-toggle { flex: 1; text-align: center; }
+    .attendance-stats { text-align: left; margin-right: 0; margin-top: 10px; }
+    .status-badge { align-self: flex-start; margin-top: 5px; }
+    .section-subtitle { flex-direction: column; align-items: flex-start; }
+    .date-picker { width: 100%; margin-top: 5px; }
+
+    /* Calendar Mobile Responsive Fix */
+    .cal-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
+    .legend-box { margin-top: 20px; margin-left: 0; flex-direction: row; flex-wrap: wrap; gap: 15px; min-width: unset; }
+    .cal-grid { gap: 5px; }
+    .cal-cell { font-size: 0.9rem; max-height: 40px; border-radius: 6px; }
+    .cal-day-label { font-size: 0.7rem; }
+}
+</style>
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2>Attendance Monitoring</h2>
+        <p>Track attendance patterns and identify trends</p>
+    </div>
+</div>
+
+<!-- Summary Cards (Clickable) -->
+<div class="summary-container">
+    <div class="card-absences" onclick="openModal('absencesModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#777;">🕘 Consecutive Absences</div>
+            <div class="summary-value" id="val-absences">0</div>
+            <div class="summary-sub">3+ days absent</div>
+        </div>
+    </div>
+    <div class="card-poor" onclick="openModal('poorAttendanceModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#f6c23e;">📉 Poor Attendance</div>
+            <div class="summary-value" id="val-poor">0</div>
+            <div class="summary-sub">&lt;80% attendance</div>
+        </div>
+    </div>
+    <div class="card-late" onclick="openModal('lateModal')">
+        <div class="summary-card">
+            <div class="summary-title" style="color:#e74a3b;">⏱️ Frequent Late Arrivals</div>
+            <div class="summary-value" id="val-late">0</div>
+            <div class="summary-sub">3+ late arrivals</div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Calendar Section -->
+<div class="cal-card">
+    <div class="cal-left-col">
+        <div class="cal-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+            <div class="cal-header" id="cal-month-title" style="margin-bottom: 0;">Month Year</div>
+            <div class="cal-nav-buttons" style="display: flex; gap: 10px;">
+                <button onclick="changeMonth(-1)" class="btn-toggle" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="changeMonth(1)" class="btn-toggle" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="cal-grid" id="calendar-grid">
+            <div class="cal-day-label">Sun</div>
+            <div class="cal-day-label">Mon</div>
+            <div class="cal-day-label">Tue</div>
+            <div class="cal-day-label">Wed</div>
+            <div class="cal-day-label">Thu</div>
+            <div class="cal-day-label">Fri</div>
+            <div class="cal-day-label">Sat</div>
+            <!-- Cells generated by JS -->
+        </div>
+    </div>
+    <div class="legend-box">
+        <div class="legend-item"><div class="legend-color" style="background-color: #70e086;"></div><div class="legend-text">Class Day</div></div>
+        <div class="legend-item"><div class="legend-color" style="background-color: #5e5e5e;"></div><div class="legend-text">No class</div></div>
+        <p style="color:#ccc; font-size:0.8rem; margin-top:20px;">Click any day to mark it as 'No Class'. This will send an email to all parents.</p>
+    </div>
+</div>
+
+<!-- Attendance DSS Advisory Section -->
+<div id="dssAttendancePanel" class="card" style="margin-bottom: 30px; border-left: 5px solid var(--warning, #f6c23e); padding: 20px; background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+    <div class="card-title" style="font-weight: 750; font-size: 1.1rem; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-lightbulb" style="color: var(--warning, #f6c23e); font-size: 1.2rem;"></i>
+        <span>Attendance Decision Support Advisory</span>
+    </div>
+    <div id="dssAttendanceContent" style="font-size:0.9rem; color:#555;">
+        <!-- Populated dynamically -->
+    </div>
+</div>
+
+<!-- NEW SECTION: Daily Attendance Checklist -->
+<div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;">
+    <div class="section-title" style="color: #4a90e2;">Daily Checklist</div>
+    <div class="section-subtitle">
+        Take attendance for class date: 
+        <input type="date" id="attendanceDate" class="date-picker">
+    </div>
+    
+    <div class="student-list" id="daily-checklist-container">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<div class="tabs">
+    <div class="tab active" id="tab-all" onclick="switchTab('all')">All Children</div>
+    <div class="tab" id="tab-alerts" onclick="switchTab('alerts')">Alerts Only</div>
+</div>
+
+<!-- Attendance Overview -->
+<div class="content-section">
+    <div class="section-title">Attendance Overview</div>
+    <div class="section-subtitle">Lifetime attendance records</div>
+    
+    <!-- All Children View -->
+    <div class="student-list" id="overview-all">
+        <!-- Rendered by JS -->
+    </div>
+    
+    <!-- Alerts Only View -->
+    <div class="student-list" id="overview-alerts" style="display: none;">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+
+
+<!-- MODALS (Simple placeholders for prototype) -->
+<div class="modal-overlay" id="absencesModal"><div class="modal-container"><div class="modal-header"><h3>Consecutive Absences</h3><button class="btn-close" onclick="closeModal('absencesModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ consecutive absences right now.</p></div></div></div>
+<div class="modal-overlay" id="poorAttendanceModal"><div class="modal-container"><div class="modal-header"><h3>Poor Attendance</h3><button class="btn-close" onclick="closeModal('poorAttendanceModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have &lt;80% attendance.</p></div></div></div>
+<div class="modal-overlay" id="lateModal"><div class="modal-container"><div class="modal-header"><h3>Frequent Late Arrivals</h3><button class="btn-close" onclick="closeModal('lateModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ late arrivals.</p></div></div></div>
+
+<!-- No Class Confirm Modal -->
+<div class="modal-overlay" id="noClassModal">
+    <div class="modal-container" style="width:400px;">
+        <div class="modal-header">
+            <h3>Mark 'No Class' Day</h3>
+            <button class="btn-close" onclick="closeModal('noClassModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:15px; color:#555;">You are about to declare <strong id="noClassDateDisplay"></strong> as a No Class day. This will instantly send an email notification to all registered parents.</p>
+            <input type="hidden" id="noClassDateValue">
+            <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600; font-size:0.85rem;">Reason (Optional)</label>
+                <input type="text" id="noClassReason" placeholder="e.g. Typhoon, Holiday" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
+            </div>
+            <button class="btn-confirm" style="width:100%; padding:10px; background-color:#e74a3b;" onclick="confirmNoClass()">Yes, Mark as No Class & Notify Parents</button>
+        </div>
+    </div>
+</div>
+
+<!-- History View Modal -->
+<div class="modal-overlay" id="historyModal">
+    <div class="modal-container" style="width: 650px; max-width: 95%;">
+        <div class="modal-header">
+            <h3 id="historyModalTitle">Year Attendance History</h3>
+            <button class="btn-close" onclick="closeModal('historyModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="historyModalBody">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<script>
+    let studentsMaster = [];
+    let attendanceRecords = [];
+    let noClassDB = {};
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+
+    function getParentName(st) {
+        if (st.mother_first_name && st.mother_last_name) {
+            return `${st.mother_first_name} ${st.mother_last_name}`;
+        } else if (st.father_first_name && st.father_last_name) {
+            return `${st.father_first_name} ${st.father_last_name}`;
+        } else if (st.other_guardian_first_name && st.other_guardian_last_name) {
+            return `${st.other_guardian_first_name} ${st.other_guardian_last_name}`;
+        } else {
+            return `Parent of ${st.first_name} ${st.last_name}`;
+        }
+    }
+
+    function getStudentChatKey(st) {
+        if (st.parents && st.parents.length > 0) {
+            return `parent_${st.parents[0]}`;
+        }
+        let email = st.mother_email || st.father_email || st.other_guardian_email || st.email;
+        if (email) {
+            return `email_${email.trim().toLowerCase()}`;
+        }
+        let phone = st.mother_phone || st.father_phone || st.other_guardian_phone || st.phone;
+        if (phone) {
+            return `phone_${phone.trim()}`;
+        }
+        let parentName = getParentName(st);
+        if (parentName && !parentName.startsWith("Parent of ")) {
+            return `name_${parentName.trim().toLowerCase()}`;
+        }
+        return `student_${st.id}`;
+    }
+
+    const datePicker = document.getElementById('attendanceDate');
+    datePicker.value = new Date().toISOString().split('T')[0];
+    
+    let tempSelections = {};
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function fetchData() {
+        try {
+            const [stdRes, attRes, noClassRes] = await Promise.all([
+                fetch('/api/children/'),
+                fetch('/api/attendance/'),
+                fetch('/api/no-class-days/')
+            ]);
+            studentsMaster = await stdRes.json();
+            attendanceRecords = await attRes.json();
+            let ncData = await noClassRes.json();
+            
+            noClassDB = {};
+            if (Array.isArray(ncData)) {
+                ncData.forEach(nc => {
+                    noClassDB[nc.date] = nc.reason;
+                });
+            }
+            
+            // Reformat records into dictionary by date
+            window.mockDatabase = {};
+            attendanceRecords.forEach(a => {
+                if(!mockDatabase[a.date]) mockDatabase[a.date] = {};
+                mockDatabase[a.date][a.child] = a; // Store whole record object
+            });
+
+            renderCalendar();
+            renderChecklistForDate(datePicker.value);
+            renderOverview();
+            updateDSSAttendance();
+        } catch (e) {
+            console.error('Error fetching data', e);
+        }
+    }
+
+    function changeMonth(offset) {
+        calMonth += offset;
+        if (calMonth < 0) {
+            calMonth = 11;
+            calYear -= 1;
+        } else if (calMonth > 11) {
+            calMonth = 0;
+            calYear += 1;
+        }
+        renderCalendar();
+    }
+    window.changeMonth = changeMonth;
+
+    function updateDSSAttendance() {
+        const panel = document.getElementById('dssAttendancePanel');
+        const content = document.getElementById('dssAttendanceContent');
+        if (!panel || !content) return;
+        
+        if (studentsMaster.length === 0 || attendanceRecords.length === 0) {
+            panel.style.display = 'block';
+            content.innerHTML = `<p style="margin:0; color:#888;">No attendance records available to evaluate.</p>`;
+            return;
+        }
+
+        let alerts = [];
+        
+        studentsMaster.forEach(st => {
+            let studentRecords = attendanceRecords.filter(r => r.child === st.id)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+            let consecutive = 0;
+            for (let i = 0; i < studentRecords.length; i++) {
+                if (studentRecords[i].status === 'absent') {
+                    consecutive++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (consecutive > 3) {
+                alerts.push({
+                    student: st,
+                    streak: consecutive
+                });
+            }
+        });
+
+        if (alerts.length === 0) {
+            panel.style.display = 'block';
+            panel.style.borderLeftColor = 'var(--success, #1cc88a)';
+            content.innerHTML = `
+                <div style="font-weight: 650; color: var(--success, #1cc88a); margin-bottom: 5px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-check"></i> All student attendance levels are within normal bounds.
+                </div>
+                <p style="margin: 0; font-size: 0.85rem; color: #777;">No children currently have more than 3 consecutive absences. Continue regular daily monitoring.</p>
+            `;
+            return;
+        }
+
+        panel.style.display = 'block';
+        panel.style.borderLeftColor = 'var(--danger, #e74a3b)';
+        
+        let html = `<p style="margin: 0 0 15px 0; font-size: 0.85rem; color: #e74a3b; font-weight:700;">⚠️ The following children have logged more than 3 consecutive absences and require attention:</p>`;
+        
+        alerts.forEach(alertItem => {
+            const st = alertItem.student;
+            const streak = alertItem.streak;
+            const advisory = window.DSS.getAttendanceAdvisory(streak);
+            
+            html += `
+                <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee;">
+                    <div style="font-weight: 700; color: #333; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#e74a3b;"></span>
+                        ${st.first_name} ${st.last_name} (${streak} consecutive absences)
+                    </div>
+                    <ul style="margin: 5px 0 0 20px; font-size: 0.85rem; color: #555; padding: 0;">
+                        ${advisory.recommendations.map(r => `<li style="margin-bottom: 4px;">${r}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        
+        content.innerHTML = html;
+    }
+
+    function renderCalendar() {
+        const currentYear = calYear;
+        const currentMonth = calMonth;
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('cal-month-title').innerText = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const grid = document.getElementById('calendar-grid');
+        
+        // Keep header labels
+        let htmlContent = '';
+        for (let i = 0; i < firstDay; i++) {
+            htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const m = (currentMonth + 1).toString().padStart(2, '0');
+            const d = day.toString().padStart(2, '0');
+            const dateKey = `${currentYear}-${m}-${d}`;
+            const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+            
+            let cellClass = 'cell-white';
+            let titleAttr = '';
+            
+            let isNoClass = (currentDayOfWeek === 0 || currentDayOfWeek === 6 || noClassDB[dateKey]);
+            if (isNoClass) {
+                cellClass = 'cell-noclass';
+                if (noClassDB[dateKey]) titleAttr = `title="No Class: ${noClassDB[dateKey]}"`;
+            } else if (window.mockDatabase && window.mockDatabase[dateKey]) {
+                cellClass = 'cell-green'; // Default color for days with some attendance
+            }
+            
+            htmlContent += `<div class="cal-cell ${cellClass}" ${titleAttr} onclick="promptNoClass('${dateKey}')">${day}</div>`;
+        }
+        
+        const totalCells = firstDay + daysInMonth;
+        const remainder = totalCells % 7;
+        if (remainder !== 0) {
+            for (let i = 0; i < (7 - remainder); i++) {
+                htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+            }
+        }
+        
+        // Remove existing cells except headers
+        Array.from(grid.children).forEach(child => {
+            if (!child.classList.contains('cal-day-label')) {
+                child.remove();
+            }
+        });
+        grid.insertAdjacentHTML('beforeend', htmlContent);
+    }
+
+    function promptNoClass(dateKey) {
+        if (noClassDB[dateKey]) {
+            alert("This day is already marked as No Class: " + noClassDB[dateKey]);
+            return;
+        }
+        const parts = dateKey.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayOfWeek = dt.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            alert("Weekends are automatically marked as No Class.");
+            return;
+        }
+        
+        document.getElementById('noClassDateDisplay').innerText = dateKey;
+        document.getElementById('noClassDateValue').value = dateKey;
+        document.getElementById('noClassReason').value = '';
+        openModal('noClassModal');
+    }
+
+    async function confirmNoClass() {
+        const dateKey = document.getElementById('noClassDateValue').value;
+        const reason = document.getElementById('noClassReason').value;
+        
+        try {
+            const btn = document.querySelector('#noClassModal .btn-confirm');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            
+            await fetch('/api/no-class-days/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ date: dateKey, reason: reason })
+            });
+            
+            closeModal('noClassModal');
+            btn.disabled = false;
+            btn.innerText = "Yes, Mark as No Class & Notify Parents";
+            alert("Successfully marked as No Class. Parents notified.");
+            fetchData();
+        } catch (e) {
+            console.error('Error', e);
+            alert("Failed to create No Class day.");
+        }
+    }
+
+    function renderChecklistForDate(date) {
+        const container = document.getElementById('daily-checklist-container');
+        container.innerHTML = '';
+ 
+        const parts = date.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayOfWeek = dt.getDay();
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const noClassReason = noClassDB[date];
+
+        if (isWeekend || noClassReason) {
+            const reasonText = noClassReason ? `Reason: ${noClassReason}` : "Weekend";
+            container.innerHTML = `
+            <div style="text-align:center; padding:40px; background:#fff; border-radius:12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 15px;">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                </div>
+                <h3 style="margin: 0 0 10px 0; font-family: 'Montserrat', sans-serif; font-weight: 800; color: #1e293b;">No Class Day</h3>
+                <p style="margin: 0; color: #64748b; font-weight: 500; font-size: 0.95rem;">${reasonText}</p>
+            </div>`;
+            return;
+        }
+
+        if(studentsMaster.length === 0) {
+            container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to take attendance.</p></div>`;
+            return;
+        }
+
+        studentsMaster.forEach(st => {
+            let recordObj = (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) ? window.mockDatabase[date][st.id] : null;
+            let status = recordObj ? recordObj.status : null;
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
+            let badgeHtml = '';
+            let toggleHtml = '';
+
+            if (status) {
+                let bn = status === 'present' ? 'Excellent' : (status==='late'?'Warning':'Poor');
+                let bc = status === 'present' ? 'excellent' : (status==='late'?'warning':'poor');
+                let t = status.charAt(0).toUpperCase() + status.slice(1);
+                badgeHtml = `<span class="status-badge ${bc}">${t}</span>`;
+                if (status === 'absent' && recordObj.absence_reason) {
+                    badgeHtml += `<div style="font-size:0.75rem; color:#d9534f; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
+                }
+            } else {
+                toggleHtml = `
+                <div class="attendance-action-area" id="action-area-${st.id}" style="flex-direction:column; align-items:flex-start;">
+                    <div class="attendance-toggles">
+                        <button class="btn-toggle present" onclick="selectAttendance('${st.id}', 'present')">Present</button>
+                        <button class="btn-toggle absent" onclick="selectAttendance('${st.id}', 'absent')">Absent</button>
+                        <button class="btn-toggle late" onclick="selectAttendance('${st.id}', 'late')">Late</button>
+                    </div>
+                    <div id="reason-area-${st.id}" style="display:none; margin-top:5px; width:100%;">
+                        <input type="text" id="reason-input-${st.id}" placeholder="Reason for absence" style="padding: 5px; width: 100%; border-radius:4px; border:1px solid #ccc; font-size: 0.8rem;">
+                    </div>
+                    <button class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; margin-top:5px;" onclick="confirmAttendance('${st.id}')">Confirm</button>
+                </div>
+                `;
+            }
+
+            container.innerHTML += `
+            <div class="list-item">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details"><div class="item-name">${st.first_name} ${st.last_name}</div></div>
+                ${toggleHtml}
+                <div class="attendance-result">${badgeHtml}</div>
+            </div>`;
+        });
+        tempSelections = {};
+    }
+
+    function renderOverview() {
+        const overviewAll = document.getElementById('overview-all');
+        const overviewAlerts = document.getElementById('overview-alerts');
+        overviewAll.innerHTML = '';
+        overviewAlerts.innerHTML = '';
+
+        if(studentsMaster.length === 0) {
+            document.getElementById('val-absences').innerText = '-';
+            document.getElementById('val-poor').innerText = '-';
+            document.getElementById('val-late').innerText = '-';
+            overviewAll.innerHTML = `<div class="empty-state"><h3>No records to display.</h3></div>`;
+            return;
+        }
+
+        let totalDates = Object.keys(window.mockDatabase || {}).length || 5; 
+        let poorCount = 0;
+        let lateCount = 0;
+
+        studentsMaster.forEach(st => {
+            let daysP = 0;
+            let daysL = 0;
+            Object.keys(window.mockDatabase || {}).forEach(d => { 
+                let record = window.mockDatabase[d][st.id];
+                if (record) {
+                    if (record.status === 'present') daysP++; 
+                    if (record.status === 'late') daysL++; 
+                }
+            });
+            let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
+            
+            let badgeClass = 'excellent';
+            let badgeText = 'Excellent';
+            if(attPct < 80) { badgeClass = 'warning'; badgeText = 'Warning'; poorCount++; }
+            if(daysL >= 3) { badgeClass = 'poor'; badgeText = 'Frequent Late'; lateCount++; }
+
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
+            let html = `
+            <div class="list-item">
+                <div class="avatar">${avatarHtml}</div>
+                <div class="item-details">
+                    <div class="item-name">${st.first_name} ${st.last_name}</div>
+                    <div class="item-sub">${st.age} years old</div>
+                </div>
+                <div class="attendance-stats">
+                    <div class="days"><span class="range-num">${daysP}/${totalDates}</span> days</div>
+                    <div class="rate">${attPct}% attendance</div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="status-badge ${badgeClass}">${badgeText}</div>
+                    ${sessionStorage.getItem('bmv3_archive_year_id') ? `
+                        <button class="btn btn-primary btn-history-view" onclick="viewStudentAttendanceHistory(${st.id})" style="padding: 6px 12px; font-size: 0.8rem; background: #043263; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> View History
+                        </button>
+                    ` : ''}
+                </div>
+            </div>`;
+
+            overviewAll.innerHTML += html;
+            if (badgeClass !== 'excellent') {
+                overviewAlerts.innerHTML += html;
+            }
+        });
+
+        document.getElementById('val-absences').innerText = '0'; // placeholder logic
+        document.getElementById('val-poor').innerText = poorCount;
+        document.getElementById('val-late').innerText = lateCount;
+    }
+
+    datePicker.addEventListener('change', function() {
+        renderChecklistForDate(this.value);
+    });
+
+    function selectAttendance(studentId, status) {
+        const row = document.getElementById('action-area-' + studentId);
+        row.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+        row.querySelector('.btn-toggle.' + status).classList.add('active');
+        
+        tempSelections[studentId] = status;
+        document.getElementById('confirm-btn-' + studentId).style.display = 'block';
+        
+        const reasonArea = document.getElementById('reason-area-' + studentId);
+        if (status === 'absent') {
+            reasonArea.style.display = 'block';
+        } else {
+            reasonArea.style.display = 'none';
+        }
+    }
+
+    async function confirmAttendance(studentId) {
+        const date = datePicker.value;
+        const status = tempSelections[studentId];
+        let reason = "";
+        if (status === 'absent') {
+            reason = document.getElementById('reason-input-' + studentId).value;
+        }
+        
+        const payload = {
+            child: parseInt(studentId),
+            date: date,
+            status: status,
+            absence_reason: reason
+        };
+
+        try {
+            await fetch('/api/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // Synchronize with the parent's chat store bmv3_chat_messages
+            if (status === 'absent') {
+                let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+                let studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
+                let chatKey = studentObj ? getStudentChatKey(studentObj) : studentId;
+
+                if (!chatDB[chatKey]) chatDB[chatKey] = [];
+
+                let now = new Date();
+                let dateStrFormatted = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                
+                let childName = studentObj ? `${studentObj.first_name} ${studentObj.last_name}` : "Child";
+                let reasonText = reason ? `: "${reason}"` : "";
+
+                chatDB[chatKey].push({
+                    type: 'system-absent',
+                    text: `[ATTENDANCE RECORD] ${childName} marked ABSENT on ${dateStrFormatted}. Reason logged${reasonText}`,
+                    timestamp: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    date: now.toLocaleDateString()
+                });
+
+                localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+            }
+
+            fetchData(); // Reload data
+        } catch(e) {
+            console.error('Error saving attendance', e);
+        }
+    }
+
+    function switchTab(tabName) {
+        document.getElementById('tab-all').classList.remove('active');
+        document.getElementById('tab-alerts').classList.remove('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+
+        if (tabName === 'all') {
+            document.getElementById('overview-all').style.display = 'flex';
+            document.getElementById('overview-alerts').style.display = 'none';
+        } else {
+            document.getElementById('overview-all').style.display = 'none';
+            document.getElementById('overview-alerts').style.display = 'flex';
+        }
+    }
+
+    function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    window.viewStudentAttendanceHistory = function(studentId) {
+        const student = studentsMaster.find(st => st.id === studentId);
+        if (!student) return;
+        
+        document.getElementById('historyModalTitle').innerText = `${student.first_name} ${student.last_name} - Year Attendance History`;
+        
+        let html = `
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Presents</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;" id="hist-present-count">0</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Lates</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;" id="hist-late-count">0</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Absents</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;" id="hist-absent-count">0</div>
+            </div>
+        </div>
+        <div style="max-height: 350px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px; font-weight: bold; text-align: left; font-size: 0.85rem; color: #475569;">Date</th>
+                        <th style="padding: 12px; font-weight: bold; text-align: center; font-size: 0.85rem; color: #475569;">Status</th>
+                        <th style="padding: 12px; font-weight: bold; text-align: left; font-size: 0.85rem; color: #475569;">Note/Reason</th>
+                    </tr>
+                </thead>
+                <tbody id="hist-table-body">
+                    <!-- Loaded dynamically -->
+                </tbody>
+            </table>
+        </div>`;
+        
+        document.getElementById('historyModalBody').innerHTML = html;
+        openModal('historyModal');
+        
+        let pCount = 0, lCount = 0, aCount = 0;
+        let tableHtml = '';
+        
+        let studentRecords = attendanceRecords.filter(r => r.child === studentId).sort((x, y) => new Date(y.date) - new Date(x.date));
+        
+        if (studentRecords.length === 0) {
+            tableHtml = `<tr><td colspan="3" align="center" style="padding: 20px; color: #888; font-style: italic;">No attendance records found for this student.</td></tr>`;
+        } else {
+            studentRecords.forEach(r => {
+                let badgeClass = '';
+                let statusLabel = '';
+                
+                if (r.status === 'present') {
+                    pCount++;
+                    badgeClass = 'background: #d1fae5; color: #065f46;';
+                    statusLabel = 'Present';
+                } else if (r.status === 'late') {
+                    lCount++;
+                    badgeClass = 'background: #fef3c7; color: #92400e;';
+                    statusLabel = 'Late';
+                } else {
+                    aCount++;
+                    badgeClass = 'background: #fee2e2; color: #991b1b;';
+                    statusLabel = 'Absent';
+                }
+                
+                tableHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${new Date(r.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td align="center" style="padding: 12px;">
+                        <span class="pill" style="padding: 4px 8px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; ${badgeClass}">
+                            ${statusLabel}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; font-size: 0.85rem; color: #64748b;">${r.absence_reason || '-'}</td>
+                </tr>`;
+            });
+        }
+        
+        document.getElementById('hist-present-count').innerText = pCount;
+        document.getElementById('hist-late-count').innerText = lCount;
+        document.getElementById('hist-absent-count').innerText = aCount;
+        document.getElementById('hist-table-body').innerHTML = tableHtml;
+    };
+
+    // Init
+    fetchData();
+
+</script>
+{% endblock content %}

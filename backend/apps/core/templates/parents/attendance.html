@@ -1,0 +1,451 @@
+{% extends "parents/base_parent.html" %}
+
+{% block content %}
+<style>
+/* Dashboard Layout container */
+.p-dash-container {
+    padding: 10px;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+}
+
+/* Header */
+.p-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #043263;
+    margin: 0;
+}
+.p-header p {
+    color: #777;
+    font-size: 1.1rem;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Stats Row */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 35px;
+    margin-bottom: 40px;
+    width: 100%;
+}
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 25px;
+    border-radius: 12px;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+.stat-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 5px;
+}
+.stat-value {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+.stat-value.val-green { color: #1cc88a; }
+.stat-value.val-red { color: #e74a3b; }
+.stat-value.val-grey { color: #a0a0a0; }
+
+.stat-sub {
+    font-size: 0.8rem;
+    color: #111;
+    font-weight: 600;
+}
+
+/* Calendar Card */
+.cal-card {
+    background-color: #043263;
+    border-radius: 16px;
+    color: white;
+    padding: 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 60px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+}
+
+.cal-left-col {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+.cal-day-label {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.cal-cell {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 80px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #111;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+}
+.cell-grey { opacity: 0; pointer-events: none; }
+.cell-white { background-color: #fff; }
+.cell-green { background-color: #70e086; color: white; }
+.cell-red { background-color: #dd6a6a; color: white; }
+.cell-noclass { background-color: #5e5e5e; color: #aaa; }
+
+.status-pill-green { background-color: #1cc88a; }
+.status-pill-red { background-color: #e74a3b; }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .legend-color {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+    }
+
+    .legend-text {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    /* History Log */
+    .history-card {
+        background-color: #fff;
+        border: 1px solid #dcdcdc;
+        border-radius: 12px;
+        padding: 25px;
+        margin-top: 30px;
+    }
+
+    .history-header {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .history-sub {
+        font-size: 0.85rem;
+        color: #777;
+        margin-bottom: 20px;
+    }
+
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background-color: #fcfcfc;
+    }
+
+    .history-info-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .history-date {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .history-time {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .history-guardian {
+        font-size: 0.8rem;
+        color: #888;
+        display:flex;
+        align-items:center;
+        gap:5px;
+    }
+
+    @media (max-width: 800px) {
+    .cal-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
+    .legend-box { margin-left: 0; flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
+    .stats-row { gap: 15px; grid-template-columns: 1fr; margin-top: 20px; margin-bottom: 20px; }
+    .cal-grid { gap: 5px; }
+    .cal-cell { font-size: 0.9rem; max-height: 40px; border-radius: 6px; }
+    .cal-day-label { font-size: 0.7rem; }
+    .history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+</style>
+
+<div class="p-dash-container">
+    
+    <!-- HEADER -->
+    <div class="p-header">
+        <h1>Attendance</h1>
+        <p><span id="ui-child-name">Student</span> • <span id="ui-current-month">Month Year</span></p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-label">Days present</div>
+            <div class="stat-value val-green" id="stat-present">0</div>
+            <div class="stat-sub">This month</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Days absent</div>
+            <div class="stat-value val-red" id="stat-absent">0</div>
+            <div class="stat-sub">This month</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Total school days</div>
+            <div class="stat-value val-grey" id="stat-total">0</div>
+            <div class="stat-sub">This month</div>
+        </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="cal-card">
+        <div class="cal-left-col">
+            <div class="cal-header" id="cal-month-title">Month Year</div>
+            
+            <div class="cal-grid" id="calendar-grid">
+                <!-- Day labels -->
+                <div class="cal-day-label">SUN</div>
+                <div class="cal-day-label">MON</div>
+                <div class="cal-day-label">TUE</div>
+                <div class="cal-day-label">WED</div>
+                <div class="cal-day-label">THU</div>
+                <div class="cal-day-label">FRI</div>
+                <div class="cal-day-label">SAT</div>
+                
+                <!-- Cells generated by JS -->
+            </div>
+        </div>
+
+        <div class="legend-box">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #70e086;"></div>
+                <div class="legend-text">Present</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #dd6a6a;"></div>
+                <div class="legend-text">Absent</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #5e5e5e;"></div>
+                <div class="legend-text">No class</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY LOG -->
+    <div class="history-card">
+        <div class="history-header">Recent Check-In Logs</div>
+        <div class="history-sub">Detailed receipt of arrival and departure records</div>
+        
+        <div class="history-list" id="ui-history-log">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+  document.addEventListener("DOMContentLoaded", function() {
+    // Core Date logic
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // 0-11
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthTitle = `${monthNames[currentMonth]} ${currentYear}`;
+    document.getElementById('ui-current-month').innerText = monthTitle;
+    document.getElementById('cal-month-title').innerText = monthTitle;
+    // Database logic
+    let linkedChildId = null;
+    let attDB = {};
+    let noClassDB = {};
+    
+    Promise.all([
+      fetch('/api/parent/history/').then(res => res.json()),
+      fetch('/api/no-class-days/').then(res => res.json())
+    ])
+      .then(([data, noClassData]) => {
+        if (data.detail || !data.child) {
+          document.getElementById('ui-child-name').innerText = 'No Child Linked';
+          return;
+        }
+        
+        if (Array.isArray(noClassData)) {
+            noClassData.forEach(nc => {
+                noClassDB[nc.date] = nc.reason;
+            });
+        }
+
+        const child = data.child;
+        linkedChildId = child.id;
+        document.getElementById('ui-child-name').innerText = child.first_name + ' ' + child.last_name;
+        
+        const attData = data.attendance || [];
+        attData.forEach(record => {
+          attDB[record.date] = record.status.toLowerCase();
+        });
+        
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const grid = document.getElementById('calendar-grid');
+        let htmlContent = '';
+        let daysPresentCount = 0;
+        let daysAbsentCount = 0;
+        let totalSchoolDaysInMonth = 0;
+        
+        for (let i = 0; i < firstDay; i++) {
+          htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+          const m = (currentMonth + 1).toString().padStart(2, '0');
+          const d = day.toString().padStart(2, '0');
+          const dateKey = `${currentYear}-${m}-${d}`;
+          let cellClass = 'cell-white';
+          const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+          
+          let isNoClass = (currentDayOfWeek === 0 || currentDayOfWeek === 6 || noClassDB[dateKey]);
+          
+          if (!isNoClass) {
+            totalSchoolDaysInMonth++;
+          } else {
+            cellClass = 'cell-noclass';
+          }
+          
+          if (attDB[dateKey]) {
+            const status = attDB[dateKey];
+            if (status === 'present' || status === 'late') {
+              cellClass = 'cell-green';
+              daysPresentCount++;
+            } else if (status === 'absent') {
+              cellClass = 'cell-red';
+              daysAbsentCount++;
+            }
+          }
+          
+          let titleAttr = noClassDB[dateKey] ? `title="No Class: ${noClassDB[dateKey]}"` : '';
+          htmlContent += `<div class="cal-cell ${cellClass}" ${titleAttr}>${day}</div>`;
+        }
+        
+        const totalCells = firstDay + daysInMonth;
+        const remainder = totalCells % 7;
+        if (remainder !== 0) {
+          const trailingCells = 7 - remainder;
+          for (let i = 0; i < trailingCells; i++) {
+            htmlContent += `<div class="cal-cell cell-grey">0</div>`;
+          }
+        }
+        grid.insertAdjacentHTML('beforeend', htmlContent);
+        
+        const historyContainer = document.getElementById('ui-history-log');
+        let historyHtml = '';
+        const allDates = Object.keys(attDB).sort((a, b) => new Date(b) - new Date(a));
+        let recordsRendered = 0;
+        
+        allDates.forEach(dt => {
+          if (recordsRendered >= 5) return;
+          const status = attDB[dt];
+          if (status) {
+            const formattedDate = new Date(dt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const pillClass = status === 'absent' ? 'status-pill-red' : 'status-pill-green';
+            const recordObj = attData.find(a => a.date === dt);
+            const timeText = recordObj && recordObj.dropoff_time ? recordObj.dropoff_time : (status === 'absent' ? '--:--' : '08:00 AM Dropped Off');
+            const guardianText = recordObj && recordObj.authorized_guardian ? `Confirmed by ${recordObj.authorized_guardian}` : (status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`);
+            
+            let reasonHtml = '';
+            if (status === 'absent' && recordObj && recordObj.absence_reason) {
+              reasonHtml = `<div style="font-size: 0.8rem; color: #d9534f; margin-top: 5px; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
+            }
+
+            historyHtml += `
+            <div class="history-item">
+              <div class="history-info-left">
+                <div class="legend-color" style="background-color: ${status==='absent'? '#dd6a6a' : '#70e086'}; align-self: center;"></div>
+                <div>
+                  <div class="history-date">${formattedDate}</div>
+                  <div class="history-time">${timeText}</div>
+                  <div class="history-guardian"><i class="fa-solid fa-user-lock" style="font-size:0.75rem;"></i> ${guardianText}</div>
+                  ${reasonHtml}
+                </div>
+              </div>
+              <div>
+                <span class="${pillClass}" style="padding:6px 15px; border-radius:20px; color:white; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${status}</span>
+              </div>
+            </div>`;
+            recordsRendered++;
+          }
+        });
+        
+        if (recordsRendered === 0) {
+          historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
+        } else {
+          historyContainer.innerHTML = historyHtml;
+        }
+        
+        document.getElementById('stat-present').innerText = daysPresentCount;
+        document.getElementById('stat-absent').innerText = daysAbsentCount;
+        document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('ui-child-name').innerText = 'Error loading data';
+      });
+  });
+</script>
+{% endblock %}
