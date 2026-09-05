@@ -13,9 +13,10 @@ def create_default_accounts(sender, **kwargs):
         username="teacher",
         defaults={"email": "teacher@example.com", "is_staff": True, "is_superuser": True}
     )
-    if created:
-        teacher.set_password("TeacherPassword123")
-        teacher.save()
+    teacher.set_password("TeacherPassword123")
+    teacher.is_staff = True
+    teacher.is_superuser = True
+    teacher.save()
     
     teacher_profile, _ = UserProfile.objects.get_or_create(user=teacher)
     if not teacher_profile.is_teacher:
@@ -27,9 +28,8 @@ def create_default_accounts(sender, **kwargs):
         username="parent",
         defaults={"email": "parent@example.com", "is_staff": False, "is_superuser": False}
     )
-    if created:
-        parent.set_password("ParentPassword123")
-        parent.save()
+    parent.set_password("ParentPassword123")
+    parent.save()
     
     parent_profile, _ = UserProfile.objects.get_or_create(user=parent)
 
