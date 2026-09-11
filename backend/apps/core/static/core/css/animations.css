@@ -1,0 +1,302 @@
+/* ==========================================================================
+   BMV3 Modern UI Design & Animation System
+   - Glassmorphism & 3D Tilt Card Depth
+   - Custom Interactive Mouse Cursor Follower
+   - Floating Ambient Background Blobs
+   - Entrance Animations & Scroll Triggers
+   - Micro-Interactions & Loading Shimmers
+   ========================================================================== */
+
+/* --- Custom Cursor Follower --- */
+.custom-cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary, #063970);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s ease-out, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.custom-cursor-ring {
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(6, 57, 112, 0.4);
+    border-radius: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, border-color 0.2s ease, width 0.25s ease, height 0.25s ease, background-color 0.25s ease;
+}
+
+.dark-mode .custom-cursor-dot {
+    background-color: var(--primary, #38bdf8);
+}
+
+.dark-mode .custom-cursor-ring {
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* Custom Cursor Hover States */
+body.cursor-hover .custom-cursor-ring {
+    width: 52px;
+    height: 52px;
+    border-color: var(--primary, #063970);
+    background-color: rgba(6, 57, 112, 0.06);
+}
+
+body.cursor-hover.dark-mode .custom-cursor-ring {
+    border-color: var(--primary, #38bdf8);
+    background-color: rgba(56, 189, 248, 0.1);
+}
+
+body.cursor-active .custom-cursor-ring {
+    transform: translate(-50%, -50%) scale(0.85);
+    border-width: 3px;
+}
+
+/* --- Floating Ambient Background Blobs --- */
+.ambient-bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ambient-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    animation: floatBlob 18s ease-in-out infinite alternate;
+}
+
+.ambient-blob-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(6, 57, 112, 0.5) 0%, rgba(143, 185, 119, 0.3) 100%);
+    top: -100px;
+    left: -100px;
+}
+
+.ambient-blob-2 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, rgba(6, 57, 112, 0.3) 100%);
+    bottom: -150px;
+    right: -100px;
+    animation-delay: -9s;
+}
+
+.dark-mode .ambient-blob-1 {
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, rgba(99, 102, 241, 0.25) 100%);
+}
+
+.dark-mode .ambient-blob-2 {
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(56, 189, 248, 0.2) 100%);
+}
+
+@keyframes floatBlob {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    50% {
+        transform: translate(60px, 40px) scale(1.12) rotate(90deg);
+    }
+    100% {
+        transform: translate(-40px, 70px) scale(0.95) rotate(180deg);
+    }
+}
+
+/* --- Glassmorphism & 3D Tilt Card Effects --- */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(6, 57, 112, 0.08);
+}
+
+.dark-mode .glass-card {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-3d-tilt {
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    will-change: transform;
+}
+
+.card-3d-tilt:hover {
+    box-shadow: 0 20px 35px -10px rgba(6, 57, 112, 0.18), 0 12px 15px -8px rgba(6, 57, 112, 0.1);
+}
+
+.dark-mode .card-3d-tilt:hover {
+    box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Entrance & Scroll Animations --- */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+.zoom-in-entrance {
+    opacity: 0;
+    transform: scale(0.92);
+    animation: zoomInEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+.slide-in-left {
+    opacity: 0;
+    transform: translateX(-35px);
+    animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+.slide-in-right {
+    opacity: 0;
+    transform: translateX(35px);
+    animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomInEntrance {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- Button Micro-Interactions & Hover FX --- */
+.btn-pulse {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.btn-pulse:active::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    transition: 0s;
+}
+
+.hover-bounce-icon {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*:hover > .hover-bounce-icon,
+button:hover .hover-bounce-icon,
+a:hover .hover-bounce-icon {
+    transform: scale(1.22) rotate(-8deg);
+}
+
+.hover-spin-icon {
+    display: inline-block;
+    transition: transform 0.5s ease;
+}
+
+*:hover > .hover-spin-icon,
+button:hover .hover-spin-icon {
+    transform: rotate(180deg);
+}
+
+/* --- Page Top Loading Progress Bar --- */
+#page-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #38bdf8, #8FB977, #f59e0b);
+    width: 0%;
+    z-index: 100000;
+    transition: width 0.3s ease, opacity 0.4s ease;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+}
+
+/* --- Skeleton Loading Placeholder Shimmer --- */
+.skeleton-shimmer {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+}
+
+.dark-mode .skeleton-shimmer {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Reduced Motion Respect */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .custom-cursor-dot, .custom-cursor-ring {
+        display: none !important;
+    }
+}

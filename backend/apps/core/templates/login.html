@@ -14,6 +14,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
+    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}">
+    <script src="{% static 'core/js/animations.js' %}"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
@@ -251,7 +253,7 @@
         </div>
 
         <div class="right-panel">
-            <div class="form-wrapper">
+            <div class="form-wrapper fade-in-up card-3d-tilt">
                 <div class="greeting-info">
                     <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3 Logo"
                         style="height: 80px; margin-bottom: 15px;">
