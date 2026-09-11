@@ -14,6 +14,78 @@ const globalResponsiveCss = `
   .resp-flex-between { display: flex; justify-content: space-between; align-items: center; }
   .resp-mobile-tabs { display: none !important; }
   
+  .resp-fade-in { 
+      animation: reactPageFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; 
+  }
+
+  @keyframes reactPageFadeIn {
+      from {
+          opacity: 0;
+          transform: translateY(18px);
+      }
+      to {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  /* React Modern Bento Cards */
+  .modern-card, .stat-card-modern {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                  box-shadow 0.3s ease, 
+                  border-color 0.3s ease !important;
+      will-change: transform, box-shadow;
+  }
+
+  .modern-card:hover, .stat-card-modern:hover {
+      transform: translateY(-5px) scale(1.01) !important;
+      box-shadow: 0 16px 32px -8px rgba(15, 43, 92, 0.14), 0 6px 12px -4px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .dark-mode .modern-card:hover, .dark-mode .stat-card-modern:hover {
+      box-shadow: 0 18px 36px -8px rgba(0, 0, 0, 0.65), 0 0 18px rgba(56, 189, 248, 0.12) !important;
+  }
+
+  /* Stat Card Icon Badges */
+  .stat-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .stat-card-modern:hover .stat-icon-badge {
+      transform: scale(1.12) rotate(-6deg);
+  }
+  .stat-icon-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .stat-icon-emerald { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+  .stat-icon-amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .stat-icon-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+  .dark-mode .stat-icon-blue { background: rgba(37, 99, 235, 0.18); color: #60a5fa; border-color: rgba(37, 99, 235, 0.35); }
+  .dark-mode .stat-icon-emerald { background: rgba(16, 185, 129, 0.18); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+  .dark-mode .stat-icon-amber { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
+  .dark-mode .stat-icon-purple { background: rgba(139, 92, 246, 0.18); color: #c084fc; border-color: rgba(139, 92, 246, 0.35); }
+
+  /* Tab Buttons Polish */
+  .resp-mobile-tab-btn {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .resp-mobile-tab-btn:hover {
+      transform: translateY(-2px);
+  }
+
+  .resp-mobile-tab-btn:active {
+      transform: scale(0.96);
+  }
+
   @media (max-width: 768px) {
       .resp-grid-4 { grid-template-columns: 1fr !important; }
       .resp-grid-3 { grid-template-columns: 1fr !important; }
@@ -50,10 +122,11 @@ const globalResponsiveCss = `
           font-family: 'Montserrat', sans-serif;
       }
       .resp-mobile-tab-btn.active {
-          background: #043263 !important;
+          background: linear-gradient(135deg, #1e40af 0%, #091e42 100%) !important;
           color: #ffffff !important;
-          border-color: #043263 !important;
-          box-shadow: 0 4px 6px rgba(4, 50, 99, 0.15);
+          border-color: #1e40af !important;
+          box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+          transform: scale(1.02);
       }
   }
 `;

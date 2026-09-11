@@ -40,6 +40,7 @@ function SVGDonutChart({ present, absent }) {
             strokeDashoffset={presentOffset} 
             transform="rotate(-90 50 50)"
             strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)' }}
           />
         )}
         <text x="50" y="47" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '12px', fontWeight: 800, fontFamily: 'Montserrat', fill: 'var(--text-primary)' }}>
@@ -674,35 +675,63 @@ export default function TeacherDashboard() {
       {(!isMobile || mobileTab === 'overview') && (
         <div className="resp-grid-4" style={{ marginBottom: '25px' }}>
           <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Total Enrolled</div>
-              <div style={{ position: 'absolute', top: '15px', right: '20px', color: 'var(--text-muted)', fontSize: '1rem' }}><i className="fa-solid fa-users"></i></div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.total}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>Active children</div>
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px 22px', borderRadius: '14px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="pulse-dot pulse-dot-green"></span>
+                  <span>Total Enrolled</span>
+                </div>
+                <div className="stat-icon-badge stat-icon-blue"><i className="fa-solid fa-users"></i></div>
+              </div>
+              <div className="stat-number stat-countup" style={{ fontSize: '2.5rem', fontWeight: 800, margin: '4px 0', color: 'var(--text-primary)' }}>{stats.total}</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <i className="fa-solid fa-circle-check" style={{ color: '#10b981', fontSize: '0.75rem' }}></i> Active children
+              </div>
             </div>
           </a>
           <a href="/attendance/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Today's Attendance</div>
-              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-calendar-check"></i></div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.present}/{stats.total}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>{stats.absent} absent today</div>
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px 22px', borderRadius: '14px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="pulse-dot pulse-dot-green"></span>
+                  <span>Today's Attendance</span>
+                </div>
+                <div className="stat-icon-badge stat-icon-emerald"><i className="fa-solid fa-calendar-check"></i></div>
+              </div>
+              <div className="stat-number" style={{ fontSize: '2.5rem', fontWeight: 800, margin: '4px 0', color: '#059669' }}>{stats.present}/{stats.total}</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <i className="fa-solid fa-user-xmark" style={{ color: stats.absent > 0 ? '#ea580c' : '#10b981', fontSize: '0.75rem' }}></i> {stats.absent} absent today
+              </div>
             </div>
           </a>
           <a href="/children/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f6c23e' : '1px solid var(--border-color)', height: '100%', cursor: 'pointer', position: 'relative' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Pending Enrollments</div>
-              <div style={{ position: 'absolute', top: '15px', right: '20px', color: stats.pending > 0 ? '#f6c23e' : '#1cc88a', fontSize: '1rem' }}><i className="fa-solid fa-file-signature"></i></div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.pending}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>{stats.pending > 0 ? 'Requires your approval' : 'All caught up'}</div>
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px 22px', borderRadius: '14px', display: 'flex', flexDirection: 'column', border: stats.pending > 0 ? '2px solid #f59e0b' : '1px solid var(--border-color)', height: '100%', cursor: 'pointer', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className={`pulse-dot ${stats.pending > 0 ? 'pulse-dot-amber' : 'pulse-dot-green'}`}></span>
+                  <span>Pending Enrollments</span>
+                </div>
+                <div className="stat-icon-badge stat-icon-amber"><i className="fa-solid fa-file-signature"></i></div>
+              </div>
+              <div className="stat-number stat-countup" style={{ fontSize: '2.5rem', fontWeight: 800, margin: '4px 0', color: stats.pending > 0 ? '#d97706' : 'var(--text-primary)' }}>{stats.pending}</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <i className={`fa-solid ${stats.pending > 0 ? 'fa-clock' : 'fa-check-double'}`} style={{ color: stats.pending > 0 ? '#f59e0b' : '#10b981', fontSize: '0.75rem' }}></i> {stats.pending > 0 ? 'Requires approval' : 'All caught up'}
+              </div>
             </div>
           </a>
           <a href="/milestones/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '15px 20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '10px' }}>Milestone Progress</div>
-              <div style={{ position: 'absolute', top: '15px', right: '20px', color: '#4a90e2', fontSize: '1rem' }}><i className="fa-solid fa-chart-line"></i></div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>{stats.milestonePct}%</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 'auto' }}>Overall completion</div>
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px 22px', borderRadius: '14px', display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer', border: '1px solid var(--border-color)', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="pulse-dot pulse-dot-green"></span>
+                  <span>Milestone Progress</span>
+                </div>
+                <div className="stat-icon-badge stat-icon-purple"><i className="fa-solid fa-chart-line"></i></div>
+              </div>
+              <div className="stat-number stat-countup" style={{ fontSize: '2.5rem', fontWeight: 800, margin: '4px 0', color: '#7c3aed' }}>{stats.milestonePct}%</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <i className="fa-solid fa-arrow-trend-up" style={{ color: '#7c3aed', fontSize: '0.75rem' }}></i> Overall completion
+              </div>
             </div>
           </a>
         </div>
@@ -710,7 +739,7 @@ export default function TeacherDashboard() {
 
       {/* Decision Support System (DSS) Advisory Panel */}
       {(!isMobile || mobileTab === 'overview') && (
-        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', borderLeft: `5px solid ${dssAlerts.length > 0 ? '#f6c23e' : '#1cc88a'}`, marginBottom: '25px' }}>
+        <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '22px', borderRadius: '12px', border: '1px solid var(--border-color)', borderLeft: `6px solid ${dssAlerts.length > 0 ? '#f6c23e' : '#1cc88a'}`, marginBottom: '25px' }}>
           <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <i className="fa-solid fa-lightbulb" style={{ color: dssAlerts.length > 0 ? '#f6c23e' : '#1cc88a' }}></i>
             <span>Decision Support System (DSS) Advisory</span>
@@ -763,9 +792,9 @@ export default function TeacherDashboard() {
 
       {/* ECCD Chart Row */}
       {(!isMobile || mobileTab === 'performance') && (
-        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '25px' }}>
-            <div style={{ fontWeight: 600, marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
-            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Average completion percentage across 7 ECCD domains</p>
+        <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '22px', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '25px' }}>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '5px' }}>Classroom Average Performance by Domain & Period</div>
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Average completion percentage across 7 ECCD domains</p>
             <div style={{ height: '250px', position: 'relative', width: '100%' }}>
               <SVGEccdDomainPerformanceChart labels={eccdChart.labels} data1={eccdChart.data1} data2={eccdChart.data2} data3={eccdChart.data3} />
             </div>
@@ -776,9 +805,9 @@ export default function TeacherDashboard() {
       {(!isMobile || mobileTab === 'attendance-nutrition') && (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
           {(!isMobile || mobileTab === 'attendance-nutrition') && (
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Daily attendance tracking</p>
+            <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '22px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '5px' }}>Attendance Trend (7 Days)</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Daily attendance tracking</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
                 <SVGBarChart labels={attendanceChart.labels} data={attendanceChart.data} total={stats.total} />
               </div>
@@ -786,9 +815,9 @@ export default function TeacherDashboard() {
           )}
           
           {(!isMobile || mobileTab === 'attendance-nutrition') && (
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Weekly snack consumption summary</p>
+            <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '22px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '5px' }}>Nutrition Analytics (7 Days)</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Weekly snack consumption summary</p>
               <div style={{ height: '220px', position: 'relative', width: '100%' }}>
                 <SVGNutritionBarChart finished={nutritionChart.finished} someLeft={nutritionChart.someLeft} notEaten={nutritionChart.notEaten} />
               </div>
@@ -796,9 +825,9 @@ export default function TeacherDashboard() {
           )}
 
           {(!isMobile || mobileTab === 'attendance-nutrition') && (
-            <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontWeight: 600, marginBottom: '5px' }}>Today's Attendance</div>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Present vs Absent distribution</p>
+            <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '22px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '5px' }}>Today's Attendance</div>
+              <p style={{ margin: '0 0 20px 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Present vs Absent distribution</p>
               <div style={{ height: '220px', position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <SVGDonutChart present={stats.present} absent={stats.absent} />
               </div>

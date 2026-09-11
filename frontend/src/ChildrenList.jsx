@@ -144,104 +144,139 @@ export default function ChildrenList() {
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>Children Directory</h2>
           <p style={{ margin: '5px 0 0 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Manage enrollments and view student profiles</p>
         </div>
-        <button onClick={() => setShowGenerateAccountModal(true)} style={{ padding: '10px 20px', background: '#1b3b5c', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Montserrat', sans-serif" }}>
+        <button onClick={() => setShowGenerateAccountModal(true)} style={{ padding: '10px 22px', background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Montserrat', sans-serif", boxShadow: '0 4px 14px rgba(30, 64, 175, 0.25)' }}>
             + Generate Parent Account
         </button>
       </div>
 
       {/* TABS */}
-      <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #eee', marginBottom: '20px', paddingBottom: '10px' }}>
-        <div onClick={() => setActiveTab('Enrolled')} style={{ fontWeight: activeTab === 'Enrolled' ? 700 : 600, borderBottom: activeTab === 'Enrolled' ? '3px solid #333' : 'none', paddingBottom: '10px', marginBottom: '-13px', cursor: 'pointer', color: activeTab === 'Enrolled' ? '#333' : '#888' }}>
+      <div style={{ display: 'flex', gap: '24px', borderBottom: '2px solid var(--border-color)', marginBottom: '22px', paddingBottom: '12px' }}>
+        <div onClick={() => setActiveTab('Enrolled')} style={{ fontWeight: activeTab === 'Enrolled' ? 800 : 600, borderBottom: activeTab === 'Enrolled' ? '3px solid #1e40af' : 'none', paddingBottom: '12px', marginBottom: '-14px', cursor: 'pointer', color: activeTab === 'Enrolled' ? '#1e40af' : 'var(--text-secondary)', transition: 'all 0.2s' }}>
             Enrolled Students ({enrolledChildren.length})
         </div>
-        <div onClick={() => setActiveTab('Pending')} style={{ fontWeight: activeTab === 'Pending' ? 700 : 600, borderBottom: activeTab === 'Pending' ? '3px solid #333' : 'none', paddingBottom: '10px', marginBottom: '-13px', cursor: 'pointer', color: activeTab === 'Pending' ? '#333' : '#888', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div onClick={() => setActiveTab('Pending')} style={{ fontWeight: activeTab === 'Pending' ? 800 : 600, borderBottom: activeTab === 'Pending' ? '3px solid #1e40af' : 'none', paddingBottom: '12px', marginBottom: '-14px', cursor: 'pointer', color: activeTab === 'Pending' ? '#1e40af' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}>
             Pending Approvals
             {pendingChildren.length > 0 && (
-                <span style={{ background: '#f6c23e', color: '#fff', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>{pendingChildren.length}</span>
+                <span style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>{pendingChildren.length}</span>
             )}
         </div>
       </div>
 
       {activeTab === 'Enrolled' ? (
         <>
-          <div className="resp-grid-3" style={{ marginBottom: '20px' }}>
-            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
-              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Total Enrolled</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{enrolledChildren.length}</div>
+          <div className="resp-grid-3" style={{ marginBottom: '22px' }}>
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="pulse-dot pulse-dot-green"></span>
+                    <span>Total Enrolled</span>
+                  </div>
+                  <div className="stat-number stat-countup" style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{enrolledChildren.length}</div>
+                </div>
+                <div className="stat-icon-badge stat-icon-blue">
+                  <i className="fa-solid fa-children"></i>
+                </div>
+              </div>
+              <div style={{ marginTop: '14px', fontSize: '0.78rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <i className="fa-solid fa-circle-check"></i> Active in program
+              </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
-              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 3 Years</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getAgeCount(3)}</div>
+
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '8px' }}>Age 3 Years</div>
+                  <div className="stat-number stat-countup" style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{getAgeCount(3)}</div>
+                </div>
+                <div className="stat-icon-badge stat-icon-emerald">
+                  <i className="fa-solid fa-cake-candles"></i>
+                </div>
+              </div>
+              <div style={{ marginTop: '14px', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                Junior group level
+              </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
-              <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '10px' }}>Age 4 Years</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getAgeCount(4)}</div>
+
+            <div className="modern-card stat-card-modern card" style={{ background: 'var(--bg-card)', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '8px' }}>Age 4 Years</div>
+                  <div className="stat-number stat-countup" style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{getAgeCount(4)}</div>
+                </div>
+                <div className="stat-icon-badge stat-icon-amber">
+                  <i className="fa-solid fa-shapes"></i>
+                </div>
+              </div>
+              <div style={{ marginTop: '14px', fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                Senior preparatory group
+              </div>
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px' }}>Search Children</div>
+          <div className="modern-card card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '14px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
+            <div style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>Search Children</div>
             <input 
               type="text" 
-              placeholder="🔍 Search by name..." 
+              placeholder="🔍 Search by student name..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
+              style={{ width: '100%', padding: '12px 18px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
             />
           </div>
-          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div className="modern-card card" style={{ background: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Student</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '120px' }}>Age</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Attendance Rate</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Milestone Progress</th>
-                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Health Flags</th>
-                  <th style={{ padding: '15px', textAlign: 'center', fontWeight: 700, color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Actions</th>
+                <tr style={{ background: 'var(--bg-body, #f8fafc)', borderBottom: '2px solid var(--border-color)' }}>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Student</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '120px' }}>Age</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Attendance Rate</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '220px' }}>Milestone Progress</th>
+                  <th style={{ padding: '15px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Health Flags</th>
+                  <th style={{ padding: '15px', textAlign: 'center', fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', width: '150px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredChildren.map(child => (
-                  <tr key={child.id} style={{ borderBottom: '1px solid #edf2f7', transition: 'background 0.2s' }}>
+                  <tr key={child.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }}>
                     <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#f0f4f8', color: '#4a90e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, overflow: 'hidden', flexShrink: 0, border: '1px solid #cbd5e1' }}>
+                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#eff6ff', color: '#1e40af', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, overflow: 'hidden', flexShrink: 0, border: '1px solid #bfdbfe' }}>
                         {child.img ? (
                           <img src={child.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
                         ) : (
                           <span>{child.initial}</span>
                         )}
                       </div>
-                      <span style={{ fontWeight: 750, color: '#1e293b', fontSize: '0.95rem' }}>{child.last_name}, {child.first_name}</span>
+                      <span style={{ fontWeight: 750, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{child.last_name}, {child.first_name}</span>
                     </td>
-                    <td style={{ padding: '15px', color: '#475569', fontWeight: 500, fontSize: '0.9rem' }}>{child.age} years</td>
+                    <td style={{ padding: '15px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.9rem' }}>{child.age} years</td>
                     <td style={{ padding: '15px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ flexGrow: 1, height: '6px', background: '#e9ecef', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{ width: `${child.stats?.attendance || 0}%`, height: '100%', background: '#4a90e2', borderRadius: '3px' }}></div>
+                        <div style={{ flexGrow: 1, height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${child.stats?.attendance || 0}%`, height: '100%', background: '#10b981', borderRadius: '3px' }}></div>
                         </div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#4a90e2', width: '40px', textAlign: 'right' }}>{child.stats?.attendance || 0}%</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#10b981', width: '40px', textAlign: 'right' }}>{child.stats?.attendance || 0}%</span>
                       </div>
                     </td>
                     <td style={{ padding: '15px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ flexGrow: 1, height: '6px', background: '#e9ecef', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{ width: `${child.stats?.milestones || 0}%`, height: '100%', background: '#9b59b6', borderRadius: '3px' }}></div>
+                        <div style={{ flexGrow: 1, height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${child.stats?.milestones || 0}%`, height: '100%', background: '#8b5cf6', borderRadius: '3px' }}></div>
                         </div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#9b59b6', width: '40px', textAlign: 'right' }}>{child.stats?.milestones || 0}%</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#8b5cf6', width: '40px', textAlign: 'right' }}>{child.stats?.milestones || 0}%</span>
                       </div>
                     </td>
                     <td style={{ padding: '15px' }}>
                       {child.allergies ? (
-                        <span style={{ color: '#e74a3b', background: '#fdedec', border: '1px solid #fadbd8', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                        <span style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
                           ⚠ Allergies
                         </span>
                       ) : (
-                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>None</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>None</span>
                       )}
                     </td>
                     <td style={{ padding: '15px', textAlign: 'center' }}>
-                      <button onClick={() => { setSelectedChild(child); setProfileTab('Performance'); setShowProfileModal(true); }} style={{ padding: '6px 12px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', color: '#334155', fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem' }}>
+                      <button onClick={() => { setSelectedChild(child); setProfileTab('Performance'); setShowProfileModal(true); }} style={{ padding: '7px 14px', background: 'var(--bg-body, #f8fafc)', border: '1px solid var(--border-color)', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', color: 'var(--text-primary)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                         Details
                       </button>
                     </td>

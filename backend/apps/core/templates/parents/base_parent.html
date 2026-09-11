@@ -21,8 +21,8 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animations & Modern UI Styles -->
-    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}?v=1.0.1">
-    <script src="{% static 'core/js/animations.js' %}?v=1.0.1"></script>
+    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}?v=2.0.0">
+    <script src="{% static 'core/js/animations.js' %}?v=2.0.0"></script>
 
     {% vite_hmr_client %}
     {% vite_react_refresh %}
@@ -104,22 +104,30 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
         :root {
-            /* Light mode variables */
-            --bg-body: #f4f7f6;
-            --bg-sidebar: #063970;
+            /* Lively Warm Vitality Palette for Parents & Teachers */
+            --bg-body: #f8fafc;
+            --bg-sidebar: #091e42;
+            --sidebar-gradient: linear-gradient(180deg, #091e42 0%, #0d2857 100%);
             --bg-card: #ffffff;
-            --border-color: #dcdcdc;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --text-muted: #999999;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --primary: #1e40af;
+            --primary-hover: #1d4ed8;
+            --accent-green: #10b981;
+            --accent-green-hover: #059669;
+            --accent-amber: #f59e0b;
+            --accent-coral: #f97316;
             
             --input-bg: #ffffff;
-            --input-border: #cccccc;
-            --input-text: #333333;
+            --input-border: #cbd5e1;
+            --input-text: #0f172a;
             
-            --btn-neutral-bg: #f0f0f0;
-            --btn-neutral-text: #333333;
-            --btn-neutral-border: #cccccc;
+            --btn-neutral-bg: #f1f5f9;
+            --btn-neutral-text: #334155;
+            --btn-neutral-border: #e2e8f0;
             
             --chart-bg: #ffffff;
             --chart-grid: #f1f5f9;
@@ -127,25 +135,33 @@
         }
 
         html.dark-mode, .dark-mode {
-            /* Premium dark slate theme */
-            --bg-body: #0b0f19;
-            --bg-sidebar: #090d16;
-            --bg-card: #1e293b;
-            --border-color: #334155;
+            /* Premium deep midnight slate theme */
+            --bg-body: #0a0f1d;
+            --bg-sidebar: #060b14;
+            --sidebar-gradient: linear-gradient(180deg, #060b14 0%, #0a1122 100%);
+            --bg-card: #111a2e;
+            --border-color: #1e293b;
             --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
+            --text-secondary: #94a3b8;
             --text-muted: #64748b;
             
-            --input-bg: #0f172a;
-            --input-border: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --accent-green: #10b981;
+            --accent-green-hover: #34d399;
+            --accent-amber: #f59e0b;
+            --accent-coral: #fb923c;
+            
+            --input-bg: #0d1527;
+            --input-border: #1e293b;
             --input-text: #f8fafc;
             
-            --btn-neutral-bg: #334155;
+            --btn-neutral-bg: #1e293b;
             --btn-neutral-text: #cbd5e1;
-            --btn-neutral-border: #475569;
+            --btn-neutral-border: #334155;
             
-            --chart-bg: #1e293b;
-            --chart-grid: #334155;
+            --chart-bg: #111a2e;
+            --chart-grid: #1e293b;
             --chart-text: #94a3b8;
         }
 
@@ -167,34 +183,36 @@
         /* Sidebar Architecture */
         .sidebar {
             width: 250px;
-            background-color: var(--bg-sidebar);
+            background: var(--sidebar-gradient, var(--bg-sidebar));
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
             z-index: 100;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 4px 0 24px rgba(9, 30, 66, 0.12);
+            transition: transform 0.3s ease, background 0.3s ease;
         }
 
         .sidebar-header {
             display: flex;
             align-items: center;
-            padding: 30px 20px 20px 20px;
+            padding: 28px 20px 20px 20px;
             gap: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .user-avatar {
             width: 50px;
             height: 50px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            background-color: transparent;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         .user-info {
@@ -255,13 +273,13 @@
         }
 
         .menu-item.active {
-            background-color: #8FB977;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             color: #fff !important;
-            border-radius: 20px;
-            margin: 5px 20px;
-            padding: 10px 20px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin: 4px 18px;
+            padding: 10px 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
         }
 
         .menu-item.active i {
@@ -269,7 +287,7 @@
         }
 
         .menu-item.active:hover {
-            background-color: #7fa669;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
             transform: translateY(-1px);
         }
 
@@ -313,32 +331,33 @@
         .page-header h2 {
             font-size: 2.2rem;
             font-weight: 800;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
 
         .page-header p {
             font-size: 0.95rem;
-            color: #666;
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
         /* Global Dashboard Grid Classes to be used in children templates */
         .card {
-            background-color: #fff;
-            border-radius: 12px;
-            border: 1px solid #dcdcdc;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            box-shadow: 0 4px 20px -2px rgba(15, 43, 92, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
         }
 
         .card:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 25px -4px rgba(15, 43, 92, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+            border-color: rgba(30, 64, 175, 0.2);
         }
 
         .card-blue {
-            background-color: #063970;
+            background: linear-gradient(135deg, #091e42 0%, #1e40af 100%);
             color: #ffffff;
             border: none;
         }
@@ -348,7 +367,7 @@
         }
 
         .card-blue .kpi-subtitle, .card-blue .chart-subtitle, .card-blue p {
-            color: rgba(255, 255, 255, 0.8) !important;
+            color: rgba(255, 255, 255, 0.85) !important;
         }
 
         /* Top Nav inside Main Content */
@@ -361,7 +380,7 @@
             gap: 15px;
             position: sticky;
             top: 0;
-            background-color: #f4f7f6;
+            background-color: var(--bg-body);
             z-index: 99;
         }
 

@@ -16,8 +16,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Animations & Modern UI Styles -->
-    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}?v=1.0.1">
-    <script src="{% static 'core/js/animations.js' %}?v=1.0.1"></script>
+    <link rel="stylesheet" href="{% static 'core/css/animations.css' %}?v=2.0.0">
+    <script src="{% static 'core/js/animations.js' %}?v=2.0.0"></script>
 
     <!-- Theme initialization -->
     <script>
@@ -25,31 +25,30 @@
             document.documentElement.classList.add('dark-mode');
         }
     </script>
-    <script src="{% static 'core/js/animations.js' %}"></script>
 
     <style>
         :root {
-            --bg-body: #f8f9fa;
+            --bg-body: #f8fafc;
             --bg-card: #ffffff;
-            --primary: #063970;
-            --primary-dark: #042850;
-            --accent-green: #8FB977;
+            --primary: #1e40af;
+            --primary-dark: #091e42;
+            --accent-green: #10b981;
             --accent-orange: #f59e0b;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
             --text-muted: #94a3b8;
             --border-color: #e2e8f0;
-            --card-shadow: 0 10px 25px -5px rgba(6, 57, 112, 0.08), 0 8px 10px -6px rgba(6, 57, 112, 0.04);
+            --card-shadow: 0 10px 25px -5px rgba(9, 30, 66, 0.08), 0 8px 10px -6px rgba(9, 30, 66, 0.04);
         }
 
         html.dark-mode, .dark-mode {
-            --bg-body: #0b0f19;
-            --bg-card: #1e293b;
+            --bg-body: #0a0f1d;
+            --bg-card: #111a2e;
             --primary: #38bdf8;
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
             --text-muted: #64748b;
-            --border-color: #334155;
+            --border-color: #1e293b;
             --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
@@ -72,7 +71,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            background-color: #063970;
+            background: linear-gradient(135deg, #091e42 0%, #133267 100%);
             color: #ffffff;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
@@ -135,13 +134,13 @@
         }
 
         .btn-login-nav {
-            background-color: var(--accent-green);
-            color: #042850 !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff !important;
             padding: 9px 22px;
             border-radius: 30px;
             font-weight: 800 !important;
             font-size: 0.9rem !important;
-            box-shadow: 0 4px 12px rgba(143, 185, 119, 0.3);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
@@ -149,9 +148,9 @@
         }
 
         .btn-login-nav:hover {
-            background-color: #a4d18c;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(143, 185, 119, 0.4);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
         }
 
         .hamburger {
@@ -165,7 +164,7 @@
 
         /* --- Hero Section --- */
         .hero-section {
-            background: linear-gradient(135deg, #063970 0%, #0a4b93 60%, #1d60ab 100%);
+            background: linear-gradient(135deg, #091e42 0%, #133267 50%, #1e40af 100%);
             color: white;
             padding: 60px 24px 80px 24px;
             position: relative;
@@ -237,23 +236,24 @@
         }
 
         .btn-primary-hero {
-            background-color: var(--accent-green);
-            color: #042850;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
             padding: 14px 28px;
             border-radius: 12px;
             font-weight: 800;
             text-decoration: none;
             font-size: 1rem;
             transition: all 0.25s ease;
-            box-shadow: 0 6px 20px rgba(143, 185, 119, 0.35);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
             display: inline-flex;
             align-items: center;
             gap: 10px;
         }
 
         .btn-primary-hero:hover {
-            background-color: #a4d18c;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
         }
 
         .btn-secondary-hero {
@@ -340,7 +340,7 @@
 
         .section-tag {
             display: inline-block;
-            color: #063970;
+            color: #1e40af;
             font-weight: 800;
             font-size: 0.85rem;
             text-transform: uppercase;
@@ -398,7 +398,7 @@
         /* --- Featured Announcement --- */
         .featured-card {
             background: var(--bg-card);
-            border: 2px solid #063970;
+            border: 2px solid rgba(30, 64, 175, 0.25);
             border-radius: 20px;
             padding: 32px;
             margin-bottom: 40px;
@@ -571,11 +571,11 @@
 
         /* --- Enrollment Box --- */
         .enrollment-box {
-            background: linear-gradient(135deg, #063970 0%, #0c4a8e 100%);
+            background: linear-gradient(135deg, #091e42 0%, #133267 50%, #1e40af 100%);
             color: white;
             border-radius: 24px;
             padding: 44px;
-            box-shadow: 0 15px 35px rgba(6, 57, 112, 0.25);
+            box-shadow: 0 15px 35px rgba(9, 30, 66, 0.25);
             display: grid;
             grid-template-columns: 1.4fr 0.8fr;
             gap: 36px;

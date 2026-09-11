@@ -391,10 +391,10 @@ function ParentDashboard() {
 
   const dateDisplay = new Date(currentDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const getAttColor = (status) => {
-    if (status === 'PRESENT') return '#1cc88a';
-    if (status === 'ABSENT') return '#e74a3b';
-    if (status === 'LATE') return '#f6c23e';
-    return '#888';
+    if (status === 'PRESENT') return '#10b981';
+    if (status === 'ABSENT') return '#ef4444';
+    if (status === 'LATE') return '#f59e0b';
+    return '#64748b';
   };
 
   // Derive dashboard data based on currentDate
@@ -1078,21 +1078,24 @@ function ParentDashboard() {
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease-in' }}>
-      <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           {parentPic && (
-             <img src={parentPic} alt="Parent Profile" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #063970' }} />
+             <img src={parentPic} alt="Parent Profile" style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #1e40af', boxShadow: '0 4px 12px rgba(30, 64, 175, 0.2)' }} />
           )}
-          <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#063970', margin: 0 }}>Welcome back, {parentName}</h2>
+          <div>
+            <h2 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--primary-dark, #091e42)', margin: 0, letterSpacing: '-0.5px' }}>Welcome back, {parentName}</h2>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>BMV3 Child Care Parent Portal</p>
+          </div>
         </div>
-        <button onClick={() => setShowEnrollForm(true)} style={{ padding: '10px 20px', background: '#4a90e2', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 600, cursor: 'pointer' }}>+ Enroll Another Child</button>
+        <button onClick={() => setShowEnrollForm(true)} style={{ padding: '10px 22px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }}>+ Enroll Another Child</button>
       </div>
 
       {/* Horizontal Child Profile Switcher */}
       <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '15px', marginBottom: '25px', scrollbarWidth: 'thin' }}>
           {childrenList.map((c) => {
               const isSelected = c.id === linkedChildId;
-              const statusColor = c.enrollment_status === 'Enrolled' ? '#1cc88a' : (c.enrollment_status === 'Pending' ? '#f6c23e' : '#e74a3b');
+              const statusColor = c.enrollment_status === 'Enrolled' ? '#10b981' : (c.enrollment_status === 'Pending' ? '#f59e0b' : '#ef4444');
               const avatarUrl = c.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + c.first_name);
               return (
                   <div 
@@ -1107,20 +1110,20 @@ function ParentDashboard() {
                           alignItems: 'center',
                           gap: '12px',
                           padding: '12px 20px',
-                          borderRadius: '12px',
+                          borderRadius: '14px',
                           cursor: 'pointer',
-                          background: isSelected ? 'linear-gradient(135deg, #063970, #1b4f91)' : 'var(--bg-card)',
+                          background: isSelected ? 'linear-gradient(135deg, #091e42 0%, #1e40af 100%)' : 'var(--bg-card)',
                           color: isSelected ? '#fff' : 'var(--text-primary)',
-                          border: isSelected ? '2px solid #063970' : '1px solid var(--border-color)',
-                          boxShadow: isSelected ? '0 4px 15px rgba(6, 57, 112, 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
-                          transition: 'all 0.2s ease',
+                          border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                          boxShadow: isSelected ? '0 8px 20px rgba(30, 64, 175, 0.25)' : '0 2px 8px rgba(0,0,0,0.04)',
+                          transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                           transform: isSelected ? 'scale(1.02)' : 'none',
                       }}
                   >
                       <img 
                           src={avatarUrl} 
                           alt={c.first_name} 
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', background: '#e0f0ff' }} 
+                          style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', background: '#e0f0ff', border: isSelected ? '2px solid rgba(255,255,255,0.4)' : '1px solid var(--border-color)' }} 
                       />
                       <div>
                           <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{c.first_name} {c.last_name}</div>
@@ -1130,8 +1133,8 @@ function ParentDashboard() {
                                   fontSize: '0.7rem', 
                                   fontWeight: 800, 
                                   color: isSelected ? '#fff' : statusColor,
-                                  background: isSelected ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)',
-                                  padding: '2px 6px',
+                                  background: isSelected ? 'rgba(255,255,255,0.2)' : (statusColor === '#10b981' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'),
+                                  padding: '2px 8px',
                                   borderRadius: '10px'
                               }}>
                                   {c.enrollment_status}
@@ -1156,9 +1159,9 @@ function ParentDashboard() {
       )}
 
       {/* Header block */}
-      <div className="resp-flex-between" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginBottom: '20px', opacity: (student.enrollment_status !== 'Enrolled' ? 0.6 : 1) }}>
+      <div className="resp-flex-between modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '16px', marginBottom: '20px', opacity: (student.enrollment_status !== 'Enrolled' ? 0.6 : 1), boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e0f0ff', color: '#063970', fontWeight: 'bold', fontSize: '1.5rem' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '16px', overflow: 'hidden', border: '2px solid rgba(30, 64, 175, 0.2)', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'linear-gradient(135deg, #eff6ff, #f0fdf4)', color: '#1e40af', fontWeight: 'bold', fontSize: '1.5rem', boxShadow: '0 4px 12px rgba(30, 64, 175, 0.12)' }}>
             <img
               src={student.img || localStorage.getItem('bmv3_parent_profile_img') || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + student.first_name)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'var(--bg-card)' }}
@@ -1166,25 +1169,28 @@ function ParentDashboard() {
             />
           </div>
           <div>
-              <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-primary)' }}>
                 {student.first_name} {student.last_name}
               </h3>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{student.age} years old</p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{student.age} years old &bull; Enrolled Student</p>
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '8px' }}>ATTENDANCE STATUS</div>
-          <div style={{ background: getAttColor(attendanceToday), color: '#fff', padding: '5px 20px', borderRadius: '20px', display: 'inline-block', fontWeight: 800, fontSize: '0.9rem' }}>{attendanceToday}</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+            <span className="pulse-dot pulse-dot-green"></span>
+            <span style={{ letterSpacing: '0.5px' }}>ATTENDANCE STATUS</span>
+          </div>
+          <div style={{ background: getAttColor(attendanceToday), color: '#fff', padding: '7px 22px', borderRadius: '20px', display: 'inline-block', fontWeight: 800, fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>{attendanceToday}</div>
         </div>
       </div>
 
       {/* Controls Container */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', background: 'var(--bg-card)', padding: '20px', borderRadius: '15px', border: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px', background: 'var(--bg-card)', padding: '16px 20px', borderRadius: '14px', border: '1px solid var(--border-color)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
           {/* Date filter */}
           <div>
-            <label htmlFor="history-date" style={{ marginRight: '10px', fontWeight: 600 }}>View records for date:</label>
-            <input id="history-date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid var(--border-color)', outline: 'none' }} />
-            <button onClick={() => setFilterDate('')} style={{ marginLeft: '10px', padding: '8px 15px', borderRadius: '5px', background: '#063970', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear to Today</button>
+            <label htmlFor="history-date" style={{ marginRight: '10px', fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>View records for date:</label>
+            <input id="history-date" type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }} />
+            <button onClick={() => setFilterDate('')} style={{ marginLeft: '10px', padding: '8px 16px', borderRadius: '8px', background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, boxShadow: '0 2px 8px rgba(30, 64, 175, 0.25)' }}>Clear to Today</button>
           </div>
       </div>
 
@@ -1202,23 +1208,23 @@ function ParentDashboard() {
       <>
           {(!isMobile || mobileTab === 'overview') && (
             <>
-              <h4 style={{ margin: '20px 0 10px 0', fontSize: '1.1rem' }}>Overview for {isToday ? 'Today' : dateDisplay}</h4>
+              <h4 style={{ margin: '20px 0 12px 0', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Overview for {isToday ? 'Today' : dateDisplay}</h4>
               <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Drop-off time</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.time}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Drop-off time</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.time}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Pick-up Status</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.status}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Pick-up Status</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.status}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Authorized Guardian</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.guardian}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Authorized Guardian</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.guardian}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px' }}>Session</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '25px', fontWeight: 600 }}>{dropoffInfo.session}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Session</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.session}</div>
                 </div>
               </div>
 
@@ -1233,18 +1239,18 @@ function ParentDashboard() {
                 const completionPct = totalActCount > 0 ? Math.round((completedActCount / totalActCount) * 100) : 0;
 
                 return (
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f1f5f9', paddingBottom: '15px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', color: '#0369a1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                  <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '16px', marginBottom: '30px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="stat-icon-badge stat-icon-blue" style={{ width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.1rem' }}>
                           <i className="fa-solid fa-graduation-cap"></i>
                         </div>
-                        <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800 }}>Daily Activities & Learning Checklist</h4>
+                        <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800, color: 'var(--text-primary)' }}>Daily Activities & Learning Checklist</h4>
                       </div>
                       {totalActCount > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748b' }}>Progress:</span>
-                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0369a1', background: '#e0f2fe', padding: '4px 10px', borderRadius: '12px' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Progress:</span>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e40af', background: 'rgba(30, 64, 175, 0.1)', padding: '4px 12px', borderRadius: '12px' }}>
                             {completedActCount} / {totalActCount} ({completionPct}%)
                           </span>
                         </div>
@@ -1254,8 +1260,8 @@ function ParentDashboard() {
                     {totalActCount > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {/* Progress Bar */}
-                        <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
-                          <div style={{ width: `${completionPct}%`, height: '100%', background: '#0284c7', borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
+                        <div style={{ width: '100%', height: '8px', background: 'var(--border-color)', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
+                          <div style={{ width: `${completionPct}%`, height: '100%', background: 'linear-gradient(90deg, #1e40af, #10b981)', borderRadius: '6px', transition: 'width 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}></div>
                         </div>
 
                         {/* Activities Table/List */}
@@ -1343,15 +1349,17 @@ function ParentDashboard() {
                 const hasIssues = (bmiStatus === 'underweight' || bmiStatus === 'overweight' || lowMilestones);
 
                 return (
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderLeft: `5px solid ${hasIssues ? '#f6c23e' : '#1cc88a'}`, padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                      <i className="fa-solid fa-lightbulb" style={{ color: hasIssues ? '#f6c23e' : '#1cc88a', fontSize: '1.4rem' }}></i>
-                      <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800 }}>Development & Growth Advisor</h4>
+                  <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderLeft: `6px solid ${hasIssues ? '#f59e0b' : '#10b981'}`, padding: '25px', borderRadius: '16px', marginBottom: '30px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.05)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                      <div className="stat-icon-badge" style={{ width: '38px', height: '38px', borderRadius: '10px', background: hasIssues ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)', color: hasIssues ? '#f59e0b' : '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-lightbulb" style={{ fontSize: '1.2rem' }}></i>
+                      </div>
+                      <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 800, color: 'var(--text-primary)' }}>Development & Growth Advisor</h4>
                     </div>
                     
                     {bmiStatus === 'underweight' && (
                       <div style={{ marginBottom: '20px' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--warning, #f6c23e)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                        <div style={{ fontWeight: 700, color: '#f59e0b', fontSize: '0.95rem', marginBottom: '6px' }}>
                           ⚠️ Growth Status: Underweight (BMI: {bmiVal.toFixed(1)})
                         </div>
                         <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -1364,7 +1372,7 @@ function ParentDashboard() {
 
                     {bmiStatus === 'overweight' && (
                       <div style={{ marginBottom: '20px' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--danger, #e74a3b)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                        <div style={{ fontWeight: 700, color: '#ef4444', fontSize: '0.95rem', marginBottom: '6px' }}>
                           ⚠️ Growth Status: Overweight/Obese (BMI: {bmiVal.toFixed(1)})
                         </div>
                         <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -1377,7 +1385,7 @@ function ParentDashboard() {
 
                     {lowMilestones && (
                       <div style={{ marginBottom: hasIssues && (bmiStatus === 'underweight' || bmiStatus === 'overweight') ? '20px' : 0 }}>
-                        <div style={{ fontWeight: 700, color: 'var(--warning, #f6c23e)', fontSize: '0.95rem', marginBottom: '6px' }}>
+                        <div style={{ fontWeight: 700, color: '#f59e0b', fontSize: '0.95rem', marginBottom: '6px' }}>
                           ⚠️ Learning Progress: Milestone delay trends detected ({milestonePct}% completion)
                         </div>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 8px 0' }}>
@@ -1393,8 +1401,8 @@ function ParentDashboard() {
 
                     {!hasIssues && (
                       <div>
-                        <div style={{ fontWeight: 700, color: 'var(--success, #1cc88a)', fontSize: '0.95rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <i className="fa-solid fa-circle-check" style={{ color: '#1cc88a' }}></i> Great job! Your child is growing and learning on track.
+                        <div style={{ fontWeight: 700, color: '#10b981', fontSize: '0.95rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <i className="fa-solid fa-circle-check" style={{ color: '#10b981' }}></i> Great job! Your child is growing and learning on track.
                         </div>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 8px 0' }}>
                           To support their ongoing development:
@@ -1414,7 +1422,7 @@ function ParentDashboard() {
 
           {(!isMobile || mobileTab === 'health-milestones') && (
             <div className="resp-grid-2">
-              <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px' }}>
+              <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px' }}>
                 <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Health & Nutrition</h4>
                 <div style={{ marginBottom: '15px' }}>
                   <strong style={{ fontSize: '0.9rem' }}>Snack Status</strong>
@@ -1486,14 +1494,14 @@ function ParentDashboard() {
                 </div>
               </div>
 
-              <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', position: 'relative' }}>
+              <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', position: 'relative' }}>
                   <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>ECCD Milestone Progress</h4>
                   <div className="resp-grid-2-form">
                       {eccdProgress.length > 0 ? eccdProgress.map((p, i) => (
                           <div key={i}>
                               <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{p.name}</div>
                               <div style={{ width: '100%', height: '6px', background: 'var(--btn-neutral-bg)', borderRadius: '3px', marginTop: '5px' }}>
-                                  <div style={{ width: `${p.pct}%`, height: '100%', background: '#1cc88a', borderRadius: '3px' }}></div>
+                                  <div style={{ width: `${p.pct}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #059669)', borderRadius: '3px' }}></div>
                               </div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{p.pct}% Achieved</div>
                           </div>
@@ -1527,7 +1535,7 @@ function ParentDashboard() {
       )}
 
       {(!isMobile || mobileTab === 'notifications') && (
-        <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
+        <div className="modern-card card" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '25px', borderRadius: '15px', marginTop: '30px' }}>
           <h4 style={{ margin: '0 0 20px 0', fontSize: '1.1rem' }}>Recent Notifications</h4>
           {notifications.map((notif, i) => (
             <div key={i} style={{ fontSize: '0.8rem', borderLeft: '2px solid #333', paddingLeft: '10px', marginBottom: '15px' }}>
