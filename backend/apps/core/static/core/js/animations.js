@@ -1,16 +1,16 @@
 /**
  * BMV3 Modern UI Design & Animation System JavaScript
- * - Interactive Custom Mouse Cursor Follower
- * - Real-time 3D Card Tilt Engine
+ * - Interactive Custom Mouse Cursor Follower & Click Ripple Waves
+ * - Real-time 3D Card Tilt Engine for All Cards
  * - Page Loading Progress Bar
- * - Scroll Intersection Observer
+ * - Magnetic Button Cursor Pull
  */
 
 (function () {
     'use strict';
 
     document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Custom Interactive Cursor Follower ---
+        // --- 1. Custom Interactive Cursor Follower & Click Ripple ---
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.innerWidth > 768) {
             let cursorDot = document.createElement('div');
             let cursorRing = document.createElement('div');
@@ -31,16 +31,16 @@
             });
 
             function renderCursor() {
-                ringX += (mouseX - ringX) * 0.18;
-                ringY += (mouseY - ringY) * 0.18;
+                ringX += (mouseX - ringX) * 0.2;
+                ringY += (mouseY - ringY) * 0.2;
                 cursorRing.style.left = `${ringX}px`;
                 cursorRing.style.top = `${ringY}px`;
                 requestAnimationFrame(renderCursor);
             }
             requestAnimationFrame(renderCursor);
 
-            // Add hover effect listeners on interactive elements
-            const interactiveSelectors = 'a, button, input, select, textarea, .card-3d-tilt, .btn, [role="button"]';
+            // Add hover effect listeners on all interactive elements
+            const interactiveSelectors = 'a, button, input, select, textarea, .card, .stat-card, .btn, .sidebar a, [role="button"]';
             document.body.addEventListener('mouseover', (e) => {
                 if (e.target.closest(interactiveSelectors)) {
                     document.body.classList.add('cursor-hover');
@@ -53,12 +53,28 @@
                 }
             });
 
-            document.addEventListener('mousedown', () => document.body.classList.add('cursor-active'));
+            document.addEventListener('mousedown', (e) => {
+                document.body.classList.add('cursor-active');
+
+                // Spawn click ripple wave
+                let ripple = document.createElement('div');
+                ripple.className = 'click-ripple';
+                ripple.style.left = `${e.clientX}px`;
+                ripple.style.top = `${e.clientY}px`;
+                document.body.appendChild(ripple);
+
+                setTimeout(() => {
+                    if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                }, 600);
+            });
+
             document.addEventListener('mouseup', () => document.body.classList.remove('cursor-active'));
         }
 
-        // --- 2. Real-Time 3D Tilt Card Engine ---
-        const tiltCards = document.querySelectorAll('.card-3d-tilt');
+        // --- 2. Real-Time 3D Tilt Card Engine (Targets All Cards Automatically) ---
+        const tiltCardSelectors = '.card, .stat-card, .form-wrapper, .overview-card, .announcement-card, .feature-card, .dashboard-card';
+        const tiltCards = document.querySelectorAll(tiltCardSelectors);
+        
         tiltCards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
@@ -68,14 +84,14 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = ((y - centerY) / centerY) * -8; // Pitch max 8deg
-                const rotateY = ((x - centerX) / centerX) * 8;   // Yaw max 8deg
+                const rotateX = ((y - centerY) / centerY) * -6; // Pitch max 6deg
+                const rotateY = ((x - centerX) / centerX) * 6;   // Yaw max 6deg
 
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(8px)`;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) translateZ(10px)`;
             });
 
             card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) translateZ(0px)';
             });
         });
 
@@ -97,25 +113,6 @@
         window.addEventListener('beforeunload', () => {
             progressBar.style.opacity = '1';
             progressBar.style.width = '100%';
-        });
-
-        // --- 4. Intersection Observer for Scroll Animations ---
-        const observerOptions = {
-            threshold: 0.12,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const scrollObserver = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                    obs.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in-up, .zoom-in-entrance, .slide-in-left, .slide-in-right').forEach(el => {
-            scrollObserver.observe(el);
         });
     });
 })();
