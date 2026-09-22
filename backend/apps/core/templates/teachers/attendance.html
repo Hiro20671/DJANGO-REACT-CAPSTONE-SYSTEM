@@ -123,21 +123,21 @@
 <div class="summary-container">
     <div class="card-absences" onclick="openModal('absencesModal')">
         <div class="summary-card">
-            <div class="summary-title" style="color:#777;">🕘 Consecutive Absences</div>
+            <div class="summary-title" style="color:#777;"><i class="fa-solid fa-clock" style="margin-right:6px;"></i> Consecutive Absences</div>
             <div class="summary-value" id="val-absences">0</div>
             <div class="summary-sub">3+ days absent</div>
         </div>
     </div>
     <div class="card-poor" onclick="openModal('poorAttendanceModal')">
         <div class="summary-card">
-            <div class="summary-title" style="color:#f6c23e;">📉 Poor Attendance</div>
+            <div class="summary-title" style="color:#f6c23e;"><i class="fa-solid fa-arrow-trend-down" style="margin-right:6px;"></i> Poor Attendance</div>
             <div class="summary-value" id="val-poor">0</div>
             <div class="summary-sub">&lt;80% attendance</div>
         </div>
     </div>
     <div class="card-late" onclick="openModal('lateModal')">
         <div class="summary-card">
-            <div class="summary-title" style="color:#e74a3b;">⏱️ Frequent Late Arrivals</div>
+            <div class="summary-title" style="color:#e74a3b;"><i class="fa-solid fa-stopwatch" style="margin-right:6px;"></i> Frequent Late Arrivals</div>
             <div class="summary-value" id="val-late">0</div>
             <div class="summary-sub">3+ late arrivals</div>
         </div>
@@ -175,7 +175,7 @@
 <!-- Attendance DSS Advisory Section -->
 <div id="dssAttendancePanel" class="card" style="margin-bottom: 30px; border-left: 5px solid var(--warning, #f6c23e); padding: 20px; background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
     <div class="card-title" style="font-weight: 750; font-size: 1.1rem; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-lightbulb" style="color: var(--warning, #f6c23e); font-size: 1.2rem;"></i>
+        <i class="fa-solid fa-lightbulb" style="color: #1e293b; font-size: 1.1rem;"></i>
         <span>Attendance Decision Support Advisory</span>
     </div>
     <div id="dssAttendanceContent" style="font-size:0.9rem; color:#555;">
@@ -220,9 +220,9 @@
 
 
 <!-- MODALS (Simple placeholders for prototype) -->
-<div class="modal-overlay" id="absencesModal"><div class="modal-container"><div class="modal-header"><h3>Consecutive Absences</h3><button class="btn-close" onclick="closeModal('absencesModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ consecutive absences right now.</p></div></div></div>
-<div class="modal-overlay" id="poorAttendanceModal"><div class="modal-container"><div class="modal-header"><h3>Poor Attendance</h3><button class="btn-close" onclick="closeModal('poorAttendanceModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have &lt;80% attendance.</p></div></div></div>
-<div class="modal-overlay" id="lateModal"><div class="modal-container"><div class="modal-header"><h3>Frequent Late Arrivals</h3><button class="btn-close" onclick="closeModal('lateModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 3rem; margin-bottom: 10px;">🎉</div><p>Great! No children have 3+ late arrivals.</p></div></div></div>
+<div class="modal-overlay" id="absencesModal"><div class="modal-container"><div class="modal-header"><h3>Consecutive Absences</h3><button class="btn-close" onclick="closeModal('absencesModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 2.5rem; margin-bottom: 10px; color:#10b981;"><i class="fa-solid fa-circle-check"></i></div><p>Great! No children have 3+ consecutive absences right now.</p></div></div></div>
+<div class="modal-overlay" id="poorAttendanceModal"><div class="modal-container"><div class="modal-header"><h3>Poor Attendance</h3><button class="btn-close" onclick="closeModal('poorAttendanceModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 2.5rem; margin-bottom: 10px; color:#10b981;"><i class="fa-solid fa-circle-check"></i></div><p>Great! No children have &lt;80% attendance.</p></div></div></div>
+<div class="modal-overlay" id="lateModal"><div class="modal-container"><div class="modal-header"><h3>Frequent Late Arrivals</h3><button class="btn-close" onclick="closeModal('lateModal')">&times;</button></div><div class="modal-body" style="text-align: center; color: #888; padding: 40px;"><div style="font-size: 2.5rem; margin-bottom: 10px; color:#10b981;"><i class="fa-solid fa-circle-check"></i></div><p>Great! No children have 3+ late arrivals.</p></div></div></div>
 
 <!-- No Class Confirm Modal -->
 <div class="modal-overlay" id="noClassModal">
@@ -410,7 +410,7 @@
         panel.style.display = 'block';
         panel.style.borderLeftColor = 'var(--danger, #e74a3b)';
         
-        let html = `<p style="margin: 0 0 15px 0; font-size: 0.85rem; color: #e74a3b; font-weight:700;">⚠️ The following children have logged more than 3 consecutive absences and require attention:</p>`;
+        let html = `<p style="margin: 0 0 15px 0; font-size: 0.85rem; color: #e74a3b; font-weight:700;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> The following children have logged more than 3 consecutive absences and require attention:</p>`;
         
         alerts.forEach(alertItem => {
             const st = alertItem.student;

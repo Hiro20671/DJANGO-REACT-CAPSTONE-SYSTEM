@@ -129,8 +129,9 @@ if BREVO_API_KEY:
     # Use django-anymail for Brevo HTTP API (works on PythonAnywhere free tier)
     if 'anymail' not in INSTALLED_APPS:
         INSTALLED_APPS.append('anymail')
-    EMAIL_BACKEND = 'anymail.backends.sendinblue.EmailBackend'
+    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
     ANYMAIL = {
+        'BREVO_API_KEY': BREVO_API_KEY,
         'SENDINBLUE_API_KEY': BREVO_API_KEY,
     }
 else:

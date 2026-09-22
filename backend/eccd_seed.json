@@ -1,0 +1,1380 @@
+[
+{
+  "model": "core.eccddomain",
+  "pk": 1,
+  "fields": {
+    "name": "Gross Motor Domain",
+    "description": "Gross Motor Domain Checklist",
+    "icon": "fa-running",
+    "order": 1
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 2,
+  "fields": {
+    "name": "Fine Motor",
+    "description": "Fine Motor Domain Checklist",
+    "icon": "fa-hand-paper",
+    "order": 2
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 3,
+  "fields": {
+    "name": "Self-Help",
+    "description": "Self-Help Domain Checklist",
+    "icon": "fa-hands-helping",
+    "order": 3
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 4,
+  "fields": {
+    "name": "Expressive Language",
+    "description": "Expressive Language Domain",
+    "icon": "fa-comment-dots",
+    "order": 4
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 5,
+  "fields": {
+    "name": "Receptive Language",
+    "description": "Receptive Language Domain",
+    "icon": "fa-ear-listen",
+    "order": 5
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 6,
+  "fields": {
+    "name": "Cognitive",
+    "description": "Cognitive Domain Checklist",
+    "icon": "fa-brain",
+    "order": 6
+  }
+},
+{
+  "model": "core.eccddomain",
+  "pk": 7,
+  "fields": {
+    "name": "Social-Emotional",
+    "description": "Social-Emotional Domain Checklist",
+    "icon": "fa-users",
+    "order": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 1,
+  "fields": {
+    "domain": 1,
+    "action_description": "Climbs on chair or other elevated piece of furniture like a bed without help",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 2,
+  "fields": {
+    "domain": 1,
+    "action_description": "Walks backwards",
+    "material_procedure": "MATERIAL: toy\nPROCEDURE:\nAsk the child to walk backwards by demonstrating this.\nCredit if the child is able to walk backwards without falling and holding on to anything. Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 3,
+  "fields": {
+    "domain": 1,
+    "action_description": "Runs without tripping or falling",
+    "material_procedure": "MATERIAL: ball\nPROCEDURE:\nEncourage the child to run by rolling a ball across the floor.\nCredit if the child can run fast and smoothly without tripping or falling.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 4,
+  "fields": {
+    "domain": 1,
+    "action_description": "Walks down stairs, two feet on each step, with one hand held",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 5,
+  "fields": {
+    "domain": 1,
+    "action_description": "Walks upstairs holding onto a handrail, two feet on each step",
+    "material_procedure": "MATERIAL: toy\nPROCEDURE:\nPlace a toy in the middle of the step and ask the child to walk up the stairs to get the toy. Credit if the child walks up the stairs using the handrail or wall for support and places both feet on each step before stepping on the next one. Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 6,
+  "fields": {
+    "domain": 1,
+    "action_description": "Walks upstairs with alternate feet without holding onto a handrail",
+    "material_procedure": "MATERIAL: toy\nPROCEDURE:\nPlace a toy in the middle of the step and ask the child to walk upstairs to get the toy. Credit if the child walks upstairs, alternating his feet as he steps on each successive step without holding on to the handrail or wall for support. Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 7,
+  "fields": {
+    "domain": 1,
+    "action_description": "Walks downstairs with alternate feet without holding onto a handrail",
+    "material_procedure": "MATERIALS: toy\nPROCEDURE:\nPlace a toy in the middle of the step and ask the child to walk downstairs to get the toy. Credit if the child walks down-stairs, alternating his feet as he steps on each successive step without holding onto the handrail or wall for support. Do not give credit if the child places both feet on the step or uses the handrail or wall for support.\nParental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 8,
+  "fields": {
+    "domain": 1,
+    "action_description": "Moves body part as directed",
+    "material_procedure": "PROCEDURE:\nAsk the child to raise both arms.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 9,
+  "fields": {
+    "domain": 1,
+    "action_description": "Jumps up",
+    "material_procedure": "This must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 9
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 10,
+  "fields": {
+    "domain": 1,
+    "action_description": "Throws ball overhead with direction",
+    "material_procedure": "MATERIAL: ball\nPROCEDURE:\nGive the child the ball and stand at least 3 feet away from him. Ask the child to throw the ball to you using an overhand throw. You may show the child how to do it.\nCredit if the child throws the ball within your arm's reach between your knees and head using an overhand throw and not sideways or underhand.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 10
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 11,
+  "fields": {
+    "domain": 1,
+    "action_description": "Hops one to three steps on preferred foot",
+    "material_procedure": "PROCEDURE:\nAsk the child to lift his foot and hop at least three times on his preferred foot. Credit if the child is able to hop at least three times on his preferred foot without holding on to anything.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 11
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 12,
+  "fields": {
+    "domain": 1,
+    "action_description": "Jumps and turns",
+    "material_procedure": "PROCEDURE:\nAsk the child to jump while making a half-turn. Credit if the child is able to do this without tripping or falling.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 12
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 13,
+  "fields": {
+    "domain": 1,
+    "action_description": "Dances patterns/joins group movement activities",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 13
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 14,
+  "fields": {
+    "domain": 2,
+    "action_description": "Uses all five fingers to get food/toys placed on a flat surface",
+    "material_procedure": "MATERIAL: small toy /object\nPROCEDURE:\nSeat the child on the parent's lap with his elbows at level with the tabletop and his hands on the table or flat surface. Drop a small toy in front of him and attract his attention by pointing to the toy or tapping the table/flat surface. Credit if the child picks up the toy, using all five fingers as if raking.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 15,
+  "fields": {
+    "domain": 2,
+    "action_description": "Picks up objects with thumb and index finger",
+    "material_procedure": "MATERIAL: any small toy or food\nPROCEDURE:\nPlace a toy/food in front of the child and within his reach. Attract his attention by tapping near the toy/food. Credit if the child uses the tips of his thumb and index or forefinger to pick up the toy/food.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 16,
+  "fields": {
+    "domain": 2,
+    "action_description": "Displays a definite hand preference",
+    "material_procedure": "MATERIAL: toy\nPROCEDURE:\nPlace the toy directly in front of the child at midline (not to his left or his right) and ask him to reach for this. Credit if he uses the same hand two out of three times. Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 17,
+  "fields": {
+    "domain": 2,
+    "action_description": "Puts small objects in/out of containers",
+    "material_procedure": "MATERIALS: small objects, container\nThis must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 18,
+  "fields": {
+    "domain": 2,
+    "action_description": "Holds crayon with all the fingers of his hand making a fist (i.e., palmar grasp)",
+    "material_procedure": "MATERIAL: crayon\nPROCEDURE:\nPresent the child with a crayon and have him get this. Credit if he holds it by wrapping all five fingers around as if making a fist. Automatically credit this item if he uses the tips of all five fingers or his thumb, index, and middle fingers.\nThis must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 19,
+  "fields": {
+    "domain": 2,
+    "action_description": "Unscrews the lid of a container or unwraps food",
+    "material_procedure": "MATERIALS: container with screw-on top or wrapped candy.\nThis must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 20,
+  "fields": {
+    "domain": 2,
+    "action_description": "Scribbles spontaneously",
+    "material_procedure": "MATERIALS: paper, pencil/crayon\nPROCEDURE:\nPlace a paper and pencil/crayon on the table or flat surface and ask the child to draw anything he wants without showing him what to do. Credit if the child uses the tips of his thumb and any of his other fingertips to grasp the pencil/crayon and makes purposeful marks on the paper (not accidental marks).",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 21,
+  "fields": {
+    "domain": 2,
+    "action_description": "Scribbles vertical and horizontal lines",
+    "material_procedure": "MATERIALS: paper, pencil/crayon\nPROCEDURE:\nPlace a piece paper and pencil/crayon on the table or flat surface and ask the child to draw vertical and horizontal lines after you have demonstrated these to him. Credit if the child produces a vertical or horizontal line that is at least 2 inches long and does not deviate or vary from your vertical line by more than 30 degrees. The lines may be wavy but not broken.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 22,
+  "fields": {
+    "domain": 2,
+    "action_description": "Draws circle purposefully",
+    "material_procedure": "MATERIALS: paper, pencil/crayon\nPROCEDURE:\nPlace a paper and pencil/crayon on the table or flat surface and ask the child to draw a circle or a ball after you have demonstrated it to him. Credit if the child produces any curve that is closed or nearly closed. Continuous spiral motions are not credited.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 9
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 23,
+  "fields": {
+    "domain": 2,
+    "action_description": "Draws a human figure (head, eyes, trunk, arms, hands/fingers)",
+    "material_procedure": "MATERIALS: paper, pencil\nPROCEDURE:\nGive the child a pencil and a paper and ask him to draw a picture of a person. Credit if the child has drawn three or more body parts. A pair is considered one part (eyes, ears, arms, hands, legs, and feet) and must be drawn in pairs to get full credit unless the drawing is in profile.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 10
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 24,
+  "fields": {
+    "domain": 2,
+    "action_description": "Draws a house using geometric forms",
+    "material_procedure": "MATERIALS: paper, pencil\nPROCEDURE:\nGive the child a pencil and paper and ask him to draw a picture of a house. Credit if the child has drawn at least the roof, main frame, and a door or window.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 11
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 25,
+  "fields": {
+    "domain": 3,
+    "action_description": "Feeds self with finger food (e.g. biscuits, bread) using fingers",
+    "material_procedure": "MATERIALS: bread, biscuits\nThis must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 26,
+  "fields": {
+    "domain": 3,
+    "action_description": "Feeds self using fingers to eat rice/viands with spillage",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 27,
+  "fields": {
+    "domain": 3,
+    "action_description": "Feeds self using spoon with spillage",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 28,
+  "fields": {
+    "domain": 3,
+    "action_description": "Feeds self using fingers without spillage",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 29,
+  "fields": {
+    "domain": 3,
+    "action_description": "Feeds self using spoon without spillage",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 30,
+  "fields": {
+    "domain": 3,
+    "action_description": "Eats without need for spoonfeeding during any meal",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 31,
+  "fields": {
+    "domain": 3,
+    "action_description": "Helps hold cup for drinking",
+    "material_procedure": "Note: The cup should not have a lid or spout.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 32,
+  "fields": {
+    "domain": 3,
+    "action_description": "Drinks from cup with spillage",
+    "material_procedure": "Ask the caregiver if the child can drink from a cup/glass with some spillage. The cup should not have a lid or spout.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 33,
+  "fields": {
+    "domain": 3,
+    "action_description": "Drinks from cup unassisted",
+    "material_procedure": "MATERIALS: drinking cup, water\nThis must be elicited by the interviewer.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 9
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 34,
+  "fields": {
+    "domain": 3,
+    "action_description": "Gets drink for self unassisted",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 10
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 35,
+  "fields": {
+    "domain": 3,
+    "action_description": "Pours from pitcher without spillage",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 11
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 36,
+  "fields": {
+    "domain": 3,
+    "action_description": "Prepares own food/snack",
+    "material_procedure": "Ask the caregiver if the child can prepare his own snack without help except for getting items that are hard to reach (e.g., bowl spoon).",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 12
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 37,
+  "fields": {
+    "domain": 3,
+    "action_description": "Prepares meals for younger siblings/family members when no adult is around",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 13
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 38,
+  "fields": {
+    "domain": 3,
+    "action_description": "Participates when being dressed (e.g., raises arms or lifts leg)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 14
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 39,
+  "fields": {
+    "domain": 3,
+    "action_description": "Pulls down gartered short pants",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 15
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 40,
+  "fields": {
+    "domain": 3,
+    "action_description": "Removes sando",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 16
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 41,
+  "fields": {
+    "domain": 3,
+    "action_description": "Dresses without assistance except for buttons and tying",
+    "material_procedure": "Material: small shirt w/button and shoestring\nParental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 17
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 42,
+  "fields": {
+    "domain": 3,
+    "action_description": "Dresses without assistance including buttons and tying",
+    "material_procedure": "PROCEDURE:\nHave the child demonstrate how to button and tie to credit this item.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 18
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 43,
+  "fields": {
+    "domain": 3,
+    "action_description": "Informs the adult only after he has already urinated (peed) or moved his bowels (poohed) in his underpants",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 19
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 44,
+  "fields": {
+    "domain": 3,
+    "action_description": "Informs the adult of need to urinate (pee) or move bowels (pooh-pooh) so he can be brought to a designated place (e.g., comfort room)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 20
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 45,
+  "fields": {
+    "domain": 3,
+    "action_description": "Goes to the designated place to urinate (pee) or move bowels (pooh) but sometimes still does this in his underpants",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 21
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 46,
+  "fields": {
+    "domain": 3,
+    "action_description": "Goes to the designated place to urinate (pee) or move bowels (pooh) and never does this in his underpants/wear anymore",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 22
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 47,
+  "fields": {
+    "domain": 3,
+    "action_description": "Wipes/cleans self after a bowel movement (pooh)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 23
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 48,
+  "fields": {
+    "domain": 3,
+    "action_description": "Participates when bathing (e.g., rubbing arms with soap)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 24
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 49,
+  "fields": {
+    "domain": 3,
+    "action_description": "Washes and dries hands without any help",
+    "material_procedure": "Ask the caregiver if the child can wash and dry his hands without any help or supervision except to turn on/off faucets that are out of reach.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 25
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 50,
+  "fields": {
+    "domain": 3,
+    "action_description": "Washes face without any help",
+    "material_procedure": "Ask the caregiver if the child can wash and dry his face without any help or supervision except to turn on/off faucets that are out of reach.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 26
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 51,
+  "fields": {
+    "domain": 3,
+    "action_description": "Bathes without any help",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 27
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 52,
+  "fields": {
+    "domain": 4,
+    "action_description": "Uses five to 20 recognizable words",
+    "material_procedure": "PROCEDURE:\nAsk the caregiver if the child can clearly say five to six words aside from mama and papa. This will be the minimum number.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 53,
+  "fields": {
+    "domain": 4,
+    "action_description": "Uses pronouns (e.g. I, me, ako, akin)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 54,
+  "fields": {
+    "domain": 4,
+    "action_description": "Uses two-to three-word verb-noun combinations (e.g., hingi gatas)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 55,
+  "fields": {
+    "domain": 4,
+    "action_description": "Names objects in pictures",
+    "material_procedure": "MATERIAL: picture book 2\nPROCEDURE:\nShow the child a picture book, point to an object in the book, then ask him to name it (e.g., \"Ano 'to?\"). Credit if the child can say the correct name of at least four objects.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 56,
+  "fields": {
+    "domain": 4,
+    "action_description": "Speaks in grammatically correct two- to three-word sentences",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 57,
+  "fields": {
+    "domain": 4,
+    "action_description": "Asks \"what\" questions",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 58,
+  "fields": {
+    "domain": 4,
+    "action_description": "Asks \"who\" and \"why\" questions",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 59,
+  "fields": {
+    "domain": 4,
+    "action_description": "Gives account of recent experiences (with prompting) in order of occurrence using past tense",
+    "material_procedure": "PROCEDURE:\nAsk the caregiver if the child can recount recent experiences in correct sequence and using past tenses correctly. The caregiver can prompt him so he can complete what he is talking about (e.g., Tapos ano pang nangyari?). Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 60,
+  "fields": {
+    "domain": 5,
+    "action_description": "Points to a family member when asked to do so",
+    "material_procedure": "PROCEDURE:\nAsk the child to point to his mother/caregiver. Credit if he does so.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 61,
+  "fields": {
+    "domain": 5,
+    "action_description": "Points to five body parts on himself when asked to do so",
+    "material_procedure": "PROCEDURE:\nHave the child point to his eyes, nose, mouth, hands and feet or other body part. Credit if he can point to all these.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 62,
+  "fields": {
+    "domain": 5,
+    "action_description": "Points to five named pictured objects when asked to do so",
+    "material_procedure": "MATERIAL: picture book 1\nPROCEDURE:\nShow the child a picture book (one picture per page) and ask him to point to the picture by saying, \"Where's the ______?\" Credit if the child can use his finger to point to at least five pictures.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 63,
+  "fields": {
+    "domain": 5,
+    "action_description": "Follows one-step instructions that include simple prepositions (e.g., in, on, under, etc.)",
+    "material_procedure": "MATERIAL: block/toy\nPROCEDURE:\nAsk the child to put a block/toy under the table; on the table; in the bag. Do not point or use gestures when giving the instructions. Credit if the child is able to follow at least one of the instructions.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 64,
+  "fields": {
+    "domain": 5,
+    "action_description": "Follows two-step instructions that include simple prepositions",
+    "material_procedure": "MATERIAL: block/toy\nPROCEDURE:\nAsk the child to get a block/toy from under the table and then place it on the table. Do not point or use gestures when giving the instruction. Credit if the child is able to follow.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 65,
+  "fields": {
+    "domain": 6,
+    "action_description": "Looks in the direction of fallen object",
+    "material_procedure": "MATERIAL: spoon/ball\nPROCEDURE:\nWith the child seated, get his attention and drop a spoon/ball in front of him. Then observe if his eyes look down as it falls. Credit if the child can bring his eyes and head down as the object falls.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 66,
+  "fields": {
+    "domain": 6,
+    "action_description": "Looks for a partially hidden object",
+    "material_procedure": "MATERIALS: ball, small towel/cloth\nPROCEDURE:\nWith the child facing you, partially hide a ball behind a small towel and observe if he will look for it and find it. Credit if the child pulls the towel and gets the hidden ball.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 67,
+  "fields": {
+    "domain": 6,
+    "action_description": "Imitates behavior just seen a few minutes earlier",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 68,
+  "fields": {
+    "domain": 6,
+    "action_description": "Offers an object but will not release it",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 69,
+  "fields": {
+    "domain": 6,
+    "action_description": "Looks for a completely hidden object",
+    "material_procedure": "MATERIALS: ball, small towel/cloth\nPROCEDURE:\nWith the child facing you, hide a ball completely under a small towel and observe if he will look under the towel. Credit if he looks under the towel and gets the hidden ball.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 70,
+  "fields": {
+    "domain": 6,
+    "action_description": "Exhibits simple \"pretend\" play (feeds, put doll to sleep)",
+    "material_procedure": "MATERIALS: doll or toy car/block\nPROCEDURE:\nIf the child is a girl, carry the doll and try to rock it to sleep. If the child is a boy, move the toy car/block back and forth. Credit if the child can imitate this.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 71,
+  "fields": {
+    "domain": 6,
+    "action_description": "Matches objects",
+    "material_procedure": "MATERIALS: pairs of spoons, balls, blocks\nPROCEDURE:\nPlace one spoon, one ball, and one block on the table. Give the child the other set of objects arranged in random order. Demonstrate a matching response (e.g., spoon to spoon) then return the objects to the child. Say, \"Put each object on the one that is just like it.\" Credit if the child can match the objects correctly.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 72,
+  "fields": {
+    "domain": 6,
+    "action_description": "Matches two to three colors",
+    "material_procedure": "MATERIALS: Three pairs of crayons (blue, red, yellow)\nPROCEDURE:\nPlace one crayon of each color on the table or flat surface. Give the child the other crayons arranged in random order. Demonstrate a matching response (e.g., red crayon with another red crayon) then return the crayons to the child. Say, \"Put each crayon on the one that is just like it.\" Credit if the child can match all colors correctly.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 73,
+  "fields": {
+    "domain": 6,
+    "action_description": "Matches pictures",
+    "material_procedure": "MATERIALS: Three pairs of picture cards (e.g., pictures of an apple, orange, banana)\nPROCEDURE:\nPlace one copy of each picture on the table or flat surface. Give the child the other pictures arranged in random order. Demonstrate a matching response (e.g., picture of an apple with another apple) then return the pictures to the child. Say, \"Put each picture on the one that is just like it.\" Credit if the child can match all the pictures correctly.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 9
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 74,
+  "fields": {
+    "domain": 6,
+    "action_description": "Sorts based on shapes",
+    "material_procedure": "MATERIALS: Four pairs of different shapes that are of the same size and color.\nPROCEDURE:\nShow the child the shapes. Tell the child, \"Put together the ones that are the same.\" After the child sorts and groups the shapes, point to the ones with the same shape and ask, \"Why did you put these together?\" Credit if the child can group the same shapes and say why they are the same (pareho sila, pareho sila ng hugis/shape, puro sila bilog).",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 10
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 75,
+  "fields": {
+    "domain": 6,
+    "action_description": "Sorts objects based on two attributes (e.g., size and color)",
+    "material_procedure": "MATERIALS: Four pairs of the same shape that differ in size and color.\nPROCEDURE:\nShow the child the shapes. Tell the child, \"Put together the ones that are the same\". Credit if the child can sort all the shapes according to size and color.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 11
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 76,
+  "fields": {
+    "domain": 6,
+    "action_description": "Arranges objects according to size from smallest to biggest",
+    "material_procedure": "MATERIALS: Four pieces of graduated squares and four pieces of graduated sized circles\nPROCEDURE:\nShow the child the first set of squares spread out at random on a table or flat surface. Say, \"Here are 4 squares. Look, I can begin with the smallest, then the next big one, until the biggest one.\" Demonstrate how to arrange the squares. Then disarrange these and tell the child, \"Now you start with the smallest, put the next one and the next big one until the last one.\"\nRepeat this procedure using the circles without demonstrating.\nCredit if the child arranges at least one set of shapes in correct order from smallest to biggest. Allow one trial for each set of shapes.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 12
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 77,
+  "fields": {
+    "domain": 6,
+    "action_description": "Names four to six colors",
+    "material_procedure": "MATERIALS: Six papers of different colors\nPROCEDURE:\nAsk the child, \"What color is this?\" Credit if the child can name four to six colors correctly.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 13
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 78,
+  "fields": {
+    "domain": 6,
+    "action_description": "Copies shapes",
+    "material_procedure": "MATERIALS: paper and pen/crayon\nPROCEDURE:\nLet the child copy a circle, triangle, and square after demonstrating how each of this is done.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 14
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 79,
+  "fields": {
+    "domain": 6,
+    "action_description": "Names 3 animals or vegetables when asked",
+    "material_procedure": "Credit if the child can name 3 animals or vegetables",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 15
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 80,
+  "fields": {
+    "domain": 6,
+    "action_description": "States what common household items are used for",
+    "material_procedure": "Credit if he can state the use or function of at least two household items like a bed and a drinking glass.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 16
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 81,
+  "fields": {
+    "domain": 6,
+    "action_description": "Can assemble simple puzzles",
+    "material_procedure": "MATERIAL: Simple four- to six-piece puzzles\nProcedure: Allow the child to solve the puzzle in 2 minutes. Proceed to the next item after 2 minutes.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 17
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 82,
+  "fields": {
+    "domain": 6,
+    "action_description": "Demonstrates an understanding of opposites by completing a statement (e.g., Ang aso ay malaki, ang daga ay ____\")",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 18
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 83,
+  "fields": {
+    "domain": 6,
+    "action_description": "Points to left and right sides of body",
+    "material_procedure": "PROCEDURE:\nSit across the child and ask \"Show me your left hand.\" Do the same for the following: Right hand, left foot, right knee, left shoulder, right eye, right knee, left leg. Credit if the child can correctly point out the left and right side on at least five body parts as requested.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 19
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 84,
+  "fields": {
+    "domain": 6,
+    "action_description": "Can state what is silly or wrong with pictures (e.g., Ano ang mali sa larawang ito?)",
+    "material_procedure": "MATERIALS: Two picture cards depicting activities that have something silly or wrong with them.\nPROCEDURE:\nShow the pictured scenes to the child one at a time and ask, \"What is wrong with this picture?\" Credit if the child correctly identifies what made the picture incorrect.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 20
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 85,
+  "fields": {
+    "domain": 6,
+    "action_description": "Matches upper case letters; and matches lower case letters",
+    "material_procedure": "MATERIALS: 2 sets of alphabet cards with upper and lower case letters.\nPROCEDURE:\nRandomly present 4 pairs of upper case letters. Have the child match these. Do the same with 4 pairs of lower case letters. Credit if the child can match any 4 pairs, regardless of whether these are upper or lower case.\nNote: The child does not have to know the name of the letters.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 21
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 86,
+  "fields": {
+    "domain": 7,
+    "action_description": "Enjoys watching activities of nearby people or animals",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 1
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 87,
+  "fields": {
+    "domain": 7,
+    "action_description": "Friendly with strangers but initially may show slight anxiety or shyness",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 2
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 88,
+  "fields": {
+    "domain": 7,
+    "action_description": "Plays alone but likes to be near familiar adults or brothers and sisters",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 3
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 89,
+  "fields": {
+    "domain": 7,
+    "action_description": "Laughs or squeals aloud in play",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 4
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 90,
+  "fields": {
+    "domain": 7,
+    "action_description": "Plays peek-a-boo (bulaga)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 5
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 91,
+  "fields": {
+    "domain": 7,
+    "action_description": "Rolls ball interactively with caregiver/examiner",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 6
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 92,
+  "fields": {
+    "domain": 7,
+    "action_description": "Hugs or cuddles toys",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 7
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 93,
+  "fields": {
+    "domain": 7,
+    "action_description": "Demonstrates respect for elders using terms like \"po\" and \"opo\"",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 8
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 94,
+  "fields": {
+    "domain": 7,
+    "action_description": "Shares toys with others",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 9
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 95,
+  "fields": {
+    "domain": 7,
+    "action_description": "Imitates adult activities (e.g., cooking, washing)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 10
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 96,
+  "fields": {
+    "domain": 7,
+    "action_description": "Identifies feelings in others",
+    "material_procedure": "Credit if the child can tell when the caregiver is feeling happy, sad, worried, etc. Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 11
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 97,
+  "fields": {
+    "domain": 7,
+    "action_description": "Appropriately uses cultural gestures of greeting without much prompting (e.g., mano, bless, kiss, etc.)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 12
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 98,
+  "fields": {
+    "domain": 7,
+    "action_description": "Comforts playmates/siblings in distress",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 13
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 99,
+  "fields": {
+    "domain": 7,
+    "action_description": "Persists when faced with a problem or obstacle to his wants",
+    "material_procedure": "Credit if the child tries to solve the problem instead of crying when something stands in the way of what he wants (e.g., fastening a box of his treasures with a string if the lid no longer closes)\nParental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 14
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 100,
+  "fields": {
+    "domain": 7,
+    "action_description": "Helps with family chores (e.g., wiping tables, watering plants, etc.)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 15
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 101,
+  "fields": {
+    "domain": 7,
+    "action_description": "Curious about environment but knows when to stop asking questions of adults",
+    "material_procedure": "Credit if the child asks questions about things around him but knows when he is being \"makulit\" about the topic.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 16
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 102,
+  "fields": {
+    "domain": 7,
+    "action_description": "Waits for his turn",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 17
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 103,
+  "fields": {
+    "domain": 7,
+    "action_description": "Asks permission to play with toy being used by another",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 18
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 104,
+  "fields": {
+    "domain": 7,
+    "action_description": "Defends possessions with determination",
+    "material_procedure": "Parental report will suffice.\nCredit if the child tries to hold on to what is his when someone tries to grab this from him.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 19
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 105,
+  "fields": {
+    "domain": 7,
+    "action_description": "Plays organized group games fairly (e.g., does not cheat to win)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 20
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 106,
+  "fields": {
+    "domain": 7,
+    "action_description": "Can talk about complex feelings (e.g., anger, sadness, worry) he experiences",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 21
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 107,
+  "fields": {
+    "domain": 7,
+    "action_description": "Honors a simple bargain with caregiver (e.g., plays outside only after cleaning/fixing his/her room)",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 22
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 108,
+  "fields": {
+    "domain": 7,
+    "action_description": "Watches responsibly over younger siblings/family members",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 23
+  }
+},
+{
+  "model": "core.eccdmilestone",
+  "pk": 109,
+  "fields": {
+    "domain": 7,
+    "action_description": "Cooperates with adults and peers in group situations to minimize quarrels and conflicts",
+    "material_procedure": "Parental report will suffice.",
+    "age_bracket_min_months": 0,
+    "age_bracket_max_months": 72,
+    "order_number": 24
+  }
+}
+]

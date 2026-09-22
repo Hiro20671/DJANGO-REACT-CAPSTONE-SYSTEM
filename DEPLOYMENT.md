@@ -135,12 +135,9 @@ if path not in sys.path:
     sys.path.insert(0, path)
 
 # ----------------- EMAIL CONFIGURATION -----------------
-# Option A: Brevo HTTP API (Recommended - Works on FREE and PAID tiers)
-os.environ['BREVO_API_KEY'] = 'your-actual-brevo-api-key-here'
-
-# Option B: SMTP Relaying (Works on PAID tiers only)
-# os.environ['EMAIL_HOST_USER'] = 'your-smtp-email@example.com'
-# os.environ['EMAIL_HOST_PASSWORD'] = 'your-smtp-password'
+# Brevo HTTP API (Works on BOTH FREE and PAID PythonAnywhere accounts)
+os.environ['BREVO_API_KEY'] = 'xkeysib-your-actual-brevo-api-key'
+os.environ['DEFAULT_FROM_EMAIL'] = 'your-verified-brevo-email@gmail.com'
 # -------------------------------------------------------
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.prod'
@@ -149,4 +146,21 @@ from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 ```
 
-4. Click **Save** and **Reload** your web app on the **Web** tab.
+4. Click **Save** (top-right) and **Reload** your web app on the **Web** tab.
+
+---
+
+## 6. How to Test Sending Email from Bash Console
+
+To verify that your Brevo API key and verified sender work from PythonAnywhere without errors, open your Bash Console and run:
+
+```bash
+cd ~/DJANGO-REACT-CAPSTONE-SYSTEM/backend
+workon bmv3-env
+export BREVO_API_KEY="xkeysib-your-actual-brevo-api-key"
+export DEFAULT_FROM_EMAIL="your-verified-brevo-email@gmail.com"
+export DJANGO_SETTINGS_MODULE="config.settings.prod"
+
+python manage.py shell -c "from django.core.mail import send_mail; from django.conf import settings; send_mail('Brevo Test', 'Hello! Email works on PythonAnywhere!', settings.DEFAULT_FROM_EMAIL, ['your-own-email@gmail.com'], fail_silently=False); print('SUCCESS: Email sent!')"
+```
+If you see `SUCCESS: Email sent!`, your email sending is functioning on PythonAnywhere!

@@ -67,18 +67,110 @@
 }
 
 /* Mobile Responsive Optimizations */
+/* Screen 8 Mobile Milestones Layout */
+.mobile-milestones-layout {
+    display: none;
+}
+
 @media (max-width: 768px) {
-    .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 15px !important; }
-    .page-header div { width: 100% !important; }
-    .tabs { overflow-x: auto; white-space: nowrap; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
-    .tab { flex-shrink: 0; }
+    .page-header { display: none !important; }
+    .tabs { display: none !important; }
+    #content-dashboard > div:first-child { display: none !important; }
+    #domainCardsContainer { display: none !important; }
+    .mobile-milestones-layout {
+        display: block;
+        margin-bottom: 25px;
+    }
     .assess-header { flex-direction: column !important; align-items: flex-start !important; gap: 15px !important; }
     .assess-header div { width: 100% !important; }
     .assess-header button { width: 100% !important; }
     .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; }
     .assess-table { min-width: 650px; }
 }
+
+.mob-filter-pills {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.mob-filter-pills::-webkit-scrollbar { display: none; }
+
+.mob-filter-pill {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.mob-filter-pill.active {
+    background: #091e42;
+    color: #ffffff;
+    border-color: #091e42;
+}
+
+.mob-milestone-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.mob-milestone-card:active {
+    transform: scale(0.98);
+}
 </style>
+
+<!-- Mobile Screen 8 Milestones Layout -->
+<div class="mobile-milestones-layout">
+    <div class="mobile-subpage-header">
+        <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h1>Milestones</h1>
+        <div style="width:36px;"></div>
+    </div>
+
+    <!-- Active Child Card -->
+    <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img id="mobMileChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div>
+                <div id="mobMileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <span id="mobMileChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
+                    <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                </div>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="mob-filter-pills">
+        <button class="mob-filter-pill active" onclick="filterMobileMilestones('All', this)">All</button>
+        <button class="mob-filter-pill" onclick="filterMobileMilestones('Completed', this)">Completed</button>
+        <button class="mob-filter-pill" onclick="filterMobileMilestones('Upcoming', this)">Upcoming</button>
+    </div>
+
+    <!-- Milestone Cards List -->
+    <div id="mobile-milestones-list">
+        <!-- Rendered by JS -->
+    </div>
+</div>
 
 <div class="page-header">
     <div>
@@ -158,7 +250,7 @@
 <div id="content-scoring-details" class="content-section">
     <!-- LOCK / VERIFICATION REQUEST PANEL -->
     <div id="scoring-lock-view" style="display:none; text-align:center; padding:50px 30px; background:white; border:1px solid #e2e8f0; border-radius:12px; max-width:600px; margin: 30px auto; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
-        <div style="font-size:4rem; margin-bottom:20px;">🔒</div>
+        <div style="font-size:4rem; margin-bottom:20px; color:#94a3b8;"><i class="fa-solid fa-lock"></i></div>
         <h3 style="color:#043263; font-weight:800; font-size:1.5rem; margin-bottom:15px;" id="scoringLockTitle">Milestone Scoring Breakdown is Locked</h3>
         <p style="color:#64748b; font-size:0.95rem; line-height:1.6; margin-bottom:30px;" id="scoringLockDesc">
             Milestone evaluations are finalized by the classroom teacher. To view the official ECCD Index, scaled scorecards, and chronological age calculations, please send a verification request to the teacher.
@@ -444,6 +536,18 @@ async function fetchSystemData() {
         }
 
         childData = selectedChild;
+
+        // Mobile Screen 8 Child Card Binding
+        if (document.getElementById('mobMileChildName')) {
+            document.getElementById('mobMileChildName').innerText = `${childData.first_name} ${childData.last_name}`;
+        }
+        if (document.getElementById('mobMileChildImg')) {
+            document.getElementById('mobMileChildImg').src = childData.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${childData.first_name}`);
+        }
+        if (document.getElementById('mobMileChildAge') && childData.age) {
+            document.getElementById('mobMileChildAge').innerText = `${childData.age} yrs`;
+        }
+
         domainsList = await domRes.json();
         milestonesList = await msRes.json();
 
@@ -571,6 +675,85 @@ function renderDomainCards() {
     });
 
     document.getElementById('dashboard-overall').innerText = `Observed Milestones: ${totalScored} of ${totalMilestones} Demonstrated`;
+
+    // Populate Mobile Screen 8 Milestones List
+    window.allMobileMilestones = [];
+    domainsList.forEach(domain => {
+        const dMilestones = milestonesList.filter(m => m.domain === domain.id);
+        const count = dMilestones.length * 3;
+        let scored = 0;
+        dMilestones.forEach(m => {
+            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+            scored += s.length;
+        });
+        const pct = count === 0 ? 0 : Math.round((scored / count) * 100);
+        const isComp = pct >= 70;
+
+        window.allMobileMilestones.push({
+            id: domain.id,
+            name: domain.name,
+            icon: domain.icon || 'fa-award',
+            pct: pct,
+            scored: scored,
+            count: count,
+            status: isComp ? 'Completed' : 'Upcoming'
+        });
+    });
+
+    renderMobileMilestonesList('All');
+}
+
+function renderMobileMilestonesList(filterCategory) {
+    const mobListEl = document.getElementById('mobile-milestones-list');
+    if (!mobListEl) return;
+
+    let items = window.allMobileMilestones || [];
+    if (filterCategory && filterCategory !== 'All') {
+        items = items.filter(m => m.status === filterCategory);
+    }
+
+    if (items.length === 0) {
+        mobListEl.innerHTML = '<div style="text-align:center; padding:30px 15px; background:#fff; border-radius:16px; border:1px solid #e2e8f0; color:#64748b; font-size:0.88rem;">No milestones found in this filter.</div>';
+        return;
+    }
+
+    let mHtml = '';
+    items.forEach(item => {
+        const isDone = item.status === 'Completed';
+        const badgeBg = isDone ? '#dcfce7' : '#fef3c7';
+        const badgeColor = isDone ? '#15803d' : '#b45309';
+        const iconBg = isDone ? '#dcfce7' : '#e0f2fe';
+        const iconColor = isDone ? '#16a34a' : '#0284c7';
+
+        mHtml += `
+        <div class="mob-milestone-card" onclick="openAssessment(${item.id})">
+            <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                <div style="width:42px; height:42px; border-radius:12px; background:${iconBg}; display:flex; align-items:center; justify-content:center; color:${iconColor}; font-size:1.15rem; flex-shrink:0;">
+                    <i class="fa-solid ${item.icon}"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-weight:800; font-size:0.88rem; color:#091e42; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        ${item.name}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.75rem; color:#64748b;">${isDone ? 'Completed' : 'Evaluation Pending'}</span>
+                        <span style="font-size:0.7rem; font-weight:700; background:${badgeBg}; color:${badgeColor}; padding:1px 7px; border-radius:10px;">${item.status}</span>
+                    </div>
+                </div>
+            </div>
+            <div style="color:#94a3b8; font-size:0.85rem; padding-left:8px;">
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+        </div>`;
+    });
+
+    mobListEl.innerHTML = mHtml;
+}
+
+function filterMobileMilestones(category, btnEl) {
+    document.querySelectorAll('.mob-filter-pill').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    renderMobileMilestonesList(category);
 }
 
 let currentAssessingDomain = null;
@@ -613,13 +796,13 @@ function renderAssessmentTable() {
             return `
             <div class="score-selector" id="sel_group_${assessmentId}_${milestoneId}">
                 <button type="button" class="sel-btn sel-line ${val === 0 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 0)" type="button">−</button>
-                <button type="button" class="sel-btn sel-check ${val === 1 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 1)" type="button">✓</button>
+                <button type="button" class="sel-btn sel-check ${val === 1 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 1)" type="button"><i class="fa-solid fa-check"></i></button>
             </div>`;
         } else {
             return `
             <div class="score-selector">
                 <button type="button" class="sel-btn sel-line ${val === 0 ? 'active' : ''}" disabled>−</button>
-                <button type="button" class="sel-btn sel-check ${val === 1 ? 'active' : ''}" disabled>✓</button>
+                <button type="button" class="sel-btn sel-check ${val === 1 ? 'active' : ''}" disabled><i class="fa-solid fa-check"></i></button>
             </div>`;
         }
     };
@@ -767,7 +950,7 @@ async function checkScoringRequestStatus() {
         } else if (status === 'Requested') {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "⏳ Verification Request Sent";
+            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-hourglass-half\"></i> Verification Request Sent";
             document.getElementById('scoringLockDesc').innerText = "Your request has been submitted to the classroom teacher. Overall scores and chronological age calculations will be displayed as soon as the teacher approves the request.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-outline" disabled style="padding:12px 24px; border-radius:8px; font-weight:bold; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">
@@ -777,7 +960,7 @@ async function checkScoringRequestStatus() {
         } else if (status === 'Expired') {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "🔒 Scoring Access Expired";
+            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-lock\"></i> Scoring Access Expired";
             document.getElementById('scoringLockDesc').innerText = "Your previous access has expired (access is valid for 1 day only). To view the ECCD Index, scaled scorecards, and age calculations again, please submit a new verification request to the teacher.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-primary btn-history-view" onclick="requestScoringAccess()" style="background:#043263; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">
@@ -787,7 +970,7 @@ async function checkScoringRequestStatus() {
         } else {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "🔒 Milestone Scoring Breakdown is Locked";
+            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-lock\"></i> Milestone Scoring Breakdown is Locked";
             document.getElementById('scoringLockDesc').innerText = "Milestone evaluations are finalized by the classroom teacher. To view the official ECCD Index, scaled scorecards, and chronological age calculations, please send a verification request to the teacher.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-primary btn-history-view" onclick="requestScoringAccess()" style="background:#043263; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">

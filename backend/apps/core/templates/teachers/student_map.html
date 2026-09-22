@@ -8,12 +8,12 @@
     <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom: 24px;">
 
         <div>
-            <h2 style="font-weight: 800; color: var(--text-primary);">🗺️ Student House Map & Geographic Distribution</h2>
+            <h2 style="font-weight: 800; color: var(--text-primary);"><i class="fa-solid fa-map-location-dot" style="margin-right:8px;"></i> Student House Map & Geographic Distribution</h2>
             <p style="color: var(--text-secondary);">View all pinned student houses for the selected school year relative to Barangay Market View 3 Child Development Center.</p>
         </div>
         <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
             <button onclick="openSchoolPinModal()" class="btn-primary" style="background:#063970; color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:800; cursor:pointer; font-size:0.95rem; display:inline-flex; align-items:center; gap:8px;">
-                <i class="fa-solid fa-school-flag"></i> 📍 Pin / Update School Location
+                <i class="fa-solid fa-school-flag"></i> <i class="fa-solid fa-location-dot"></i> Pin / Update School Location
             </button>
             <select id="teacherSySelect" onchange="loadTeacherStudentMap()" style="padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border-color); font-weight: 700; font-size: 0.95rem; background: var(--bg-card); color: var(--text-primary);">
                 <option value="">Loading School Years...</option>
@@ -29,7 +29,7 @@
             <button onclick="closeSchoolPinModal()" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--text-muted);">&times;</button>
         </div>
         <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">
-            Click anywhere on the map or drag the school marker 🏫 to set your school's exact location. All parent route calculations and student map pins will use this center!
+            Click anywhere on the map or drag the school marker <i class="fa-solid fa-school"></i> to set your school's exact location. All parent route calculations and student map pins will use this center!
         </p>
 
         <div id="modalSchoolMap" style="height:360px; width:100%; border-radius:12px; border:2px solid #063970; margin-bottom:14px;"></div>
@@ -140,20 +140,20 @@
             const centerRes = await fetch('/api/center-settings/');
             const centerData = await centerRes.json();
             if (centerData.center_latitude && centerData.center_longitude) {
-                bmv3CenterCoords = [centerData.center_latitude, centerData.center_longitude];
+                bmv3CenterCoords = [parseFloat(centerData.center_latitude), parseFloat(centerData.center_longitude)];
             }
         } catch(e) {}
 
         teacherMapObj = L.map('teacherStudentMapContainer').setView(bmv3CenterCoords, 15);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(teacherMapObj);
 
         const schoolIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#063970; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.4rem;">🏫</div>',
+            html: '<div style="background:#063970; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.4rem;"><i class="fa-solid fa-school"></i></div>',
             iconSize: [44, 44],
             iconAnchor: [22, 22]
         });
@@ -170,7 +170,7 @@
 
         const houseIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#ef4444; color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-size:1.1rem;">🏠</div>',
+            html: '<div style="background:#ef4444; color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-size:1.1rem;"><i class="fa-solid fa-house"></i></div>',
             iconSize: [34, 34],
             iconAnchor: [17, 17]
         });
@@ -184,7 +184,7 @@
                     <h4 style="font-weight:800; margin:0; color:#063970; font-size:1rem;">${st.child_name}</h4>
                     <div style="font-size:0.8rem; color:#64748b; font-weight:700; margin-top:2px;">Parent: ${st.parent_name}</div>
                     <div style="font-size:0.8rem; color:#0284c7; font-weight:700; margin-top:4px;"><i class="fa-solid fa-phone"></i> ${st.phone}</div>
-                    <div style="font-size:0.75rem; color:#475569; margin-top:4px;">📍 ${st.address_text}</div>
+                    <div style="font-size:0.75rem; color:#475569; margin-top:4px;"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i> ${st.address_text}</div>
                 </div>
             `;
             marker.bindPopup(popupHtml);
@@ -249,26 +249,31 @@
     }
 
     function initModalSchoolMap() {
-        pendingSchoolCoords = bmv3CenterCoords;
-        document.getElementById('modalSchoolCoordsText').innerText = `${pendingSchoolCoords[0].toFixed(6)}, ${pendingSchoolCoords[1].toFixed(6)}`;
+        const lat = parseFloat(bmv3CenterCoords[0]) || 13.9380;
+        const lng = parseFloat(bmv3CenterCoords[1]) || 121.6146;
+        pendingSchoolCoords = [lat, lng];
+        const coordsText = document.getElementById('modalSchoolCoordsText');
+        if (coordsText) coordsText.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
         if (modalMapObj) {
-            modalMapObj.invalidateSize();
-            modalMapObj.setView(pendingSchoolCoords, 15);
-            modalSchoolMarker.setLatLng(pendingSchoolCoords);
+            setTimeout(() => {
+                modalMapObj.invalidateSize();
+                modalMapObj.setView(pendingSchoolCoords, 15);
+                if (modalSchoolMarker) modalSchoolMarker.setLatLng(pendingSchoolCoords);
+            }, 100);
             return;
         }
 
         modalMapObj = L.map('modalSchoolMap').setView(pendingSchoolCoords, 15);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(modalMapObj);
 
         const schoolIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#063970; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.4rem;">🏫</div>',
+            html: '<div style="background:#063970; color:white; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.4rem;"><i class="fa-solid fa-school"></i></div>',
             iconSize: [44, 44],
             iconAnchor: [22, 22]
         });
@@ -278,15 +283,20 @@
 
         modalSchoolMarker.on('dragend', function(e) {
             const latlng = modalSchoolMarker.getLatLng();
-            pendingSchoolCoords = [latlng.lat, latlng.lng];
-            document.getElementById('modalSchoolCoordsText').innerText = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+            pendingSchoolCoords = [parseFloat(latlng.lat), parseFloat(latlng.lng)];
+            if (coordsText) coordsText.innerText = `${pendingSchoolCoords[0].toFixed(6)}, ${pendingSchoolCoords[1].toFixed(6)}`;
         });
 
         modalMapObj.on('click', function(e) {
-            modalSchoolMarker.setLatLng(e.latlng);
-            pendingSchoolCoords = [e.latlng.lat, e.latlng.lng];
-            document.getElementById('modalSchoolCoordsText').innerText = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            const latlng = e.latlng;
+            pendingSchoolCoords = [parseFloat(latlng.lat), parseFloat(latlng.lng)];
+            modalSchoolMarker.setLatLng(latlng);
+            if (coordsText) coordsText.innerText = `${pendingSchoolCoords[0].toFixed(6)}, ${pendingSchoolCoords[1].toFixed(6)}`;
         });
+
+        setTimeout(() => {
+            modalMapObj.invalidateSize();
+        }, 250);
     }
 
     async function saveSchoolPinLocation() {

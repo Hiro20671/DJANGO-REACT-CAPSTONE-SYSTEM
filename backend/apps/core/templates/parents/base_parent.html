@@ -527,16 +527,16 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 65px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            height: 64px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
             z-index: 1000;
             justify-content: space-around;
             align-items: center;
-            padding: 0 10px;
+            padding: 0 8px;
         }
 
         .nav-tab {
@@ -547,8 +547,8 @@
             flex: 1;
             height: 100%;
             text-decoration: none;
-            color: #777;
-            font-size: 0.65rem;
+            color: #64748b;
+            font-size: 0.68rem;
             font-weight: 700;
             gap: 4px;
             background: none;
@@ -559,19 +559,165 @@
 
         .nav-tab i {
             font-size: 1.25rem;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, color 0.2s ease;
         }
 
         .nav-tab:hover {
-            color: #063970;
+            color: #0284c7;
         }
 
         .nav-tab.active {
-            color: #8FB977;
+            color: #0284c7 !important;
+            font-weight: 800;
         }
 
         .nav-tab.active i {
             transform: scale(1.1);
+            color: #0284c7 !important;
+        }
+
+        /* Sidebar Backdrop Overlay */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Mobile Subpage Top Header */
+        .mobile-subpage-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0 16px 0;
+            margin-bottom: 8px;
+        }
+        .mobile-subpage-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .mobile-subpage-back:hover {
+            transform: translateX(-2px);
+            color: #0284c7;
+        }
+        .mobile-subpage-back i {
+            font-size: 0.95rem;
+        }
+        html.dark-mode .mobile-subpage-back {
+            color: #f8fafc;
+        }
+
+        /* Mobile Active Child Card */
+        .mobile-child-card {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .mobile-child-card:hover {
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+        .mobile-child-card .child-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e0f2fe;
+            border: 2px solid #bae6fd;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0284c7;
+            font-size: 1.1rem;
+        }
+        .mobile-child-card .child-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .mobile-child-card .child-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .mobile-child-card .child-name {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+        .mobile-child-card .child-sub {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin: 2px 0 0 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mobile-child-card .child-status-badge {
+            color: #059669;
+            font-weight: 700;
+        }
+        .mobile-child-card .child-chevron {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        html.dark-mode .mobile-child-card {
+            background: #111a2e;
+            border-color: #1e293b;
+        }
+        html.dark-mode .mobile-child-card .child-name {
+            color: #f8fafc;
+        }
+        html.dark-mode .mobile-child-card .child-sub {
+            color: #94a3b8;
+        }
+
+        .menu-item .menu-chevron {
+            margin-left: auto;
+            font-size: 0.75rem;
+            opacity: 0.45;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .menu-item:hover .menu-chevron {
+            opacity: 0.9;
+            transform: translateX(2px);
+        }
+        .menu-item.active .menu-chevron {
+            opacity: 0.95;
+            color: #ffffff;
         }
 
         /* Adjust main layout when bottom nav is active */
@@ -579,25 +725,39 @@
             .mobile-bottom-nav {
                 display: flex;
             }
+            .mobile-child-card {
+                display: flex;
+            }
+            .mobile-subpage-header {
+                display: flex;
+            }
             body {
-                padding-bottom: 65px !important;
+                padding-bottom: 74px !important;
+            }
+            .sidebar {
+                z-index: 1100 !important;
+                width: 280px !important;
+                max-width: 85vw !important;
             }
         }
 
         /* Dark Mode overrides for PWA Install Banner and Bottom Navigation */
         html.dark-mode .mobile-bottom-nav {
-            background: rgba(26, 26, 26, 0.95);
-            border-top-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+            background: rgba(15, 23, 42, 0.98);
+            border-top-color: #1e293b;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
         }
         html.dark-mode .nav-tab {
-            color: #aaa;
+            color: #94a3b8;
         }
         html.dark-mode .nav-tab:hover {
             color: #fff;
         }
         html.dark-mode .nav-tab.active {
-            color: #8FB977;
+            color: #38bdf8 !important;
+        }
+        html.dark-mode .nav-tab.active i {
+            color: #38bdf8 !important;
         }
 
         /* --- Responsive Design Utilities --- */
@@ -1196,80 +1356,116 @@
 
     <!-- PWA Install Banner -->
     <div id="pwa-install-banner">
-        <span>📲 Install the BMV3 Child Care Web App for a faster mobile experience!</span>
+        <span><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i> Install the BMV3 Child Care Web App for a faster mobile experience!</span>
         <div style="display: flex; align-items: center;">
             <button class="pwa-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> Install</button>
             <button class="pwa-btn-close" id="pwaCloseBtn"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
 
+    <!-- Sidebar Backdrop Overlay for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebarDrawer()"></div>
+
     <nav class="sidebar" id="mainSidebar">
-        <div class="sidebar-header">
-            <div class="user-avatar" id="sidebar-avatar">
+        <div class="sidebar-header" style="display: flex; align-items: center; gap: 14px; padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+            <div class="user-avatar" id="sidebar-avatar" style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem;">
                 <i class="fa-regular fa-user"></i>
             </div>
             <div class="user-info">
-                <h4 id="sidebar-name">{{ request.user.first_name|default:"Parent User" }}</h4>
-                <span>Parent</span>
+                <h4 id="sidebar-name" style="color: #fff; font-size: 1.05rem; font-weight: 700; margin: 0;">{{ request.user.first_name|default:request.user.username }}</h4>
+                <span style="color: rgba(255,255,255,0.7); font-size: 0.78rem; font-weight: 600;">Parent</span>
             </div>
+            <button onclick="closeSidebarDrawer()" class="mobile-only" style="background: none; border: none; color: #fff; margin-left: auto; font-size: 1.2rem; cursor: pointer; padding: 5px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
-        <div class="sidebar-menu">
-            <p class="menu-label">MENU</p>
+        <div class="sidebar-menu" style="padding: 15px 0;">
             <a href="{% url 'parent_home' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
-                <i class="fa-solid fa-house"></i> Home
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_dashboard' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_dashboard' %}active{% endif %}">
-                <i class="fa-solid fa-border-all"></i> Dashboard
+                <i class="fa-solid fa-border-all"></i>
+                <span>Dashboard</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_dropoff_pickup' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}active{% endif %}">
-                <i class="fa-solid fa-car"></i> Drop-Off/Pick-Up
+                <i class="fa-solid fa-car"></i>
+                <span>Drop-Off/Pick-Up</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_attendance' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_attendance' %}active{% endif %}">
-                <i class="fa-regular fa-calendar-check"></i> Attendance
+                <i class="fa-regular fa-calendar-check"></i>
+                <span>Attendance</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_milestones' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_milestones' %}active{% endif %}">
-                <i class="fa-solid fa-chart-line"></i> Milestones
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Milestones</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_activities' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_activities' %}active{% endif %}">
-                <i class="fa-solid fa-list-check"></i> Daily Activities
+                <i class="fa-solid fa-list-check"></i>
+                <span>Daily Activities</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
-
             <a href="{% url 'parent_engagement' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
-                <i class="fa-solid fa-envelope"></i> Message Inbox
+                class="menu-item {% if request.resolver_match.url_name == 'parent_engagement' and not request.GET.tab %}active{% endif %}">
+                <i class="fa-solid fa-envelope"></i>
+                <span>Messages</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_nutrition' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_nutrition' %}active{% endif %}">
-                <i class="fa-solid fa-apple-whole"></i> Nutrition
+                <i class="fa-solid fa-apple-whole"></i>
+                <span>Nutrition</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
+            </a>
+            <a href="{% url 'parent_children' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_children' %}active{% endif %}">
+                <i class="fa-solid fa-children"></i>
+                <span>Children</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
+            </a>
+            <a href="{% url 'parent_engagement' %}?tab=announcements"
+                class="menu-item {% if request.GET.tab == 'announcements' %}active{% endif %}">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>Announcements</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_map_route' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_map_route' %}active{% endif %}">
-                <i class="fa-solid fa-map-location-dot"></i> Center Route
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Student House Map</span>
+                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
-
 
             <div style="margin-top: auto;"></div>
 
-            <div class="mobile-only" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <div class="mobile-only" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                 <a href="{% url 'parent_settings' %}"
                     class="menu-item {% if request.resolver_match.url_name == 'parent_settings' %}active{% endif %}">
-                    <i class="fa-solid fa-gear"></i> Settings
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Profile & Settings</span>
+                    <i class="fa-solid fa-chevron-right menu-chevron"></i>
                 </a>
-                <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #ff6b6b;">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #f87171;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
                 </a>
             </div>
         </div>
 
-        <div class="sidebar-footer">
-            <p style="text-align: center; font-size: 0.70rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4;">BMV3 Child Care Management System<br>v1.0.0 &copy; 2026</p>
+        <div class="sidebar-footer" style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <p style="text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.5; margin: 0;">BMVS Child Care Management System<br>v1.0.0 &copy; 2026</p>
         </div>
     </nav>
 
@@ -1280,7 +1476,7 @@
         </div>
         <div class="top-nav-right">
             <!-- Mobile Toggle -->
-            <button class="mobile-sidebar-toggle" id="sidebarToggle">☰</button>
+            <button class="mobile-sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarDrawer()"><i class="fa-solid fa-bars"></i></button>
 
             <div class="menu-container">
                 <div class="burger-menu" id="burgerToggle" title="Profile Menu">
@@ -1289,8 +1485,8 @@
                     <span></span>
                 </div>
                 <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="{% url 'parent_settings' %}" class="dropdown-item">⚙️ Settings</a>
-                    <a href="{% url 'logout' %}" class="dropdown-item logout">🔐 Logout</a>
+                    <a href="{% url 'parent_settings' %}" class="dropdown-item"><i class="fa-solid fa-gear" style="margin-right:6px;"></i> Settings</a>
+                    <a href="{% url 'logout' %}" class="dropdown-item logout"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i> Logout</a>
                 </div>
             </div>
 
@@ -1300,26 +1496,22 @@
         {% endblock content %}
     </main>
 
-    <!-- Mobile Bottom Navigation Bar -->
+    <!-- Mobile Bottom Navigation Bar (Screen Reference Matching) -->
     <div class="mobile-bottom-nav">
         <a href="{% url 'parent_home' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
         <a href="{% url 'parent_dashboard' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_dashboard' %}active{% endif %}">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span>Stats</span>
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
         </a>
-        <a href="{% url 'parent_attendance' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_attendance' %}active{% endif %}">
-            <i class="fa-solid fa-calendar-check"></i>
-            <span>Attendance</span>
+        <a href="{% url 'parent_settings' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_settings' %}active{% endif %}">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
         </a>
-        <a href="{% url 'parent_engagement' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
-            <i class="fa-solid fa-comments"></i>
-            <span>Chat</span>
-        </a>
-        <button class="nav-tab" id="mobileMoreBtn">
-            <i class="fa-solid fa-bars"></i>
+        <button class="nav-tab" id="mobileMoreBtn" onclick="toggleSidebarDrawer()">
+            <i class="fa-solid fa-ellipsis"></i>
             <span>More</span>
         </button>
     </div>
@@ -1328,8 +1520,23 @@
     <script>
         const burgerToggle = document.getElementById('burgerToggle');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        const sidebarToggle = document.getElementById('sidebarToggle');
         const mainSidebar = document.getElementById('mainSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebarDrawer() {
+            if (mainSidebar) {
+                const isActive = mainSidebar.classList.toggle('active');
+                if (sidebarBackdrop) {
+                    if (isActive) sidebarBackdrop.classList.add('active');
+                    else sidebarBackdrop.classList.remove('active');
+                }
+            }
+        }
+
+        function closeSidebarDrawer() {
+            if (mainSidebar) mainSidebar.classList.remove('active');
+            if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+        }
 
         if (burgerToggle) {
             burgerToggle.addEventListener('click', (e) => {
@@ -1338,31 +1545,50 @@
             });
         }
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                mainSidebar.classList.toggle('active');
-            });
-        }
-
-        // Close dropdown / sidebar when clicking outside
+        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (dropdownMenu && burgerToggle && !dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
             }
-            const mobileMoreBtn = document.getElementById('mobileMoreBtn');
-            const isClickInsideMore = mobileMoreBtn && mobileMoreBtn.contains(e.target);
-            if (mainSidebar && !mainSidebar.contains(e.target) && !isClickInsideMore && window.innerWidth <= 768) {
-                mainSidebar.classList.remove('active');
-            }
         });
 
-        // Load dynamic parent registration data based on User
+        // Dynamic Child Synchronization across all Mobile Child Cards
+        function syncMobileChildCards() {
+            fetch('/api/children/')
+                .then(r => r.json())
+                .then(children => {
+                    if (!children || children.length === 0) return;
+                    let activeId = localStorage.getItem('linked_child_id');
+                    let activeChild = children.find(c => c.id == activeId) || children[0];
+                    if (!activeChild) return;
+
+                    localStorage.setItem('linked_child_id', activeChild.id);
+
+                    // Update all mobile child cards on the page
+                    document.querySelectorAll('.mobile-child-card').forEach(card => {
+                        const nameEl = card.querySelector('.child-name');
+                        const subEl = card.querySelector('.child-sub');
+                        const avatarEl = card.querySelector('.child-avatar');
+                        
+                        if (nameEl) nameEl.innerText = `${activeChild.first_name} ${activeChild.last_name}`;
+                        if (subEl) {
+                            subEl.innerHTML = `<span>${activeChild.age || 3} yrs</span> &bull; <span class="child-status-badge">${activeChild.enrollment_status || 'Enrolled'}</span>`;
+                        }
+                        if (avatarEl) {
+                            const imgUrl = activeChild.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + activeChild.first_name);
+                            avatarEl.innerHTML = `<img src="${imgUrl}" alt="${activeChild.first_name}">`;
+                        }
+                    });
+                })
+                .catch(e => console.warn('Child sync error:', e));
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
+            syncMobileChildCards();
             {% if request.user.userprofile.profile_pic %}
                 let avatarElem = document.getElementById('sidebar-avatar');
                 if(avatarElem) {
-                    avatarElem.innerHTML = `<img src="{{ request.user.userprofile.profile_pic.url }}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+                    avatarElem.innerHTML = `<img src="{{ request.user.userprofile.profile_pic.url }}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                     avatarElem.style.border = 'none';
                 }
             {% endif %}

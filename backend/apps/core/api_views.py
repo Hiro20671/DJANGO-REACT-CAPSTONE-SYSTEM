@@ -124,7 +124,7 @@ class ChildViewSet(viewsets.ModelViewSet):
         
         if profile:
             if not profile.is_teacher:
-                child = serializer.save(enrollment_status='Draft', school_year=active_year)
+                child = serializer.save(enrollment_status='Pending', school_year=active_year)
             else:
                 child = serializer.save(school_year=active_year)
             child.parents.add(profile)
@@ -144,7 +144,11 @@ class ChildViewSet(viewsets.ModelViewSet):
         else:
             active_year = SchoolYear.objects.filter(is_active=True).first()
             if active_year:
-                qs = qs.filter(school_year=active_year)
+                from django.db.models import Q
+                if profile.is_teacher:
+                    qs = qs.filter(Q(school_year=active_year) | Q(enrollment_status='Pending'))
+                else:
+                    qs = qs.filter(school_year=active_year)
             
         return qs
 
@@ -1377,7 +1381,7 @@ class GenerateParentAccountAPIView(APIView):
                     <p style="margin: 5px 0;"><strong>Password:</strong> <span style="color: #d9534f; font-size: 1.1rem;">{password}</span></p>
                 </div>
                 
-                <p style="color: #e74a3b; font-weight: bold;">⚠️ IMPORTANT: For your security, you will be required to change this temporary password immediately upon your first login.</p>
+                <p style="color: #e74a3b; font-weight: bold;">IMPORTANT: For your security, you will be required to change this temporary password immediately upon your first login.</p>
                 
                 <p style="margin-top: 30px;">Best Regards,<br>The BMV3 Administration Team</p>
             </div>
@@ -1389,7 +1393,7 @@ class GenerateParentAccountAPIView(APIView):
             is_console_backend = (getattr(settings, 'EMAIL_BACKEND', '') == 'django.core.mail.backends.console.EmailBackend')
             
             try:
-                msg = EmailMultiAlternatives(subject, text_content, "jeremybryanvillanueva@gmail.com", [email])
+                msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [email])
                 msg.attach_alternative(html_content, "text/html")
                 msg.send(fail_silently=False)
                 # If we are using the console backend, no real email is sent to the parent,
@@ -1552,22 +1556,22 @@ class PublicLandingDataAPIView(APIView):
                 days = (active_sy.start_date - today).days
                 sy_data['status'] = 'upcoming'
                 sy_data['days_until'] = days
-                sy_data['title'] = f"📢 Upcoming Child Development Program ({active_sy.name})"
+                sy_data['title'] = f"Upcoming Child Development Program ({active_sy.name})"
                 if days == 1:
                     sy_data['message'] = f"The Child Development Program begins tomorrow on {active_sy.start_date.strftime('%B %d, %Y')}! Please prepare the required documents."
                 else:
                     sy_data['message'] = f"The Child Development Program for School Year {active_sy.name} will begin on {active_sy.start_date.strftime('%B %d, %Y')} ({days} days remaining)."
             elif active_sy.start_date and today == active_sy.start_date:
                 sy_data['status'] = 'starting_today'
-                sy_data['title'] = f"🎉 Child Development Program Starts Today!"
+                sy_data['title'] = f"Child Development Program Starts Today!"
                 sy_data['message'] = f"Welcome to the {active_sy.name} Child Development Program! Program sessions begin today, {active_sy.start_date.strftime('%B %d, %Y')}."
             elif active_sy.end_date and today > active_sy.end_date:
                 sy_data['status'] = 'ended'
-                sy_data['title'] = f"🎓 School Year {active_sy.name} Has Concluded"
+                sy_data['title'] = f"School Year {active_sy.name} Has Concluded"
                 sy_data['message'] = f"The BMV3 Child Development Program for School Year {active_sy.name} officially ended on {active_sy.end_date.strftime('%B %d, %Y')}. Thank you to our children and families!"
             else:
                 sy_data['status'] = 'ongoing'
-                sy_data['title'] = f"📚 Child Development Program is Currently Ongoing"
+                sy_data['title'] = f"Child Development Program is Currently Ongoing"
                 sy_data['message'] = f"School Year {active_sy.name} is currently ongoing."
 
         # 2. No-Class Day Integration
@@ -1578,7 +1582,7 @@ class PublicLandingDataAPIView(APIView):
                 'status': 'today',
                 'date': str(today),
                 'formatted_date': today.strftime('%B %d, %Y'),
-                'title': f"🚨 NO CLASS TODAY — {today.strftime('%B %d, %Y')}",
+                'title': f"NO CLASS TODAY — {today.strftime('%B %d, %Y')}",
                 'reason': no_class_today.reason or 'Center Activity / Suspension',
                 'message': f"There will be NO CLASS today ({today.strftime('%B %d, %Y')}). Reason: {no_class_today.reason or 'Scheduled Center Break'}. Classes resume next session."
             }
@@ -1589,7 +1593,7 @@ class PublicLandingDataAPIView(APIView):
                     'status': 'upcoming',
                     'date': str(upcoming_no_class.date),
                     'formatted_date': upcoming_no_class.date.strftime('%B %d, %Y'),
-                    'title': f"🚨 UPCOMING NO CLASS — {upcoming_no_class.date.strftime('%B %d, %Y')}",
+                    'title': f"UPCOMING NO CLASS — {upcoming_no_class.date.strftime('%B %d, %Y')}",
                     'reason': upcoming_no_class.reason or 'Center Activity',
                     'message': f"Please be informed that there will be NO CLASS on {upcoming_no_class.date.strftime('%B %d, %Y')}. Reason: {upcoming_no_class.reason or 'Scheduled Break'}."
                 }

@@ -4,8 +4,8 @@ import os
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'change-this-in-production-random-string')
 
-# Turn off DEBUG in production
-DEBUG = False
+# Turn off DEBUG in production (can be enabled via DEBUG=True environment variable for debugging)
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1')
 
 # PythonAnywhere host format matches `yourusername.pythonanywhere.com`
 # Using '*' is okay temporarily, but for strict security you can replace '*' with your PythonAnywhere domain later.

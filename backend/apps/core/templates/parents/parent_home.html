@@ -1,9 +1,16 @@
-{% extends "parents/base_parent_home.html" %}
+{% extends "parents/base_parent.html" %}
 {% load static %}
 {% block content %}
 
 <style>
-/* Slider Styles */
+/* --- Desktop Landing Styles --- */
+.desktop-only-home {
+    display: block;
+}
+.mobile-only-home {
+    display: none;
+}
+
 .hero-slider-container {
     width: 100%;
     max-width: 500px;
@@ -11,20 +18,18 @@
     background: rgba(255, 255, 255, 0.95);
     border: 3px solid #063970;
     border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
-
 .slider-track {
     display: flex;
     width: 300%;
     height: 100%;
     transition: transform 0.5s ease-in-out;
 }
-
 .slide {
     width: 33.333%;
     height: 100%;
@@ -35,33 +40,27 @@
     padding: 30px;
     text-align: center;
 }
-
 .slide-icon {
     font-size: 3.5rem;
     margin-bottom: 15px;
 }
-
 .slide h4 {
     font-size: 1.2rem;
     font-weight: 800;
     color: #333;
     margin-bottom: 15px;
 }
-
 .slide .kpi-val {
     font-size: 3rem;
     font-weight: 900;
-    color: #8FB977;
+    color: #10b981;
     margin-bottom: 10px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
-
 .slide p {
     font-size: 0.95rem;
     color: #666;
     font-weight: 600;
 }
-
 .slider-dots {
     position: absolute;
     bottom: 20px;
@@ -71,7 +70,6 @@
     justify-content: center;
     gap: 10px;
 }
-
 .dot {
     width: 12px;
     height: 12px;
@@ -80,104 +78,457 @@
     cursor: pointer;
     transition: 0.3s;
 }
-
 .dot.active {
     background: #063970;
     transform: scale(1.2);
 }
 
-html.dark-mode .hero-slider-container { background: rgba(30, 30, 30, 0.95); border-color:#555; }
-html.dark-mode .slide h4 { color: #f0f0f0; }
-html.dark-mode .slide p { color: #aaa; }
-html.dark-mode .slide .kpi-val { color: #8FB977; }
+.hero {
+    padding: 40px 0;
+}
+.hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+.hero-text h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+.hero-text p {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+.hero-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.2s;
+}
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 57, 112, 0.2);
+}
+
+.section-container {
+    padding: 40px 0;
+}
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+.section-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+.grid-container .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: transform 0.2s;
+}
+.grid-container .card:hover {
+    transform: translateY(-3px);
+}
+.grid-container .card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+.grid-container .card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* --- Mobile Screen 1 Design Language --- */
+@media (max-width: 768px) {
+    .desktop-only-home {
+        display: none !important;
+    }
+    .mobile-only-home {
+        display: block !important;
+    }
+
+    /* Mobile Top App Bar */
+    .mobile-app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0 16px 0;
+        margin-bottom: 12px;
+    }
+    .mobile-app-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .mobile-app-logo img {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+    .mobile-app-logo-text {
+        display: flex;
+        flex-direction: column;
+    }
+    .mobile-app-logo-text .brand {
+        font-size: 1.05rem;
+        font-weight: 900;
+        color: #063970;
+        letter-spacing: 0.5px;
+        line-height: 1.1;
+    }
+    .mobile-app-logo-text .subbrand {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .mobile-app-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .mobile-icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        position: relative;
+    }
+    .mobile-icon-btn .badge-dot {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 1px solid #fff;
+    }
+
+    /* Welcome Section */
+    .mobile-welcome-card {
+        margin-bottom: 16px;
+    }
+    .mobile-welcome-sub {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 600;
+        margin: 0 0 2px 0;
+    }
+    .mobile-welcome-name {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 3px 0;
+        letter-spacing: -0.3px;
+    }
+    .mobile-welcome-portal {
+        font-size: 0.78rem;
+        color: #0284c7;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Screen 1 Feature Card: Nurturing Early Childhood Development */
+    .mobile-feature-hero-card {
+        background: linear-gradient(135deg, #063970 0%, #1e40af 100%);
+        border-radius: 18px;
+        padding: 22px;
+        color: #ffffff;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(6, 57, 112, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .feature-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    .feature-card-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 0.8rem;
+        color: #ffffff;
+    }
+    .feature-card-tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #93c5fd;
+        letter-spacing: 0.5px;
+    }
+    .feature-card-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        line-height: 1.3;
+        margin-bottom: 12px;
+        color: #ffffff;
+    }
+    .feature-card-illustration {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        border: 1px dashed rgba(255, 255, 255, 0.25);
+    }
+    .feature-card-illustration i {
+        font-size: 2.2rem;
+        color: #67e8f9;
+    }
+    .feature-card-desc {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+    }
+
+    /* Screen 1 Buttons */
+    .mobile-hero-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    .btn-mobile-hero {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .btn-mobile-green {
+        background: #10b981;
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .btn-mobile-green:active {
+        background: #059669;
+        transform: scale(0.98);
+    }
+    .btn-mobile-outline {
+        background: #ffffff;
+        color: #063970;
+        border: 2px solid #063970;
+    }
+    .btn-mobile-outline:active {
+        background: #f0f7ff;
+        transform: scale(0.98);
+    }
+    html.dark-mode .btn-mobile-outline {
+        background: #111a2e;
+        color: #38bdf8;
+        border-color: #38bdf8;
+    }
+}
 </style>
 
-<!-- Hero Section -->
-<section class="hero" id="hero">
-    <div class="hero-content">
-        <div class="hero-text">
-            <h2>Empowering Parents,<br>Connecting Care</h2>
-            <p>Track your child's milestones, attendance, behavior, and nutrition in real-time. Ensure their
-                well-being and stay effortlessly updated with the BMV3 Child Development Parent Portal.</p>
-            <div class="hero-buttons">
-                <a href="{% url 'parent_dashboard' %}" class="hero-btn"
-                    style="background-color:#063970; color:white;">Go to Dashboard</a>
+<!-- ================= MOBILE SCREEN 1 VIEW ================= -->
+<div class="mobile-only-home">
+    <!-- Top Mobile App Header -->
+    <div class="mobile-app-header">
+        <div class="mobile-app-logo">
+            <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMVS Logo">
+            <div class="mobile-app-logo-text">
+                <span class="brand">BMVS</span>
+                <span class="subbrand">Child Care Management</span>
             </div>
         </div>
-        <div class="hero-pic">
-            <!-- Dynamic Slider Widget -->
-            <div class="hero-slider-container">
-                <div class="slider-track" id="heroSliderTrackP">
-                    
-                    <div class="slide">
-                        <div class="slide-icon">📊</div>
-                        <h4>Present Attendance</h4>
-                        <div class="kpi-val">95%</div>
-                        <p>Average weekly class attendance</p>
-                    </div>
-                    
-                    <div class="slide">
-                        <div class="slide-icon">🏆</div>
-                        <h4>Milestones Met</h4>
-                        <div class="kpi-val">12/16</div>
-                        <p>Average cognitive skills achieved</p>
-                    </div>
-                    
-                    <div class="slide">
-                        <div class="slide-icon">🍎</div>
-                        <h4>Nutrition Target</h4>
-                        <div class="kpi-val">92%</div>
-                        <p>Average daily caloric completion</p>
-                    </div>
+        <div class="mobile-app-actions">
+            <a href="{% url 'parent_engagement' %}?tab=announcements" class="mobile-icon-btn" title="Announcements">
+                <i class="fa-solid fa-bell"></i>
+                <span class="badge-dot"></span>
+            </a>
+            <a href="{% url 'parent_settings' %}" class="mobile-icon-btn" title="Profile">
+                <i class="fa-solid fa-user"></i>
+            </a>
+        </div>
+    </div>
 
+    <!-- Welcome Section -->
+    <div class="mobile-welcome-card">
+        <p class="mobile-welcome-sub">Welcome back,</p>
+        <h2 class="mobile-welcome-name">{{ request.user.first_name|default:request.user.username }} {{ request.user.last_name|default:"" }}</h2>
+        <p class="mobile-welcome-portal">BMVS Child Care Parent Portal</p>
+    </div>
+
+    <!-- Active Child Card -->
+    <a href="{% url 'parent_dashboard' %}" class="mobile-child-card">
+        <div class="child-avatar">
+            {% if active_child.img %}
+                <img src="{{ active_child.img.url }}" alt="{{ active_child.first_name }}">
+            {% else %}
+                <i class="fa-solid fa-child-reaching"></i>
+            {% endif %}
+        </div>
+        <div class="child-details">
+            <div class="child-name">{{ active_child.first_name|default:"Enrolled Child" }} {{ active_child.last_name|default:"" }}</div>
+            <div class="child-sub">
+                <span>{{ active_child.age|default:3 }} yrs</span> &bull;
+                <span class="child-status-badge">{{ active_child.enrollment_status|default:"Enrolled" }}</span>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right child-chevron"></i>
+    </a>
+
+    <!-- Nurturing Early Childhood Development Card (Mockup Screen 1) -->
+    <div class="mobile-feature-hero-card">
+        <div class="feature-card-header">
+            <div class="feature-card-badge">B</div>
+            <div class="feature-card-tag">Child Care Management</div>
+        </div>
+        <div class="feature-card-title">Nurturing Early Childhood Development</div>
+        
+        <div class="feature-card-illustration">
+            <i class="fa-solid fa-shapes"></i>
+            <i class="fa-solid fa-book-open-reader"></i>
+            <i class="fa-solid fa-puzzle-piece"></i>
+        </div>
+
+        <p class="feature-card-desc">A safe, caring, and engaging environment where children learn, grow, play, and develop.</p>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="mobile-hero-actions">
+        <a href="{% url 'parent_engagement' %}?tab=announcements" class="btn-mobile-hero btn-mobile-green">
+            <i class="fa-solid fa-bullhorn"></i> View Announcements
+        </a>
+        <a href="{% url 'parent_dashboard' %}" class="btn-mobile-hero btn-mobile-outline">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Go to Parent Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- ================= DESKTOP LANDING VIEW ================= -->
+<div class="desktop-only-home">
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Empowering Parents,<br>Connecting Care</h2>
+                <p>Track your child's milestones, attendance, behavior, and nutrition in real-time. Ensure their
+                    well-being and stay effortlessly updated with the BMV3 Child Development Parent Portal.</p>
+                <div class="hero-buttons">
+                    <a href="{% url 'parent_dashboard' %}" class="hero-btn"
+                        style="background-color:#063970; color:white;">Go to Dashboard</a>
                 </div>
-                
-                <div class="slider-dots">
-                    <div class="dot active" onclick="goToSlideP(0)"></div>
-                    <div class="dot" onclick="goToSlideP(1)"></div>
-                    <div class="dot" onclick="goToSlideP(2)"></div>
+            </div>
+            <div class="hero-pic">
+                <!-- Dynamic Slider Widget -->
+                <div class="hero-slider-container">
+                    <div class="slider-track" id="heroSliderTrackP">
+                        <div class="slide">
+                            <div class="slide-icon"><i class="fa-solid fa-chart-column" style="color: #063970;"></i></div>
+                            <h4>Present Attendance</h4>
+                            <div class="kpi-val">95%</div>
+                            <p>Average weekly class attendance</p>
+                        </div>
+                        <div class="slide">
+                            <div class="slide-icon"><i class="fa-solid fa-trophy" style="color: #063970;"></i></div>
+                            <h4>Milestones Met</h4>
+                            <div class="kpi-val">12/16</div>
+                            <p>Average cognitive skills achieved</p>
+                        </div>
+                        <div class="slide">
+                            <div class="slide-icon"><i class="fa-solid fa-apple-whole" style="color: #063970;"></i></div>
+                            <h4>Nutrition Target</h4>
+                            <div class="kpi-val">92%</div>
+                            <p>Average daily caloric completion</p>
+                        </div>
+                    </div>
+                    <div class="slider-dots">
+                        <div class="dot active" onclick="goToSlideP(0)"></div>
+                        <div class="dot" onclick="goToSlideP(1)"></div>
+                        <div class="dot" onclick="goToSlideP(2)"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Features Grid -->
-<section class="section-container alt-bg" id="modules">
-    <h2 class="section-title">Explore Daily Tracking</h2>
-    <p class="section-subtitle">A transparent reflection of what the teachers log every day.</p>
+    <!-- Features Grid -->
+    <section class="section-container alt-bg" id="modules">
+        <h2 class="section-title">Explore Daily Tracking</h2>
+        <p class="section-subtitle">A transparent reflection of what the teachers log every day.</p>
 
-    <div class="grid-container">
-        <div class="card">
-            <h3>✅ Real-Time Attendance</h3>
-            <p>Receive notifications and review exact drop-off and pick-up times recorded securely via QR code
-                scanning algorithms.</p>
+        <div class="grid-container">
+            <div class="card">
+                <h3><i class="fa-solid fa-circle-check" style="color:#063970; margin-right:6px;"></i> Real-Time Attendance</h3>
+                <p>Receive notifications and review exact drop-off and pick-up times recorded securely via QR code scanning algorithms.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-trophy" style="color:#063970; margin-right:6px;"></i> Milestone Tracking</h3>
+                <p>Celebrate your child's achievements as teachers log cognitive, emotional, and physical progression metrics to their specific profile.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-apple-whole" style="color:#063970; margin-right:6px;"></i> Nutrition Logs</h3>
+                <p>Review their daily caloric intake and feeding habits directly synced from the teacher’s operational log to your portal.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-list-check" style="color:#063970; margin-right:6px;"></i> Daily Activities</h3>
+                <p>Follow learning tasks, story sessions, and creative milestones completed throughout the center's daily schedule.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-envelope" style="color:#063970; margin-right:6px;"></i> Classroom Inbox</h3>
+                <p>Receive auto-compiled weekly performance digests and read urgent milestone delays or positive behavioral observations securely.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-sliders" style="color:#063970; margin-right:6px;"></i> Parent Controls</h3>
+                <p>Manage your portal footprint, upload a display photo, review archived historical school years, and toggle System Dark Mode.</p>
+            </div>
         </div>
-        <div class="card">
-            <h3>🏆 Milestone Tracking</h3>
-            <p>Celebrate your child's achievements as teachers log cognitive, emotional, and physical
-                progression metrics to their specific profile.</p>
-        </div>
-        <div class="card">
-            <h3>🍎 Nutrition Logs</h3>
-            <p>Review their daily caloric intake and feeding habits directly synced from the teacher’s
-                operational log to your portal.</p>
-        </div>
-        <div class="card">
-            <h3>🧠 Behavior Insights</h3>
-            <p>Keep a close eye on behavioral incidents and disciplinary notes logged securely to help build a
-                consistent support structure at home.</p>
-        </div>
-        <div class="card">
-            <h3>📨 Classroom Inbox</h3>
-            <p>Receive auto-compiled weekly performance digests and read urgent milestone delays or positive behavioral observations securely.</p>
-        </div>
-        <div class="card">
-            <h3>⚙️ Parent Controls</h3>
-            <p>Manage your portal footprint, upload a display photo, review archived historical school years, and toggle System Dark Mode.</p>
-        </div>
-    </div>
-</section>
+    </section>
+</div>
 
 <script>
     let currentSlideP = 0;
@@ -186,16 +537,21 @@ html.dark-mode .slide .kpi-val { color: #8FB977; }
     const dotsP = document.querySelectorAll('.hero-slider-container .dot');
 
     function goToSlideP(index) {
+        if (!trackP) return;
         currentSlideP = index;
         trackP.style.transform = `translateX(-${currentSlideP * 33.333}%)`;
-        dotsP.forEach(d => d.classList.remove('active'));
-        dotsP[currentSlideP].classList.add('active');
+        if (dotsP && dotsP.length) {
+            dotsP.forEach(d => d.classList.remove('active'));
+            if (dotsP[currentSlideP]) dotsP[currentSlideP].classList.add('active');
+        }
     }
 
-    setInterval(() => {
-        let nextSlide = (currentSlideP + 1) % totalSlidesP;
-        goToSlideP(nextSlide);
-    }, 4000);
+    if (trackP) {
+        setInterval(() => {
+            let nextSlide = (currentSlideP + 1) % totalSlidesP;
+            goToSlideP(nextSlide);
+        }, 4000);
+    }
 </script>
 
 {% endblock content %}

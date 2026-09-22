@@ -578,7 +578,103 @@
         display: block;
     }
 }
+
+/* Screen 5 Mobile Announcements */
+.mobile-announcements-layout {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .page-header, .kpi-row { display: none !important; }
+    .mobile-announcements-layout {
+        display: block;
+        margin-bottom: 20px;
+    }
+    .full-width-section {
+        padding: 15px !important;
+        border-radius: 16px !important;
+    }
+    .engagement-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 8px;
+    }
+    .eng-tab {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+.mobile-filter-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+}
+.mobile-filter-pills::-webkit-scrollbar { display: none; }
+
+.mobile-filter-pill {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.mobile-filter-pill.active {
+    background: #091e42;
+    color: #ffffff;
+    border-color: #091e42;
+}
+
+.mobile-announcement-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.mobile-announcement-card:active {
+    transform: scale(0.98);
+}
 </style>
+
+<!-- Mobile Screen 5 Announcements Header & Filter Pills -->
+<div class="mobile-announcements-layout">
+    <div class="mobile-subpage-header">
+        <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h1>Announcements</h1>
+        <div style="width:36px;"></div>
+    </div>
+
+    <!-- Category filter pills -->
+    <div class="mobile-filter-pills">
+        <button class="mobile-filter-pill active" onclick="filterMobileAnnouncements('All', this)">All</button>
+        <button class="mobile-filter-pill" onclick="filterMobileAnnouncements('General', this)">General</button>
+        <button class="mobile-filter-pill" onclick="filterMobileAnnouncements('Events', this)">Events</button>
+        <button class="mobile-filter-pill" onclick="filterMobileAnnouncements('Reminders', this)">Reminders</button>
+    </div>
+
+    <!-- Mobile announcements list -->
+    <div id="mobile-announcements-container">
+        <!-- Rendered by JS -->
+    </div>
+</div>
 
 <div class="page-header">
     <h2>Messages & Inbox</h2>
@@ -715,10 +811,10 @@
             <div class="form-group-row">
                 <label for="abs-reason">Reason Category</label>
                 <select id="abs-reason" onchange="toggleCustomReasonInput(this.value)">
-                    <option value="Sick 🤒">Sick 🤒</option>
-                    <option value="Family Event 👨&zwj;👩&zwj;👧">Family Event 👨‍👩‍👧</option>
-                    <option value="Travel ✈️">Travel ✈️</option>
-                    <option value="Other 📝">Other (Provide details below) 📝</option>
+                    <option value="Sick"><i class="fa-solid fa-head-side-cough"></i> Sick</option>
+                    <option value="Family Event ">Family Event </option>
+                    <option value="Travel"><i class="fa-solid fa-plane"></i> Travel</option>
+                    <option value="Other"><i class="fa-solid fa-pen-to-square"></i> Other (Provide details below)</option>
                 </select>
             </div>
             
@@ -869,7 +965,7 @@
             }
 
             let isUrgentClass = rep.title.includes('URGENT') ? 'urgent' : '';
-            let titlePrefix = rep.title.includes('URGENT') ? '⚠️' : '📨';
+            let titlePrefix = rep.title.includes('URGENT') ? '<i class="fa-solid fa-triangle-exclamation" style="color:#e74a3b;"></i>' : '<i class="fa-solid fa-envelope" style="color:#3b82f6;"></i>';
 
             html += `
             <div class="msg-item ${isUrgentClass}" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
@@ -897,7 +993,7 @@
                 html += `
                 <div class="msg-item urgent" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
                     <div class="msg-header">
-                        <div class="msg-title urgent-title">⚠️ URGENT: No Class on ${dt}</div>
+                        <div class="msg-title urgent-title"><i class="fa-solid fa-triangle-exclamation" style="color:#e74a3b; margin-right:6px;"></i> URGENT: No Class on ${dt}</div>
                         <div class="msg-date">${safeDate}</div>
                     </div>
                     <div class="msg-body-preview">
@@ -914,10 +1010,114 @@
         }
 
         container.innerHTML = html;
+
+        // Build list for Mobile Screen 5 Announcements
+        window.allMobileAnnouncements = [];
+        groupedReports.forEach(rep => {
+            const titleLower = rep.title.toLowerCase();
+            const bodyLower = rep.body.toLowerCase();
+            let cat = 'General';
+            if (titleLower.includes('conference') || titleLower.includes('meeting') || titleLower.includes('event') || titleLower.includes('celebrat') || titleLower.includes('program')) {
+                cat = 'Events';
+            } else if (titleLower.includes('urgent') || titleLower.includes('remind') || titleLower.includes('notice') || titleLower.includes('health') || titleLower.includes('class')) {
+                cat = 'Reminders';
+            }
+
+            window.allMobileAnnouncements.push({
+                title: rep.title,
+                body: rep.body,
+                date: rep.date,
+                category: cat,
+                isUrgent: rep.title.includes('URGENT')
+            });
+        });
+
+        if (Array.isArray(noClassData) && noClassData.length > 0) {
+            noClassData.forEach(nc => {
+                let dt = new Date(nc.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
+                window.allMobileAnnouncements.unshift({
+                    title: `No Class Notice (${dt})`,
+                    body: `Please be informed that there will be NO CLASS on ${dt}. Reason: ${nc.reason || 'School holiday / center maintenance'}`,
+                    date: new Date(nc.created_at).toLocaleDateString('en-US'),
+                    category: 'Reminders',
+                    isUrgent: true
+                });
+            });
+        }
+
+        renderMobileAnnouncements('All');
     }
 
-    /* Parent-Teacher Chat Panel Logic */
-    function renderParentChat() {
+    function renderMobileAnnouncements(filterCat) {
+        const mobContainer = document.getElementById('mobile-announcements-container');
+        if (!mobContainer) return;
+
+        let list = window.allMobileAnnouncements || [];
+        if (filterCat && filterCat !== 'All') {
+            list = list.filter(item => item.category === filterCat);
+        }
+
+        if (list.length === 0) {
+            mobContainer.innerHTML = '<div style="text-align:center; padding:30px 15px; background:#fff; border-radius:16px; border:1px solid #e2e8f0; color:#64748b; font-size:0.88rem;">No announcements found in this category.</div>';
+            return;
+        }
+
+        let mHtml = '';
+        list.forEach(item => {
+            const safeTitle = item.title.replace(/'/g, "\\'");
+            const safeBody = item.body.replace(/'/g, "\\'").replace(/\n/g, "<br>");
+            const safeDate = item.date.replace(/'/g, "\\'");
+
+            let iconClass = 'fa-solid fa-bullhorn';
+            let iconBg = '#e0f2fe';
+            let iconColor = '#0284c7';
+            let catBg = '#f1f5f9';
+            let catColor = '#475569';
+
+            if (item.category === 'Events') {
+                iconClass = 'fa-solid fa-calendar-day';
+                iconBg = '#dcfce7';
+                iconColor = '#16a34a';
+                catBg = '#dcfce7';
+                catColor = '#15803d';
+            } else if (item.category === 'Reminders' || item.isUrgent) {
+                iconClass = item.isUrgent ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-bell';
+                iconBg = item.isUrgent ? '#fee2e2' : '#fef3c7';
+                iconColor = item.isUrgent ? '#dc2626' : '#d97706';
+                catBg = item.isUrgent ? '#fee2e2' : '#fef3c7';
+                catColor = item.isUrgent ? '#b91c1c' : '#b45309';
+            }
+
+            mHtml += `
+            <div class="mobile-announcement-card" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
+                <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                    <div style="width:42px; height:42px; border-radius:12px; background:${iconBg}; display:flex; align-items:center; justify-content:center; color:${iconColor}; font-size:1.1rem; flex-shrink:0;">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; font-size:0.88rem; color:#091e42; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${item.title}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.75rem; color:#64748b;">${item.date}</span>
+                            <span style="font-size:0.68rem; font-weight:700; background:${catBg}; color:${catColor}; padding:1px 7px; border-radius:10px;">${item.category}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="color:#94a3b8; font-size:0.85rem; padding-left:8px;">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>`;
+        });
+
+        mobContainer.innerHTML = mHtml;
+    }
+
+    function filterMobileAnnouncements(category, btnEl) {
+        document.querySelectorAll('.mobile-filter-pill').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        renderMobileAnnouncements(category);
+    }
         if (!parentChatKey) return;
         
         let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
@@ -1016,9 +1216,9 @@
 
     function toggleCustomReasonInput(val) {
         let notesTextarea = document.getElementById('abs-notes');
-        if (val === 'Sick 🤒') {
+        if ((val === 'Sick' || val.includes('Sick'))) {
             notesTextarea.placeholder = "Explain child's illness (e.g. fever, cough)...";
-        } else if (val === 'Family Event 👨‍👩‍👧') {
+        } else if ((val === 'Family Event' || val === 'Family Event ')) {
             notesTextarea.placeholder = "Explain briefly (e.g. family gathering, out of town)...";
         } else {
             notesTextarea.placeholder = "Provide reason notes...";

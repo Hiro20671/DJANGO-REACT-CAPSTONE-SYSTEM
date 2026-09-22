@@ -224,17 +224,228 @@
     .cal-day-label { font-size: 0.7rem; }
     .history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
+/* Screen 7 Mobile Attendance Layout */
+.mobile-attendance-layout {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .p-header { display: none !important; }
+    .stats-row { display: none !important; }
+    .cal-card { display: none !important; }
+    .history-card { display: none !important; }
+    .mobile-attendance-layout {
+        display: block;
+        margin-bottom: 25px;
+    }
+}
+
+.mob-cal-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 20px 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    margin-bottom: 18px;
+}
+
+.mob-cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.mob-cal-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #091e42;
+}
+
+.mob-cal-nav-btn {
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #091e42;
+    font-size: 0.85rem;
+}
+
+.mob-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+}
+
+.mob-day-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    padding-bottom: 8px;
+}
+
+.mob-day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    position: relative;
+    cursor: default;
+}
+
+.mob-day-cell.today {
+    border: 2px solid #091e42;
+    background: rgba(9, 30, 66, 0.04);
+}
+
+.mob-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 2px;
+}
+.dot-present { background-color: #10b981; }
+.dot-absent { background-color: #ef4444; }
+.dot-late { background-color: #f59e0b; }
+.dot-none { background-color: #cbd5e1; }
+
+.mob-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.mob-summary-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
 </style>
 
 <div class="p-dash-container">
+
+    <!-- Mobile Screen 7 Layout -->
+    <div class="mobile-attendance-layout">
+        <div class="mobile-subpage-header">
+            <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h1>Attendance</h1>
+            <div style="width:36px;"></div>
+        </div>
+
+        <!-- Active Child Card -->
+        <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img id="mobAttChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+                <div>
+                    <div id="mobAttChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                        <span id="mobAttChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
+                        <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
+                        <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                    </div>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
+        </div>
+
+        <!-- Month Calendar Card -->
+        <div class="mob-cal-card">
+            <div class="mob-cal-header">
+                <button class="mob-cal-nav-btn" onclick="shiftMonth(-1)">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <div class="mob-cal-title" id="mob-cal-month-title">Month Year</div>
+                <button class="mob-cal-nav-btn" onclick="shiftMonth(1)">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="mob-cal-grid" id="mob-calendar-grid">
+                <div class="mob-day-label">S</div>
+                <div class="mob-day-label">M</div>
+                <div class="mob-day-label">T</div>
+                <div class="mob-day-label">W</div>
+                <div class="mob-day-label">T</div>
+                <div class="mob-day-label">F</div>
+                <div class="mob-day-label">S</div>
+                <!-- Dynamic Days -->
+            </div>
+
+            <!-- Calendar Legend -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; margin-top: 16px; padding-top: 12px; font-size: 0.72rem; color: #64748b;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span class="mob-status-dot dot-present"></span> Present
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span class="mob-status-dot dot-absent"></span> Absent
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span class="mob-status-dot dot-late"></span> Late
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span class="mob-status-dot dot-none"></span> No Data
+                </div>
+            </div>
+        </div>
+
+        <!-- 4-metric Summary Cards -->
+        <div class="mob-summary-grid">
+            <div class="mob-summary-box">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Present</span>
+                <strong id="mob-stat-present" style="font-size: 1.5rem; font-weight: 800; color: #10b981;">0</strong>
+            </div>
+            <div class="mob-summary-box">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Absent</span>
+                <strong id="mob-stat-absent" style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">0</strong>
+            </div>
+            <div class="mob-summary-box">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Late</span>
+                <strong id="mob-stat-late" style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;">0</strong>
+            </div>
+            <div class="mob-summary-box">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Total Days</span>
+                <strong id="mob-stat-total" style="font-size: 1.5rem; font-weight: 800; color: #091e42;">0</strong>
+            </div>
+        </div>
+
+        <!-- Recent Logs on Mobile -->
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
+            <div style="margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Recent Check-Ins</h4>
+            </div>
+            <div id="mob-recent-checkins" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
     
-    <!-- HEADER -->
+    <!-- HEADER (Desktop) -->
     <div class="p-header">
         <h1>Attendance</h1>
         <p><span id="ui-child-name">Student</span> • <span id="ui-current-month">Month Year</span></p>
     </div>
 
-    <!-- STATS -->
+    <!-- STATS (Desktop) -->
     <div class="stats-row">
         <div class="stat-box">
             <div class="stat-label">Days present</div>
@@ -341,12 +552,24 @@
           attDB[record.date] = record.status.toLowerCase();
         });
         
+        // Mobile Screen 7 Child Data Binding
+        if (document.getElementById('mobAttChildName')) {
+            document.getElementById('mobAttChildName').innerText = `${child.first_name} ${child.last_name}`;
+        }
+        if (document.getElementById('mobAttChildImg')) {
+            document.getElementById('mobAttChildImg').src = child.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${child.first_name}`);
+        }
+        if (document.getElementById('mobAttChildAge') && child.age) {
+            document.getElementById('mobAttChildAge').innerText = `${child.age} yrs`;
+        }
+
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const firstDay = new Date(currentYear, currentMonth, 1).getDay();
         const grid = document.getElementById('calendar-grid');
         let htmlContent = '';
         let daysPresentCount = 0;
         let daysAbsentCount = 0;
+        let daysLateCount = 0;
         let totalSchoolDaysInMonth = 0;
         
         for (let i = 0; i < firstDay; i++) {
@@ -370,9 +593,13 @@
           
           if (attDB[dateKey]) {
             const status = attDB[dateKey];
-            if (status === 'present' || status === 'late') {
+            if (status === 'present') {
               cellClass = 'cell-green';
               daysPresentCount++;
+            } else if (status === 'late') {
+              cellClass = 'cell-green';
+              daysPresentCount++;
+              daysLateCount++;
             } else if (status === 'absent') {
               cellClass = 'cell-red';
               daysAbsentCount++;
@@ -391,8 +618,16 @@
             htmlContent += `<div class="cal-cell cell-grey">0</div>`;
           }
         }
-        grid.insertAdjacentHTML('beforeend', htmlContent);
+        if (grid) grid.insertAdjacentHTML('beforeend', htmlContent);
         
+        // Desktop stats
+        if (document.getElementById('stat-present')) document.getElementById('stat-present').innerText = daysPresentCount;
+        if (document.getElementById('stat-absent')) document.getElementById('stat-absent').innerText = daysAbsentCount;
+        if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
+
+        // Populate Mobile Screen 7 Grid and Metrics
+        renderMobileCalendarView(currentYear, currentMonth, attDB, noClassDB, attData);
+
         const historyContainer = document.getElementById('ui-history-log');
         let historyHtml = '';
         const allDates = Object.keys(attDB).sort((a, b) => new Date(b) - new Date(a));
@@ -432,20 +667,143 @@
           }
         });
         
-        if (recordsRendered === 0) {
-          historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
-        } else {
-          historyContainer.innerHTML = historyHtml;
+        if (historyContainer) {
+          if (recordsRendered === 0) {
+            historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
+          } else {
+            historyContainer.innerHTML = historyHtml;
+          }
         }
-        
-        document.getElementById('stat-present').innerText = daysPresentCount;
-        document.getElementById('stat-absent').innerText = daysAbsentCount;
-        document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
       })
       .catch(err => {
         console.error(err);
-        document.getElementById('ui-child-name').innerText = 'Error loading data';
+        if (document.getElementById('ui-child-name')) document.getElementById('ui-child-name').innerText = 'Error loading data';
       });
+
+    // Mobile Calendar State & Functions
+    let mobYear = currentYear;
+    let mobMonth = currentMonth;
+    window.shiftMonth = function(delta) {
+        mobMonth += delta;
+        if (mobMonth < 0) {
+            mobMonth = 11;
+            mobYear--;
+        } else if (mobMonth > 11) {
+            mobMonth = 0;
+            mobYear++;
+        }
+        renderMobileCalendarView(mobYear, mobMonth, attDB, noClassDB, []);
+    };
+
+    function renderMobileCalendarView(yr, mo, attDbMap, noClassMap, attList) {
+        const mobTitle = `${monthNames[mo]} ${yr}`;
+        if (document.getElementById('mob-cal-month-title')) {
+            document.getElementById('mob-cal-month-title').innerText = mobTitle;
+        }
+
+        const mobGrid = document.getElementById('mob-calendar-grid');
+        if (!mobGrid) return;
+
+        // Clear previous day cells (keep first 7 weekday labels)
+        const labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(l => `<div class="mob-day-label">${l}</div>`).join('');
+        let mHtml = labels;
+
+        const totalDays = new Date(yr, mo + 1, 0).getDate();
+        const startDay = new Date(yr, mo, 1).getDay();
+
+        let mPres = 0;
+        let mAbs = 0;
+        let mLate = 0;
+        let mTotalSchool = 0;
+
+        for (let i = 0; i < startDay; i++) {
+            mHtml += `<div class="mob-day-cell" style="opacity:0; pointer-events:none;"></div>`;
+        }
+
+        const todayDay = today.getDate();
+        const isCurrentMonthNow = (yr === today.getFullYear() && mo === today.getMonth());
+
+        for (let day = 1; day <= totalDays; day++) {
+            const mStr = (mo + 1).toString().padStart(2, '0');
+            const dStr = day.toString().padStart(2, '0');
+            const dtKey = `${yr}-${mStr}-${dStr}`;
+            const dow = new Date(yr, mo, day).getDay();
+            const isWeekend = (dow === 0 || dow === 6);
+            const isNoClass = isWeekend || (noClassMap && noClassMap[dtKey]);
+
+            if (!isNoClass) mTotalSchool++;
+
+            let dotClass = 'dot-none';
+            if (attDbMap && attDbMap[dtKey]) {
+                const s = attDbMap[dtKey];
+                if (s === 'present') {
+                    dotClass = 'dot-present';
+                    mPres++;
+                } else if (s === 'late') {
+                    dotClass = 'dot-late';
+                    mPres++;
+                    mLate++;
+                } else if (s === 'absent') {
+                    dotClass = 'dot-absent';
+                    mAbs++;
+                }
+            } else if (!isNoClass) {
+                // If past school day with no record
+                const dayDate = new Date(yr, mo, day);
+                if (dayDate < today) {
+                    dotClass = 'dot-absent';
+                    mAbs++;
+                }
+            }
+
+            const isTodayCell = isCurrentMonthNow && (day === todayDay);
+            mHtml += `
+            <div class="mob-day-cell ${isTodayCell ? 'today' : ''}">
+                <span>${day}</span>
+                <span class="mob-status-dot ${dotClass}"></span>
+            </div>`;
+        }
+
+        mobGrid.innerHTML = mHtml;
+
+        // Update 4-metric summary
+        if (document.getElementById('mob-stat-present')) document.getElementById('mob-stat-present').innerText = mPres;
+        if (document.getElementById('mob-stat-absent')) document.getElementById('mob-stat-absent').innerText = mAbs;
+        if (document.getElementById('mob-stat-late')) document.getElementById('mob-stat-late').innerText = mLate;
+        if (document.getElementById('mob-stat-total')) document.getElementById('mob-stat-total').innerText = mTotalSchool;
+
+        // Mobile Recent Check-Ins List
+        const mobCheckins = document.getElementById('mob-recent-checkins');
+        if (mobCheckins) {
+            let logsHtml = '';
+            const datesDesc = Object.keys(attDbMap || {}).sort((a, b) => new Date(b) - new Date(a)).slice(0, 4);
+            if (datesDesc.length === 0) {
+                logsHtml = '<div style="font-size:0.8rem; color:#64748b; text-align:center; padding:10px 0;">No check-ins logged for this month.</div>';
+            } else {
+                datesDesc.forEach((d, idx) => {
+                    const st = attDbMap[d];
+                    const isP = st === 'present';
+                    const isL = st === 'late';
+                    const clr = isP ? '#10b981' : (isL ? '#f59e0b' : '#ef4444');
+                    const bg = isP ? '#dcfce7' : (isL ? '#fef3c7' : '#fee2e2');
+                    logsHtml += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; ${idx < datesDesc.length - 1 ? 'border-bottom:1px solid #f8fafc; padding-bottom:8px;' : ''}">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:30px; height:30px; border-radius:50%; background:${bg}; color:${clr}; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">
+                                <i class="fa-solid ${isP ? 'fa-check' : (isL ? 'fa-clock' : 'fa-xmark')}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.82rem; color:#091e42;">${new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                <div style="font-size:0.7rem; color:#64748b;">${st === 'absent' ? 'No Arrival' : '07:45 AM Arrival'}</div>
+                            </div>
+                        </div>
+                        <span style="font-size:0.7rem; font-weight:700; color:${clr}; background:${bg}; padding:2px 8px; border-radius:10px; text-transform:capitalize;">${st}</span>
+                    </div>`;
+                });
+            }
+            mobCheckins.innerHTML = logsHtml;
+        }
+    }
   });
 </script>
 {% endblock %}

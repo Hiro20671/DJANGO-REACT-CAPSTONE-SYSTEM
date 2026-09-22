@@ -216,13 +216,16 @@ export default function ChildrenList() {
 
           <div className="modern-card card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '14px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)', border: '1px solid var(--border-color)', marginBottom: '20px' }}>
             <div style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>Search Children</div>
-            <input 
-              type="text" 
-              placeholder="🔍 Search by student name..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', padding: '12px 18px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
-            />
+            <div style={{ position: 'relative' }}>
+              <i className="fa-solid fa-magnifying-glass" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.9rem' }}></i>
+              <input 
+                type="text" 
+                placeholder="Search by student name..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', padding: '12px 18px 12px 42px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box', fontFamily: "'Montserrat', sans-serif" }}
+              />
+            </div>
           </div>
           <div className="modern-card card" style={{ background: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 4px 20px -2px rgba(9, 30, 66, 0.06)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
@@ -268,8 +271,8 @@ export default function ChildrenList() {
                     </td>
                     <td style={{ padding: '15px' }}>
                       {child.allergies ? (
-                        <span style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
-                          ⚠ Allergies
+                        <span style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <i className="fa-solid fa-triangle-exclamation"></i> Allergies
                         </span>
                       ) : (
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>None</span>
@@ -419,15 +422,21 @@ export default function ChildrenList() {
               </div>
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>{selectedChild.name}</h2>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px' }}>
-                  {selectedChild.age} years old &bull; 🎈 Born: {selectedChild.dob} &bull; 📅 Enrolled: {selectedChild.doe}
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                  <span>{selectedChild.age} years old</span>
+                  <span>&bull;</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><i className="fa-solid fa-cake-candles" style={{ color: '#f59e0b' }}></i> Born: {selectedChild.dob}</span>
+                  <span>&bull;</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><i className="fa-solid fa-calendar-days" style={{ color: '#3b82f6' }}></i> Enrolled: {selectedChild.doe}</span>
                 </div>
               </div>
             </div>
 
             {selectedChild.allergies && (
               <div style={{ background: '#ffebeb', border: '1px solid #ffcaca', padding: '15px', borderRadius: '8px', color: '#d32f2f', marginBottom: '20px' }}>
-                <strong>⚠ Allergies</strong><br/>
+                <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
+                  <i className="fa-solid fa-triangle-exclamation"></i> Allergies
+                </strong><br/>
                 {selectedChild.allergies}
               </div>
             )}
@@ -548,7 +557,9 @@ export default function ChildrenList() {
 
             {genAccResult ? (
                 <div style={{ background: '#e0f0ff', color: '#063970', padding: '20px', borderRadius: '12px', border: '1px solid #b3d7ff' }}>
-                    <h4 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>✅ Account Generated!</h4>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#10b981' }}></i> Account Generated!
+                    </h4>
                     <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', lineHeight: '1.4' }}>The temporary username and password have been successfully emailed directly to the parent's email address. They will be prompted to verify their email upon logging in.</p>
                     <button onClick={() => { setGenAccResult(null); setShowGenerateAccountModal(false); }} style={{ width: '100%', padding: '12px', background: '#1b3b5c', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Done</button>
                 </div>

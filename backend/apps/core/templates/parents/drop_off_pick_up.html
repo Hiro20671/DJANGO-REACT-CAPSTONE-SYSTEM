@@ -35,7 +35,113 @@
 @media (max-width: 600px) {
     .summary-container { grid-template-columns: 1fr; }
 }
+
+/* Mobile Screen 6 Styles */
+.mobile-dropoff-layout {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .page-header { display: none !important; }
+    .summary-container { display: none !important; }
+    .main-grid { display: none !important; }
+    .mobile-dropoff-layout {
+        display: block;
+        margin-bottom: 25px;
+    }
+}
 </style>
+
+<!-- Mobile Screen 6 Layout -->
+<div class="mobile-dropoff-layout">
+    <div class="mobile-subpage-header">
+        <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h1>Drop-Off & Pick-Up</h1>
+        <div style="width:36px;"></div>
+    </div>
+
+    <!-- Active Child Card -->
+    <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img id="mobileDropChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div>
+                <div id="mobileDropChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Child Name</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <span id="mobileDropChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
+                    <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                </div>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
+    </div>
+
+    <!-- Drop-Off / Pick-Up Status Card -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #e0f2fe; display: flex; align-items: center; justify-content: center; color: #0f172a; font-size: 1.2rem;">
+                    <i class="fa-solid fa-car"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Drop-Off / Pick-Up Status</h3>
+                    <span style="font-size: 0.75rem; color: #64748b;">Daily Classroom Log</span>
+                </div>
+            </div>
+            <span id="mobileDropStatusBadge" style="display: inline-flex; align-items: center; gap: 5px; background: #dcfce7; color: #15803d; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span>
+                On Time
+            </span>
+        </div>
+        <div style="background: #f8fafc; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748b;">Drop-Off Time:</span>
+                <strong id="mobileDropTime" style="color: #091e42;">07:45 AM</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748b;">Authorized Contact:</span>
+                <strong id="mobileDropGuardian" style="color: #091e42;">{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <button onclick="alert('Child status verified for today.');" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none; border-radius: 14px; padding: 14px 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+            <i class="fa-solid fa-circle-check"></i> Check In
+        </button>
+        <button onclick="document.getElementById('mobileQrPassModal').style.display='flex';" style="background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: #fff; border: none; border-radius: 14px; padding: 14px 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);">
+            <i class="fa-solid fa-qrcode"></i> QR Pass
+        </button>
+    </div>
+
+    <!-- Recent Logs Timeline Section -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
+        <div style="margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Recent Logs</h4>
+        </div>
+        <div id="mobileRecentLogsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Mobile QR Pass Modal -->
+<div id="mobileQrPassModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: #091e42; color: #fff; border-radius: 20px; padding: 30px 20px; text-align: center; max-width: 320px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.4); position: relative;">
+        <button onclick="document.getElementById('mobileQrPassModal').style.display='none';" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color: #34d399; margin-bottom: 12px;"></i>
+        <h3 style="margin: 0 0 6px 0; font-size: 1.2rem; font-weight: 800;">Digital ID Pass</h3>
+        <p style="margin: 0 0 20px 0; font-size: 0.78rem; color: rgba(255,255,255,0.75);">Scan at BMV3 front desk for instant drop-off & pickup</p>
+        <div style="background: #fff; border-radius: 16px; padding: 15px; display: inline-block; margin-bottom: 16px;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BMV3-AUTH-{{ request.user.username }}" alt="QR Auth" style="width: 170px; height: 170px; display: block;">
+        </div>
+        <div style="font-size: 0.72rem; color: rgba(255,255,255,0.6); text-transform: uppercase; font-weight: 700;">Security Token</div>
+        <div style="font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; margin-top: 4px; color: #fff;">BMV3-{{ request.user.username|upper }}</div>
+    </div>
+</div>
 
 <div class="page-header" style="margin-bottom:25px;">
     <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Monitor</h2>
@@ -176,6 +282,81 @@
 
         document.getElementById('kpi-checked-in').innerText = checkedInCount;
         document.getElementById('kpi-guardians').innerText = totalGuardians;
+
+        // Mobile Screen 6 Bindings
+        if (document.getElementById('mobileDropChildName')) {
+            document.getElementById('mobileDropChildName').innerText = `${child.first_name} ${child.last_name}`;
+        }
+        if (document.getElementById('mobileDropChildImg')) {
+            document.getElementById('mobileDropChildImg').src = child.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${child.first_name}`);
+        }
+        if (document.getElementById('mobileDropChildAge') && child.age) {
+            document.getElementById('mobileDropChildAge').innerText = `${child.age} yrs`;
+        }
+
+        if (todayAtt && todayAtt.status.toLowerCase() === 'present') {
+            if (document.getElementById('mobileDropTime')) {
+                document.getElementById('mobileDropTime').innerText = todayAtt.dropoff_time || '07:45 AM';
+            }
+            if (document.getElementById('mobileDropStatusBadge')) {
+                document.getElementById('mobileDropStatusBadge').innerHTML = '<span style="width:6px; height:6px; border-radius:50%; background:#16a34a;"></span> Checked In';
+            }
+        }
+
+        // Populate Mobile Recent Logs Timeline
+        const logsContainer = document.getElementById('mobileRecentLogsContainer');
+        if (logsContainer) {
+            const attList = (data.attendance || []).slice(0, 5);
+            if (attList.length === 0) {
+                logsContainer.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:32px; height:32px; border-radius:50%; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700; font-size:0.84rem; color:#091e42;">Morning Check-In</div>
+                            <div style="font-size:0.72rem; color:#64748b;">Today, 07:45 AM • Verified</div>
+                        </div>
+                    </div>
+                    <span style="font-size:0.72rem; font-weight:700; color:#16a34a; background:#dcfce7; padding:2px 8px; border-radius:10px;">Recorded</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:32px; height:32px; border-radius:50%; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700; font-size:0.84rem; color:#091e42;">Afternoon Pick-Up</div>
+                            <div style="font-size:0.72rem; color:#64748b;">Yesterday, 11:30 AM • Verified</div>
+                        </div>
+                    </div>
+                    <span style="font-size:0.72rem; font-weight:700; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:10px;">Completed</span>
+                </div>`;
+            } else {
+                let logHtml = '';
+                attList.forEach((att, idx) => {
+                    const isPres = (att.status || '').toLowerCase() === 'present';
+                    const iconColor = isPres ? '#16a34a' : '#ea580c';
+                    const iconBg = isPres ? '#dcfce7' : '#ffedd5';
+                    const icon = isPres ? 'fa-check' : 'fa-clock';
+                    logHtml += `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; ${idx < attList.length - 1 ? 'border-bottom:1px solid #f1f5f9;' : ''}">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:32px; height:32px; border-radius:50%; background:${iconBg}; color:${iconColor}; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
+                                <i class="fa-solid ${icon}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.84rem; color:#091e42;">${isPres ? 'Classroom Check-In' : 'Late Arrival'}</div>
+                                <div style="font-size:0.72rem; color:#64748b;">${att.date} • ${att.dropoff_time || '08:00 AM'}</div>
+                            </div>
+                        </div>
+                        <span style="font-size:0.72rem; font-weight:700; color:${iconColor}; background:${iconBg}; padding:2px 8px; border-radius:10px;">${att.status || 'Verified'}</span>
+                    </div>`;
+                });
+                logsContainer.innerHTML = logHtml;
+            }
+        }
 
         if (!previewHtml) {
             previewHtml = `<div class="empty-state">No child currently checked in.</div>`;

@@ -109,7 +109,7 @@
         
         <div class="scanner-input-group">
             <button class="btn-action" style="background-color: #f8f9fa; border: 1px solid #ccc; display: flex; align-items: center; gap: 8px;" onclick="startRealCamera()" type="button">
-                📷 Scan QR Code
+                <i class="fa-solid fa-qrcode"></i> Scan QR Code
             </button>
             <span style="display:flex; align-items:center; color:#888; font-size:0.9rem;">or</span>
             <input type="text" id="qrInput" placeholder="Enter code manually (e.g. BMV3-USERNAME or Contact No.)" autocomplete="off">
@@ -118,11 +118,11 @@
                 <option value="pickup">Pick-Up</option>
             </select>
             <button class="btn-verify" id="btnVerify" onclick="simulateScan()" type="button">
-                <span>📱</span> Verify
+                <span><i class="fa-solid fa-mobile-screen"></i></span> Verify
             </button>
         </div>
         <div class="scanner-help">
-            <i style="color:#4a90e2; font-weight:bold;">✓</i> System automatically validates guardian authorization and logs all access attempts.
+            <i class="fa-solid fa-circle-check" style="color:#4a90e2;"></i> System automatically validates guardian authorization and logs all access attempts.
         </div>
     </div>
 
@@ -205,7 +205,7 @@
             <button class="btn-close" onclick="closeModal('latePickupsModal')">&times;</button>
         </div>
         <div class="modal-body" id="modal-late-body">
-            <div class="empty-state">🎉<br>No late pickups currently!</div>
+            <div class="empty-state"><i class="fa-solid fa-circle-check" style="color:#10b981; font-size:2rem; margin-bottom:8px; display:inline-block;"></i><br>No late pickups currently!</div>
         </div>
     </div>
 </div>
@@ -227,7 +227,7 @@
 <div class="modal-overlay" id="cameraModal">
     <div class="modal-container" style="width: 500px;">
         <div class="modal-header" style="background: #043263; color: white;">
-            <h3 style="margin: 0; color: white;">📷 Scan QR Code</h3>
+            <h3 style="margin: 0; color: white;"><i class="fa-solid fa-qrcode"></i> Scan QR Code</h3>
             <button class="btn-close" style="color: white;" onclick="stopRealCamera()">&times;</button>
         </div>
         <div class="modal-body" style="padding: 20px; background-color: #f8fafc; text-align: center;">
@@ -242,7 +242,7 @@
     <div class="modal-container" style="width: 700px; max-width: 95%; max-height: 90vh;">
         <div class="modal-header" style="background: linear-gradient(135deg, #043263 0%, #1e5799 100%); color: white;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 1.8rem;">🛡️</div>
+                <div style="font-size: 1.8rem; color:#3b82f6;"><i class="fa-solid fa-shield-halved"></i></div>
                 <div style="text-align: left;">
                     <h3 style="margin: 0; color: white; font-weight: 800; font-size: 1.4rem;" id="childModalTitle">Verification Successful</h3>
                     <p style="margin: 2px 0 0 0; color: #a4ceeb; font-size: 0.85rem;" id="childModalSubtitle">Transport Access Cleared</p>
@@ -430,11 +430,11 @@
         }
         
         btn.classList.add('scanning');
-        btn.innerHTML = '<span>⏳</span> Verifying...';
+        btn.innerHTML = '<span><i class="fa-solid fa-spinner fa-spin"></i></span> Verifying...';
         
         setTimeout(() => {
             btn.classList.remove('scanning');
-            btn.innerHTML = '<span>📱</span> Verify';
+            btn.innerHTML = '<span><i class="fa-solid fa-mobile-screen"></i></span> Verify';
             
             const match = locateGuardianAuth(inputStr);
             if (!match) {
@@ -577,14 +577,14 @@
         // Health Conditions and Allergies alerts
         let allergiesAlert = student.allergies ? 
             `<div style="background-color:#fff5f5; border-left:4px solid #e53e3e; padding:10px 15px; border-radius:6px; margin-bottom:10px; display:flex; align-items:center; gap:10px; text-align: left;">
-                <span style="font-size:1.2rem; color:#e53e3e;">⚠️</span>
+                <span style="font-size:1.2rem; color:#e53e3e;"><i class="fa-solid fa-triangle-exclamation"></i></span>
                 <div>
                     <div style="font-weight:700; color:#c53030; font-size:0.85rem;">ALLERGIES DETECTED</div>
                     <div style="font-size:0.85rem; color:#9b2c2c;">${student.allergies}</div>
                 </div>
             </div>` : 
             `<div style="background-color:#f0fff4; border-left:4px solid #38a169; padding:10px 15px; border-radius:6px; margin-bottom:10px; display:flex; align-items:center; gap:10px; text-align: left;">
-                <span style="font-size:1.2rem; color:#38a169;">✅</span>
+                <span style="font-size:1.2rem; color:#38a169;"><i class="fa-solid fa-circle-check"></i></span>
                 <div style="font-size:0.85rem; color:#22543d; font-weight:600;">No Known Allergies</div>
             </div>`;
             
@@ -597,7 +597,7 @@
                 </div>
             </div>` : 
             `<div style="background-color:#f0fff4; border-left:4px solid #38a169; padding:10px 15px; border-radius:6px; display:flex; align-items:center; gap:10px; text-align: left;">
-                <span style="font-size:1.2rem; color:#38a169;">✅</span>
+                <span style="font-size:1.2rem; color:#38a169;"><i class="fa-solid fa-circle-check"></i></span>
                 <div style="font-size:0.85rem; color:#22543d; font-weight:600;">No Medical Conditions</div>
             </div>`;
 
@@ -643,14 +643,14 @@
             <div style="display:flex; flex-direction:column; gap:20px;">
                 <!-- Health Alerts -->
                 <div style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
-                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;">🚨 MEDICAL & HEALTH PROFILE</h5>
+                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;"><i class="fa-solid fa-notes-medical" style="color:#1e293b; margin-right:6px;"></i> MEDICAL & HEALTH PROFILE</h5>
                     ${allergiesAlert}
                     ${healthAlert}
                 </div>
 
                 <!-- Physical Metrics -->
                 <div style="background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
-                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;">📐 PHYSICAL MEASUREMENTS</h5>
+                    <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px; text-align: left;"><i class="fa-solid fa-ruler-combined" style="color:#1e293b; margin-right:6px;"></i> PHYSICAL MEASUREMENTS</h5>
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; text-align:center;">
                         <div style="background:#f8fafc; padding:10px; border-radius:8px;">
                             <div style="font-size:0.75rem; color:#64748b; font-weight:600;">Weight</div>
@@ -671,7 +671,7 @@
 
         <!-- Attendance & Milestones Stats -->
         <div style="margin-top:20px; background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; text-align: left;">
-            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📊 CURRENT PERFORMANCE KPI'S</h5>
+            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;"><i class="fa-solid fa-chart-line" style="color:#1e293b; margin-right:6px;"></i> CURRENT PERFORMANCE KPI'S</h5>
             <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
                 <div>
                     <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; color:#475569; margin-bottom:5px;">
@@ -705,7 +705,7 @@
 
         <!-- Emergency / Guardian Contacts -->
         <div style="margin-top:20px; background:white; padding:15px; border-radius:12px; border:1px solid #e2e8f0; text-align: left;">
-            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📞 AUTHORIZED CONTACTS & EMERGENCY DIRECTORY</h5>
+            <h5 style="margin:0 0 12px 0; font-size:0.9rem; font-weight:800; color:#0f172a; border-bottom:1px solid #f1f5f9; padding-bottom:8px;"><i class="fa-solid fa-phone" style="color:#1e293b; margin-right:6px;"></i> AUTHORIZED CONTACTS & EMERGENCY DIRECTORY</h5>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 ${contactsHtml || '<div style="grid-column: span 2; text-align:center; color:#888; font-size:0.85rem; padding:10px;">No registered contact details found.</div>'}
             </div>
@@ -823,7 +823,7 @@
                     <div class="item-name">${st.first_name} ${st.last_name}</div>
                     ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
                 </div>
-                ${gHtml ? '<span class="pill success">✓ Authorized</span>' : ''}
+                ${gHtml ? '<span class="pill success"><i class="fa-solid fa-check"></i> Authorized</span>' : ''}
             </div>`;
 
             // Check In List
@@ -905,12 +905,12 @@
             <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #1e293b;">${log.date}</td>
                 <td style="padding: 12px; font-size: 0.85rem; color: #043263;">
-                    <i class="fa-solid fa-arrow-down-long" style="color: #28a745; margin-right: 5px;"></i>
+                    <i class="fa-solid fa-arrow-down-long" style="color: #1e293b; margin-right: 5px;"></i>
                     <strong>Dropped by:</strong> ${log.dropoff.parent}<br>
                     <span style="font-size: 0.75rem; color: #64748b;">Time: ${log.dropoff.time}</span>
                 </td>
                 <td style="padding: 12px; font-size: 0.85rem; color: #043263;">
-                    <i class="fa-solid fa-arrow-up-long" style="color: #f39c12; margin-right: 5px;"></i>
+                    <i class="fa-solid fa-arrow-up-long" style="color: #1e293b; margin-right: 5px;"></i>
                     <strong>Picked by:</strong> ${log.pickup.parent}<br>
                     <span style="font-size: 0.75rem; color: #64748b;">Time: ${log.pickup.time}</span>
                 </td>

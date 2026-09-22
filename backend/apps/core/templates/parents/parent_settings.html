@@ -244,13 +244,146 @@ input:checked + .slider:before { transform: translateX(26px); }
 .modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
 .archived-student-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
 
+/* Mobile Profile Screen 4 Styles */
+.mobile-profile-layout {
+    display: none;
+}
+
 @media (max-width: 768px) {
-    .settings-container { flex-direction: column; }
-    .settings-sidebar { width: 100%; display: flex; overflow-x: auto; white-space: nowrap; padding: 0; }
-    .settings-menu-item { flex-shrink: 0; border-left: none; border-bottom: 3px solid transparent; }
-    .settings-menu-item.active { border-left: none; border-bottom: 3px solid #4a90e2; }
+    .page-header { display: none; }
+    .settings-sidebar { display: none; }
+    .mobile-profile-layout {
+        display: block;
+        margin-bottom: 25px;
+    }
+    .settings-container {
+        display: block;
+        margin-top: 15px;
+    }
+    .settings-panel {
+        padding: 20px 15px;
+        border-radius: 16px;
+    }
 }
 </style>
+
+<!-- Mobile Screen 4: Profile Subpage Header & Cards -->
+<div class="mobile-profile-layout">
+    <div class="mobile-subpage-header">
+        <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h1>Profile</h1>
+        <div style="width:36px;"></div>
+    </div>
+
+    <!-- Parent Profile Header Card -->
+    <div style="background: #fff; border-radius: 20px; padding: 25px 20px; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.04); margin-bottom: 18px; position: relative;">
+        <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 14px auto;">
+            <div id="mobileAvatarWrap" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; border: 3px solid #091e42; background: #e0f2fe; display: flex; align-items: center; justify-content: center;">
+                <img id="mobileParentAvatar" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed={{ request.user.first_name|default:'Parent' }}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <button onclick="document.getElementById('profImgInput').click()" style="position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: #091e42; color: #fff; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer;" title="Change Photo">
+                <i class="fa-solid fa-camera"></i>
+            </button>
+        </div>
+        <h3 id="mobileParentName" style="margin: 0 0 6px 0; font-size: 1.25rem; font-weight: 800; color: #091e42;">
+            {{ request.user.first_name }} {{ request.user.last_name }}
+        </h3>
+        <span style="display: inline-flex; align-items: center; gap: 5px; background: #dcfce7; color: #15803d; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 12px; border: 1px solid #bbf7d0;">
+            <i class="fa-solid fa-circle-check" style="font-size: 0.7rem;"></i> Verified Parent
+        </span>
+    </div>
+
+    <!-- Family Information Card -->
+    <div style="background: #fff; border-radius: 18px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Family Information</h4>
+            <button onclick="switchSetting('account'); switchSub('profile'); document.getElementById('panel-account').scrollIntoView({behavior:'smooth'});" style="background:none; border:none; color:#0284c7; font-size:0.8rem; font-weight:700; cursor:pointer;">
+                Edit
+            </button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #0f172a; flex-shrink: 0;">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: #64748b;">Phone Number</div>
+                    <div id="mobilePhone" style="font-weight: 700; color: #1e293b;">--</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #0f172a; flex-shrink: 0;">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: #64748b;">Email Address</div>
+                    <div id="mobileEmail" style="font-weight: 700; color: #1e293b;">{{ request.user.email }}</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #0f172a; flex-shrink: 0;">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.72rem; color: #64748b;">Address</div>
+                    <div id="mobileAddress" style="font-weight: 700; color: #1e293b;">Lucena City, Quezon</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Child Information Card -->
+    <div style="background: #fff; border-radius: 18px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px;">
+        <div style="margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Child Information</h4>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+            <img id="mobileChildAvatar" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #e0f2fe;">
+            <div>
+                <div id="mobileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Sky Dylan Villanueva</div>
+                <div id="mobileChildSub" style="font-size: 0.78rem; color: #64748b;">3 yrs old • Enrolled Student</div>
+            </div>
+        </div>
+        <button onclick="window.location.href='/parent/children/';" style="width: 100%; padding: 11px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: 700; font-size: 0.85rem; color: #091e42; cursor: pointer;">
+            View Child Details
+        </button>
+    </div>
+
+    <!-- Quick Navigation Links -->
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <button onclick="switchSetting('account'); switchSub('password'); document.getElementById('panel-account').scrollIntoView({behavior:'smooth'});" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; cursor: pointer; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #0f172a;">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 0.9rem; color: #091e42;">Change Password</span>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.85rem;"></i>
+        </button>
+
+        <a href="/parent/map-route/" style="text-decoration: none; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #0f172a;">
+                    <i class="fa-solid fa-route"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 0.9rem; color: #091e42;">Route to BMV3 Center</span>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.85rem;"></i>
+        </a>
+
+        <a href="/logout/" onclick="return confirm('Are you sure you want to log out?');" style="text-decoration: none; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 0.9rem; color: #dc2626;">Log Out</span>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #dc2626; font-size: 0.85rem;"></i>
+        </a>
+    </div>
+</div>
 
 <div class="page-header">
     <h2>Account Settings</h2>
@@ -259,12 +392,12 @@ input:checked + .slider:before { transform: translateX(26px); }
 
 <div class="settings-container">
     <div class="settings-sidebar">
-        <div class="settings-menu-item active" onclick="switchSetting('account')">👤 Account</div>
-        <div class="settings-menu-item" onclick="switchSetting('maproute')">📍 Route to BMV3 Center</div>
-        <div class="settings-menu-item" onclick="switchSetting('school')">🏫 Historical Archives</div>
-        <div class="settings-menu-item" onclick="switchSetting('notifications')">🔔 Notifications</div>
-        <div class="settings-menu-item" onclick="switchSetting('appearance')">🎨 Appearance</div>
-        <div class="settings-menu-item" onclick="switchSetting('privacy')">🔒 Privacy & Security</div>
+        <div class="settings-menu-item active" onclick="switchSetting('account')"><i class="fa-solid fa-user" style="margin-right:8px;"></i> Account</div>
+        <div class="settings-menu-item" onclick="switchSetting('maproute')"><i class="fa-solid fa-route" style="margin-right:8px;"></i> Route to BMV3 Center</div>
+        <div class="settings-menu-item" onclick="switchSetting('school')"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;"></i> Historical Archives</div>
+        <div class="settings-menu-item" onclick="switchSetting('notifications')"><i class="fa-solid fa-bell" style="margin-right:8px;"></i> Notifications</div>
+        <div class="settings-menu-item" onclick="switchSetting('appearance')"><i class="fa-solid fa-palette" style="margin-right:8px;"></i> Appearance</div>
+        <div class="settings-menu-item" onclick="switchSetting('privacy')"><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i> Privacy & Security</div>
     </div>
 
 
@@ -285,7 +418,7 @@ input:checked + .slider:before { transform: translateX(26px); }
             <!-- Profile Sub -->
             <div class="sub-panel active" id="sub-profile">
                 <div class="profile-upload-container">
-                    <div class="profile-upload-preview" id="profileImagePreview">👤</div>
+                    <div class="profile-upload-preview" id="profileImagePreview"><i class="fa-solid fa-user" style="font-size:2rem; color:#94a3b8;"></i></div>
                     <div>
                         <input type="file" id="profImgInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                         <button class="btn-primary" style="background: var(--btn-neutral-bg); color: var(--btn-neutral-text); border: 1px solid var(--btn-neutral-border); margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
@@ -315,50 +448,32 @@ input:checked + .slider:before { transform: translateX(26px); }
                 </div>
                 <h4 style="margin-top: 30px; margin-bottom: 15px;">Address Details</h4>
                 <div class="form-group">
-                    <label>Address Line 1 (Street/House) *</label>
-                    <input type="text" id="profAddressLine1">
+                    <label>Region *</label>
+                    <select id="profRegion" onchange="onRegionChange()">
+                        <option value="">Select Region</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Province *</label>
+                    <select id="profProvince" onchange="onProvinceChange()">
+                        <option value="">Select Province</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>City/Municipality *</label>
+                    <select id="profCity" onchange="onCityChange()">
+                        <option value="">Select City/Municipality</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Barangay *</label>
                     <select id="profBarangay">
                         <option value="">Select Barangay</option>
-                        <option value="Market View">Market View</option>
-                        <option value="Ilayang Dupay">Ilayang Dupay</option>
-                        <option value="Ibabang Dupay">Ibabang Dupay</option>
-                        <option value="Cotta">Cotta</option>
-                        <option value="Gulang-Gulang">Gulang-Gulang</option>
-                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>City/Municipality *</label>
-                    <select id="profCity">
-                        <option value="">Select City/Municipality</option>
-                        <option value="Lucena City">Lucena City</option>
-                        <option value="Tayabas City">Tayabas City</option>
-                        <option value="Pagbilao">Pagbilao</option>
-                        <option value="Sariaya">Sariaya</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Province *</label>
-                    <select id="profProvince">
-                        <option value="">Select Province</option>
-                        <option value="Quezon">Quezon Province</option>
-                        <option value="Laguna">Laguna</option>
-                        <option value="Batangas">Batangas</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Region *</label>
-                    <select id="profRegion">
-                        <option value="">Select Region</option>
-                        <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
-                        <option value="NCR">NCR</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <label>Address Line 1 (Street/House/Subdivision) *</label>
+                    <input type="text" id="profAddressLine1" placeholder="e.g. 123 Mabini St., Purok 4">
                 </div>
                 <h4 style="margin-top: 30px; margin-bottom: 15px;">Linked Child</h4>
                 <div class="form-group">
@@ -440,7 +555,7 @@ input:checked + .slider:before { transform: translateX(26px); }
         <!-- ROUTE TO BMV3 CENTER PANEL -->
         <div class="settings-panel" id="panel-maproute">
             <div class="panel-header">
-                <h3>📍 House Location & Route to BMV3 Center</h3>
+                <h3><i class="fa-solid fa-location-dot" style="margin-right:8px;"></i> House Location & Route to BMV3 Center</h3>
                 <p>Pin your home location on the interactive map and view live Waze-style driving directions to daycare center</p>
             </div>
 
@@ -455,7 +570,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 </div>
                 <div style="background: #fef3c7; padding: 12px 18px; border-radius: 10px; flex: 1; border: 1px solid #fde047;">
                     <div style="font-size: 0.8rem; font-weight: 700; color: #b45309;">ESTIMATED TRAVEL TIME</div>
-                    <div style="font-weight: 800; color: #92400e; font-size: 1.1rem;" id="settingsRouteDuration">⏱️ -- mins</div>
+                    <div style="font-weight: 800; color: #92400e; font-size: 1.1rem;" id="settingsRouteDuration"><i class="fa-solid fa-clock" style="margin-right:6px;"></i> -- mins</div>
                 </div>
             </div>
 
@@ -581,6 +696,183 @@ input:checked + .slider:before { transform: translateX(26px); }
         return cookieValue;
     }
 
+    // PHILIPPINE ADDRESS HIERARCHY (COMPREHENSIVE)
+    const PHILIPPINE_ADDRESSES = {
+        "Region IV-A (CALABARZON)": {
+            "Quezon": {
+                "Lucena City": [
+                    "Barangay 1 (Poblacion)", "Barangay 2 (Poblacion)", "Barangay 3 (Poblacion)", "Barangay 4 (Poblacion)",
+                    "Barangay 5 (Poblacion)", "Barangay 6 (Poblacion)", "Barangay 7 (Poblacion)", "Barangay 8 (Poblacion)",
+                    "Barangay 9 (Poblacion)", "Barangay 10 (Poblacion)", "Barangay 11 (Poblacion)", "Barra", "Bocohan",
+                    "Cotta", "Dalahican", "Domoit", "Gulang-Gulang", "Ibabang Dupay", "Ibabang Iyam", "Ibabang Talim",
+                    "Ilayang Dupay", "Ilayang Iyam", "Ilayang Talim", "Isabang", "Market View", "Mayao Castillo",
+                    "Mayao Crossing", "Mayao Kanluran", "Mayao Parada", "Mayao Silangan", "Ransohan", "Salinas", "Talao-Talao"
+                ],
+                "Tayabas City": ["Alitao", "Angeles", "Baguio", "Camasan", "Dapdap", "Ilasan", "Ipilan", "Isabang", "Lalo", "Mate", "Palale", "Potol", "San Diego", "San Isidro", "San Roque", "Wakas"],
+                "Pagbilao": ["Alupaye", "Antipolo", "Añog", "Bilocao", "Bukal", "Castillo", "Del Carmen", "Iba. Palo", "Ila. Palo", "Iba. Bagumbayan", "Ila. Bagumbayan", "Mapagong", "Parang", "Santa Catalina", "Talipan"],
+                "Sariaya": ["Balubal", "Bignay", "Castañas", "Concepcion I", "Concepcion Banahaw", "Guisguis", "Lutgarda", "Mamala I", "Manggalang 1", "Montecillo", "Pili", "Sampaloc 1", "Talaan", "Tumbaga 1"],
+                "Candelaria": ["Bukal Norte", "Bukal Sur", "Buenavista", "Malabanban Norte", "Malabanban Sur", "Masalukot I", "Masalukot II", "Poblacion", "San Andres", "San Isidro", "Santa Catalina"],
+                "Tiaong": ["Ayusan I", "Behia", "Bukal", "Cabay", "Del Rosario", "Lalaguna", "Lumingon", "Paiisa", "Palagaran", "Poblacion", "Quipot", "San Agustin", "San Jose", "Tagbakin"],
+                "Dolores": ["Bulakin I", "Bulakin II", "Cabatang", "Dagatan", "Kinabuhayan", "Maligaya", "Manggahan", "Pinagdanlayan", "Poblacion", "Santa Lucia"],
+                "Lucban": ["Abang", "Aliliw", "Atano", "Ayuti", "Igang", "Kulapi", "Nagsinamo", "Palola", "Poblacion", "Samil", "Tinamnan"],
+                "Sampaloc": ["Alupay", "Bataan", "Bayongon", "Bilucao", "Caldong", "Mamala", "Poblacion", "San Bueno", "San Roque"],
+                "Mauban": ["Bagong Bayan", "Cagbalete I", "Cagbalete II", "Daungan", "Lual", "Poblacion", "Polo", "Remedios", "San Jose", "Santol"],
+                "Atimonan": ["Angeles", "Balubad", "Caridad Ibaba", "Caridad Ilaya", "Inaclagan", "Malinao Ibaba", "Malinao Ilaya", "Poblacion", "San Rafael", "Tagbakin"],
+                "Gumaca": ["Aloneros", "Bamban", "Bantad", "Camohaguin", "Inaclagan", "Mabini", "Poblacion", "Progreso", "Rosario", "Villa Victoria"],
+                "Lopez": ["Burgos", "Cogorin", "Danlagan", "Esperanza", "Hondagua", "Magsaysay", "Poblacion", "San Antonio", "Santa Maria", "Vegaflor"]
+            },
+            "Laguna": {
+                "San Pablo City": ["Barangay I-A", "Barangay I-B", "Barangay II-A", "Barangay II-B", "Barangay III-A", "Barangay III-B", "Concepcion", "Del Remedio", "San Cristobal", "San Francisco", "San Gabriel", "San Jose", "San Lucas 1", "San Roque", "Santa Maria", "Santisimo Rosario"],
+                "Calamba City": ["Bagong Kalsada", "Bañadero", "Barandal", "Bucal", "Canlubang", "Halang", "Lawa", "Makiling", "Palingon", "Pansol", "Parian", "Real", "Turbina"],
+                "Santa Rosa City": ["Aplaya", "Balibago", "Caingin", "Dila", "Dita", "Don Jose", "Ibaba", "Kanluran", "Labas", "Macabling", "Malusak", "Market Area", "Pooc", "Pulong Santa Cruz", "Sinalhan", "Tagapo"],
+                "Biñan City": ["Canlalay", "Casile", "De La Paz", "Ganado", "Langkiwa", "Malaban", "Mamplasan", "Platero", "Poblacion", "San Antonio", "San Francisco", "San Vicente", "Santo Tomas", "Tubigan", "Zapote"],
+                "Cabuyao City": ["Baclaran", "Banay-banay", "Banlic", "Bigaa", "Butong", "Casile", "Gulod", "Mamatid", "Marinig", "Niugan", "Pittland", "Poblacion I", "Poblacion II", "Poblacion III", "Pulo", "Sala", "San Isidro"],
+                "Los Baños": ["Anos", "Bagong Silang", "Bambang", "Batong Malake", "Bayog", "Lalakay", "Maahas", "Malinta", "Mayondon", "Poblacion", "Putho-Tuntungin", "San Antonio", "Tadlac", "Timugan"]
+            },
+            "Batangas": {
+                "Batangas City": ["Alangilan", "Balagtas", "Balete", "Bolbok", "Calicanto", "Cuta", "Gulod Itaas", "Gulod Labac", "Kumintang Ibaba", "Kumintang Ilaya", "Pallocan Kanluran", "Pallocan Silangan", "Poblacion", "San Isidro", "Santa Clara", "Santa Rita Aplaya", "Wawa"],
+                "Lipa City": ["Balintawak", "Banaybanay", "Bolbok", "Dagatan", "Inosluban", "Lodlod", "Lumbang", "Mabini", "Marawoy", "Mataas Na Lupa", "Poblacion", "Sabang", "Sampaguita", "San Carlos", "Tambo", "Tangway"],
+                "Tanauan City": ["Bagumbayan", "Darasa", "Hidalgo", "Natatas", "Pantay Bata", "Pantay Matanda", "Poblacion", "Sambat", "Santor", "Trapiche"],
+                "Sto. Tomas City": ["San Antonio", "San Bartolome", "San Felix", "San Fernando", "San Miguel", "San Pedro", "San Rafael", "San Roque", "Santa Anastacia", "Santa Maria", "Santiago"]
+            },
+            "Cavite": {
+                "Dasmariñas City": ["Burol I", "Burol II", "Fatima I", "Langkaan I", "Langkaan II", "Paliparan I", "Paliparan II", "Paliparan III", "Salawag", "Salitran I", "Salitran II", "Sampaloc I", "San Agustin I"],
+                "Bacoor City": ["Habay I", "Habay II", "Mambog I", "Mambog II", "Molino I", "Molino II", "Molino III", "Molino IV", "Niog I", "Niog II", "Panapaan I", "Queens Row Central", "Talaba I", "Zapote I"],
+                "Imus City": ["Alapan I-A", "Anabu I-A", "Bucandala I", "Carsadang Bago I", "Malagasang I-A", "Medicion I-A", "Poblacion I-A", "Tanzang Luma I", "Toclong I-A"],
+                "Tagaytay City": ["Asisan", "Bagong Tubig", "Caloocan", "Francisco", "Guinhawa Norte", "Kaybagal North", "Maharlika East", "Mendez Crossing East", "Sambong", "Silang Junction North", "Tolentino East"],
+                "General Trias City": ["Arnaldo", "Bacao I", "Bacao II", "Buenavista I", "Corregidor", "Dulong Bayan", "Gov. Ferrer", "Manggahan", "Navarro", "Pasong Camachile I", "Pinagtipunan", "San Francisco", "Tejero"]
+            },
+            "Rizal": {
+                "Antipolo City": ["Bagong Nayon", "Beverly Hills", "Calawis", "Cupang", "Dalig", "Dela Paz", "Inarawan", "Mambugan", "Mayamot", "Muntindilaw", "San Isidro", "San Jose", "San Juan", "San Luis", "San Roque", "Santa Cruz"],
+                "Taytay": ["Dolores (Poblacion)", "Muzon", "San Isidro", "San Juan", "Santa Ana"],
+                "Cainta": ["San Andres", "San Isidro", "San Juan", "San Roque", "Santa Rosa", "Santo Domingo", "Santo Niño"],
+                "Angono": ["Bagumbayan", "Kalayaan", "Mahabang Parang", "Poblacion Ibaba", "Poblacion Itaas", "San Isidro", "San Pedro", "San Roque", "San Vicente", "Santo Niño"]
+            }
+        },
+        "NCR (National Capital Region)": {
+            "Metro Manila": {
+                "Quezon City": ["Alicia", "Bagong Silangan", "Batasan Hills", "Commonwealth", "Culiat", "Diliman", "Fairview", "Holy Spirit", "Loyola Heights", "Matandang Balara", "Novaliches Proper", "Pasong Tamo", "Payatas", "Project 6", "San Bartolome", "Tandang Sora"],
+                "City of Manila": ["Binondo", "Ermita", "Intramuros", "Malate", "Paco", "Pandacan", "Port Area", "Quiapo", "Sampaloc", "San Andres", "San Miguel", "San Nicolas", "Santa Ana", "Santa Cruz", "Santa Mesa", "Tondo"],
+                "Makati City": ["Bangkal", "Bel-Air", "Carmona", "Dasmarinas", "Forbes Park", "Guadalupe Nuevo", "Guadalupe Viejo", "Kasilawan", "Magallanes", "Olympia", "Palanan", "Pemerbo", "Pio del Pilar", "Poblacion", "San Antonio", "San Lorenzo", "Tejeros", "Urdaneta"],
+                "Taguig City": ["Bagumbayan", "Bambang", "Calzada", "Central Bicutan", "Fort Bonifacio", "Hagonoy", "Ibayo-Tipas", "Lower Bicutan", "Maharlika Village", "Napindan", "New Lower Bicutan", "Palingon", "Pinagsama", "San Miguel", "Santa Ana", "Tuktukan", "Upper Bicutan", "Ususan", "Western Bicutan"],
+                "Pasig City": ["Bagong Ilog", "Bagong Katipunan", "Bambang", "Buting", "Caniogan", "Kapitolyo", "Malinao", "Manggahan", "Maybunga", "Oranbo", "Palatiw", "Pinagbuhatan", "Pineda", "Rosario", "Sagad", "San Antonio", "San Joaquin", "San Nicolas", "Santa Cruz", "Santa Lucia", "Santa Rosa", "Santolan", "Sumilang", "Ugong"],
+                "Parañaque City": ["Baclaran", "BF Homes", "Don Bosco", "Don Galo", "La Huerta", "Marcelo Green", "Merville", "Moonwalk", "San Antonio", "San Dionisio", "San Isidro", "San Martin de Porres", "Santo Niño", "Sun Valley", "Tambo", "Vitalez"],
+                "Muntinlupa City": ["Alabang", "Bayanan", "Buli", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"],
+                "Pasay City": ["Barangay 1", "Barangay 76", "Barangay 183 (Villamor)", "Malibay", "Maricaban", "Pia", "San Isidro", "San Jose", "San Rafael", "San Roque", "Santa Clara"],
+                "Mandaluyong City": ["Addition Hills", "Bagong Silang", "Barangka Drive", "Barangka Ilaya", "Highway Hills", "Hulo", "Malamig", "Namayan", "Plainview", "Pleasant Hills", "Poblacion", "Vergara", "Wack-Wack Greenhills"],
+                "Caloocan City": ["Bagong Barrio", "Bagumbong", "Camarin", "Deparo", "Grace Park East", "Grace Park West", "Morning Breeze", "Poblacion", "Tala"]
+            }
+        },
+        "Region III (Central Luzon)": {
+            "Bulacan": {
+                "Malolos City": ["Bulihan", "Caingin", "Catmon", "Cofradia", "Dakila", "Guinhawa", "Liang", "Lugam", "Mojon", "Panasahan", "San Gabriel", "San Vicente", "Santo Rosario", "Sumapang Matanda"],
+                "City of Meycauayan": ["Bancal", "Calvario", "Camalig", "Hulo", "Iba", "Langka", "Malhacan", "Perez", "Saluysoy", "Tugatog", "Zamora"],
+                "San Jose del Monte City": ["Citrus", "Ciudad Real", "Dulong Bayan", "Gaya-Gaya", "Graceville", "Kaybanban", "Muzon", "Poblacion", "Sapang Palay", "Tungkong Mangga"]
+            },
+            "Pampanga": {
+                "San Fernando City": ["Baliti", "Calulut", "Del Carmen", "Dolores", "Juliana", "Magliman", "Maimpis", "Malpitic", "Quebiawan", "Saguin", "San Agustin", "San Jose", "San Nicolas", "Sindalan", "Telebastagan"],
+                "Angeles City": ["Balibago", "Capaya", "Claro M. Recto", "Cutcut", "Lourdes North West", "Malabañas", "Pampang", "Pulung Maragul", "Salapungan", "Santo Domingo", "Santo Rosario"]
+            }
+        },
+        "Region I (Ilocos Region)": {
+            "Pangasinan": {
+                "Dagupan City": ["Bonuan Boquig", "Bonuan Gueset", "Caranglaan", "Herrero", "Lucao", "Malued", "Mayombo", "Pantalan", "Poblacion Oeste", "Tapuac"],
+                "San Carlos City": ["Abanon", "Balaya", "Bocboc", "Caoayan Kiling", "Coliling", "Ilang", "Mabalbalino", "Palaris", "Poblacion", "Talang"]
+            },
+            "La Union": {
+                "San Fernando City": ["Biday", "Catbangen", "Dalumpinas Este", "Ilocanos Norte", "Lingsat", "Madayegdeg", "Parian", "Sevilla", "Tanqui"]
+            }
+        },
+        "Region V (Bicol Region)": {
+            "Albay": {
+                "Legazpi City": ["Bagacay", "Bitano", "Bogtong", "Cruzada", "Gogon", "Ilawod", "Oro Site", "Pinaric", "Rawis", "San Roque", "Tamaoyan", "Victory Village"]
+            },
+            "Camarines Sur": {
+                "Naga City": ["Abella", "Bagumbayan Norte", "Balatas", "Concepcion Grande", "Concepcion Pequeña", "Dayangdang", "Dinaga", "Igualdad", "Mabolo", "Peñafrancia", "San Francisco", "Triangulo"]
+            }
+        },
+        "Region VII (Central Visayas)": {
+            "Cebu": {
+                "Cebu City": ["Apas", "Banilad", "Basak San Nicolas", "Guadalupe", "Kamputhaw", "Kasambagan", "Lahug", "Mabolo", "Pardo", "Punta Princesa", "Sambag I", "Talamban", "Tisa"],
+                "Mandaue City": ["Bakilid", "Banilad", "Basak", "Cabancalan", "Centro", "Guizo", "Ibabao-Estancia", "Looc", "Maguikay", "Subangdaku", "Tipolo"],
+                "Lapu-Lapu City": ["Basak", "Gun-ob", "Ibo", "Mactan", "Maribago", "Marigondon", "Pajac", "Pajo", "Pusok", "Subabasbas"]
+            }
+        },
+        "Region XI (Davao Region)": {
+            "Davao del Sur": {
+                "Davao City": ["Agdao", "Buhangin", "Bucana", "Catalunan Grande", "Matina Crossing", "Poblacion", "Sasa", "Talomo", "Toril"]
+            }
+        }
+    };
+
+    function initAddressDropdowns(savedRegion, savedProvince, savedCity, savedBarangay) {
+        const regSelect = document.getElementById('profRegion');
+        if (!regSelect) return;
+        regSelect.innerHTML = '<option value="">Select Region</option>';
+        Object.keys(PHILIPPINE_ADDRESSES).forEach(r => {
+            regSelect.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+        regSelect.innerHTML += '<option value="Other">Other</option>';
+
+        if (savedRegion) {
+            regSelect.value = savedRegion;
+        }
+        onRegionChange(savedProvince, savedCity, savedBarangay);
+    }
+
+    function onRegionChange(targetProv, targetCity, targetBrgy) {
+        const reg = document.getElementById('profRegion').value;
+        const provSelect = document.getElementById('profProvince');
+        if (!provSelect) return;
+        provSelect.innerHTML = '<option value="">Select Province</option>';
+
+        if (reg && reg !== 'Other' && PHILIPPINE_ADDRESSES[reg]) {
+            Object.keys(PHILIPPINE_ADDRESSES[reg]).forEach(p => {
+                provSelect.innerHTML += `<option value="${p}">${p}</option>`;
+            });
+        }
+        provSelect.innerHTML += '<option value="Other">Other</option>';
+        if (targetProv) provSelect.value = targetProv;
+
+        onProvinceChange(targetCity, targetBrgy);
+    }
+
+    function onProvinceChange(targetCity, targetBrgy) {
+        const reg = document.getElementById('profRegion').value;
+        const prov = document.getElementById('profProvince').value;
+        const citySelect = document.getElementById('profCity');
+        if (!citySelect) return;
+        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+
+        if (reg && reg !== 'Other' && prov && prov !== 'Other' && PHILIPPINE_ADDRESSES[reg] && PHILIPPINE_ADDRESSES[reg][prov]) {
+            Object.keys(PHILIPPINE_ADDRESSES[reg][prov]).forEach(c => {
+                citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+        citySelect.innerHTML += '<option value="Other">Other</option>';
+        if (targetCity) citySelect.value = targetCity;
+
+        onCityChange(targetBrgy);
+    }
+
+    function onCityChange(targetBrgy) {
+        const reg = document.getElementById('profRegion').value;
+        const prov = document.getElementById('profProvince').value;
+        const city = document.getElementById('profCity').value;
+        const brgySelect = document.getElementById('profBarangay');
+        if (!brgySelect) return;
+        brgySelect.innerHTML = '<option value="">Select Barangay</option>';
+
+        if (reg && reg !== 'Other' && prov && prov !== 'Other' && city && city !== 'Other' && 
+            PHILIPPINE_ADDRESSES[reg] && PHILIPPINE_ADDRESSES[reg][prov] && PHILIPPINE_ADDRESSES[reg][prov][city]) {
+            PHILIPPINE_ADDRESSES[reg][prov][city].forEach(b => {
+                brgySelect.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+        }
+        brgySelect.innerHTML += '<option value="Other">Other</option>';
+        if (targetBrgy) brgySelect.value = targetBrgy;
+    }
+
     // LOAD SETTINGS FROM API
     window.addEventListener('load', () => {
         fetch('/api/user/settings/')
@@ -592,13 +884,51 @@ input:checked + .slider:before { transform: translateX(26px); }
                 document.getElementById('profEmail').value = data.email || '';
                 if(data.phone) document.getElementById('profContact').value = data.phone;
                 
-                if(data.address) {
-                    let parts = data.address.split(', ');
-                    if(parts.length > 0) document.getElementById('profAddressLine1').value = parts[0];
-                    if(parts.length > 1) document.getElementById('profBarangay').value = parts[1];
-                    if(parts.length > 2) document.getElementById('profCity').value = parts[2];
-                    if(parts.length > 3) document.getElementById('profProvince').value = parts[3];
-                    if(parts.length > 4) document.getElementById('profRegion').value = parts[4];
+                let savedLine1 = '';
+                let savedBarangay = 'Market View';
+                let savedCity = 'Lucena City';
+                let savedProvince = 'Quezon';
+                let savedRegion = 'Region IV-A (CALABARZON)';
+
+                if (data.address) {
+                    let parts = data.address.split(', ').map(s => s.trim());
+                    if (parts.length >= 5) {
+                        savedLine1 = parts[0];
+                        savedBarangay = parts[1];
+                        savedCity = parts[2];
+                        savedProvince = parts[3];
+                        savedRegion = parts[4];
+                    } else if (parts.length === 4) {
+                        savedLine1 = parts[0];
+                        savedBarangay = parts[1];
+                        savedCity = parts[2];
+                        savedProvince = parts[3];
+                    } else if (parts.length === 2) {
+                        savedBarangay = parts[0];
+                        savedCity = parts[1];
+                    } else if (parts.length === 1) {
+                        savedLine1 = parts[0];
+                    }
+                }
+                document.getElementById('profAddressLine1').value = savedLine1;
+                initAddressDropdowns(savedRegion, savedProvince, savedCity, savedBarangay);
+
+                // Bind Mobile Profile Screen 4 elements
+                if (data.first_name || data.last_name) {
+                    const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim();
+                    if (document.getElementById('mobileParentName') && fullName) {
+                        document.getElementById('mobileParentName').innerText = fullName;
+                    }
+                }
+                if (document.getElementById('mobilePhone')) {
+                    document.getElementById('mobilePhone').innerText = data.phone || 'Not provided';
+                }
+                if (document.getElementById('mobileEmail') && data.email) {
+                    document.getElementById('mobileEmail').innerText = data.email;
+                }
+                const fullAddr = [savedLine1, savedBarangay, savedCity, savedProvince].filter(Boolean).join(', ');
+                if (document.getElementById('mobileAddress')) {
+                    document.getElementById('mobileAddress').innerText = fullAddr || 'Lucena City, Quezon';
                 }
 
                 if (data.child_id) {
@@ -610,6 +940,13 @@ input:checked + .slider:before { transform: translateX(26px); }
                     document.getElementById('profChild').value = data.child_first_name + ' ' + data.child_last_name;
                     document.getElementById('profChild').disabled = true;
                     document.getElementById('profChild').style.backgroundColor = '#f0f0f0';
+                    
+                    if (document.getElementById('mobileChildName')) {
+                        document.getElementById('mobileChildName').innerText = `${data.child_first_name} ${data.child_last_name || ''}`;
+                    }
+                    if (document.getElementById('mobileChildAvatar')) {
+                        document.getElementById('mobileChildAvatar').src = `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${data.child_first_name}`;
+                    }
                     
                     if (data.guardian_type) {
                         window.parentGuardianType = data.guardian_type;
@@ -624,6 +961,9 @@ input:checked + .slider:before { transform: translateX(26px); }
         let fallbackImg = localStorage.getItem('bmv3_parent_profile_img');
         if(fallbackImg) {
             document.getElementById('profileImagePreview').innerHTML = `<img src="${fallbackImg}">`;
+            if (document.getElementById('mobileParentAvatar')) {
+                document.getElementById('mobileParentAvatar').src = fallbackImg;
+            }
         }
 
         let currentTheme = localStorage.getItem('bmv3_theme') || 'light';
@@ -988,21 +1328,21 @@ input:checked + .slider:before { transform: translateX(26px); }
 
         settingsMapObj = L.map('settingsMap').setView(bmv3CenterCoords, 15);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(settingsMapObj);
 
         const schoolIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#063970; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;">🏫</div>',
+            html: '<div style="background:#063970; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;"><i class="fa-solid fa-school"></i></div>',
             iconSize: [38, 38],
             iconAnchor: [19, 19]
         });
 
         const houseIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#ef4444; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;">🏠</div>',
+            html: '<div style="background:#ef4444; color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.2rem;"><i class="fa-solid fa-house"></i></div>',
             iconSize: [38, 38],
             iconAnchor: [19, 19]
         });
@@ -1067,7 +1407,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     const timeMins = Math.round(summary.totalTime / 60);
 
                     document.getElementById('settingsRouteDistance').innerText = `${distKm} km to BMV3 Center`;
-                    document.getElementById('settingsRouteDuration').innerText = `⏱️ ~${timeMins} mins drive`;
+                    document.getElementById('settingsRouteDuration').innerText = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
                 }
             });
         }

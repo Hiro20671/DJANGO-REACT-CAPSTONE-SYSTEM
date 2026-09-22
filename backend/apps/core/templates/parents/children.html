@@ -114,7 +114,7 @@
     <div class="search-container">
         <h4>Search Children</h4>
         <div class="search-input-wrapper">
-            <span style="color:#999; margin-right:10px;">🔍</span>
+            <span style="color:#999; margin-right:10px;"><i class="fa-solid fa-magnifying-glass"></i></span>
             <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterDirectory()">
         </div>
     </div>
@@ -152,12 +152,12 @@
             <div class="m-avatar" id="m-av">E</div>
             <div class="m-title">
                 <h2 id="m-name">Emma Johnson</h2>
-                <p><span id="m-age">4 years old</span> <span id="m-bday" style="margin-left:15px; color:#888;">🎈 Born: 5/12/2020</span> <span id="m-enrolled" style="margin-left:15px; color:#aaa;">🗓 Enrolled: 1/15/2024</span></p>
+                <p><span id="m-age">4 years old</span> <span id="m-bday" style="margin-left:15px; color:#888;"><i class="fa-solid fa-cake-candles" style="color:#f59e0b; margin-right:4px;"></i> Born: 5/12/2020</span> <span id="m-enrolled" style="margin-left:15px; color:#aaa;"><i class="fa-solid fa-calendar-days" style="color:#3b82f6; margin-right:4px;"></i> Enrolled: 1/15/2024</span></p>
             </div>
         </div>
 
         <div class="m-allergies" id="m-allergy-box" style="display:none;">
-            <span>⚠ Allergies</span>
+            <span><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444; margin-right:4px;"></i> Allergies</span>
             <p id="m-al-text">Peanuts</p>
         </div>
 
@@ -308,7 +308,7 @@
 
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial;
             let hlClass = st.id === 'noah' || st.id === 'liam' ? 'highlight' : ''; 
-            let alertIcon = hlClass ? `<span class="alert-icon" style="color: #f6c23e;">⚠</span>` : '';
+            let alertIcon = hlClass ? `<span class="alert-icon" style="color: #f6c23e;"><i class="fa-solid fa-triangle-exclamation"></i></span>` : '';
 
             let attWid = st.attPct;
             let milWid = st.milPct;
@@ -322,7 +322,7 @@
                     </div>
                     <div>
                         <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.name} ${alertIcon}</span>
-                        ${st.allergies && st.allergies.length > 0 ? `<div style="font-size:0.7rem; color:#e74a3b; margin-top:2px;">⚠ Allergies: ${st.allergies.join(', ')}</div>` : ''}
+                        ${st.allergies && st.allergies.length > 0 ? `<div style="font-size:0.7rem; color:#e74a3b; margin-top:2px;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444; margin-right:4px;"></i> Allergies: ${st.allergies.join(', ')}</div>` : ''}
                     </div>
                 </td>
                 <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
@@ -398,13 +398,13 @@
             let bObj = new Date(st.bday);
             let bdayStr = bObj.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
             if (bdayStr === 'Invalid Date') bdayStr = st.bday;
-            document.getElementById('m-bday').innerText = `🎈 Born: ${bdayStr}`;
+            document.getElementById('m-bday').innerText = `<i class="fa-solid fa-cake-candles" style="color:#f59e0b; margin-right:4px;"></i> Born: ${bdayStr}`;
         } else {
             document.getElementById('m-bday').innerText = '';
         }
         
         if(st.enrollDate) {
-            document.getElementById('m-enrolled').innerText = `🗓 Enrolled: ${new Date(st.enrollDate).toLocaleDateString()}`;
+            document.getElementById('m-enrolled').innerText = `<i class="fa-solid fa-calendar-days" style="color:#3b82f6; margin-right:4px;"></i> Enrolled: ${new Date(st.enrollDate).toLocaleDateString()}`;
         }
 
         if(st.allergies && st.allergies.length > 0) {

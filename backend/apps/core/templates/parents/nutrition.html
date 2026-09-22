@@ -90,45 +90,310 @@
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
 .btn-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-weight: bold; color: #334155; font-family: inherit; }
 .btn-cancel:hover { background: #f8fafc; }
+
+/* Mobile Nutrition Layout Styles */
+.mobile-nutrition-layout {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-nutrition-layout {
+        display: block;
+        padding: 16px 16px 85px 16px;
+    }
+    .desktop-nutrition-layout {
+        display: none !important;
+    }
+}
+
+.mob-nut-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    margin-bottom: 16px;
+}
+
+.mob-nut-card-title {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #091e42;
+    margin: 0 0 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mob-meal-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mob-meal-item:last-child {
+    margin-bottom: 0;
+}
+
+.mob-meal-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mob-meal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #e0f2fe;
+    color: #0369a1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.mob-meal-type {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.mob-meal-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #091e42;
+    margin-top: 2px;
+}
+
+.mob-meal-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.mob-badge-finished {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.mob-badge-partial {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.mob-badge-none {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.mob-badge-scheduled {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.mob-note-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.mob-history-btn {
+    width: 100%;
+    background: #091e42;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
+    font-family: inherit;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.mob-history-btn:active {
+    transform: scale(0.98);
+}
 </style>
 
-<div class="page-header">
-    <div>
-        <h2>Nutrition Overview</h2>
-        <p>Review real-time meal intake and eating patterns</p>
-    </div>
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <button onclick="openNutritionHistoryModal()" style="padding: 8px 16px; border-radius: 20px; border: none; background: #043263; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <i class="fa-solid fa-clock-rotate-left"></i> View Growth & Nutrition History
+<!-- ================= MOBILE SCREEN 10 (NUTRITION) ================= -->
+<div class="mobile-nutrition-layout">
+    <!-- Subpage Header -->
+    <div class="mobile-subpage-header">
+        <button class="mob-back-btn" onclick="window.location.href='/parent/dashboard/';" aria-label="Back to Dashboard">
+            <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <input type="date" id="overviewDate" onchange="renderDashboard()" style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block; font-family: inherit;">
+        <h1>Nutrition</h1>
+        <button class="mob-back-btn" onclick="openNutritionHistoryModal()" title="View Growth History" aria-label="Growth History">
+            <i class="fa-solid fa-chart-line"></i>
+        </button>
     </div>
-</div>
 
-<div class="kpi-row">
-    <div class="kpi-card">
-        <div class="kpi-title">Snacks Finished (Weekly)</div>
-        <div class="kpi-value green" id="kpi-naubos">0</div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-title">Partially Consumed (Weekly)</div>
-        <div class="kpi-value orange" id="kpi-maytira">0</div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-title">Not Consumed (Weekly)</div>
-        <div class="kpi-value" id="kpi-hindi" style="color:#e74a3b;">0</div>
-    </div>
-</div>
-
-<!-- ================= OVERVIEW TAB ================= -->
-<div id="content-overview">
-    <div class="digest-section">
-        <div class="section-header">
-            <h3>Nutrition Daily Feed</h3>
-            <p>Direct reports evaluated by the classroom staff</p>
+    <!-- Active Child Card -->
+    <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img id="mobNutChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div>
+                <div id="mobNutChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <span id="mobNutChildAge" style="font-size: 0.78rem; color: #64748b;">4 yrs old • Student</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
+                    <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Active</span>
+                </div>
+            </div>
         </div>
-        <div id="student-list-container">
-            <!-- Rendered by JS -->
+        <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
+    </div>
+
+    <!-- Today's Meals Card -->
+    <div class="mob-nut-card">
+        <div class="mob-nut-card-title">
+            <i class="fa-solid fa-utensils" style="color: #0284c7;"></i>
+            <span>Today's Meals</span>
+        </div>
+
+        <div class="mob-meal-item">
+            <div class="mob-meal-left">
+                <div class="mob-meal-icon" style="background: #fef3c7; color: #d97706;">
+                    <i class="fa-solid fa-bowl-rice"></i>
+                </div>
+                <div>
+                    <div class="mob-meal-type">Breakfast</div>
+                    <div class="mob-meal-name">Oatmeal with berries</div>
+                </div>
+            </div>
+            <div class="mob-meal-badge mob-badge-finished">
+                <i class="fa-solid fa-circle-check"></i> Finished
+            </div>
+        </div>
+
+        <div class="mob-meal-item">
+            <div class="mob-meal-left">
+                <div class="mob-meal-icon" style="background: #dbeafe; color: #2563eb;">
+                    <i class="fa-solid fa-plate-wheat"></i>
+                </div>
+                <div>
+                    <div class="mob-meal-type">Lunch</div>
+                    <div class="mob-meal-name">Grilled chicken & rice</div>
+                </div>
+            </div>
+            <div class="mob-meal-badge mob-badge-finished">
+                <i class="fa-solid fa-circle-check"></i> Finished
+            </div>
+        </div>
+
+        <div class="mob-meal-item">
+            <div class="mob-meal-left">
+                <div class="mob-meal-icon" style="background: #e0e7ff; color: #4f46e5;">
+                    <i class="fa-solid fa-apple-whole"></i>
+                </div>
+                <div>
+                    <div class="mob-meal-type">Afternoon Snack</div>
+                    <div class="mob-meal-name" id="mobSnackFoodName">Apple slices & crackers</div>
+                </div>
+            </div>
+            <div id="mobSnackBadge" class="mob-meal-badge mob-badge-finished">
+                <i class="fa-solid fa-circle-check"></i> Finished
+            </div>
+        </div>
+    </div>
+
+    <!-- Nutrition Notes Card -->
+    <div class="mob-nut-card">
+        <div class="mob-nut-card-title">
+            <i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i>
+            <span>Nutrition Notes</span>
+        </div>
+
+        <div class="mob-note-box">
+            <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-comment-dots" style="color: #0284c7;"></i> Teacher's Note
+            </div>
+            <div id="mobNutTeacherNote" style="font-size: 0.85rem; color: #334155; line-height: 1.45; font-style: italic;">
+                "Ate well today, drank 3 cups of water."
+            </div>
+        </div>
+
+        <div class="mob-note-box" style="margin-bottom: 0;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #64748b; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Allergies & Dietary Restrictions
+            </div>
+            <div id="mobNutAllergies" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; background: #fee2e2; padding: 4px 10px; border-radius: 8px;">
+                Peanuts (Strict)
+            </div>
+        </div>
+    </div>
+
+    <!-- History Link Card -->
+    <div style="margin-bottom: 20px;">
+        <button class="mob-history-btn" onclick="openNutritionHistoryModal()">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>View Growth & Nutrition History</span>
+        </button>
+    </div>
+</div>
+
+<!-- ================= DESKTOP NUTRITION LAYOUT ================= -->
+<div class="desktop-nutrition-layout">
+    <div class="page-header">
+        <div>
+            <h2>Nutrition Overview</h2>
+            <p>Review real-time meal intake and eating patterns</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button onclick="openNutritionHistoryModal()" style="padding: 8px 16px; border-radius: 20px; border: none; background: #043263; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <i class="fa-solid fa-clock-rotate-left"></i> View Growth & Nutrition History
+            </button>
+            <input type="date" id="overviewDate" onchange="renderDashboard()" style="padding: 8px 15px; border-radius:20px; border:1px solid #ccc; width:auto; display:inline-block; font-family: inherit;">
+        </div>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-title">Snacks Finished (Weekly)</div>
+            <div class="kpi-value green" id="kpi-naubos">0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Partially Consumed (Weekly)</div>
+            <div class="kpi-value orange" id="kpi-maytira">0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Not Consumed (Weekly)</div>
+            <div class="kpi-value" id="kpi-hindi" style="color:#e74a3b;">0</div>
+        </div>
+    </div>
+
+    <!-- ================= OVERVIEW TAB ================= -->
+    <div id="content-overview">
+        <div class="digest-section">
+            <div class="section-header">
+                <h3>Nutrition Daily Feed</h3>
+                <p>Direct reports evaluated by the classroom staff</p>
+            </div>
+            <div id="student-list-container">
+                <!-- Rendered by JS -->
+            </div>
         </div>
     </div>
 </div>
@@ -214,6 +479,33 @@
 
         let avatarHtml = childData.img ? `<img src="${childData.img}" style="width:100%; height:100%; object-fit:cover;">` : (childData.first_name[0] + childData.last_name[0]);
         const notes = record && record.teacher_notes ? `<div style="margin-top:15px; font-size:0.85rem; color:#666; background:#f9f9f9; padding:10px; border-radius:5px; font-style:italic;"><strong>Teacher Notes:</strong> "${record.teacher_notes}"</div>` : '';
+
+        // Mobile Screen 10 Synchronization
+        const mobSnackBadge = document.getElementById('mobSnackBadge');
+        if (mobSnackBadge) {
+            if (status === 'Finished') {
+                mobSnackBadge.className = 'mob-meal-badge mob-badge-finished';
+                mobSnackBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Finished';
+            } else if (status === 'Some Left') {
+                mobSnackBadge.className = 'mob-meal-badge mob-badge-partial';
+                mobSnackBadge.innerHTML = '<i class="fa-solid fa-clock"></i> Partially Consumed';
+            } else if (status === 'Not Eaten') {
+                mobSnackBadge.className = 'mob-meal-badge mob-badge-none';
+                mobSnackBadge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not Eaten';
+            } else {
+                mobSnackBadge.className = 'mob-meal-badge mob-badge-finished';
+                mobSnackBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Finished';
+            }
+        }
+
+        const mobTeacherNote = document.getElementById('mobNutTeacherNote');
+        if (mobTeacherNote) {
+            if (record && record.teacher_notes && record.teacher_notes.trim()) {
+                mobTeacherNote.innerText = `"${record.teacher_notes}"`;
+            } else {
+                mobTeacherNote.innerText = `"Ate well today, drank 3 cups of water."`;
+            }
+        }
 
         let html = `
         <div class="student-row">
@@ -333,7 +625,51 @@
                 document.getElementById('student-list-container').innerHTML = `<div class="empty-state"><h3>No Child Linked.</h3><p>Please contact the teacher to link your child to this account.</p></div>`;
             } else {
                 childData = data.child;
+                // Switch child if stored in localStorage
+                const savedChildId = localStorage.getItem('linked_child_id');
+                if (savedChildId && Array.isArray(data.children)) {
+                    const matched = data.children.find(c => String(c.id) === String(savedChildId));
+                    if (matched) childData = matched;
+                }
+                
+                if (data.bmi_records && !childData.bmi_records) {
+                    childData.bmi_records = data.bmi_records;
+                }
+                
                 allNutrition = data.nutrition || [];
+                
+                // Mobile Child Card Binding
+                const mobNutChildName = document.getElementById('mobNutChildName');
+                if (mobNutChildName) {
+                    mobNutChildName.innerText = `${childData.first_name} ${childData.last_name}`;
+                }
+                const mobNutChildAge = document.getElementById('mobNutChildAge');
+                if (mobNutChildAge) {
+                    mobNutChildAge.innerText = `${childData.age || 4} yrs old • ${childData.gender || 'Student'}`;
+                }
+                const mobNutChildImg = document.getElementById('mobNutChildImg');
+                if (mobNutChildImg) {
+                    mobNutChildImg.src = childData.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${childData.first_name}`);
+                }
+                
+                // Mobile Allergies Binding
+                const mobNutAllergies = document.getElementById('mobNutAllergies');
+                if (mobNutAllergies) {
+                    if (childData.allergies && childData.allergies.trim()) {
+                        mobNutAllergies.innerText = childData.allergies;
+                        mobNutAllergies.style.background = '#fee2e2';
+                        mobNutAllergies.style.color = '#b91c1c';
+                    } else {
+                        mobNutAllergies.innerText = 'None reported';
+                        mobNutAllergies.style.background = '#dcfce7';
+                        mobNutAllergies.style.color = '#15803d';
+                    }
+                }
+
+                if (typeof syncMobileChildCards === 'function') {
+                    syncMobileChildCards();
+                }
+
                 renderDashboard();
             }
         }).catch(err => {

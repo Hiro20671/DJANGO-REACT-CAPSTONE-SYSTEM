@@ -309,14 +309,14 @@ input:checked + .slider:before { transform: translateX(26px); }
 
 <div class="settings-container">
     <div class="settings-sidebar">
-        <div class="settings-menu-item active" onclick="switchSetting('account')">👤 Account</div>
-        <div class="settings-menu-item" onclick="switchSetting('center-branding')">🏫 School Branding</div>
-        <div class="settings-menu-item" onclick="switchSetting('school')">🏫 School Settings</div>
+        <div class="settings-menu-item active" onclick="switchSetting('account')"><i class="fa-solid fa-user" style="margin-right:8px;"></i> Account</div>
+        <div class="settings-menu-item" onclick="switchSetting('center-branding')"><i class="fa-solid fa-school" style="margin-right:8px;"></i> School Branding</div>
+        <div class="settings-menu-item" onclick="switchSetting('school')"><i class="fa-solid fa-sliders" style="margin-right:8px;"></i> School Settings</div>
 
-        <div class="settings-menu-item" onclick="switchSetting('active-year-config')">📅 Active School Year Config</div>
-        <div class="settings-menu-item" onclick="switchSetting('notifications')">🔔 Notifications</div>
-        <div class="settings-menu-item" onclick="switchSetting('appearance')">🎨 Appearance</div>
-        <div class="settings-menu-item" onclick="switchSetting('privacy')">🔒 Privacy & Security</div>
+        <div class="settings-menu-item" onclick="switchSetting('active-year-config')"><i class="fa-solid fa-calendar-days" style="margin-right:8px;"></i> Active School Year Config</div>
+        <div class="settings-menu-item" onclick="switchSetting('notifications')"><i class="fa-solid fa-bell" style="margin-right:8px;"></i> Notifications</div>
+        <div class="settings-menu-item" onclick="switchSetting('appearance')"><i class="fa-solid fa-palette" style="margin-right:8px;"></i> Appearance</div>
+        <div class="settings-menu-item" onclick="switchSetting('privacy')"><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i> Privacy & Security</div>
         <div class="settings-menu-item" onclick="switchSetting('about')">ℹ️ About System</div>
     </div>
 
@@ -337,7 +337,7 @@ input:checked + .slider:before { transform: translateX(26px); }
             <!-- Profile Sub -->
             <div class="sub-panel active" id="sub-profile">
                 <div class="profile-upload-container">
-                    <div class="profile-upload-preview" id="profileImagePreview">👤</div>
+                    <div class="profile-upload-preview" id="profileImagePreview"><i class="fa-solid fa-user" style="font-size:2rem; color:#94a3b8;"></i></div>
                     <div>
                         <input type="file" id="profImgInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
                         <button class="btn-primary" style="background: var(--btn-neutral-bg); color: var(--btn-neutral-text); border: 1px solid var(--btn-neutral-border); margin-bottom:5px;" onclick="document.getElementById('profImgInput').click()">Upload Picture</button>
@@ -424,7 +424,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <!-- Injected via JS -->
             </div>
 
-            <h4 style="font-size: 1.05rem; margin-top: 30px; margin-bottom: 10px; color: #4a5568; font-weight: 700; font-family: 'Montserrat', sans-serif;">🗑️ Recycle Bin (Recoverable for 30 Days)</h4>
+            <h4 style="font-size: 1.05rem; margin-top: 30px; margin-bottom: 10px; color: #4a5568; font-weight: 700; font-family: 'Montserrat', sans-serif;"><i class="fa-solid fa-trash-can" style="margin-right:6px;"></i> Recycle Bin (Recoverable for 30 Days)</h4>
             <div id="recycle-bin-container" style="margin-top: 15px;">
                 <!-- Injected via JS -->
             </div>
@@ -433,7 +433,7 @@ input:checked + .slider:before { transform: translateX(26px); }
         <!-- SCHOOL BRANDING PANEL -->
         <div class="settings-panel" id="panel-center-branding">
             <div class="panel-header">
-                <h3>🏫 School Branding & Logo Settings</h3>
+                <h3><i class="fa-solid fa-school" style="margin-right:8px;"></i> School Branding & Logo Settings</h3>
                 <p>Customize your school name, system title, custom logo, and contact info for non-IT setup!</p>
             </div>
 
@@ -1371,7 +1371,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; border:1px dashed #feb2b2; background:#fffaf5; padding:15px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
                     <div>
                         <div class="year-title" style="font-weight:800; font-size:1.1rem; color:#c53030; margin-bottom:4px;">${arc.name}</div>
-                        <div class="year-stats" style="font-size:0.8rem; color:#742a2a; font-weight:600;">🗑️ Deleted &bull; ${daysRemaining} days remaining until permanent deletion</div>
+                        <div class="year-stats" style="font-size:0.8rem; color:#742a2a; font-weight:600;"><i class="fa-solid fa-trash-can" style="margin-right:4px;"></i> Deleted &bull; ${daysRemaining} days remaining until permanent deletion</div>
                     </div>
                     <div style="display:flex; gap:8px;">
                         <button class="btn-primary" style="background:#e6fffa; color:#0d9488; border:1px solid #99f6e4; font-weight:700; cursor:pointer;" onclick="restoreArchive(${arc.id}, '${arc.name}')">Restore</button>
@@ -1470,14 +1470,14 @@ input:checked + .slider:before { transform: translateX(26px); }
 
         schoolMapObj = L.map('teacherSchoolMap').setView(centerCoords, 15);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(schoolMapObj);
 
         const schoolIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#063970; color:white; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.3rem;">🏫</div>',
+            html: '<div style="background:#063970; color:white; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-size:1.3rem;"><i class="fa-solid fa-school"></i></div>',
             iconSize: [42, 42],
             iconAnchor: [21, 21]
         });

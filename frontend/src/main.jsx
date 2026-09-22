@@ -58,20 +58,29 @@ const globalResponsiveCss = `
       align-items: center;
       justify-content: center;
       font-size: 1.25rem;
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .stat-card-modern:hover .stat-icon-badge {
       transform: scale(1.12) rotate(-6deg);
   }
-  .stat-icon-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-  .stat-icon-emerald { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-  .stat-icon-amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-  .stat-icon-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+  .stat-icon-blue, .stat-icon-emerald, .stat-icon-amber, .stat-icon-purple {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+  }
 
-  .dark-mode .stat-icon-blue { background: rgba(37, 99, 235, 0.18); color: #60a5fa; border-color: rgba(37, 99, 235, 0.35); }
-  .dark-mode .stat-icon-emerald { background: rgba(16, 185, 129, 0.18); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
-  .dark-mode .stat-icon-amber { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
-  .dark-mode .stat-icon-purple { background: rgba(139, 92, 246, 0.18); color: #c084fc; border-color: rgba(139, 92, 246, 0.35); }
+  .dark-mode .stat-icon-badge,
+  .dark-mode .stat-icon-blue,
+  .dark-mode .stat-icon-emerald,
+  .dark-mode .stat-icon-amber,
+  .dark-mode .stat-icon-purple {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      border-color: rgba(255, 255, 255, 0.15);
+  }
 
   /* Tab Buttons Polish */
   .resp-mobile-tab-btn {

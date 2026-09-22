@@ -274,10 +274,117 @@
         color: var(--text-primary) !important;
         border: 1px solid var(--border-color) !important;
     }
+
+    /* Screen 9 Mobile Daily Activities Layout */
+    .mobile-activities-layout {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .activities-header { display: none !important; }
+        #childSwitcher { display: none !important; }
+        .activities-grid { display: none !important; }
+        .mobile-activities-layout {
+            display: block;
+            margin-bottom: 25px;
+        }
+    }
+
+    .mob-date-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        margin-bottom: 18px;
+    }
+
+    .mob-date-nav-btn {
+        background: #f1f5f9;
+        border: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #091e42;
+        font-size: 0.85rem;
+    }
+
+    .mob-activity-item {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
 </style>
 
 <div class="container-fluid" style="padding: 20px;">
-    <!-- Parent Dashboard Header -->
+    <!-- Mobile Screen 9 Daily Activities Layout -->
+    <div class="mobile-activities-layout">
+        <div class="mobile-subpage-header">
+            <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h1>Daily Activities</h1>
+            <div style="width:36px;"></div>
+        </div>
+
+        <!-- Active Child Card -->
+        <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img id="mobActChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+                <div>
+                    <div id="mobActChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                        <span id="mobActChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
+                        <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
+                        <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                    </div>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
+        </div>
+
+        <!-- Date Navigator Card -->
+        <div class="mob-date-card">
+            <button class="mob-date-nav-btn" onclick="shiftActivityDate(-1)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span id="mobActivityDateTitle" style="font-weight: 800; font-size: 1rem; color: #091e42;">Jun 28, 2026</span>
+            <button class="mob-date-nav-btn" onclick="shiftActivityDate(1)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Today's Activities List -->
+        <div style="margin-bottom: 18px;">
+            <h4 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 800; color: #091e42;">Today's Activities</h4>
+            <div id="mobActivitiesList">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Remarks / Teacher Observations -->
+        <div id="mobRemarksContainer" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 20px;">
+            <strong style="font-size: 0.88rem; color: #091e42; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <i class="fa-solid fa-comment-dots" style="color: #0284c7;"></i> Teacher's Remarks & Observations
+            </strong>
+            <p id="mobRemarksText" style="margin: 0; font-size: 0.82rem; color: #475569; line-height: 1.4;"></p>
+        </div>
+    </div>
+
+    <!-- Parent Dashboard Header (Desktop) -->
     <div class="activities-header">
         <div class="header-info">
             <h2>Today's Activities & Tasks</h2>
@@ -398,6 +505,19 @@
                 localStorage.setItem('linked_child_id', activeChildId);
             }
 
+            const activeChild = children.find(c => c.id == activeChildId) || children[0];
+            if (activeChild) {
+                if (document.getElementById('mobActChildName')) {
+                    document.getElementById('mobActChildName').innerText = `${activeChild.first_name} ${activeChild.last_name}`;
+                }
+                if (document.getElementById('mobActChildImg')) {
+                    document.getElementById('mobActChildImg').src = activeChild.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${activeChild.first_name}`);
+                }
+                if (document.getElementById('mobActChildAge') && activeChild.age) {
+                    document.getElementById('mobActChildAge').innerText = `${activeChild.age} yrs`;
+                }
+            }
+
             renderChildSwitcher();
             loadParentDateData();
         } catch (e) {
@@ -435,13 +555,43 @@
     function switchChild(childId) {
         activeChildId = childId;
         localStorage.setItem('linked_child_id', childId);
+        const activeChild = children.find(c => c.id == activeChildId);
+        if (activeChild) {
+            if (document.getElementById('mobActChildName')) {
+                document.getElementById('mobActChildName').innerText = `${activeChild.first_name} ${activeChild.last_name}`;
+            }
+            if (document.getElementById('mobActChildImg')) {
+                document.getElementById('mobActChildImg').src = activeChild.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${activeChild.first_name}`);
+            }
+            if (document.getElementById('mobActChildAge') && activeChild.age) {
+                document.getElementById('mobActChildAge').innerText = `${activeChild.age} yrs`;
+            }
+        }
         renderChildSwitcher();
         loadParentDateData();
     }
 
+    window.shiftActivityDate = function(delta) {
+        const input = document.getElementById('filterDate');
+        const curr = new Date(input.value + 'T00:00:00');
+        curr.setDate(curr.getDate() + delta);
+        const yyyy = curr.getFullYear();
+        const mm = (curr.getMonth() + 1).toString().padStart(2, '0');
+        const dd = curr.getDate().toString().padStart(2, '0');
+        input.value = `${yyyy}-${mm}-${dd}`;
+        loadParentDateData();
+    };
+
     async function loadParentDateData() {
         if (!activeChildId) return;
         const selectedDate = document.getElementById('filterDate').value;
+
+        // Update Mobile Date Navigator Title
+        const selDate = new Date(selectedDate + 'T00:00:00');
+        const formattedTitle = selDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        if (document.getElementById('mobActivityDateTitle')) {
+            document.getElementById('mobActivityDateTitle').innerText = formattedTitle;
+        }
 
         try {
             // Fetch activities for date
@@ -510,6 +660,48 @@
         if (generalRemark) {
             remarksText.innerText = generalRemark;
             remarksContainer.style.display = 'block';
+        }
+
+        // Render Mobile Screen 9 Activities List
+        const mobList = document.getElementById('mobActivitiesList');
+        const mobRemarksContainer = document.getElementById('mobRemarksContainer');
+        const mobRemarksText = document.getElementById('mobRemarksText');
+        if (mobList) {
+            if (activities.length === 0) {
+                mobList.innerHTML = '<div style="text-align:center; padding:30px 15px; background:#fff; border-radius:16px; border:1px solid #e2e8f0; color:#64748b; font-size:0.88rem;">No activities logged for this date.</div>';
+            } else {
+                let mHtml = '';
+                activities.forEach(act => {
+                    const comp = completions.find(c => c.activity === act.id);
+                    const isCompleted = comp ? comp.completed : false;
+                    mHtml += `
+                    <div class="mob-activity-item">
+                        <div style="flex:1; min-width:0; padding-right:12px;">
+                            <div style="font-weight:800; font-size:0.9rem; color:#091e42; margin-bottom:3px;">${act.name}</div>
+                            <div style="font-size:0.75rem; color:#64748b; line-height:1.4;">${act.description || 'Classroom activity session'}</div>
+                        </div>
+                        <div>
+                            ${isCompleted ? `
+                                <div style="width:34px; height:34px; border-radius:50%; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:0.95rem;">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                            ` : `
+                                <div style="width:34px; height:34px; border-radius:50%; border:2px dashed #cbd5e1; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
+                                    <i class="fa-regular fa-circle"></i>
+                                </div>
+                            `}
+                        </div>
+                    </div>`;
+                });
+                mobList.innerHTML = mHtml;
+            }
+        }
+
+        if (generalRemark && mobRemarksContainer && mobRemarksText) {
+            mobRemarksText.innerText = generalRemark;
+            mobRemarksContainer.style.display = 'block';
+        } else if (mobRemarksContainer) {
+            mobRemarksContainer.style.display = 'none';
         }
     }
 

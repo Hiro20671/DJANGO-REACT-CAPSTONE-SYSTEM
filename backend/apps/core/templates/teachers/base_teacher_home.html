@@ -467,7 +467,7 @@
         }
 
         .module-list li::before {
-            content: "✓";
+            content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900;
             position: absolute;
             left: 0;
             color: #4a90e2;
@@ -935,8 +935,8 @@
                     <span></span>
                 </div>
                 <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="{% url 'teacher_settings' %}" class="dropdown-item">⚙️ Settings</a>
-                    <a href="{% url 'logout' %}" class="dropdown-item logout">🔐 Logout</a>
+                    <a href="{% url 'teacher_settings' %}" class="dropdown-item"><i class="fa-solid fa-gear" style="margin-right:6px;"></i> Settings</a>
+                    <a href="{% url 'logout' %}" class="dropdown-item logout"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i> Logout</a>
 
                 </div>
             </div>

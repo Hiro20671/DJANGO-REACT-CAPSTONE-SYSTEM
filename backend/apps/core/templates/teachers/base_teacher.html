@@ -1182,7 +1182,7 @@
 
     <!-- PWA Install Banner -->
     <div id="pwa-install-banner">
-        <span>📲 Install the BMV3 Child Care Web App for a faster mobile experience!</span>
+        <span><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i> Install the BMV3 Child Care Web App for a faster mobile experience!</span>
         <div style="display: flex; align-items: center;">
             <button class="pwa-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> Install</button>
             <button class="pwa-btn-close" id="pwaCloseBtn"><i class="fa-solid fa-xmark"></i></button>
@@ -1279,7 +1279,7 @@
         </div>
         <div class="top-nav-right">
             <!-- Mobile Toggle -->
-            <button class="mobile-sidebar-toggle" id="sidebarToggle">☰</button>
+            <button class="mobile-sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
 
             <div class="menu-container">
                 <div class="burger-menu" id="burgerToggle" title="Profile Menu">
@@ -1288,8 +1288,8 @@
                     <span></span>
                 </div>
                 <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="{% url 'teacher_settings' %}" class="dropdown-item">⚙️ Settings</a>
-                    <a href="{% url 'logout' %}" class="dropdown-item logout">🔐 Logout</a>
+                    <a href="{% url 'teacher_settings' %}" class="dropdown-item"><i class="fa-solid fa-gear" style="margin-right:6px;"></i> Settings</a>
+                    <a href="{% url 'logout' %}" class="dropdown-item logout"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i> Logout</a>
                 </div>
             </div>
 

@@ -10,7 +10,7 @@
     <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom: 24px;">
 
         <div>
-            <h2 style="font-weight: 800; color: var(--text-primary);">🗺️ Daycare Center Route & Waze Navigation</h2>
+            <h2 style="font-weight: 800; color: var(--text-primary);"><i class="fa-solid fa-route" style="margin-right:8px;"></i> Daycare Center Route & Waze Navigation</h2>
             <p style="color: var(--text-secondary);">View live turn-by-turn driving directions from your pinned home to Barangay Market View 3 Child Development Center.</p>
         </div>
     </div>
@@ -26,12 +26,12 @@
         <div class="card" style="padding: 20px; border-radius: 16px; background: #f0fdf4; border: 1px solid #4ade80;">
             <div style="font-size: 0.8rem; font-weight: 800; color: #15803d; text-transform: uppercase;">Estimated Distance</div>
             <div style="font-size: 1.35rem; font-weight: 900; color: #166534; margin-top: 4px;" id="parentRouteDist">Calculating...</div>
-            <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">From your pinned home marker 🏠</div>
+            <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">From your pinned home marker <i class="fa-solid fa-house"></i></div>
         </div>
 
         <div class="card" style="padding: 20px; border-radius: 16px; background: #fef3c7; border: 1px solid #fde047;">
             <div style="font-size: 0.8rem; font-weight: 800; color: #b45309; text-transform: uppercase;">Estimated Travel Time</div>
-            <div style="font-size: 1.35rem; font-weight: 900; color: #92400e; margin-top: 4px;" id="parentRouteTime">⏱️ -- mins</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: #92400e; margin-top: 4px;" id="parentRouteTime"><i class="fa-solid fa-clock" style="margin-right:6px;"></i> -- mins</div>
             <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">Live OSRM route duration estimate</div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                 <i class="fa-solid fa-location-dot" style="color:#ef4444;"></i> Pinned House Location & Route Line
             </span>
             <span style="font-size:0.85rem; color:var(--text-muted);">
-                Drag house pin 🏠 or click map to update home position
+                Drag house pin <i class="fa-solid fa-house"></i> or click map to update home position
             </span>
         </div>
 
@@ -82,21 +82,21 @@
 
         mapObj = L.map('parentMainMap').setView(bmv3CenterCoords, 15);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(mapObj);
 
         const schoolIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#063970; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;">🏫</div>',
+            html: '<div style="background:#063970; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;"><i class="fa-solid fa-school"></i></div>',
             iconSize: [40, 40],
             iconAnchor: [20, 20]
         });
 
         const houseIcon = L.divIcon({
             className: 'custom-map-icon',
-            html: '<div style="background:#ef4444; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;">🏠</div>',
+            html: '<div style="background:#ef4444; color:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:1.3rem;"><i class="fa-solid fa-house"></i></div>',
             iconSize: [40, 40],
             iconAnchor: [20, 20]
         });
@@ -162,7 +162,7 @@
                     const timeMins = Math.round(summary.totalTime / 60);
 
                     document.getElementById('parentRouteDist').innerText = `${distKm} km`;
-                    document.getElementById('parentRouteTime').innerText = `⏱️ ~${timeMins} mins drive`;
+                    document.getElementById('parentRouteTime').innerText = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
                 }
             });
         }

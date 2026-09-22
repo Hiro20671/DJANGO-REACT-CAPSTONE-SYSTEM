@@ -183,9 +183,9 @@ select, textarea, input[type="date"] { width: 100%; padding: 12px 15px; border: 
         <div class="form-group">
             <label>Observation Type</label>
             <div class="type-selector">
-                <button class="type-btn positive" onclick="selectType('positive')">🟢 Positive</button>
-                <button class="type-btn neutral" onclick="selectType('neutral')">🟡 Neutral</button>
-                <button class="type-btn negative" onclick="selectType('negative')">🔴 Negative</button>
+                <button class="type-btn positive" onclick="selectType('positive')"><i class="fa-solid fa-thumbs-up" style="color:#1e293b; margin-right:6px;"></i> Positive</button>
+                <button class="type-btn neutral" onclick="selectType('neutral')"><i class="fa-solid fa-minus" style="color:#1e293b; margin-right:6px;"></i> Neutral</button>
+                <button class="type-btn negative" onclick="selectType('negative')"><i class="fa-solid fa-thumbs-down" style="color:#1e293b; margin-right:6px;"></i> Negative</button>
             </div>
             <p id="typeHelper" style="font-size:0.8rem; color:#888; margin-top:10px;">Select the impact of the behavior.</p>
         </div>

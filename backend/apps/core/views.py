@@ -82,7 +82,13 @@ def parent_home(request):
     )
     if profile.is_teacher:
         return redirect("home")
-    return render(request, "public_home.html")
+    children = profile.children.all()
+    active_child = children.first() if children.exists() else None
+    return render(request, "parents/parent_home.html", {
+        "profile": profile,
+        "children": children,
+        "active_child": active_child
+    })
 
 @login_required
 def parent_dashboard(request):

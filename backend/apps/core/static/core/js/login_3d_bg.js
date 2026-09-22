@@ -114,7 +114,7 @@
             new THREE.MeshLambertMaterial({ map: createBlockTexture('B', '#10b981', '#ecfdf5', '#86efac') }), // Top
             new THREE.MeshLambertMaterial({ map: createBlockTexture('2', '#f59e0b', '#fefce8', '#fde047') }), // Bottom
             new THREE.MeshLambertMaterial({ map: createBlockTexture('C', '#0284c7', '#f0f9ff', '#7dd3fc') }), // Front
-            new THREE.MeshLambertMaterial({ map: createBlockTexture('★', '#d97706', '#fffbeb', '#fcd34d') })  // Back
+            new THREE.MeshLambertMaterial({ map: createBlockTexture('D', '#d97706', '#fffbeb', '#fcd34d') })  // Back
         ];
 
         const abcBlock1 = new THREE.Mesh(new THREE.BoxGeometry(56, 56, 56), blockMaterials1);
@@ -127,8 +127,8 @@
             new THREE.MeshLambertMaterial({ map: createBlockTexture('1', '#f59e0b', '#fffbeb', '#fde047') }), // Right
             new THREE.MeshLambertMaterial({ map: createBlockTexture('2', '#065f46', '#ecfdf5', '#6ee7b7') }), // Left
             new THREE.MeshLambertMaterial({ map: createBlockTexture('3', '#7c3aed', '#f5f3ff', '#c4b5fd') }), // Top
-            new THREE.MeshLambertMaterial({ map: createBlockTexture('♥', '#e11d48', '#fff1f2', '#fda4af') }), // Bottom
-            new THREE.MeshLambertMaterial({ map: createBlockTexture('▲', '#0284c7', '#f0f9ff', '#7dd3fc') }), // Front
+            new THREE.MeshLambertMaterial({ map: createBlockTexture('4', '#e11d48', '#fff1f2', '#fda4af') }), // Bottom
+            new THREE.MeshLambertMaterial({ map: createBlockTexture('5', '#0284c7', '#f0f9ff', '#7dd3fc') }), // Front
             new THREE.MeshLambertMaterial({ map: createBlockTexture('ABC', '#1e40af', '#eff6ff', '#93c5fd') }) // Back
         ];
 
