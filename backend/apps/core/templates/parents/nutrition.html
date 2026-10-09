@@ -256,10 +256,11 @@
             <img id="mobNutChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
             <div>
                 <div id="mobNutChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                     <span id="mobNutChildAge" style="font-size: 0.78rem; color: #64748b;">4 yrs old • Student</span>
                     <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                     <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Active</span>
+                    <span id="mobNutChildShiftBadge"></span>
                 </div>
             </div>
         </div>
@@ -357,9 +358,12 @@
 <!-- ================= DESKTOP NUTRITION LAYOUT ================= -->
 <div class="desktop-nutrition-layout">
     <div class="page-header">
-        <div>
-            <h2>Nutrition Overview</h2>
-            <p>Review real-time meal intake and eating patterns</p>
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div>
+                <h2>Nutrition Overview</h2>
+                <p>Review real-time meal intake and eating patterns</p>
+            </div>
+            <div id="nutriChildShiftBadge" style="display:none; align-items:center;"></div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <button onclick="openNutritionHistoryModal()" style="padding: 8px 16px; border-radius: 20px; border: none; background: #043263; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -664,6 +668,22 @@
                         mobNutAllergies.style.background = '#dcfce7';
                         mobNutAllergies.style.color = '#15803d';
                     }
+                }
+
+                // Shift Badge Binding
+                const isPM = (childData.shift || 'Morning').toLowerCase().includes('afternoon');
+                const deskBadge = document.getElementById('nutriChildShiftBadge');
+                if (deskBadge) {
+                    deskBadge.style.display = 'inline-flex';
+                    deskBadge.innerHTML = isPM
+                        ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                        : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+                }
+                const mobBadge = document.getElementById('mobNutChildShiftBadge');
+                if (mobBadge) {
+                    mobBadge.innerHTML = isPM
+                        ? '<span style="font-size: 0.72rem; font-weight: 700; background: #ffedd5; color: #ea580c; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                        : '<span style="font-size: 0.72rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
                 }
 
                 if (typeof syncMobileChildCards === 'function') {

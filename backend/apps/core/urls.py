@@ -12,11 +12,12 @@ from .api_views import (
     GenerateParentAccountAPIView, ForcePasswordChangeAPIView, VerifyOTPOnlyAPIView,
     link_guardian_profile, NoClassDayViewSet,
     ECCDDomainViewSet, ECCDMilestoneViewSet, ECCDAssessmentViewSet, ECCDMilestoneScoreViewSet,
-    ECCDReportAPIView, ECCDOverallReportAPIView, ScoringAccessRequestViewSet,
+    ECCDReportAPIView, ECCDOverallReportAPIView, ScoringAccessRequestViewSet, ECCDBookletRecordViewSet,
     ActivityViewSet, StudentActivityCompletionViewSet, BMIRecordViewSet,
     PublicLandingDataAPIView, AnnouncementViewSet, EnrollmentInfoViewSet,
     ProgramHighlightViewSet, PublicReminderViewSet, TeacherStudentMapAPIView,
-    CenterSettingsAPIView, TextblastSendAPIView, TextblastHistoryAPIView
+    CenterSettingsAPIView, TextblastSendAPIView, TextblastHistoryAPIView,
+    GeneralAnalyticsAPIView, AIInsightsAPIView
 )
 
 
@@ -35,6 +36,7 @@ router.register(r'eccd-milestones', ECCDMilestoneViewSet, basename='eccd_milesto
 router.register(r'eccd-assessments', ECCDAssessmentViewSet, basename='eccd_assessment')
 router.register(r'eccd-scores', ECCDMilestoneScoreViewSet, basename='eccd_score')
 router.register(r'scoring-requests', ScoringAccessRequestViewSet, basename='scoring_request')
+router.register(r'eccd-booklet', ECCDBookletRecordViewSet, basename='eccd_booklet')
 router.register(r'activities', ActivityViewSet, basename='activity')
 router.register(r'activity-completions', StudentActivityCompletionViewSet, basename='activity_completion')
 router.register(r'bmi-records', BMIRecordViewSet, basename='bmi_record')
@@ -51,6 +53,7 @@ urlpatterns = [
 
     path('home/', views.home_view, name='home'),
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('analytics/', views.teacher_analytics, name='teacher_analytics'),
     path('dropoff-pickup/', views.teacher_dropoff_pickup, name='teacher_dropoff_pickup'),
     path('attendance/', views.teacher_attendance, name='teacher_attendance'),
     path('milestones/', views.teacher_milestones, name='teacher_milestones'),
@@ -96,6 +99,8 @@ urlpatterns = [
     path('api/children/<int:child_id>/update_profile/', UpdateChildProfileAPIView.as_view(), name='api_child_update_profile'),
 
     path('api/nutrition-analytics/', NutritionAnalyticsAPIView.as_view(), name='api_nutrition_analytics'),
+    path('api/general-analytics/', GeneralAnalyticsAPIView.as_view(), name='api_general_analytics'),
+    path('api/ai-insights/', AIInsightsAPIView.as_view(), name='api_ai_insights'),
     path('api/generate_parent_account/', GenerateParentAccountAPIView.as_view(), name='api_generate_parent_account'),
     path('api/force-password-change/', ForcePasswordChangeAPIView.as_view(), name='api_force_password_change'),
     path('api/request-password-change/', RequestPasswordChangeAPIView.as_view(), name='api_request_password_change'),

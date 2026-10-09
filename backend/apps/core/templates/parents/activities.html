@@ -346,10 +346,11 @@
                 <img id="mobActChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
                 <div>
                     <div id="mobActChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
-                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                         <span id="mobActChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
                         <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                         <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                        <span id="mobActChildShiftBadge"></span>
                     </div>
                 </div>
             </div>
@@ -387,7 +388,10 @@
     <!-- Parent Dashboard Header (Desktop) -->
     <div class="activities-header">
         <div class="header-info">
-            <h2>Today's Activities & Tasks</h2>
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <h2>Today's Activities & Tasks</h2>
+                <div id="actChildShiftBadge" style="display:none; align-items:center;"></div>
+            </div>
             <p>Monitor your child's daily school curriculum, snacks, and teacher remarks.</p>
         </div>
         <div>
@@ -516,12 +520,31 @@
                 if (document.getElementById('mobActChildAge') && activeChild.age) {
                     document.getElementById('mobActChildAge').innerText = `${activeChild.age} yrs`;
                 }
+                updateChildShiftBadges(activeChild);
             }
 
             renderChildSwitcher();
             loadParentDateData();
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    function updateChildShiftBadges(c) {
+        if (!c) return;
+        const isPM = (c.shift || 'Morning').toLowerCase().includes('afternoon');
+        const deskBadge = document.getElementById('actChildShiftBadge');
+        if (deskBadge) {
+            deskBadge.style.display = 'inline-flex';
+            deskBadge.innerHTML = isPM
+                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+        }
+        const mobBadge = document.getElementById('mobActChildShiftBadge');
+        if (mobBadge) {
+            mobBadge.innerHTML = isPM
+                ? '<span style="font-size: 0.72rem; font-weight: 700; background: #ffedd5; color: #ea580c; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                : '<span style="font-size: 0.72rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
         }
     }
 
@@ -539,13 +562,18 @@
         children.forEach(c => {
             const isSelected = c.id === activeChildId;
             const avatarUrl = c.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + c.first_name);
+            const isPM = (c.shift || 'Morning').toLowerCase().includes('afternoon');
+            const shiftLabel = isPM ? '🌤️ Afternoon PM' : '☀️ Morning AM';
+            const shiftStyle = isSelected 
+                ? (isPM ? 'color:#fed7aa; font-weight:800;' : 'color:#bae6fd; font-weight:800;')
+                : (isPM ? 'color:#ea580c; font-weight:700;' : 'color:#0284c7; font-weight:700;');
             
             container.innerHTML += `
                 <div class="child-badge ${isSelected ? 'selected' : ''}" onclick="switchChild(${c.id})">
                     <img src="${avatarUrl}" style="width:30px; height:30px; border-radius:50%; background:#e0f0ff; object-fit:cover;" />
                     <div>
                         <div style="font-weight:700; font-size:0.9rem;">${c.first_name} ${c.last_name}</div>
-                        <div style="font-size:0.7rem; opacity:0.8;">${c.age} years old</div>
+                        <div style="font-size:0.72rem; opacity:0.9;">${c.age} yrs &bull; <span style="${shiftStyle}">${shiftLabel}</span></div>
                     </div>
                 </div>
             `;
@@ -566,6 +594,7 @@
             if (document.getElementById('mobActChildAge') && activeChild.age) {
                 document.getElementById('mobActChildAge').innerText = `${activeChild.age} yrs`;
             }
+            updateChildShiftBadges(activeChild);
         }
         renderChildSwitcher();
         loadParentDateData();

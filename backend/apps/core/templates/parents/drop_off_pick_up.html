@@ -68,10 +68,11 @@
             <img id="mobileDropChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
             <div>
                 <div id="mobileDropChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Child Name</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                     <span id="mobileDropChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
                     <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                     <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                    <span id="mobileDropChildShiftBadge"></span>
                 </div>
             </div>
         </div>
@@ -96,6 +97,10 @@
             </span>
         </div>
         <div style="background: #f8fafc; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748b;">Class Shift:</span>
+                <strong id="mobileDropClassShift" style="color: #0284c7;">Morning (8:00 AM – 10:30 AM)</strong>
+            </div>
             <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748b;">Drop-Off Time:</span>
                 <strong id="mobileDropTime" style="color: #091e42;">07:45 AM</strong>
@@ -143,9 +148,12 @@
     </div>
 </div>
 
-<div class="page-header" style="margin-bottom:25px;">
-    <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Monitor</h2>
-    <p style="font-size: 0.95rem; color: #777; margin: 5px 0 0 0;">View current classroom verification status and authorized contacts</p>
+<div class="page-header" style="margin-bottom:25px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+    <div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Monitor</h2>
+        <p style="font-size: 0.95rem; color: #777; margin: 5px 0 0 0;">View current classroom verification status and authorized contacts</p>
+    </div>
+    <div id="dropShiftBadge" style="display:none; align-items:center;"></div>
 </div>
 
 <!-- ================= DASHBOARD VIEW ================= -->
@@ -216,6 +224,29 @@
         }
 
         const child = data.child;
+        const isPM = (child.shift || 'Morning').toLowerCase().includes('afternoon');
+
+        const dropBadge = document.getElementById('dropShiftBadge');
+        if (dropBadge) {
+            dropBadge.style.display = 'inline-flex';
+            dropBadge.innerHTML = isPM
+                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+        }
+
+        const mobDropBadge = document.getElementById('mobileDropChildShiftBadge');
+        if (mobDropBadge) {
+            mobDropBadge.innerHTML = isPM
+                ? '<span style="font-size: 0.72rem; font-weight: 700; background: #ffedd5; color: #ea580c; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                : '<span style="font-size: 0.72rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
+        }
+
+        const mobClassShift = document.getElementById('mobileDropClassShift');
+        if (mobClassShift) {
+            mobClassShift.innerText = isPM ? 'Afternoon (1:00 PM – 3:30 PM)' : 'Morning (8:00 AM – 10:30 AM)';
+            mobClassShift.style.color = isPM ? '#ea580c' : '#0284c7';
+        }
+
         let checkedInCount = 0;
         let totalGuardians = 0;
 

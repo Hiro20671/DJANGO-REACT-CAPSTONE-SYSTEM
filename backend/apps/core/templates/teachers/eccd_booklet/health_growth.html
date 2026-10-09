@@ -1,0 +1,362 @@
+<div class="booklet-sheet card" style="background:#fff; border-radius:12px; border:1px solid #cbd5e1; padding:30px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    <!-- Header with Sub-Tab Navigators -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #043263; padding-bottom:12px; margin-bottom:25px; flex-wrap:wrap; gap:15px;">
+        <div>
+            <h3 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; color:#043263; font-size:1.3rem;">
+                <i class="fa-solid fa-notes-medical" style="margin-right:8px; color:#10b981;"></i> Health, Growth & Vision Records
+            </h3>
+            <p style="margin:4px 0 0 0; color:#64748b; font-size:0.85rem;">Comprehensive clinical and nutritional developmental tracking across pages 25 to 27.</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:8px; gap:4px;">
+                <button type="button" id="btnSubHealthGrowth" onclick="switchHealthSubTab('growth')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:#043263; color:white; transition:0.2s;">
+                    Growth & Nutrition
+                </button>
+                <button type="button" id="btnSubHealthRecord" onclick="switchHealthSubTab('record')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;">
+                    Physician's Health Record
+                </button>
+                <button type="button" id="btnSubHealthEye" onclick="switchHealthSubTab('eye')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;">
+                    Eye & Vision Assessment
+                </button>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 16px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Health
+            </button>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 1: GROWTH CHART & HEALTH/NUTRITION CHECKLIST -->
+    <!-- ======================================================== -->
+    <div id="healthSubSectionGrowth">
+        <h4 style="margin:0 0 15px 0; color:#1e293b; font-weight:800; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-chart-area" style="color:#0284c7;"></i> Child Weight Growth Curve & Clinical Nutrition Checklist
+        </h4>
+
+        <!-- Visual Weight Growth Chart Representation -->
+        <div style="border:2px solid #0f172a; border-radius:10px; overflow:hidden; background:#fff; margin-bottom:25px;">
+            <div style="background:#0f172a; color:white; padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:900; text-transform:uppercase; letter-spacing:0.5px;">Growth Chart (Months 37 to 72 &bull; Age 3 to 6 Years)</span>
+                <span style="font-size:0.8rem; opacity:0.85;">SD Reference: WHO / DOH Standards</span>
+            </div>
+            
+            <div id="growthChartSvgContainer" style="padding:15px; overflow-x:auto;">
+                <!-- Dynamically rendered growth curve SVG -->
+            </div>
+
+            <!-- Symbols Legend -->
+            <div style="background:#f8fafc; border-top:1px solid #e2e8f0; padding:12px 18px; font-size:0.78rem; line-height:1.6; color:#475569;">
+                <strong style="color:#1e293b;">Record Symbols along month-of-weighing line:</strong>
+                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:5px;">
+                    <span>&bull; = Weight</span>
+                    <span><strong>F</strong> = Fever</span>
+                    <span><strong>B</strong> = Breastfeeding</span>
+                    <span><strong>C</strong> = Cold/Cough</span>
+                    <span><strong>CF</strong> = Complimentary foods</span>
+                    <span><strong>D</strong> = Diarrhea</span>
+                    <span><strong>OI</strong> = Other illness</span>
+                    <span><strong>A</strong> = Vitamin A given</span>
+                    <span><strong>H</strong> = Hospitalized</span>
+                    <span><strong>I</strong> = Signs of injuries / hematoma</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health / Nutrition Checklist (Vitamin A, Dental, Deworming) -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin:0 0 15px 0; color:#0f172a; font-size:0.95rem; font-weight:800; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:8px;">
+                Health / Nutrition Periodic Checklist
+            </h4>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-bottom:20px;">
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                    <div style="font-weight:750; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">1. Vitamin A supplementation every six months</div>
+                    <div style="display:flex; gap:20px;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_vitamin_a" value="Yes"> Yes
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_vitamin_a" value="No"> No
+                        </label>
+                    </div>
+                </div>
+
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                    <div style="font-weight:750; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">2. First dental check-up at 2-3 years old</div>
+                    <div style="display:flex; gap:20px;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_dental" value="Yes"> Yes
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_dental" value="No"> No
+                        </label>
+                    </div>
+                </div>
+
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                    <div style="font-weight:750; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">3. Deworming</div>
+                    <div style="display:flex; gap:20px;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_deworming" value="Yes"> Yes
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                            <input type="radio" name="health_deworming" value="No"> No
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History of Major Illness Table -->
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <strong style="font-size:0.88rem; color:#1e293b;">4. History of Major Illness</strong>
+                    <button type="button" class="btn btn-outline" onclick="addIllnessRow()" style="padding:4px 10px; font-size:0.8rem; border-color:#0284c7; color:#0284c7;">
+                        <i class="fa-solid fa-plus"></i> Add Entry
+                    </button>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;" id="illnessTable">
+                    <thead>
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                            <th style="padding:8px; text-align:left; font-weight:700;">Type of Illness</th>
+                            <th style="padding:8px; text-align:left; font-weight:700; width:160px;">Date</th>
+                            <th style="padding:8px; text-align:left; font-weight:700;">Intervention Given</th>
+                            <th style="padding:8px; text-align:center; width:50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="illnessTbody">
+                        <!-- Dynamically populated or empty row -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 2: INITIAL AND ANNUAL HEALTH RECORD (PAGE 27) -->
+    <!-- ======================================================== -->
+    <div id="healthSubSectionRecord" style="display:none;">
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px 18px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; color:#166534; font-weight:700;">
+            <i class="fa-solid fa-user-doctor" style="margin-right:6px;"></i> INITIAL AND ANNUAL HEALTH RECORD &bull; Page 27 (For use of the Physician)
+        </div>
+
+        <form id="physicianHealthForm">
+            <!-- Maternal History -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:18px;">
+                <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                    I. MATERNAL HISTORY: PLEASE CHECK ILLNESS DURING PREGNANCY:
+                </h5>
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" id="mat_goiter"> Goiter</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" id="mat_diabetes"> Diabetes</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" id="mat_measles"> German Measles</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" id="mat_hepatitis"> Hepatitis</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;"><input type="checkbox" id="mat_heart"> Heart Disease</label>
+                    <div style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;">
+                        <span>Other:</span>
+                        <input type="text" id="mat_other" class="form-control" style="padding:4px 8px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:4px;" placeholder="Specify">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brief History of Delivery -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:18px;">
+                <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                    II. BRIEF HISTORY:
+                </h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-bottom:12px;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">a. Type of Delivery:</label>
+                        <select id="del_type" class="form-control" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                            <option value="Normal">Normal</option>
+                            <option value="Caesarian Section">Caesarian Section</option>
+                            <option value="Forceps">Forceps</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">b. Place of Delivery:</label>
+                        <select id="del_place" class="form-control" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                            <option value="Hospital">Hospital</option>
+                            <option value="Home">Home</option>
+                            <option value="Lying-in Clinic">Lying-in Clinic</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;" class="resp-grid-2">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">c. State Complications, if any:</label>
+                        <input type="text" id="del_complications" class="form-control" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">d. Allergies, if any:</label>
+                        <input type="text" id="del_allergies" class="form-control" style="width:100%; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Immunizations -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:18px;">
+                <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                    III. IMMUNIZATION (Date Given):
+                </h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">DPT:</label><input type="date" id="imm_dpt" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">POLIO:</label><input type="date" id="imm_polio" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">BCG:</label><input type="date" id="imm_bcg" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">MEASLES:</label><input type="date" id="imm_measles" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">TETANUS:</label><input type="date" id="imm_tetanus" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700; color:#475569;">HEPATITIS B:</label><input type="date" id="imm_hepa_b" class="form-control" style="width:100%; padding:5px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:4px;"></div>
+                </div>
+            </div>
+
+            <!-- Deworming & Disability -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:18px;" class="resp-grid-2">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+                    <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">IV. DEWORMING:</h5>
+                    <div style="display:flex; gap:15px; align-items:center; margin-bottom:8px;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;"><input type="radio" name="deworm_radio" value="Yes"> Yes</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;"><input type="radio" name="deworm_radio" value="No"> No</label>
+                    </div>
+                    <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Date of last Deworming:</label>
+                    <input type="date" id="deworm_date" class="form-control" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.85rem;">
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+                    <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">V. DISABILITY/IMPAIRMENTS:</h5>
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:0.82rem;">
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dis_deformities"> Congenital Deformities</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dis_deafness"> Deafness</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dis_speech"> Speech defect</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dis_emotional"> Emotional Disturbances</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pertinent Physical Exam (HEENT, Abdomen, etc.) -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:18px;">
+                <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                    VIII. PERTINENT PHYSICAL EXAMINATION:
+                </h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div><label style="font-size:0.75rem; font-weight:700;">HEENT:</label><input type="text" id="pe_heent" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Normal"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700;">Abdomen:</label><input type="text" id="pe_abdomen" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Normal"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700;">GUT:</label><input type="text" id="pe_gut" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Normal"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700;">Muscular:</label><input type="text" id="pe_muscular" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Normal"></div>
+                    <div><label style="font-size:0.75rem; font-weight:700;">NEURO:</label><input type="text" id="pe_neuro" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Normal"></div>
+                </div>
+            </div>
+
+            <!-- Signatures -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;" class="resp-grid-2">
+                <div style="border:1px dashed #cbd5e1; padding:15px; border-radius:6px; text-align:center;">
+                    <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Name & Signature of Physician:</label>
+                    <input type="text" id="physician_sig_name" class="form-control" style="width:100%; padding:6px; text-align:center;" placeholder="Dr. ________________">
+                </div>
+                <div style="border:1px dashed #cbd5e1; padding:15px; border-radius:6px; text-align:center;">
+                    <label style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:6px;">Name & Signature of Dental Officer:</label>
+                    <input type="text" id="dental_sig_name" class="form-control" style="width:100%; padding:6px; text-align:center;" placeholder="Dr. ________________">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 3: EYE AND VISION ASSESSMENT FORM            -->
+    <!-- ======================================================== -->
+    <div id="healthSubSectionEye" style="display:none;">
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:12px 18px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; color:#1e40af; font-weight:700;">
+            <i class="fa-solid fa-eye" style="margin-right:6px;"></i> EYE AND VISION ASSESSMENT FORM &bull; Comprehensive Visual Health Screening
+        </div>
+
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:16px; margin-bottom:20px;">
+            <h5 style="margin:0 0 8px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                I. EYE ASSESSMENT <span style="font-weight:400; color:#64748b; font-size:0.8rem;">(Kindly check if present upon screening / Lagyan ng TSEK kung nakita o nararamdaman)</span>
+            </h5>
+            <div class="table-responsive" style="border:1px solid #cbd5e1; border-radius:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                <table style="min-width:620px; width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#091e42; color:white;">
+                            <th style="padding:10px; text-align:left;">Symptom / Condition</th>
+                            <th style="padding:10px; text-align:center; width:120px;">Right Eye (kanan)</th>
+                            <th style="padding:10px; text-align:center; width:120px;">Left Eye (kaliwa)</th>
+                            <th style="padding:10px; text-align:left; width:250px;">REMARKS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eyeSymptomsTbody">
+                        <!-- Populated with 11 eye symptoms via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Visual Acuity -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:16px; margin-bottom:20px;">
+            <h5 style="margin:0 0 8px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                II. VISUAL ACUITY <span style="font-weight:400; color:#64748b; font-size:0.8rem;">(Indicate the patient's visual acuity / Ilagay ang nakuhang sukat o grado ng mata)</span>
+            </h5>
+            <div class="table-responsive" style="border:1px solid #cbd5e1; border-radius:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                <table style="min-width:620px; width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#091e42; color:white;">
+                            <th style="padding:8px 12px; text-align:left; width:220px;">Category</th>
+                            <th style="padding:8px 12px; text-align:center;">Right Eye (kanan)</th>
+                            <th style="padding:8px 12px; text-align:center;">Left Eye (kaliwa)</th>
+                            <th style="padding:8px 12px; text-align:left; width:250px;">REMARKS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:8px 12px; font-weight:700;">AIDED (may salamin) &bull; Far (malayo)</td>
+                            <td align="center"><input type="text" id="va_aided_far_r" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. 20/20"></td>
+                            <td align="center"><input type="text" id="va_aided_far_l" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. 20/20"></td>
+                            <td><input type="text" id="va_aided_far_rem" class="form-control" style="width:95%; padding:4px;"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:8px 12px; font-weight:700;">AIDED (may salamin) &bull; Near (malapit)</td>
+                            <td align="center"><input type="text" id="va_aided_near_r" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. J1"></td>
+                            <td align="center"><input type="text" id="va_aided_near_l" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. J1"></td>
+                            <td><input type="text" id="va_aided_near_rem" class="form-control" style="width:95%; padding:4px;"></td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #e2e8f0;">
+                            <td style="padding:8px 12px; font-weight:700;">UNAIDED (walang salamin) &bull; Far (malayo)</td>
+                            <td align="center"><input type="text" id="va_unaided_far_r" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. 20/30"></td>
+                            <td align="center"><input type="text" id="va_unaided_far_l" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. 20/30"></td>
+                            <td><input type="text" id="va_unaided_far_rem" class="form-control" style="width:95%; padding:4px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px 12px; font-weight:700;">UNAIDED (walang salamin) &bull; Near (malapit)</td>
+                            <td align="center"><input type="text" id="va_unaided_near_r" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. J1"></td>
+                            <td align="center"><input type="text" id="va_unaided_near_l" class="form-control" style="width:80%; padding:4px; text-align:center;" placeholder="e.g. J1"></td>
+                            <td><input type="text" id="va_unaided_near_rem" class="form-control" style="width:95%; padding:4px;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MD / Eye Practitioner's Report -->
+        <div style="background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:18px;">
+            <h5 style="margin:0 0 10px 0; color:#0f172a; font-weight:800; font-size:0.9rem;">
+                MD / EYE PRACTITIONER'S REPORT & RECOMMENDATIONS:
+            </h5>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;" class="resp-grid-2">
+                <div>
+                    <label style="font-size:0.75rem; font-weight:700;">Name of Screener:</label>
+                    <input type="text" id="eye_screener_name" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:700;">Date Examined:</label>
+                    <input type="date" id="eye_exam_date" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                </div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.75rem; font-weight:700;">Clinical Recommendations:</label>
+                <textarea id="eye_recommendations" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.85rem;" placeholder="Clinical findings and referral notes..."></textarea>
+            </div>
+            <div>
+                <label style="font-size:0.75rem; font-weight:700;">Name of MD / Eye Practitioner:</label>
+                <input type="text" id="eye_practitioner_name" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+            </div>
+        </div>
+    </div>
+</div>

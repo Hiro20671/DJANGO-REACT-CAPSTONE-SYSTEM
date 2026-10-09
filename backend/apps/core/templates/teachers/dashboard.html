@@ -1,7 +1,679 @@
 {% extends "teachers/base_teacher.html" %}
-{% load static django_vite %}
+{% load static %}
 
 {% block content %}
-<div id="react-teacher-dashboard-root"></div>
-{% vite_asset 'src/main.jsx' %}
+<style>
+    /* Natural Systems Teacher Dashboard */
+    .dashboard-page {
+        padding: 10px 0 60px 0;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .dash-title h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .dash-title p {
+        color: var(--text-secondary, #64748b);
+        margin: 6px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .dash-header-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .sy-select {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #1e293b);
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* AI Analytics Suite Banner */
+    .ai-suite-banner {
+        background: linear-gradient(135deg, #091e42 0%, #1e40af 60%, #3b82f6 100%);
+        color: #ffffff;
+        padding: 22px 28px;
+        border-radius: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 24px rgba(30, 64, 175, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        flex-wrap: wrap;
+        gap: 18px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .ai-suite-banner:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(30, 64, 175, 0.32);
+    }
+
+    .ai-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .ai-banner-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: #ffffff;
+    }
+
+    .ai-banner-text h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ai-banner-text p {
+        margin: 6px 0 0 0;
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.88);
+        line-height: 1.4;
+    }
+
+    .btn-ai-launch {
+        background: #ffffff;
+        color: #1e40af;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .btn-ai-launch:hover {
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Operational KPI Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .kpi-card-op {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        position: relative;
+        text-decoration: none;
+        color: inherit;
+    }
+    .kpi-card-op:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .kpi-card-op::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+    .kpi-card-op.blue::before { background: #3b82f6; }
+    .kpi-card-op.emerald::before { background: #10b981; }
+    .kpi-card-op.amber::before { background: #f59e0b; }
+    .kpi-card-op.purple::before { background: #8b5cf6; }
+
+    .kpi-op-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .kpi-op-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .kpi-op-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+    .kpi-card-op.blue .kpi-op-icon { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+    .kpi-card-op.emerald .kpi-op-icon { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .kpi-card-op.amber .kpi-op-icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+    .kpi-card-op.purple .kpi-op-icon { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
+
+    .kpi-op-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        line-height: 1.1;
+        margin-bottom: 6px;
+    }
+    .kpi-op-sub {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    /* Action Shortcuts Ribbon */
+    .shortcuts-ribbon {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .shortcut-btn {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 10px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--text-primary, #1e293b);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .shortcut-btn:hover {
+        background: var(--btn-neutral-bg, #f1f5f9);
+        border-color: #3b82f6;
+        color: #1e40af;
+        transform: translateY(-1px);
+    }
+    .shortcut-btn i {
+        font-size: 1.15rem;
+        color: #3b82f6;
+    }
+
+    /* Layout Sections */
+    .dash-grid-main {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .dash-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .dash-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        border-bottom: 1px solid var(--border-color, #f1f5f9);
+        padding-bottom: 12px;
+    }
+
+    .dash-card-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Table */
+    .dash-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+    .dash-table th {
+        background: var(--btn-neutral-bg, #f8fafc);
+        color: var(--text-secondary, #475569);
+        padding: 10px 14px;
+        font-weight: 700;
+        text-align: left;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
+    }
+    .dash-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-color, #f1f5f9);
+        color: var(--text-primary, #1e293b);
+        vertical-align: middle;
+    }
+    .dash-table tr:hover td {
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 0.74rem;
+        font-weight: 700;
+    }
+    .pill-badge.success { background: #dcfce7; color: #15803d; }
+    .pill-badge.warning { background: #fef3c7; color: #b45309; }
+    .pill-badge.danger { background: #fee2e2; color: #b91c1c; }
+    .pill-badge.info { background: #e0f2fe; color: #0369a1; }
+    .pill-badge.neutral { background: #f1f5f9; color: #475569; }
+
+    @media (max-width: 900px) {
+        .dash-grid-main {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dashboard-page">
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-title">
+            <h2>
+                <i class="fa-solid fa-border-all" style="color: #1e40af;"></i>
+                Teacher Operational Dashboard
+            </h2>
+            <p>BMV3 Daycare Center • Real-time attendance, enrollment operations, and student tracking</p>
+        </div>
+        <div class="dash-header-controls">
+            <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-secondary);">School Year:</label>
+            <select class="sy-select" id="sySelector" onchange="onSchoolYearChange()">
+                <option value="">Current Active School Year</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- AI Analytics Suite Launch Banner -->
+    <div class="ai-suite-banner">
+        <div class="ai-banner-left">
+            <div class="ai-banner-icon">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="ai-banner-text">
+                <h3>
+                    <span>AI Analytics & Early-Warning Intelligence Suite</span>
+                    <span style="background: #10b981; color: white; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; font-weight: 800;">DEDICATED MODULE</span>
+                </h3>
+                <p>
+                    Full 10-pillar analytics, Development Readiness Index (DRI), Risk Scoring Engine, Predictive Trends, & Interactive AI Diagnostic Assistant
+                </p>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'teacher_analytics' %}" class="btn-ai-launch">
+                <span>Open Analytics Suite</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Core Operational KPI Cards -->
+    <div class="kpi-grid">
+        <!-- 1. Enrolled Pupils -->
+        <a href="{% url 'teacher_children' %}" class="kpi-card-op blue">
+            <div class="kpi-op-head">
+                <span class="kpi-op-label">Enrolled Students</span>
+                <span class="kpi-op-icon"><i class="fa-solid fa-users"></i></span>
+            </div>
+            <div class="kpi-op-value" id="kpiTotalEnrolled">--</div>
+            <div class="kpi-op-sub">
+                <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+                <span>Active Cohort</span>
+            </div>
+        </a>
+
+        <!-- 2. Morning Shift Pupils -->
+        <a href="{% url 'teacher_attendance' %}" class="kpi-card-op amber">
+            <div class="kpi-op-head">
+                <span class="kpi-op-label">Morning Shift (AM)</span>
+                <span class="kpi-op-icon"><i class="fa-regular fa-sun"></i></span>
+            </div>
+            <div class="kpi-op-value" id="kpiMorningCount">--</div>
+            <div class="kpi-op-sub">
+                <span>Class Hours: 8:00 AM – 10:30 AM</span>
+            </div>
+        </a>
+
+        <!-- 3. Afternoon Shift Pupils -->
+        <a href="{% url 'teacher_attendance' %}" class="kpi-card-op purple">
+            <div class="kpi-op-head">
+                <span class="kpi-op-label">Afternoon Shift (PM)</span>
+                <span class="kpi-op-icon"><i class="fa-solid fa-cloud-sun"></i></span>
+            </div>
+            <div class="kpi-op-value" id="kpiAfternoonCount">--</div>
+            <div class="kpi-op-sub">
+                <span>Class Hours: 1:00 PM – 3:30 PM</span>
+            </div>
+        </a>
+
+        <!-- 4. Today's Attendance -->
+        <a href="{% url 'teacher_attendance' %}" class="kpi-card-op emerald">
+            <div class="kpi-op-head">
+                <span class="kpi-op-label">Today's Check-In</span>
+                <span class="kpi-op-icon"><i class="fa-solid fa-calendar-check"></i></span>
+            </div>
+            <div class="kpi-op-value" id="kpiTodayAtt">--</div>
+            <div class="kpi-op-sub">
+                <span id="kpiAbsentCount">0 Absent</span>
+            </div>
+        </a>
+
+        <!-- 5. Pending Enrollments -->
+        <a href="{% url 'teacher_children' %}" class="kpi-card-op amber" id="cardPendingEnrollments">
+            <div class="kpi-op-head">
+                <span class="kpi-op-label">Pending Enrollments</span>
+                <span class="kpi-op-icon"><i class="fa-solid fa-file-signature"></i></span>
+            </div>
+            <div class="kpi-op-value" id="kpiPendingCount">0</div>
+            <div class="kpi-op-sub" id="kpiPendingSub">
+                <span>All caught up</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- Quick Shortcuts Ribbon -->
+    <div class="shortcuts-ribbon">
+        <a href="{% url 'teacher_attendance' %}" class="shortcut-btn">
+            <i class="fa-regular fa-calendar-check" style="color: #2563eb;"></i>
+            <span>Take Attendance</span>
+        </a>
+        <a href="{% url 'teacher_children' %}" class="shortcut-btn">
+            <i class="fa-regular fa-address-card" style="color: #10b981;"></i>
+            <span>Assign Shifts</span>
+        </a>
+        <a href="{% url 'teacher_dropoff_pickup' %}" class="shortcut-btn">
+            <i class="fa-solid fa-car" style="color: #f59e0b;"></i>
+            <span>Drop-Off & Pick-Up</span>
+        </a>
+        <a href="{% url 'teacher_milestones' %}" class="shortcut-btn">
+            <i class="fa-solid fa-book-open" style="color: #8b5cf6;"></i>
+            <span>ECCD Booklet</span>
+        </a>
+        <a href="{% url 'teacher_activities' %}" class="shortcut-btn">
+            <i class="fa-solid fa-list-check" style="color: #ec4899;"></i>
+            <span>Daily Activities</span>
+        </a>
+        <a href="{% url 'teacher_announcements' %}" class="shortcut-btn">
+            <i class="fa-solid fa-bullhorn" style="color: #06b6d4;"></i>
+            <span>Announcements</span>
+        </a>
+        <a href="{% url 'teacher_textblast' %}" class="shortcut-btn">
+            <i class="fa-solid fa-paper-plane" style="color: #ea580c;"></i>
+            <span>Textblast SMS</span>
+        </a>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="dash-grid-main">
+        <!-- Enrolled Students Active Cohort -->
+        <div class="dash-card">
+            <div class="dash-card-header" style="flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 class="dash-card-title"><i class="fa-solid fa-user-graduate" style="color: #1e40af;"></i> Enrolled Pupils (Active Cohort)</h3>
+                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">Pupils enrolled in the current school year with assigned class shifts</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <div style="display:inline-flex; background:var(--btn-neutral-bg, #f1f5f9); padding:3px; border-radius:8px; gap:4px;">
+                        <button type="button" id="dashShiftAll" onclick="setDashShift('all')" style="padding:5px 12px; border-radius:6px; border:none; font-weight:700; font-size:0.8rem; cursor:pointer; background:#063970; color:white; transition:0.2s;">All</button>
+                        <button type="button" id="dashShiftMorning" onclick="setDashShift('Morning')" style="padding:5px 12px; border-radius:6px; border:none; font-weight:700; font-size:0.8rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-sun" style="color:#eab308; margin-right:4px;"></i> Morning (AM)</button>
+                        <button type="button" id="dashShiftAfternoon" onclick="setDashShift('Afternoon')" style="padding:5px 12px; border-radius:6px; border:none; font-weight:700; font-size:0.8rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-cloud-sun" style="color:#f97316; margin-right:4px;"></i> Afternoon (PM)</button>
+                    </div>
+                    <a href="{% url 'teacher_children' %}" style="font-size: 0.85rem; font-weight: 700; color: #1e40af; text-decoration: none;">
+                        Manage All <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class Shift</th>
+                            <th>Age & Gender</th>
+                            <th>Today's Status</th>
+                            <th>Quick Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashStudentsBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #94a3b8; padding: 25px;">Loading active cohort pupils...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Operational Status & Schedule Sidebar -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Today's Schedule Card -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title"><i class="fa-solid fa-clock" style="color: #f59e0b;"></i> Today's Schedule</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.88rem;">
+                    <div style="border-left: 3px solid #3b82f6; padding-left: 12px;">
+                        <strong style="color: #1e40af;">Morning Shift</strong><br>
+                        <span style="color: #64748b; font-size: 0.8rem;">8:00 AM – 10:30 AM • Circle Time & Phonics</span>
+                    </div>
+                    <div style="border-left: 3px solid #10b981; padding-left: 12px;">
+                        <strong style="color: #059669;">Daycare Feeding Time</strong><br>
+                        <span style="color: #64748b; font-size: 0.8rem;">10:00 AM & 2:30 PM • Fortified Healthy Snack</span>
+                    </div>
+                    <div style="border-left: 3px solid #8b5cf6; padding-left: 12px;">
+                        <strong style="color: #6d28d9;">Afternoon Shift</strong><br>
+                        <span style="color: #64748b; font-size: 0.8rem;">1:00 PM – 3:30 PM • Creative Play & Stories</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Summary Card -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h3 class="dash-card-title"><i class="fa-solid fa-bell" style="color: #06b6d4;"></i> Operational Reminders</h3>
+                </div>
+                <div style="font-size: 0.86rem; color: #475569; line-height: 1.5;" id="dashReminderText">
+                    <p style="margin: 0 0 10px 0;"><i class="fa-solid fa-circle-check" style="color: #10b981; margin-right: 6px;"></i> All attendance records sync live with parents' mobile portals.</p>
+                    <p style="margin: 0 0 10px 0;"><i class="fa-solid fa-circle-check" style="color: #3b82f6; margin-right: 6px;"></i> To view multi-week developmental trajectories or print dossiers, open <strong>Analytics & AI Insights</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        await loadSchoolYears();
+        const sySelect = document.getElementById('sySelector');
+        const syId = sySelect ? sySelect.value : '';
+        loadDashboardStats(syId);
+        loadCohortStudents(syId);
+    });
+
+    async function loadSchoolYears() {
+        try {
+            const res = await fetch('/api/school-years/');
+            const years = await res.json();
+            const select = document.getElementById('sySelector');
+            const archiveId = sessionStorage.getItem('bmv3_archive_year_id');
+
+            select.innerHTML = years.map(y => `
+                <option value="${y.id}" ${archiveId == y.id ? 'selected' : (y.is_active ? 'selected' : '')}>
+                    ${y.name} ${y.is_active ? '(Active Current)' : '(Past Batch)'}
+                </option>
+            `).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadDashboardStats(syId = '') {
+        try {
+            const qs = syId ? `?school_year=${syId}` : '';
+            const res = await fetch(`/api/teacher/dashboard/${qs}`);
+            const data = await res.json();
+
+            document.getElementById('kpiTotalEnrolled').innerText = data.total_children ?? 0;
+            document.getElementById('kpiMorningCount').innerText = data.morning_count ?? 0;
+            document.getElementById('kpiAfternoonCount').innerText = data.afternoon_count ?? 0;
+            
+            const att = data.attendance || {};
+            document.getElementById('kpiTodayAtt').innerText = `${att.present || 0}/${data.total_children || 0}`;
+            document.getElementById('kpiAbsentCount').innerText = `${att.absent || 0} Absent today`;
+
+            const pending = data.pending_count || 0;
+            document.getElementById('kpiPendingCount').innerText = pending;
+            if (pending > 0) {
+                document.getElementById('kpiPendingSub').innerHTML = `<span style="color:#d97706; font-weight:700;"><i class="fa-solid fa-clock"></i> Requires Approval</span>`;
+            } else {
+                document.getElementById('kpiPendingSub').innerText = 'All caught up';
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    let dashShiftFilter = 'all';
+    let cachedCohortStudents = [];
+
+    function setDashShift(shift) {
+        dashShiftFilter = shift;
+        ['all', 'Morning', 'Afternoon'].forEach(s => {
+            const btnId = s === 'all' ? 'dashShiftAll' : (s === 'Morning' ? 'dashShiftMorning' : 'dashShiftAfternoon');
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                if (s.toLowerCase() === shift.toLowerCase()) {
+                    btn.style.background = '#063970';
+                    btn.style.color = 'white';
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#64748b';
+                }
+            }
+        });
+        renderCohortTable();
+    }
+
+    async function loadCohortStudents(syId = '') {
+        try {
+            const qs = syId ? `?school_year=${syId}` : '';
+            const res = await fetch(`/api/children/${qs}`);
+            const children = await res.json();
+
+            cachedCohortStudents = children.filter(c => c.enrollment_status === 'Enrolled');
+            renderCohortTable();
+        } catch(e) { console.error(e); }
+    }
+
+    function renderCohortTable() {
+        const tbody = document.getElementById('dashStudentsBody');
+        let filtered = cachedCohortStudents;
+        if (dashShiftFilter !== 'all') {
+            filtered = filtered.filter(c => (c.shift || 'Morning').toLowerCase() === dashShiftFilter.toLowerCase());
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">No ${dashShiftFilter !== 'all' ? dashShiftFilter : ''} enrolled students found in this cohort.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(c => `
+            <tr>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:34px; height:34px; border-radius:50%; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:700; color:#334155; font-size:0.85rem;">
+                            ${c.first_name ? c.first_name[0] : 'S'}
+                        </div>
+                        <div>
+                            <strong style="color:var(--text-primary); font-size:0.92rem;">${c.first_name} ${c.last_name}</strong>
+                            <div style="font-size:0.75rem; color:#64748b;">DOB: ${c.dob || 'N/A'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="pill-badge ${c.shift === 'Afternoon' ? 'warning' : 'info'}">
+                        <i class="fa-solid ${c.shift === 'Afternoon' ? 'fa-cloud-sun' : 'fa-sun'}"></i>
+                        ${c.shift || 'Morning'} Shift
+                    </span>
+                </td>
+                <td>${c.age || 4} yrs • ${c.gender || 'Not specified'}</td>
+                <td>
+                    <span class="pill-badge ${c.attendance_status === 'Present' ? 'success' : (c.attendance_status === 'Absent' ? 'danger' : 'neutral')}">
+                        ${c.attendance_status || 'Pending Check-in'}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'teacher_children' %}" class="shortcut-btn" style="padding: 4px 10px; font-size: 0.76rem; display:inline-flex;">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Shift
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function onSchoolYearChange() {
+        const syId = document.getElementById('sySelector').value;
+        loadDashboardStats(syId);
+        loadCohortStudents(syId);
+    }
+</script>
 {% endblock %}

@@ -119,6 +119,7 @@ class Child(models.Model):
     purok = models.CharField(max_length=100, null=True, blank=True)
     city_municipality = models.CharField(max_length=100, null=True, blank=True)
     
+    shift = models.CharField(max_length=20, default='Morning', choices=[('Morning', 'Morning Shift'), ('Afternoon', 'Afternoon Shift')])
     img = models.ImageField(upload_to='child_profiles/', null=True, blank=True)
 
     def __str__(self):
@@ -133,7 +134,7 @@ class AttendanceRecord(models.Model):
     dropoff_time = models.CharField(max_length=50, blank=True, null=True)
     pickup_status = models.CharField(max_length=50, blank=True, null=True)
     authorized_guardian = models.CharField(max_length=100, blank=True, null=True)
-    session = models.CharField(max_length=50, blank=True, null=True)
+    session = models.CharField(max_length=50, default='Morning', blank=True, null=True) # 'Morning' or 'Afternoon'
 
 class MilestoneRecord(models.Model):
     child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name='milestone_record')
@@ -274,6 +275,23 @@ class ScoringAccessRequest(models.Model):
 
     def __str__(self):
         return f"Request for {self.child.first_name} by {self.parent.user.username} - {self.status}"
+
+class ECCDBookletRecord(models.Model):
+    child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name='eccd_booklet')
+    sociodemographic = models.JSONField(default=dict, blank=True)
+    examiner_notes = models.JSONField(default=dict, blank=True)
+    mchat_r = models.JSONField(default=dict, blank=True)
+    intake_form = models.JSONField(default=dict, blank=True)
+    consent_form = models.JSONField(default=dict, blank=True)
+    health_record = models.JSONField(default=dict, blank=True)
+    eye_vision = models.JSONField(default=dict, blank=True)
+    growth_chart_data = models.JSONField(default=dict, blank=True)
+    behavior_records = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"ECCD Booklet - {self.child.first_name} {self.child.last_name}"
 
 class Activity(models.Model):
     name = models.CharField(max_length=150)

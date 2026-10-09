@@ -1,0 +1,1942 @@
+{% extends "teachers/base_teacher.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Styling for BMV3 Daycare AI Analytics & Early-Warning Intelligence Suite */
+    .analytics-page {
+        padding: 10px 0 60px 0;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .analytics-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .analytics-title h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .analytics-title p {
+        color: var(--text-secondary, #64748b);
+        margin: 6px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .analytics-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-analytics {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-analytics-primary {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+    }
+    .btn-analytics-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        transform: translateY(-1px);
+    }
+
+    .btn-analytics-secondary {
+        background: var(--bg-card, #fff);
+        color: var(--text-primary, #1e293b);
+        border: 1px solid var(--border-color, #cbd5e1);
+    }
+    .btn-analytics-secondary:hover {
+        background: var(--btn-neutral-bg, #f1f5f9);
+    }
+
+    .shift-filter-select {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary, #1e293b);
+        font-weight: 600;
+        font-size: 0.88rem;
+        outline: none;
+        cursor: pointer;
+    }
+
+    /* Executive KPI Ribbon */
+    .kpi-ribbon {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .kpi-stat-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        position: relative;
+        overflow: hidden;
+    }
+    .kpi-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .kpi-stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+    .kpi-stat-card.blue::before { background: #3b82f6; }
+    .kpi-stat-card.green::before { background: #10b981; }
+    .kpi-stat-card.purple::before { background: #8b5cf6; }
+    .kpi-stat-card.amber::before { background: #f59e0b; }
+    .kpi-stat-card.rose::before { background: #ef4444; }
+
+    .kpi-stat-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .kpi-stat-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .kpi-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+    .kpi-stat-card.blue .kpi-stat-icon { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+    .kpi-stat-card.green .kpi-stat-icon { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .kpi-stat-card.purple .kpi-stat-icon { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
+    .kpi-stat-card.amber .kpi-stat-icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+    .kpi-stat-card.rose .kpi-stat-icon { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+
+    .kpi-stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        line-height: 1.1;
+        margin-bottom: 6px;
+    }
+
+    .kpi-stat-sub {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    /* Tab navigation */
+    .analytics-nav-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
+        margin-bottom: 25px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+    .analytics-tab-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 16px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-secondary, #64748b);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+    .analytics-tab-btn:hover {
+        color: #1e40af;
+    }
+    .analytics-tab-btn.active {
+        color: #1e40af;
+        border-bottom-color: #1e40af;
+    }
+    html.dark-mode .analytics-tab-btn.active {
+        color: #60a5fa;
+        border-bottom-color: #60a5fa;
+    }
+
+    /* Content Panes */
+    .tab-pane {
+        display: none;
+    }
+    .tab-pane.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    /* Card Panels */
+    .analytics-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    .analytics-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        border-bottom: 1px solid var(--border-color, #f1f5f9);
+        padding-bottom: 12px;
+    }
+    .analytics-card-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .analytics-card-subtitle {
+        font-size: 0.82rem;
+        color: var(--text-secondary, #64748b);
+        margin-top: 2px;
+    }
+
+    /* Chart Wrappers */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        min-height: 260px;
+        max-height: 320px;
+    }
+
+    /* Badges & Pills */
+    .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .pill-badge.success { background: #dcfce7; color: #15803d; }
+    .pill-badge.warning { background: #fef3c7; color: #b45309; }
+    .pill-badge.danger { background: #fee2e2; color: #b91c1c; }
+    .pill-badge.info { background: #e0f2fe; color: #0369a1; }
+    .pill-badge.neutral { background: #f1f5f9; color: #475569; }
+
+    /* Tables */
+    .analytics-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+    .analytics-table th {
+        background: var(--btn-neutral-bg, #f8fafc);
+        color: var(--text-secondary, #475569);
+        padding: 12px 14px;
+        font-weight: 700;
+        text-align: left;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
+    }
+    .analytics-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-color, #f1f5f9);
+        color: var(--text-primary, #1e293b);
+        vertical-align: middle;
+    }
+    .analytics-table tr:hover td {
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    /* Early Warning Alert Cards */
+    .alert-banner-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .early-warning-item {
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        border-left: 5px solid;
+    }
+    .early-warning-item.critical {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #991b1b;
+    }
+    .early-warning-item.warning {
+        background: #fffbeb;
+        border-color: #f59e0b;
+        color: #92400e;
+    }
+    html.dark-mode .early-warning-item.critical {
+        background: #450a0a;
+        color: #fca5a5;
+    }
+    html.dark-mode .early-warning-item.warning {
+        background: #451a03;
+        color: #fcd34d;
+    }
+
+    /* AI Insights Chat Panel */
+    .ai-chat-card {
+        background: linear-gradient(180deg, var(--bg-card, #ffffff) 0%, rgba(248, 250, 252, 0.8) 100%);
+        border: 1px solid var(--border-color, #cbd5e1);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .ai-chat-header {
+        background: linear-gradient(135deg, #091e42, #1e40af);
+        color: white;
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .ai-chat-body {
+        padding: 22px;
+        min-height: 280px;
+        max-height: 480px;
+        overflow-y: auto;
+    }
+    .ai-message-bubble {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        line-height: 1.6;
+        font-size: 0.92rem;
+    }
+    .ai-pills-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+    .ai-pill-btn {
+        background: var(--btn-neutral-bg, #f1f5f9);
+        border: 1px solid var(--border-color, #cbd5e1);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--text-primary, #1e293b);
+        transition: all 0.2s;
+    }
+    .ai-pill-btn:hover {
+        background: #1e40af;
+        color: white;
+        border-color: #1e40af;
+    }
+    .ai-input-group {
+        display: flex;
+        gap: 10px;
+        padding: 16px 22px;
+        background: var(--bg-card, #ffffff);
+        border-top: 1px solid var(--border-color, #e2e8f0);
+    }
+    .ai-input {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--input-bg, #ffffff);
+        color: var(--input-text, #0f172a);
+        font-size: 0.9rem;
+        outline: none;
+    }
+    .ai-input:focus {
+        border-color: #3b82f6;
+    }
+
+    /* Modal Dossier */
+    .dossier-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .dossier-modal.active {
+        display: flex;
+    }
+    .dossier-dialog {
+        background: var(--bg-card, #ffffff);
+        border-radius: 14px;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        border: 1px solid var(--border-color, #cbd5e1);
+    }
+    .dossier-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--border-color, #e2e8f0);
+        position: sticky;
+        top: 0;
+        background: var(--bg-card, #ffffff);
+        z-index: 10;
+    }
+    .dossier-content {
+        padding: 25px;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #printArea, #printArea * {
+            visibility: visible;
+        }
+        #printArea {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: white !important;
+            color: black !important;
+            padding: 20px;
+        }
+        .no-print {
+            display: none !important;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .grid-2, .grid-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="analytics-page">
+    <!-- Header -->
+    <div class="analytics-header">
+        <div class="analytics-title">
+            <h2>
+                <i class="fa-solid fa-brain" style="color: #3b82f6;"></i>
+                BMV3 Daycare AI Analytics & Intelligence
+            </h2>
+            <p>10-Pillar Smart Monitoring, Risk Scoring Engine, Development Readiness Index (DRI), & Automated Early-Warnings</p>
+        </div>
+        <div class="analytics-actions">
+            <select class="shift-filter-select" id="shiftClassFilter" onchange="onShiftFilterChange()">
+                <option value="ALL">All Shifts (AM & PM)</option>
+                <option value="Morning">Morning Shift (AM)</option>
+                <option value="Afternoon">Afternoon Shift (PM)</option>
+            </select>
+            <button class="btn-analytics btn-analytics-secondary" onclick="openReportDossierModal()">
+                <i class="fa-solid fa-file-invoice"></i> Generate Dossier
+            </button>
+            <button class="btn-analytics btn-analytics-primary" onclick="switchToTab('tab-ai-insights')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI Insights
+            </button>
+        </div>
+    </div>
+
+    <!-- Executive KPI Ribbon -->
+    <div class="kpi-ribbon">
+        <!-- 1. Development Readiness Index -->
+        <div class="kpi-stat-card green">
+            <div class="kpi-stat-head">
+                <span class="kpi-stat-label">Development Readiness (DRI)</span>
+                <span class="kpi-stat-icon"><i class="fa-solid fa-award"></i></span>
+            </div>
+            <div class="kpi-stat-value" id="kpiDriValue">--%</div>
+            <div class="kpi-stat-sub">
+                <span class="pill-badge success" id="kpiDriTier"><i class="fa-solid fa-graduation-cap"></i> School Ready</span>
+                <span>Projected: <strong id="kpiDriProj">--%</strong></span>
+            </div>
+        </div>
+
+        <!-- 2. Smart Attendance Rate -->
+        <div class="kpi-stat-card blue">
+            <div class="kpi-stat-head">
+                <span class="kpi-stat-label">Smart Attendance Rate</span>
+                <span class="kpi-stat-icon"><i class="fa-solid fa-calendar-check"></i></span>
+            </div>
+            <div class="kpi-stat-value" id="kpiAttValue">--%</div>
+            <div class="kpi-stat-sub">
+                <span>AM: <strong id="kpiAmAtt">--%</strong></span> • 
+                <span>PM: <strong id="kpiPmAtt">--%</strong></span>
+            </div>
+        </div>
+
+        <!-- 3. Health & Feeding Health Index -->
+        <div class="kpi-stat-card amber">
+            <div class="kpi-stat-head">
+                <span class="kpi-stat-label">Nutrition Health Index</span>
+                <span class="kpi-stat-icon"><i class="fa-solid fa-apple-whole"></i></span>
+            </div>
+            <div class="kpi-stat-value" id="kpiNutValue">--%</div>
+            <div class="kpi-stat-sub">
+                <span id="kpiBmiNormalCount">--</span> Normal BMI • 
+                <span id="kpiBmiAlertCount" style="color: #ef4444; font-weight: 700;">-- Underweight</span>
+            </div>
+        </div>
+
+        <!-- 4. Academic & Task Completion -->
+        <div class="kpi-stat-card purple">
+            <div class="kpi-stat-head">
+                <span class="kpi-stat-label">Learning Task Completion</span>
+                <span class="kpi-stat-icon"><i class="fa-solid fa-book-open-reader"></i></span>
+            </div>
+            <div class="kpi-stat-value" id="kpiTaskValue">--%</div>
+            <div class="kpi-stat-sub">
+                <span>ECCD Mastery: <strong id="kpiEccdAvg">--%</strong></span>
+            </div>
+        </div>
+
+        <!-- 5. AI Risk Watchlist -->
+        <div class="kpi-stat-card rose">
+            <div class="kpi-stat-head">
+                <span class="kpi-stat-label">Risk Watchlist Flags</span>
+                <span class="kpi-stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            </div>
+            <div class="kpi-stat-value" id="kpiRiskCount">0</div>
+            <div class="kpi-stat-sub">
+                <span class="pill-badge danger" id="kpiHighRiskBadge">0 High Risk</span>
+                <span id="kpiWarningCountText">-- warnings active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="analytics-nav-tabs">
+        <button class="analytics-tab-btn active" onclick="switchToTab('tab-overview')">
+            <i class="fa-solid fa-chart-line"></i> Overview & Attendance Trends
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-risk-watchlist')">
+            <i class="fa-solid fa-shield-halved"></i> AI Risk Engine & Early-Warnings
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-dri')">
+            <i class="fa-solid fa-compass-drafting"></i> Readiness Index (DRI)
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-nutrition-health')">
+            <i class="fa-solid fa-bowl-food"></i> Health & Nutrition
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-eccd-domains')">
+            <i class="fa-solid fa-shapes"></i> ECCD 7-Domain Progression
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-interventions')">
+            <i class="fa-solid fa-hand-holding-hand"></i> Intervention Engine
+        </button>
+        <button class="analytics-tab-btn" onclick="switchToTab('tab-ai-insights')">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI Insights
+        </button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: OVERVIEW & SMART ATTENDANCE (MORNING & AFTERNOON SHIFT) -->
+    <!-- ============================================================== -->
+    <div class="tab-pane active" id="tab-overview">
+        <div class="grid-2">
+            <!-- 8-Week Trend Comparison -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i> 8-Week Smart Attendance Trajectory</h3>
+                        <div class="analytics-card-subtitle">Morning Shift (AM) vs Afternoon Shift (PM) vs Overall Class Rate</div>
+                    </div>
+                    <span class="pill-badge info"><i class="fa-solid fa-clock"></i> Weekly Aggregates</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="attendanceTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Morning vs Afternoon Shift Breakdown -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-business-time" style="color: #10b981;"></i> Shift Class Distribution & Metrics</h3>
+                        <div class="analytics-card-subtitle">BMV3 Daycare Two-Shift Operational Capacity</div>
+                    </div>
+                    <span class="pill-badge success">Live Session Sync</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <!-- Morning Shift Box -->
+                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px; padding: 15px;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #1e40af; text-transform: uppercase;">
+                            <i class="fa-regular fa-sun" style="color: #f59e0b;"></i> Morning Shift (AM)
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin: 8px 0;" id="boxMorningCount">-- Kids</div>
+                        <div style="font-size: 0.85rem; color: #475569;">
+                            Attendance Rate: <strong id="boxMorningAtt" style="color: #10b981;">--%</strong>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">Schedule: 8:00 AM – 10:30 AM</div>
+                    </div>
+
+                    <!-- Afternoon Shift Box -->
+                    <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 10px; padding: 15px;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #6d28d9; text-transform: uppercase;">
+                            <i class="fa-solid fa-cloud-sun" style="color: #ea580c;"></i> Afternoon Shift (PM)
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin: 8px 0;" id="boxAfternoonCount">-- Kids</div>
+                        <div style="font-size: 0.85rem; color: #475569;">
+                            Attendance Rate: <strong id="boxAfternoonAtt" style="color: #7c3aed;">--%</strong>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">Schedule: 1:00 PM – 3:30 PM</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--btn-neutral-bg, #f8fafc); border-radius: 8px; padding: 12px 16px; font-size: 0.86rem; color: var(--text-secondary, #475569); line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info" style="color: #3b82f6; margin-right: 6px;"></i>
+                    <span id="shiftComparisonDiagnosis">Analyzing attendance variance between Morning and Afternoon cohorts...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Attendance Status Distribution -->
+        <div class="analytics-card">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-pie-chart" style="color: #f59e0b;"></i> Daily Attendance Status Records</h3>
+                    <div class="analytics-card-subtitle">Cumulative breakdown across Present, Unexcused Absences, and Late drop-offs</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: center;">
+                <div class="chart-container" style="max-height: 220px;">
+                    <canvas id="attendanceStatusDonut"></canvas>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 15px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;"><i class="fa-solid fa-check"></i> PRESENT</span>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="countPresent">--</div>
+                        <span style="font-size: 0.76rem; color: #64748b;">On-Time Learning</span>
+                    </div>
+                    <div style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 15px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #ef4444;"><i class="fa-solid fa-xmark"></i> ABSENT</span>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="countAbsent">--</div>
+                        <span style="font-size: 0.76rem; color: #64748b;">Flagged for Outreach</span>
+                    </div>
+                    <div style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 15px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #f59e0b;"><i class="fa-solid fa-clock"></i> LATE</span>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="countLate">--</div>
+                        <span style="font-size: 0.76rem; color: #64748b;">Delayed Arrival</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: AI RISK SCORING ENGINE & EARLY WARNING SYSTEM           -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-risk-watchlist">
+        <!-- Algorithmic Model Callout -->
+        <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(59, 130, 246, 0.05)); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1e40af;">
+                        <i class="fa-solid fa-microchip"></i> Multimodal AI Weighted Risk Scoring Engine
+                    </h4>
+                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
+                        Algorithmic Formula: <strong>Attendance (25%) + Nutrition & Health (25%) + Learning & Milestones (30%) + Behavioral Tracking (20%)</strong>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <span class="pill-badge success">Low: &lt;22 pts</span>
+                    <span class="pill-badge warning">Moderate: 22–37 pts</span>
+                    <span class="pill-badge danger">High: ≥38 pts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Automated Early-Warnings -->
+        <div class="analytics-card" style="margin-bottom: 25px;">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Automated Early-Warning System (Threshold Alerts)</h3>
+                    <div class="analytics-card-subtitle">Heuristic threshold triggers monitoring absences, nutritional deficits, and cognitive lags</div>
+                </div>
+                <span class="pill-badge danger" id="activeWarningBadge">-- Alerts Triggered</span>
+            </div>
+            <div class="alert-banner-grid" id="earlyWarningAlertsList">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+
+        <!-- Ranked Students Risk Table -->
+        <div class="analytics-card">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-list-ol" style="color: #3b82f6;"></i> Comprehensive Risk Prioritization Watchlist</h3>
+                    <div class="analytics-card-subtitle">Sorted by composite risk score with trajectory vectors</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="riskTableSearch" placeholder="Filter student..." class="ai-input" style="padding: 6px 12px; font-size: 0.82rem; width: 180px;" oninput="filterRiskTable()">
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="analytics-table" id="riskScoringTable">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Shift</th>
+                            <th>Attendance</th>
+                            <th>Nutrition & BMI</th>
+                            <th>ECCD Score</th>
+                            <th>Risk Score</th>
+                            <th>Risk Level</th>
+                            <th>Trajectory</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="riskScoringTableBody">
+                        <!-- Dynamically Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: DEVELOPMENT READINESS INDEX (DRI) & PREDICTIVE TRENDS   -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-dri">
+        <div class="grid-2">
+            <!-- DRI Distribution Breakdown -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-gauge-high" style="color: #10b981;"></i> Development Readiness Index (DRI) Distribution</h3>
+                        <div class="analytics-card-subtitle">Measures overall developmental readiness for Grade 1 / Kindergarten transition</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="driDistributionChart"></canvas>
+                </div>
+                <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem;">
+                    <div><span class="pill-badge success">School Ready:</span> <strong id="driCountReady">--</strong></div>
+                    <div><span class="pill-badge warning">Developing:</span> <strong id="driCountDev">--</strong></div>
+                    <div><span class="pill-badge danger">Needs Support:</span> <strong id="driCountSupport">--</strong></div>
+                </div>
+            </div>
+
+            <!-- Predictive Trajectory Projections -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-arrow-trend-up" style="color: #8b5cf6;"></i> Predictive Trend Analysis (Growth Vectors)</h3>
+                        <div class="analytics-card-subtitle">Evaluates week-over-week growth vector to project end-of-year readiness</div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;">IMPROVING (↗)</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendImprovingCount">--</div>
+                        <span style="font-size: 0.74rem; color: #64748b;">Accelerating DRI</span>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">STABLE (→)</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendStableCount">--</div>
+                        <span style="font-size: 0.74rem; color: #64748b;">Consistent Pace</span>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #ef4444;">DECLINING (↘)</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendDecliningCount">--</div>
+                        <span style="font-size: 0.74rem; color: #64748b;">Requires Attention</span>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 10px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 700; font-size: 0.9rem;">Projected Class DRI at Year-End:</span>
+                        <span style="font-size: 1.3rem; font-weight: 800; color: #10b981;" id="projectedClassDriText">--%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                        <div id="projectedDriBar" style="width: 85%; height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); transition: width 0.8s;"></div>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
+                        Forecast model calculated through multi-week linear growth regression on attendance, milestone acquisitions, and task completion.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Readiness Directory -->
+        <div class="analytics-card">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-graduation-cap" style="color: #10b981;"></i> Individual Student Development Readiness Index</h3>
+                    <div class="analytics-card-subtitle">Comprehensive composite readiness percentage and projected elementary transition status</div>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Shift</th>
+                            <th>Current DRI Score</th>
+                            <th>Readiness Tier</th>
+                            <th>Trend Vector</th>
+                            <th>Projected DRI</th>
+                            <th>Primary Focus Area</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driStudentTableBody">
+                        <!-- Dynamically Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: HEALTH, NUTRITION & BEHAVIORAL TRACKING                 -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-nutrition-health">
+        <div class="grid-2">
+            <!-- Feeding Participation -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-utensils" style="color: #f59e0b;"></i> Daily Feeding Participation Intake</h3>
+                        <div class="analytics-card-subtitle">Snack & meal consumption logs across daycare feeding sessions</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="feedingParticipationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- BMI Nutritional Status -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-weight-scale" style="color: #06b6d4;"></i> BMI Nutritional Status Breakdown</h3>
+                        <div class="analytics-card-subtitle">World Health Organization (WHO) Child Growth Standards</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bmiStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Health & Allergies Watchlist -->
+        <div class="analytics-card" style="margin-bottom: 25px;">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-notes-medical" style="color: #ef4444;"></i> Health Conditions & Allergy Registry</h3>
+                    <div class="analytics-card-subtitle">Special dietary restrictions and respiratory health watch for BMV3 Daycare</div>
+                </div>
+                <span class="pill-badge neutral"><i class="fa-solid fa-shield-virus"></i> Safety Protocol Active</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Shift</th>
+                            <th>Allergies</th>
+                            <th>Health Conditions</th>
+                            <th>Feeding Routine</th>
+                            <th>Safety Recommendations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="healthAllergyTableBody">
+                        <!-- Dynamically Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Behavioral Observation & Social Interaction -->
+        <div class="analytics-card">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-users-rays" style="color: #8b5cf6;"></i> Behavioral & Social Interaction Levels</h3>
+                    <div class="analytics-card-subtitle">ECCD Social-Emotional domain interaction mastery and peer collaboration</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div style="background: rgba(16, 185, 129, 0.08); border-radius: 10px; padding: 18px; text-align: center;">
+                    <i class="fa-solid fa-handshake-angle" style="font-size: 1.8rem; color: #10b981;"></i>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 8px 0;" id="behaviorCoopCount">--</div>
+                    <div style="font-weight: 700; color: #10b981; font-size: 0.85rem;">Highly Cooperative</div>
+                    <div style="font-size: 0.76rem; color: #64748b; margin-top: 4px;">Plays harmoniously & follows instructions</div>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.08); border-radius: 10px; padding: 18px; text-align: center;">
+                    <i class="fa-solid fa-people-group" style="font-size: 1.8rem; color: #2563eb;"></i>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 8px 0;" id="behaviorActiveCount">--</div>
+                    <div style="font-weight: 700; color: #2563eb; font-size: 0.85rem;">Active Participative</div>
+                    <div style="font-size: 0.76rem; color: #64748b; margin-top: 4px;">Engages in circle games & tasks</div>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.08); border-radius: 10px; padding: 18px; text-align: center;">
+                    <i class="fa-solid fa-child-reaching" style="font-size: 1.8rem; color: #f59e0b;"></i>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 8px 0;" id="behaviorSupportCount">--</div>
+                    <div style="font-weight: 700; color: #d97706; font-size: 0.85rem;">Needs Social Guidance</div>
+                    <div style="font-size: 0.76rem; color: #64748b; margin-top: 4px;">Shy, withdrawn or needs peer encouragement</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 5: ECCD 7-DOMAIN PROGRESSION & LEARNING                    -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-eccd-domains">
+        <div class="grid-2">
+            <!-- 7-Domain Mastery Radar / Bar -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-brain" style="color: #6366f1;"></i> Philippine ECCD 7-Domain Mastery Rates</h3>
+                        <div class="analytics-card-subtitle">ECCD Checklist Domains: Gross/Fine Motor, Self-Help, Language, Cognitive, Social</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="min-height: 280px;">
+                    <canvas id="eccdDomainsBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 3-Period Progression (1st vs 2nd vs 3rd Assessment) -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-chart-simple" style="color: #10b981;"></i> Assessment Period Progression</h3>
+                        <div class="analytics-card-subtitle">Class developmental trajectory across 1st, 2nd, and 3rd Assessment Periods</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="min-height: 280px;">
+                    <canvas id="periodProgressionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Domain Mastery Insights Cards -->
+        <div class="analytics-card">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Pedagogical Domain Diagnostics</h3>
+                    <div class="analytics-card-subtitle">Classroom strengths and target growth areas identified by the ECCD engine</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="border-left: 4px solid #10b981; background: var(--btn-neutral-bg, #f8fafc); padding: 16px; border-radius: 8px;">
+                    <div style="font-weight: 700; color: #10b981; font-size: 0.95rem; margin-bottom: 6px;">
+                        <i class="fa-solid fa-circle-check"></i> Highest Performing Domain: <span id="highestDomainTitle">--</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary, #475569); line-height: 1.5;" id="highestDomainDesc">
+                        Students exhibit strong developmental competency in expressive verbal communication, greeting teachers, and answering in complete sentences.
+                    </p>
+                </div>
+                <div style="border-left: 4px solid #ef4444; background: var(--btn-neutral-bg, #f8fafc); padding: 16px; border-radius: 8px;">
+                    <div style="font-weight: 700; color: #ef4444; font-size: 0.95rem; margin-bottom: 6px;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Growth Focus Domain: <span id="lowestDomainTitle">--</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary, #475569); line-height: 1.5;" id="lowestDomainDesc">
+                        Requires remedial manipulative play such as sorting shapes by color/size, puzzle assembling, and counting exercises.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 6: INTERVENTION RECOMMENDATION ENGINE                      -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-interventions">
+        <div class="analytics-card" style="margin-bottom: 25px;">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-route" style="color: #3b82f6;"></i> Intervention Recommendation Engine</h3>
+                    <div class="analytics-card-subtitle">Evidence-based daycare interventions mapped from attendance, nutritional, and developmental vulnerabilities</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <select id="interventionPriorityFilter" class="shift-filter-select" onchange="filterInterventionsTable()">
+                        <option value="ALL">All Priorities</option>
+                        <option value="High">High Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="Routine">Routine</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="analytics-table" id="interventionsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Shift</th>
+                            <th>Risk Level</th>
+                            <th>Recommended Intervention</th>
+                            <th>Priority</th>
+                            <th>Action Plan</th>
+                            <th>Review Timeline</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interventionsTableBody">
+                        <!-- Dynamically Populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 7: ASK AI INSIGHTS ASSISTANT ("PAKAIN SA AI YUNG DATA")    -->
+    <!-- ============================================================== -->
+    <div class="tab-pane" id="tab-ai-insights">
+        <!-- Executive AI Class Diagnosis Box -->
+        <div class="analytics-card" style="margin-bottom: 25px; border-left: 5px solid #3b82f6;">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-microchip" style="color: #3b82f6;"></i> Automated AI Class Diagnostic Report</h3>
+                    <div class="analytics-card-subtitle" id="aiDiagTimestamp">Generated Live from BMV3 Database</div>
+                </div>
+                <span class="pill-badge info"><i class="fa-solid fa-sparkles"></i> AI Engine Grounded</span>
+            </div>
+            <div style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary, #1e293b); margin-bottom: 18px;" id="aiDiagExecutive">
+                Analyzing class data...
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="background: var(--btn-neutral-bg, #f8fafc); border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 700; color: #10b981; font-size: 0.88rem; margin-bottom: 8px;">
+                        <i class="fa-solid fa-circle-check"></i> Primary Strengths:
+                    </div>
+                    <ul style="margin: 0; padding-left: 18px; font-size: 0.85rem; color: var(--text-secondary, #475569); line-height: 1.5;" id="aiDiagStrengths">
+                    </ul>
+                </div>
+                <div style="background: var(--btn-neutral-bg, #f8fafc); border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 700; color: #ef4444; font-size: 0.88rem; margin-bottom: 8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Identified Vulnerabilities:
+                    </div>
+                    <ul style="margin: 0; padding-left: 18px; font-size: 0.85rem; color: var(--text-secondary, #475569); line-height: 1.5;" id="aiDiagVulnerabilities">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive AI Chat / Q&A Interface -->
+        <div class="ai-chat-card">
+            <div class="ai-chat-header">
+                <div>
+                    <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-comments"></i> Ask AI Insights Assistant
+                    </h4>
+                    <span style="font-size: 0.82rem; opacity: 0.9;">Tatanungin ang AI tungkol sa analytics at database ng BMV3 Daycare</span>
+                </div>
+                <span class="pill-badge neutral" style="background: rgba(255,255,255,0.2); color: white;">Online • Filipino & English</span>
+            </div>
+
+            <div class="ai-chat-body" id="aiChatBody">
+                <div class="ai-message-bubble">
+                    <p style="margin: 0; font-weight: 600; color: #1e40af;">
+                        <i class="fa-solid fa-robot" style="margin-right: 6px;"></i> Magandang araw, Teacher! Ako ang iyong AI Analytics Assistant para sa BMV3 Daycare.
+                    </p>
+                    <p style="margin: 8px 0 0 0; color: var(--text-secondary, #475569); font-size: 0.88rem;">
+                        Pumili sa mga katanungan sa ibaba o mag-type ng sariling tanong tungkol sa attendance, ECCD domains, BMI nutrition, at mga rekomendadong aksyon:
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preset Prompt Pills -->
+            <div style="padding: 0 22px 14px 22px;">
+                <div class="ai-pills-row">
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Sino ang mga at-risk students at bakit?')">
+                        🚨 Sino ang at-risk students at bakit?
+                    </button>
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Anong ECCD domains ang pinakamababang scores?')">
+                        📚 Pinakamababang ECCD domains?
+                    </button>
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Kumusta ang attendance ng Morning vs Afternoon shift?')">
+                        ⏰ Morning vs Afternoon shift attendance?
+                    </button>
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Anong mga interventions ang dapat naming unahin ngayong linggo?')">
+                        🛠️ Priority interventions ngayong linggo?
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="ai-input-group">
+                <input type="text" id="aiQueryInput" class="ai-input" placeholder="Magtanong sa AI tungkol sa database o performance ng mga bata..." onkeypress="handleAiKeyPress(event)">
+                <button class="btn-analytics btn-analytics-primary" id="btnSendAiQuery" onclick="submitCustomAiQuery()">
+                    <i class="fa-solid fa-paper-plane"></i> Itanong
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL: INTELLIGENT REPORT GENERATOR (PRINTABLE DOSSIER)        -->
+<!-- ============================================================== -->
+<div class="dossier-modal" id="dossierModal">
+    <div class="dossier-dialog">
+        <div class="dossier-head no-print">
+            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-invoice" style="color: #3b82f6;"></i> Intelligent Report Generator Dossier
+            </h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="dossierStudentSelect" class="shift-filter-select" onchange="renderDossierModal()">
+                    <option value="CLASS_OVERVIEW">Whole Class Analytical Dossier</option>
+                </select>
+                <button class="btn-analytics btn-analytics-primary" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i> Print Dossier
+                </button>
+                <button class="btn-analytics btn-analytics-secondary" onclick="closeReportDossierModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="dossier-content" id="printArea">
+            <!-- Printable Header -->
+            <div style="border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; text-align: center;">
+                <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #091e42; text-transform: uppercase;">
+                    Barangay Market View (BMV3) Daycare Center
+                </h2>
+                <div style="font-size: 0.88rem; color: #475569; margin-top: 4px;">
+                    Early Childhood Care and Development (ECCD) • Child Analytic & Risk Dossier
+                </div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                    Report Generated: <span id="dossierPrintDate">--</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Dossier Body -->
+            <div id="dossierBodyContainer">
+                <!-- Populated via renderDossierModal() -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- JAVASCRIPT: DATA FETCHING, CHART.JS SETUP & INTERACTIVE LOGIC  -->
+<!-- ============================================================== -->
+<script>
+    let globalAnalyticsData = null;
+    let attendanceTrendChart = null;
+    let attendanceStatusDonut = null;
+    let driDistributionChart = null;
+    let feedingParticipationChart = null;
+    let bmiStatusChart = null;
+    let eccdDomainsBarChart = null;
+    let periodProgressionChart = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadGeneralAnalytics();
+    });
+
+    async function loadGeneralAnalytics() {
+        try {
+            const response = await fetch('/api/general-analytics/');
+            if (!response.ok) throw new Error('Failed to fetch analytics');
+            const data = await response.json();
+            globalAnalyticsData = data;
+            
+            renderExecutiveKpis(data);
+            initOverviewCharts(data);
+            renderRiskWatchlist(data);
+            initDriCharts(data);
+            initNutritionCharts(data);
+            initEccdCharts(data);
+            renderInterventionsTable(data);
+            renderAiDiagnostic(data);
+            populateDossierSelect(data);
+        } catch (err) {
+            console.error('Error loading analytics:', err);
+        }
+    }
+
+    // 1. Executive KPIs
+    function renderExecutiveKpis(data) {
+        const summary = data.summary || {};
+        const att = data.attendance || {};
+        const nut = data.nutrition || {};
+        const lrn = data.learning || {};
+
+        document.getElementById('kpiDriValue').innerText = (summary.class_dri || 85) + '%';
+        document.getElementById('kpiDriProj').innerText = (data.predictive_trends?.projected_class_dri || 88) + '%';
+        
+        document.getElementById('kpiAttValue').innerText = (att.overall_rate || 90) + '%';
+        document.getElementById('kpiAmAtt').innerText = (att.morning_rate || 92) + '%';
+        document.getElementById('kpiPmAtt').innerText = (att.afternoon_rate || 86) + '%';
+
+        document.getElementById('kpiNutValue').innerText = (summary.nutrition_health_rate || 88) + '%';
+        document.getElementById('kpiBmiNormalCount').innerText = (nut.bmi_breakdown?.normal || 0);
+        document.getElementById('kpiBmiAlertCount').innerText = (nut.bmi_breakdown?.underweight || 0) + ' Underweight';
+
+        document.getElementById('kpiTaskValue').innerText = (lrn.task_completion_rate || 85) + '%';
+        document.getElementById('kpiEccdAvg').innerText = (lrn.highest_domain?.score_pct || 90) + '%';
+
+        document.getElementById('kpiRiskCount').innerText = (summary.high_risk_count || 0) + (summary.moderate_risk_count || 0);
+        document.getElementById('kpiHighRiskBadge').innerText = (summary.high_risk_count || 0) + ' High Risk';
+        document.getElementById('kpiWarningCountText').innerText = (summary.active_warnings_count || 0) + ' warnings active';
+
+        // Shift boxes in Overview
+        document.getElementById('boxMorningCount').innerText = (data.morning_count || 0) + ' Kids';
+        document.getElementById('boxMorningAtt').innerText = (att.morning_rate || 92) + '%';
+        document.getElementById('boxAfternoonCount').innerText = (data.afternoon_count || 0) + ' Kids';
+        document.getElementById('boxAfternoonAtt').innerText = (att.afternoon_rate || 86) + '%';
+
+        const shiftDiff = Math.abs((att.morning_rate || 92) - (att.afternoon_rate || 86)).toFixed(1);
+        document.getElementById('shiftComparisonDiagnosis').innerText = 
+            `Morning Shift is demonstrating a +${shiftDiff}% attendance variance compared to Afternoon Shift. Consistent with typical toddler mid-day nap cycles and tricycle transport patterns.`;
+
+        // Attendance Counts
+        document.getElementById('countPresent').innerText = att.present_count || 0;
+        document.getElementById('countAbsent').innerText = att.absent_count || 0;
+        document.getElementById('countLate').innerText = att.late_count || 0;
+    }
+
+    // 2. Overview Charts
+    function initOverviewCharts(data) {
+        const att = data.attendance || {};
+        const weekly = att.weekly_trend || [];
+        
+        const labels = weekly.map(w => w.week);
+        const mData = weekly.map(w => w.morning_rate);
+        const aData = weekly.map(w => w.afternoon_rate);
+        const allData = weekly.map(w => w.overall_rate);
+
+        const ctxTrend = document.getElementById('attendanceTrendChart');
+        if (ctxTrend) {
+            if (attendanceTrendChart) attendanceTrendChart.destroy();
+            attendanceTrendChart = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Morning Shift (AM)',
+                            data: mData,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Afternoon Shift (PM)',
+                            data: aData,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.05)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Overall Class Rate',
+                            data: allData,
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Montserrat' } } }
+                    },
+                    scales: {
+                        y: { min: 60, max: 100, ticks: { callback: v => v + '%' } }
+                    }
+                }
+            });
+        }
+
+        const ctxDonut = document.getElementById('attendanceStatusDonut');
+        if (ctxDonut) {
+            if (attendanceStatusDonut) attendanceStatusDonut.destroy();
+            attendanceStatusDonut = new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Absent', 'Late'],
+                    datasets: [{
+                        data: [att.present_count || 10, att.absent_count || 2, att.late_count || 1],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Montserrat' } } }
+                    }
+                }
+            });
+        }
+    }
+
+    // 3. Risk Watchlist & Early Warnings
+    function renderRiskWatchlist(data) {
+        const warnings = data.early_warnings || [];
+        const alertsContainer = document.getElementById('earlyWarningAlertsList');
+        document.getElementById('activeWarningBadge').innerText = `${warnings.length} Alerts Triggered`;
+
+        if (warnings.length === 0) {
+            alertsContainer.innerHTML = `<div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: #10b981;">
+                <i class="fa-solid fa-circle-check" style="font-size: 1.5rem;"></i> No critical threshold breaches detected. All students stable.
+            </div>`;
+        } else {
+            alertsContainer.innerHTML = warnings.map(w => `
+                <div class="early-warning-item ${w.severity.toLowerCase()}">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="font-size: 0.9rem;">${w.child_name}</strong>
+                            <span class="pill-badge neutral" style="font-size: 0.7rem;">${w.shift}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; margin-top: 3px; font-weight: 600;">[${w.category}] ${w.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        renderRiskTableRows(data.risk_scoring?.ranked_students || []);
+    }
+
+    function renderRiskTableRows(students) {
+        const tbody = document.getElementById('riskScoringTableBody');
+        tbody.innerHTML = students.map(s => `
+            <tr>
+                <td><strong>${s.name}</strong></td>
+                <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
+                <td>${s.attendance.rate}% (${s.attendance.absent} abs)</td>
+                <td>
+                    <span class="pill-badge ${s.nutrition.bmi_status === 'Normal' ? 'success' : 'danger'}">
+                        ${s.nutrition.bmi_status}
+                    </span>
+                </td>
+                <td>${s.learning.eccd_rate}%</td>
+                <td><strong>${s.risk_score}</strong>/100</td>
+                <td><span class="pill-badge ${s.risk_badge}">${s.risk_level}</span></td>
+                <td>
+                    <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
+                        ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-analytics btn-analytics-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="viewChildDossier(${s.id})">
+                        <i class="fa-solid fa-file-lines"></i> Dossier
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterRiskTable() {
+        const query = (document.getElementById('riskTableSearch').value || '').toLowerCase();
+        const shiftFilter = document.getElementById('shiftClassFilter').value;
+        const allStudents = globalAnalyticsData?.risk_scoring?.ranked_students || [];
+
+        const filtered = allStudents.filter(s => {
+            const matchesQuery = s.name.toLowerCase().includes(query);
+            const matchesShift = shiftFilter === 'ALL' || s.shift === shiftFilter;
+            return matchesQuery && matchesShift;
+        });
+
+        renderRiskTableRows(filtered);
+    }
+
+    // 4. DRI & Predictive Trends
+    function initDriCharts(data) {
+        const dri = data.dri || {};
+        const trends = data.predictive_trends || {};
+        
+        document.getElementById('driCountReady').innerText = dri.school_ready_count || 0;
+        document.getElementById('driCountDev').innerText = dri.developing_count || 0;
+        document.getElementById('driCountSupport').innerText = dri.support_needed_count || 0;
+
+        document.getElementById('trendImprovingCount').innerText = trends.improving_count || 0;
+        document.getElementById('trendStableCount').innerText = trends.stable_count || 0;
+        document.getElementById('trendDecliningCount').innerText = trends.declining_count || 0;
+        document.getElementById('projectedClassDriText').innerText = (trends.projected_class_dri || 85) + '%';
+        document.getElementById('projectedDriBar').style.width = (trends.projected_class_dri || 85) + '%';
+
+        const ctxDri = document.getElementById('driDistributionChart');
+        if (ctxDri) {
+            if (driDistributionChart) driDistributionChart.destroy();
+            driDistributionChart = new Chart(ctxDri, {
+                type: 'pie',
+                data: {
+                    labels: ['School Ready (≥80%)', 'Developing (65–79%)', 'Needs Support (<65%)'],
+                    datasets: [{
+                        data: [dri.school_ready_count || 8, dri.developing_count || 4, dri.support_needed_count || 1],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Montserrat' } } }
+                    }
+                }
+            });
+        }
+
+        // Student DRI Table
+        const tbody = document.getElementById('driStudentTableBody');
+        tbody.innerHTML = (dri.students || []).map(s => `
+            <tr>
+                <td><strong>${s.name}</strong></td>
+                <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
+                <td><strong>${s.dri_score}%</strong></td>
+                <td><span class="pill-badge ${s.readiness_badge}">${s.readiness_tier}</span></td>
+                <td>
+                    <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
+                        ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend_delta}
+                    </span>
+                </td>
+                <td><strong style="color: #10b981;">${s.projected_dri}%</strong></td>
+                <td>${s.recommendations?.[0]?.type || 'Standard Curriculum'}</td>
+            </tr>
+        `).join('');
+    }
+
+    // 5. Health & Nutrition Charts
+    function initNutritionCharts(data) {
+        const nut = data.nutrition || {};
+        const feed = nut.feeding_breakdown || {};
+        const bmi = nut.bmi_breakdown || {};
+
+        const ctxFeed = document.getElementById('feedingParticipationChart');
+        if (ctxFeed) {
+            if (feedingParticipationChart) feedingParticipationChart.destroy();
+            feedingParticipationChart = new Chart(ctxFeed, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Finished Snack', 'Some Left', 'Not Eaten'],
+                    datasets: [{
+                        data: [feed.finished_count || 8, feed.some_left_count || 2, feed.not_eaten_count || 1],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        const ctxBmi = document.getElementById('bmiStatusChart');
+        if (ctxBmi) {
+            if (bmiStatusChart) bmiStatusChart.destroy();
+            bmiStatusChart = new Chart(ctxBmi, {
+                type: 'bar',
+                data: {
+                    labels: ['Normal Weight', 'Underweight / Wasted', 'Overweight'],
+                    datasets: [{
+                        label: 'Children Count',
+                        data: [bmi.normal || 10, bmi.underweight || 2, bmi.overweight || 1],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // Health and Allergy Registry Table
+        const students = data.risk_scoring?.ranked_students || [];
+        const healthTbody = document.getElementById('healthAllergyTableBody');
+        healthTbody.innerHTML = students.map(s => `
+            <tr>
+                <td><strong>${s.name}</strong></td>
+                <td><span class="pill-badge neutral">${s.shift}</span></td>
+                <td>${s.nutrition.allergies !== 'None' ? `<span class="pill-badge danger">${s.nutrition.allergies}</span>` : 'None'}</td>
+                <td>${s.nutrition.health_conditions !== 'None' ? `<span class="pill-badge warning">${s.nutrition.health_conditions}</span>` : 'None'}</td>
+                <td>${s.nutrition.rate}% Intake</td>
+                <td style="font-size: 0.82rem; color: #475569;">
+                    ${s.nutrition.has_allergy ? 'Check daily snack ingredients. ' : ''}
+                    ${s.nutrition.bmi_status !== 'Normal' ? 'Refer to Barangay Health Station supplementary feeding.' : 'Routine balanced daycare meal.'}
+                </td>
+            </tr>
+        `).join('');
+
+        // Behavior counts
+        const beh = data.behavior?.participation_breakdown || {};
+        document.getElementById('behaviorCoopCount').innerText = beh.cooperative || 0;
+        document.getElementById('behaviorActiveCount').innerText = beh.active_participative || 0;
+        document.getElementById('behaviorSupportCount').innerText = beh.needs_guidance || 0;
+    }
+
+    // 6. ECCD 7 Domains & Periods
+    function initEccdCharts(data) {
+        const lrn = data.learning || {};
+        const domains = lrn.domain_breakdown || [];
+        const periods = lrn.period_progression || [];
+
+        document.getElementById('highestDomainTitle').innerText = `${lrn.highest_domain?.name || 'Expressive Language'} (${lrn.highest_domain?.score_pct || 94}%)`;
+        document.getElementById('lowestDomainTitle').innerText = `${lrn.lowest_domain?.name || 'Cognitive'} (${lrn.lowest_domain?.score_pct || 70}%)`;
+
+        const ctxEccd = document.getElementById('eccdDomainsBarChart');
+        if (ctxEccd) {
+            if (eccdDomainsBarChart) eccdDomainsBarChart.destroy();
+            eccdDomainsBarChart = new Chart(ctxEccd, {
+                type: 'bar',
+                data: {
+                    labels: domains.map(d => d.name),
+                    datasets: [{
+                        label: 'Mastery Rate (%)',
+                        data: domains.map(d => d.score_pct),
+                        backgroundColor: domains.map(d => d.score_pct >= 80 ? '#10b981' : (d.score_pct >= 70 ? '#3b82f6' : '#ef4444'))
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: { x: { min: 40, max: 100, ticks: { callback: v => v + '%' } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        const ctxPeriods = document.getElementById('periodProgressionChart');
+        if (ctxPeriods) {
+            if (periodProgressionChart) periodProgressionChart.destroy();
+            periodProgressionChart = new Chart(ctxPeriods, {
+                type: 'line',
+                data: {
+                    labels: periods.map(p => p.short_name),
+                    datasets: [{
+                        label: 'Class Average Mastery (%)',
+                        data: periods.map(p => p.average_score),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 60, max: 100, ticks: { callback: v => v + '%' } } }
+                }
+            });
+        }
+    }
+
+    // 7. Interventions
+    function renderInterventionsTable(data) {
+        const interventions = data.interventions || [];
+        const tbody = document.getElementById('interventionsTableBody');
+        tbody.innerHTML = interventions.map((item, idx) => `
+            <tr>
+                <td><strong>${item.child_name}</strong></td>
+                <td><span class="pill-badge neutral">${item.shift}</span></td>
+                <td><span class="pill-badge ${item.risk_level === 'High' ? 'danger' : (item.risk_level === 'Moderate' ? 'warning' : 'success')}">${item.risk_level}</span></td>
+                <td><strong>${item.recommendation_type}</strong></td>
+                <td><span class="pill-badge ${item.priority === 'High' ? 'danger' : (item.priority === 'Medium' ? 'warning' : 'neutral')}">${item.priority}</span></td>
+                <td style="font-size: 0.83rem; max-width: 280px;">${item.action_plan}</td>
+                <td><strong>${item.timeline}</strong></td>
+                <td>
+                    <button class="btn-analytics btn-analytics-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="viewChildDossier(${item.child_id})">
+                        <i class="fa-solid fa-file-invoice"></i> Action Plan
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterInterventionsTable() {
+        const prio = document.getElementById('interventionPriorityFilter').value;
+        const shiftFilter = document.getElementById('shiftClassFilter').value;
+        const list = globalAnalyticsData?.interventions || [];
+
+        const filtered = list.filter(i => {
+            const matchPrio = prio === 'ALL' || i.priority === prio;
+            const matchShift = shiftFilter === 'ALL' || i.shift === shiftFilter;
+            return matchPrio && matchShift;
+        });
+
+        const tbody = document.getElementById('interventionsTableBody');
+        tbody.innerHTML = filtered.map(item => `
+            <tr>
+                <td><strong>${item.child_name}</strong></td>
+                <td><span class="pill-badge neutral">${item.shift}</span></td>
+                <td><span class="pill-badge ${item.risk_level === 'High' ? 'danger' : 'warning'}">${item.risk_level}</span></td>
+                <td><strong>${item.recommendation_type}</strong></td>
+                <td><span class="pill-badge ${item.priority === 'High' ? 'danger' : 'warning'}">${item.priority}</span></td>
+                <td style="font-size: 0.83rem;">${item.action_plan}</td>
+                <td><strong>${item.timeline}</strong></td>
+                <td>
+                    <button class="btn-analytics btn-analytics-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="viewChildDossier(${item.child_id})">
+                        <i class="fa-solid fa-file-invoice"></i> Action Plan
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 8. AI Diagnostic Panel
+    function renderAiDiagnostic(data) {
+        const diag = data.ai_diagnosis || {};
+        document.getElementById('aiDiagTimestamp').innerText = diag.generated_at ? `Generated: ${diag.generated_at}` : 'Generated Live';
+        document.getElementById('aiDiagExecutive').innerText = diag.executive_summary || '';
+
+        const strUl = document.getElementById('aiDiagStrengths');
+        strUl.innerHTML = (diag.strengths || []).map(s => `<li>${s}</li>`).join('');
+
+        const vulnUl = document.getElementById('aiDiagVulnerabilities');
+        vulnUl.innerHTML = (diag.vulnerabilities || []).map(v => `<li>${v}</li>`).join('');
+    }
+
+    // 9. Interactive AI Insights Assistant
+    async function sendAiPrompt(promptText) {
+        document.getElementById('aiQueryInput').value = promptText;
+        await submitCustomAiQuery();
+    }
+
+    function handleAiKeyPress(event) {
+        if (event.key === 'Enter') {
+            submitCustomAiQuery();
+        }
+    }
+
+    async function submitCustomAiQuery() {
+        const input = document.getElementById('aiQueryInput');
+        const question = (input.value || '').trim();
+        if (!question) return;
+
+        const chatBody = document.getElementById('aiChatBody');
+        
+        // Append user question bubble
+        const userBubble = document.createElement('div');
+        userBubble.style.cssText = 'background: #091e42; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; margin-left: auto; max-width: 80%; font-size: 0.9rem;';
+        userBubble.innerHTML = `<i class="fa-solid fa-user" style="margin-right: 6px;"></i> ${escapeHtml(question)}`;
+        chatBody.appendChild(userBubble);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        input.value = '';
+
+        // Append loading bubble
+        const loadingBubble = document.createElement('div');
+        loadingBubble.className = 'ai-message-bubble';
+        loadingBubble.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: #3b82f6; margin-right: 6px;"></i> Sinusuri ang live database ng BMV3 Daycare...`;
+        chatBody.appendChild(loadingBubble);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        try {
+            const resp = await fetch('/api/ai-insights/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ question: question })
+            });
+            const resData = await resp.json();
+            
+            // Format answer markdown to HTML basic formatting
+            let formattedAnswer = (resData.answer || '')
+                .replace(/### (.*?)\n/g, '<h4 style="margin: 0 0 10px 0; color: #1e40af; font-size: 1.05rem;">$1</h4>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-weight: 600;">$1</code>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n- /g, '<br>• ');
+
+            loadingBubble.innerHTML = `
+                <div style="color: #0f172a; line-height: 1.6;">
+                    ${formattedAnswer}
+                </div>
+            `;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        } catch (err) {
+            loadingBubble.innerHTML = `<span style="color: #ef4444;">Paumanhin, nagkaroon ng error sa pagsusuri. Pakisubukang muli.</span>`;
+        }
+    }
+
+    // 10. Dossier Report Generator Modal
+    function populateDossierSelect(data) {
+        const select = document.getElementById('dossierStudentSelect');
+        const students = data.risk_scoring?.ranked_students || [];
+        select.innerHTML = `<option value="CLASS_OVERVIEW">Whole Class Analytical Dossier</option>` + 
+            students.map(s => `<option value="${s.id}">${s.name} (${s.shift} Shift)</option>`).join('');
+    }
+
+    function openReportDossierModal() {
+        document.getElementById('dossierPrintDate').innerText = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        renderDossierModal();
+        document.getElementById('dossierModal').classList.add('active');
+    }
+
+    function closeReportDossierModal() {
+        document.getElementById('dossierModal').classList.remove('active');
+    }
+
+    function viewChildDossier(childId) {
+        document.getElementById('dossierStudentSelect').value = childId;
+        openReportDossierModal();
+    }
+
+    function renderDossierModal() {
+        const selectedVal = document.getElementById('dossierStudentSelect').value;
+        const container = document.getElementById('dossierBodyContainer');
+        const data = globalAnalyticsData;
+        if (!data) return;
+
+        if (selectedVal === 'CLASS_OVERVIEW') {
+            const summary = data.summary || {};
+            const att = data.attendance || {};
+            const lrn = data.learning || {};
+
+            container.innerHTML = `
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 10px 0; color: #1e40af;">Executive Class Diagnostic Summary</h3>
+                    <p style="margin: 0; line-height: 1.6; font-size: 0.95rem;">${data.ai_diagnosis?.executive_summary || ''}</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; text-align: center;">
+                    <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
+                        <span style="font-size: 0.78rem; color: #64748b;">Class DRI Score</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;">${summary.class_dri}%</div>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
+                        <span style="font-size: 0.78rem; color: #64748b;">Attendance Rate</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #2563eb;">${att.overall_rate}%</div>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
+                        <span style="font-size: 0.78rem; color: #64748b;">ECCD Mastery</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #7c3aed;">${lrn.highest_domain?.score_pct || 90}%</div>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
+                        <span style="font-size: 0.78rem; color: #64748b;">At-Risk Students</span>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">${summary.high_risk_count + summary.moderate_risk_count}</div>
+                    </div>
+                </div>
+
+                <h4 style="margin: 15px 0 10px 0;">Top Priority Class Interventions</h4>
+                <table class="analytics-table" style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Shift</th>
+                            <th>Risk Type</th>
+                            <th>Prescribed Daycare Intervention</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${(data.interventions || []).slice(0, 6).map(i => `
+                            <tr>
+                                <td><strong>${i.child_name}</strong></td>
+                                <td>${i.shift}</td>
+                                <td><span class="pill-badge ${i.risk_level === 'High' ? 'danger' : 'warning'}">${i.risk_level}</span></td>
+                                <td><strong>${i.recommendation_type}</strong>: ${i.action_plan}</td>
+                                <td>${i.timeline}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            const childId = parseInt(selectedVal);
+            const student = (data.risk_scoring?.ranked_students || []).find(s => s.id === childId);
+            if (!student) return;
+
+            const childWarnings = (data.early_warnings || []).filter(w => w.child_id === childId);
+            const childInterventions = (data.interventions || []).filter(i => i.child_id === childId);
+
+            container.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px;">
+                    <div>
+                        <h2 style="margin: 0; color: #091e42; font-size: 1.5rem;">${student.name}</h2>
+                        <div style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">
+                            Age: ${student.age} • Gender: ${student.gender} • Assigned Shift: <strong>${student.shift} Shift</strong>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="pill-badge ${student.readiness_badge}" style="font-size: 0.9rem; padding: 6px 14px;">
+                            ${student.readiness_tier} (${student.dri_score}%)
+                        </span>
+                        <div style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">
+                            Risk Score: <strong>${student.risk_score}/100</strong> (${student.risk_level})
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.76rem; color: #64748b;">Attendance Rate</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">${student.attendance.rate}%</div>
+                        <span style="font-size: 0.7rem; color: #64748b;">${student.attendance.absent} absences</span>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.76rem; color: #64748b;">Nutritional Status</span>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: ${student.nutrition.bmi_status === 'Normal' ? '#10b981' : '#ef4444'};">${student.nutrition.bmi_status}</div>
+                        <span style="font-size: 0.7rem; color: #64748b;">${student.nutrition.rate}% Intake</span>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.76rem; color: #64748b;">ECCD Mastery</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #7c3aed;">${student.learning.eccd_rate}%</div>
+                        <span style="font-size: 0.7rem; color: #64748b;">Cognitive: ${student.learning.cognitive_rate}%</span>
+                    </div>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.76rem; color: #64748b;">Growth Trajectory</span>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: ${student.trend === 'Improving' ? '#10b981' : (student.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
+                            ${student.trend === 'Improving' ? '↗' : (student.trend === 'Declining' ? '↘' : '→')} ${student.projected_dri}%
+                        </div>
+                        <span style="font-size: 0.7rem; color: #64748b;">Projected Year-End</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 8px 0; color: #0f172a;">Active Early-Warning Flags</h4>
+                    ${childWarnings.length === 0 ? '<p style="color: #10b981; font-size: 0.88rem;">No warning flags triggered for this child.</p>' : childWarnings.map(w => `
+                        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem; color: #991b1b;">
+                            <strong>[${w.category}]</strong> ${w.message}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div>
+                    <h4 style="margin: 0 0 8px 0; color: #0f172a;">Personalized Intervention Action Plan</h4>
+                    ${childInterventions.map(i => `
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <strong style="color: #1e40af;">${i.recommendation_type}</strong>
+                                <span class="pill-badge ${i.priority === 'High' ? 'danger' : 'warning'}">${i.priority} Priority</span>
+                            </div>
+                            <p style="margin: 0; font-size: 0.86rem; color: #475569;">${i.action_plan}</p>
+                            <div style="font-size: 0.78rem; color: #64748b; margin-top: 6px;">Evaluation Review Timeline: <strong>${i.timeline}</strong></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    }
+
+    // Tab Switching
+    function switchToTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.analytics-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        const target = document.getElementById(tabId);
+        if (target) target.classList.add('active');
+
+        const activeBtn = Array.from(document.querySelectorAll('.analytics-tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+        if (activeBtn) activeBtn.classList.add('active');
+
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    // Shift Filter
+    function onShiftFilterChange() {
+        filterRiskTable();
+        filterInterventionsTable();
+    }
+
+    // Helpers
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

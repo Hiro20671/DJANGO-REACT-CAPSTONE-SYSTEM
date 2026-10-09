@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Child, UserProfile, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, EngagementRecord, PasswordResetOTP, NoClassDay, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore, BMIRecord, CenterSettings, PublicReminder, TextblastLog
-from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneRecordSerializer, NutritionRecordSerializer, SchoolYearSerializer, EngagementRecordSerializer, NoClassDaySerializer, ECCDDomainSerializer, ECCDMilestoneSerializer, ECCDAssessmentSerializer, ECCDMilestoneScoreSerializer, BMIRecordSerializer, CenterSettingsSerializer, PublicReminderSerializer, TextblastLogSerializer
+from .models import Child, UserProfile, AttendanceRecord, MilestoneRecord, NutritionRecord, SchoolYear, EngagementRecord, PasswordResetOTP, NoClassDay, ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore, BMIRecord, CenterSettings, PublicReminder, TextblastLog, ECCDBookletRecord
+from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneRecordSerializer, NutritionRecordSerializer, SchoolYearSerializer, EngagementRecordSerializer, NoClassDaySerializer, ECCDDomainSerializer, ECCDMilestoneSerializer, ECCDAssessmentSerializer, ECCDMilestoneScoreSerializer, BMIRecordSerializer, CenterSettingsSerializer, PublicReminderSerializer, TextblastLogSerializer, ECCDBookletRecordSerializer
 
 
 from django.core.mail import send_mail
@@ -68,18 +68,40 @@ class TeacherDashboardStatsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        qs = Child.objects.all()
+        active_year = SchoolYear.objects.filter(is_active=True).first()
         school_year_id = request.query_params.get('school_year')
-        if school_year_id:
-            qs = qs.filter(school_year_id=school_year_id)
+        
+        target_year = None
+        if school_year_id and str(school_year_id).strip() != '' and str(school_year_id).upper() != 'ALL':
+            target_year = SchoolYear.objects.filter(id=school_year_id).first()
+        elif (school_year_id is None or str(school_year_id).strip() == '') and active_year:
+            target_year = active_year
+
+        qs = Child.objects.all()
+        if target_year:
+            qs = qs.filter(school_year=target_year)
+        elif school_year_id and str(school_year_id).upper() == 'ALL':
+            pass
+        elif active_year:
+            qs = qs.filter(school_year=active_year)
+
+        shift = request.query_params.get('shift')
+        if shift:
+            qs = qs.filter(shift__iexact=shift)
             
-        total_children = qs.count()
+        total_children = qs.filter(enrollment_status='Enrolled').count()
+        pending = qs.filter(enrollment_status='Pending').count()
         present = qs.filter(attendance_status='Present').count()
         absent = qs.filter(attendance_status='Absent').count()
         late = qs.filter(attendance_status='Late').count()
+        morning_count = qs.filter(enrollment_status='Enrolled', shift='Morning').count()
+        afternoon_count = qs.filter(enrollment_status='Enrolled', shift='Afternoon').count()
         
         data = {
             'total_children': total_children,
+            'pending_count': pending,
+            'morning_count': morning_count,
+            'afternoon_count': afternoon_count,
             'attendance': {
                 'present': present,
                 'absent': absent,
@@ -95,10 +117,27 @@ class ParentDashboardStatsAPIView(APIView):
         # Parents only see their children's stats
         try:
             profile = request.user.userprofile
-            qs = Child.objects.filter(parents=profile)
+            from django.db.models import Q
+            parent_email = (request.user.email or '').strip()
+            parent_q = Q(parents=profile)
+            if parent_email:
+                parent_q |= Q(mother_email__iexact=parent_email) | Q(father_email__iexact=parent_email) | Q(other_guardian_email__iexact=parent_email) | Q(email__iexact=parent_email)
+            qs = Child.objects.filter(parent_q).distinct()
+            for c in qs:
+                if profile not in c.parents.all():
+                    c.parents.add(profile)
+
+            child_id = request.query_params.get('child') or request.query_params.get('child_id')
+            if child_id:
+                qs = qs.filter(id=child_id)
+
             school_year_id = request.query_params.get('school_year')
             if school_year_id:
                 qs = qs.filter(school_year_id=school_year_id)
+            else:
+                active_year = SchoolYear.objects.filter(is_active=True).first()
+                if active_year:
+                    qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
                 
             total = qs.count()
             data = {
@@ -136,38 +175,88 @@ class ChildViewSet(viewsets.ModelViewSet):
         if not profile:
             return Child.objects.none()
         
-        qs = Child.objects.all().order_by('-date_added') if profile.is_teacher else Child.objects.filter(parents=profile).order_by('-date_added')
-        
+        shift_param = self.request.query_params.get('shift')
         school_year_id = self.request.query_params.get('school_year')
-        if school_year_id:
-            qs = qs.filter(school_year_id=school_year_id)
-        else:
-            active_year = SchoolYear.objects.filter(is_active=True).first()
-            if active_year:
-                from django.db.models import Q
-                if profile.is_teacher:
+
+        if profile.is_teacher:
+            qs = Child.objects.all().order_by('-date_added')
+            if shift_param and shift_param.strip() and shift_param.upper() != 'ALL':
+                qs = qs.filter(shift__iexact=shift_param.strip())
+
+            if school_year_id and str(school_year_id).strip() != '' and str(school_year_id).upper() != 'ALL':
+                qs = qs.filter(school_year_id=school_year_id)
+            elif school_year_id and str(school_year_id).upper() == 'ALL':
+                pass
+            else:
+                active_year = SchoolYear.objects.filter(is_active=True).first()
+                if active_year:
+                    from django.db.models import Q
                     qs = qs.filter(Q(school_year=active_year) | Q(enrollment_status='Pending'))
-                else:
-                    qs = qs.filter(school_year=active_year)
+            return qs
+        else:
+            from django.db.models import Q
+            parent_email = (self.request.user.email or '').strip()
+            parent_q = Q(parents=profile)
+            if parent_email:
+                parent_q |= Q(mother_email__iexact=parent_email) | Q(father_email__iexact=parent_email) | Q(other_guardian_email__iexact=parent_email) | Q(email__iexact=parent_email)
+            qs = Child.objects.filter(parent_q).distinct().order_by('-date_added')
             
-        return qs
+            for c in qs:
+                if profile not in c.parents.all():
+                    c.parents.add(profile)
+
+            if school_year_id and str(school_year_id).strip() != '' and str(school_year_id).upper() != 'ALL':
+                qs = qs.filter(school_year_id=school_year_id)
+            else:
+                active_year = SchoolYear.objects.filter(is_active=True).first()
+                if active_year:
+                    qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
+            return qs
 
 class AttendanceRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AttendanceRecordSerializer
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        child_id = request.data.get('child')
+        date = request.data.get('date')
+        session = request.data.get('session') or 'Morning'
+        status_val = request.data.get('status')
+        absence_reason = request.data.get('absence_reason', '')
         active_year = SchoolYear.objects.filter(is_active=True).first()
-        serializer.save(school_year=active_year)
+
+        record, created = AttendanceRecord.objects.update_or_create(
+            child_id=child_id,
+            date=date,
+            session=session,
+            defaults={
+                'status': status_val,
+                'absence_reason': absence_reason,
+                'school_year': active_year
+            }
+        )
+        serializer = self.get_serializer(record)
+        from rest_framework import status as http_status
+        return Response(serializer.data, status=http_status.HTTP_201_CREATED if created else http_status.HTTP_200_OK)
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
         if not profile:
             return AttendanceRecord.objects.none()
             
-        qs = AttendanceRecord.objects.all() if profile.is_teacher else AttendanceRecord.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = AttendanceRecord.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = AttendanceRecord.objects.filter(child__in=parent_children)
         
         school_year_id = self.request.query_params.get('school_year')
+        session = self.request.query_params.get('session')
+        date = self.request.query_params.get('date')
+
         if school_year_id:
             qs = qs.filter(school_year_id=school_year_id)
         elif profile.is_teacher:
@@ -175,6 +264,11 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
             if active_year:
                 qs = qs.filter(school_year=active_year)
             
+        if session and session != 'All':
+            qs = qs.filter(session__iexact=session)
+        if date:
+            qs = qs.filter(date=date)
+
         return qs
 
 class MilestoneRecordViewSet(viewsets.ModelViewSet):
@@ -186,7 +280,14 @@ class MilestoneRecordViewSet(viewsets.ModelViewSet):
         if not profile:
             return MilestoneRecord.objects.none()
             
-        qs = MilestoneRecord.objects.all() if profile.is_teacher else MilestoneRecord.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = MilestoneRecord.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = MilestoneRecord.objects.filter(child__in=parent_children)
         
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
@@ -211,7 +312,14 @@ class NutritionRecordViewSet(viewsets.ModelViewSet):
         if not profile:
             return NutritionRecord.objects.none()
             
-        qs = NutritionRecord.objects.all() if profile.is_teacher else NutritionRecord.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = NutritionRecord.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = NutritionRecord.objects.filter(child__in=parent_children)
         
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
@@ -270,7 +378,14 @@ class BMIRecordViewSet(viewsets.ModelViewSet):
         if not profile:
             return BMIRecord.objects.none()
             
-        qs = BMIRecord.objects.all() if profile.is_teacher else BMIRecord.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = BMIRecord.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = BMIRecord.objects.filter(child__in=parent_children)
         
         child_id = self.request.query_params.get('child')
         if child_id:
@@ -368,7 +483,14 @@ class EngagementRecordViewSet(viewsets.ModelViewSet):
         if not profile:
             return EngagementRecord.objects.none()
             
-        qs = EngagementRecord.objects.all() if profile.is_teacher else EngagementRecord.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = EngagementRecord.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = EngagementRecord.objects.filter(child__in=parent_children)
         
         school_year_id = self.request.query_params.get('school_year')
         if school_year_id:
@@ -415,7 +537,14 @@ class ECCDAssessmentViewSet(viewsets.ModelViewSet):
             return ECCDAssessment.objects.none()
             
         profile = user.userprofile
-        qs = ECCDAssessment.objects.all() if profile.is_teacher else ECCDAssessment.objects.filter(child__parents=profile)
+        if profile.is_teacher:
+            qs = ECCDAssessment.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
+        else:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = ECCDAssessment.objects.filter(child__in=parent_children)
         
         child_id = self.request.query_params.get('child')
         if child_id:
@@ -722,7 +851,15 @@ class ParentHistoryAPIView(APIView):
         """Return past 30 days of attendance, nutrition, behavior, and milestones for the linked child."""
         try:
             profile = request.user.userprofile
-            children = Child.objects.filter(parents=profile)
+            from django.db.models import Q
+            parent_email = (request.user.email or '').strip()
+            parent_q = Q(parents=profile)
+            if parent_email:
+                parent_q |= Q(mother_email__iexact=parent_email) | Q(father_email__iexact=parent_email) | Q(other_guardian_email__iexact=parent_email) | Q(email__iexact=parent_email)
+            children = Child.objects.filter(parent_q).distinct()
+            for c in children:
+                if profile not in c.parents.all():
+                    c.parents.add(profile)
             
             school_year_id = request.query_params.get('school_year')
             if school_year_id:
@@ -730,15 +867,18 @@ class ParentHistoryAPIView(APIView):
             else:
                 active_year = SchoolYear.objects.filter(is_active=True).first()
                 if active_year:
-                    children = children.filter(school_year=active_year)
+                    children = children.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
                     
             if not children.exists():
                 return Response({'detail': 'No child linked for this academic year.'}, status=404)
         except UserProfile.DoesNotExist:
             return Response({'detail': 'User profile missing.'}, status=400)
 
-        # Get first child for backwards compatibility
-        child = children.first()
+        child_param = request.query_params.get('child') or request.query_params.get('child_id')
+        if child_param:
+            child = children.filter(id=child_param).first() or children.first()
+        else:
+            child = children.first()
 
         from datetime import datetime, timedelta
         today = datetime.today().date()
@@ -1459,6 +1599,83 @@ class ScoringAccessRequestViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
+class ECCDBookletRecordViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ECCDBookletRecordSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return ECCDBookletRecord.objects.none()
+        if user.is_superuser:
+            qs = ECCDBookletRecord.objects.all()
+            child_id = self.request.query_params.get('child')
+            if child_id:
+                qs = qs.filter(child_id=child_id)
+            return qs
+        profile = getattr(user, 'userprofile', None)
+        if not profile:
+            return ECCDBookletRecord.objects.none()
+        qs = ECCDBookletRecord.objects.all()
+        child_id = self.request.query_params.get('child')
+        if child_id:
+            qs = qs.filter(child_id=child_id)
+        if not profile.is_teacher:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = qs.filter(child__in=parent_children)
+        return qs
+
+    @action(detail=False, methods=['get', 'post'], url_path='by-child/(?P<child_id>[^/.]+)')
+    def by_child(self, request, child_id=None):
+        from django.shortcuts import get_object_or_404
+        child = get_object_or_404(Child, pk=child_id)
+        if not request.user.is_authenticated:
+            return Response({'error': 'Unauthorized'}, status=401)
+        if not request.user.is_superuser:
+            profile = getattr(request.user, 'userprofile', None)
+            if not profile:
+                return Response({'error': 'Unauthorized'}, status=403)
+            if not profile.is_teacher and not child.parents.filter(id=profile.id).exists():
+                return Response({'error': 'Not authorized to access this booklet.'}, status=403)
+
+        booklet, created = ECCDBookletRecord.objects.get_or_create(child=child)
+
+        # Prepopulate defaults if sociodemographic is empty
+        if not booklet.sociodemographic:
+            booklet.sociodemographic = {
+                'child_name': f"{child.first_name} {child.middle_initial or ''} {child.last_name}".strip(),
+                'sex': child.gender or '',
+                'dob': str(child.dob) if child.dob else '',
+                'barangay': child.barangay or '',
+                'city': child.city_municipality or 'Lucena City',
+                'province': 'Quezon',
+                'region': 'Region IV-A (CALABARZON)',
+                'handedness': 'Right',
+                'is_studying': 'Yes',
+                'school_name': 'Barangay Market View 3 Child Development Center',
+                'father_name': f"{child.father_first_name or ''} {child.father_last_name or ''}".strip(),
+                'father_age': '',
+                'father_occupation': '',
+                'father_education': '',
+                'mother_name': f"{child.mother_first_name or ''} {child.mother_last_name or ''}".strip(),
+                'mother_age': '',
+                'mother_occupation': '',
+                'mother_education': '',
+                'siblings_count': '',
+                'birth_order': '1st'
+            }
+            booklet.save()
+
+        if request.method == 'POST':
+            data = request.data
+            for field in ['sociodemographic', 'examiner_notes', 'mchat_r', 'intake_form', 'consent_form', 'health_record', 'eye_vision', 'growth_chart_data', 'behavior_records']:
+                if field in data:
+                    setattr(booklet, field, data[field])
+            booklet.save()
+            return Response({'success': True, 'data': ECCDBookletRecordSerializer(booklet).data})
+
+        return Response(ECCDBookletRecordSerializer(booklet).data)
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -1483,7 +1700,16 @@ class StudentActivityCompletionViewSet(viewsets.ModelViewSet):
     queryset = StudentActivityCompletion.objects.all()
 
     def get_queryset(self):
-        qs = StudentActivityCompletion.objects.all()
+        user = self.request.user
+        profile = getattr(user, 'userprofile', None)
+        if profile and not profile.is_teacher:
+            parent_children = Child.objects.filter(parents=profile)
+            qs = StudentActivityCompletion.objects.filter(child__in=parent_children)
+        else:
+            qs = StudentActivityCompletion.objects.all()
+            shift = self.request.query_params.get('shift')
+            if shift and shift != 'All':
+                qs = qs.filter(child__shift__iexact=shift)
         child_id = self.request.query_params.get('child')
         activity_id = self.request.query_params.get('activity')
         date = self.request.query_params.get('date')
@@ -1706,6 +1932,9 @@ class TeacherStudentMapAPIView(APIView):
             active_year = SchoolYear.objects.filter(is_active=True).first()
 
         children = Child.objects.filter(school_year=active_year) if active_year else Child.objects.all()
+        shift = request.query_params.get('shift')
+        if shift:
+            children = children.filter(shift__iexact=shift)
 
         results = []
         for child in children:
@@ -1718,11 +1947,11 @@ class TeacherStudentMapAPIView(APIView):
             email = parent_profile.user.email if parent_profile and parent_profile.user else 'N/A'
             photo = child.img.url if child.img else '/static/core/image/bmv3_logo.png'
 
-
             results.append({
                 'child_id': child.id,
                 'child_name': f"{child.first_name} {child.last_name}".strip(),
                 'child_photo': photo,
+                'shift': child.shift or 'Morning',
                 'parent_name': parent_name if parent_name != "N/A" else (child.mother_first_name if child.mother_first_name != 'No Info' else 'Parent'),
                 'phone': phone,
                 'email': email,
@@ -1901,5 +2130,31 @@ class TextblastHistoryAPIView(APIView):
         logs = TextblastLog.objects.all().order_by('-created_at')
         serializer = TextblastLogSerializer(logs, many=True)
         return Response(serializer.data)
+
+
+class GeneralAnalyticsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from .analytics_engine import get_full_analytics_data
+        school_year_id = request.query_params.get('school_year')
+        data = get_full_analytics_data(school_year_id=school_year_id)
+        return Response(data)
+
+
+class AIInsightsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .analytics_engine import get_full_analytics_data, answer_ai_query
+        question = request.data.get('question', '')
+        school_year_id = request.data.get('school_year') or request.query_params.get('school_year')
+        data = get_full_analytics_data(school_year_id=school_year_id)
+        answer = answer_ai_query(question, data)
+        return Response({
+            'status': 'success',
+            'question': question,
+            'answer': answer
+        })
 
 

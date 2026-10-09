@@ -52,17 +52,14 @@
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+    z-index: 9999;
+    padding: 20px;
 }
 .modal-overlay.active {
-    opacity: 1;
-    pointer-events: all;
+    display: flex !important;
 }
 .modal-container {
     background-color: #fff;
@@ -72,8 +69,6 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transform: translateY(20px);
-    transition: transform 0.3s;
     color: #333;
 }
 .modal-overlay.active .modal-container {
@@ -676,17 +671,27 @@
     </div>
 </div>
 
-<div class="page-header">
-    <h2>Messages & Inbox</h2>
-    <p>Read communication, weekly digests, and chat directly with your child's teacher</p>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+    <div>
+        <h2>Messages & Inbox</h2>
+        <p>Read communication, weekly digests, and chat directly with your child's teacher</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button onclick="switchEngageTab('teacher-chat')" style="background: #043263; color: white; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.88rem; box-shadow: 0 2px 8px rgba(4,50,99,0.2);">
+            <i class="fa-solid fa-comments"></i> Chat with Teacher
+        </button>
+        <button onclick="openAbsenceModal()" style="background: #e74a3b; color: white; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.88rem; box-shadow: 0 2px 8px rgba(231,74,59,0.2);">
+            <i class="fa-solid fa-circle-exclamation"></i> Report Child Absence
+        </button>
+    </div>
 </div>
 
 <!-- KPIs -->
 <div class="kpi-row">
-    <div class="kpi-card" onclick="document.getElementById('chat-input-field').focus();">
+    <div class="kpi-card" onclick="switchEngageTab('teacher-chat'); document.getElementById('chat-input-field').focus();" style="cursor: pointer;">
         <div class="kpi-title">Chat Activity</div>
         <div class="kpi-value" id="unread-val">0</div>
-        <div style="margin-top:auto; font-size:0.85rem; color:#4a90e2; font-weight:600;">Messages in thread</div>
+        <div style="margin-top:auto; font-size:0.85rem; color:#4a90e2; font-weight:600;">Messages in thread &bull; Click to chat</div>
     </div>
     <div class="kpi-card">
         <div class="kpi-title">Total Reports Received</div>
@@ -711,9 +716,14 @@
 <!-- PANEL 1: Classroom Inbox -->
 <div id="panel-inbox" class="toggle-panel active">
     <div class="full-width-section">
-        <div class="section-header" style="border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:15px;">
-            <h3 style="margin:0; font-size:1.2rem; color:#043263;"><i class="fa-solid fa-envelope-open-text"></i> Classroom Inbox</h3>
-            <p style="margin:5px 0 0 0; color:#666; font-size:0.85rem;">Your history of direct correspondence, reports, and system notices</p>
+        <div class="section-header" style="border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+                <h3 style="margin:0; font-size:1.2rem; color:#043263;"><i class="fa-solid fa-envelope-open-text"></i> Classroom Inbox</h3>
+                <p style="margin:5px 0 0 0; color:#666; font-size:0.85rem;">Your history of direct correspondence, reports, and system notices</p>
+            </div>
+            <button onclick="switchEngageTab('teacher-chat')" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:7px 14px; border-radius:18px; font-weight:700; cursor:pointer; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-comments"></i> Open Teacher Chat
+            </button>
         </div>
         <div id="messages-container">
             <!-- Rendered by JS -->
@@ -1006,7 +1016,15 @@
         document.getElementById('reports-received-val').innerText = totalReports;
         
         if (html === '') {
-            html = '<div class="empty-state"><h3>No Messages.</h3><p>Your inbox is currently empty.</p></div>';
+            html = `
+            <div class="empty-state" style="text-align:center; padding:45px 20px;">
+                <i class="fa-regular fa-envelope-open" style="font-size:2.8rem; color:#cbd5e1; margin-bottom:12px;"></i>
+                <h3 style="color:#043263; font-weight:800; margin:0 0 6px 0;">No Reports or Notices Yet</h3>
+                <p style="color:#64748b; font-size:0.9rem; margin:0 0 16px 0;">Official notices and weekly digests from the center will appear here.</p>
+                <button onclick="switchEngageTab('teacher-chat')" style="background:#043263; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9rem; box-shadow:0 3px 8px rgba(4,50,99,0.2);">
+                    <i class="fa-solid fa-comments"></i> Start Direct Chat with Teacher
+                </button>
+            </div>`;
         }
 
         container.innerHTML = html;
@@ -1118,6 +1136,8 @@
         if (btnEl) btnEl.classList.add('active');
         renderMobileAnnouncements(category);
     }
+
+    function renderParentChat() {
         if (!parentChatKey) return;
         
         let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
@@ -1522,6 +1542,36 @@
     document.getElementById('reportModal').addEventListener('click', function(e) {
         if(e.target === this) closeModal();
     });
+
+    document.getElementById('absenceModal').addEventListener('click', function(e) {
+        if(e.target === this) closeAbsenceModal();
+    });
+
+    // Global window function bindings
+    window.switchEngageTab = switchEngageTab;
+    window.openAbsenceModal = openAbsenceModal;
+    window.closeAbsenceModal = closeAbsenceModal;
+    window.submitChildAbsence = submitChildAbsence;
+    window.sendParentChatMessage = sendParentChatMessage;
+    window.handleChatKey = handleChatKey;
+    window.openReportModal = openReportModal;
+    window.closeModal = closeModal;
+    window.selectP2PParent = selectP2PParent;
+    window.sendP2PMessage = sendP2PMessage;
+    window.handleP2PChatKey = handleP2PChatKey;
+    window.filterP2PList = filterP2PList;
+    window.backToP2PSidebar = backToP2PSidebar;
+
+    // Check URL parameters for tab selection
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'teacher-chat' || tabParam === 'chat') {
+        switchEngageTab('teacher-chat');
+    } else if (tabParam === 'parents-chat' || tabParam === 'community') {
+        switchEngageTab('parents-chat');
+    } else if (tabParam === 'inbox' || tabParam === 'announcements') {
+        switchEngageTab('inbox');
+    }
 
     fetchSystemData();
 </script>

@@ -250,7 +250,13 @@ export default function ChildrenList() {
                           <span>{child.initial}</span>
                         )}
                       </div>
-                      <span style={{ fontWeight: 750, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{child.last_name}, {child.first_name}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span style={{ fontWeight: 750, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{child.last_name}, {child.first_name}</span>
+                        <span style={{ alignSelf: 'flex-start', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '10px', background: child.shift === 'Afternoon' ? '#fef3c7' : '#e0f2fe', color: child.shift === 'Afternoon' ? '#b45309' : '#0369a1', fontWeight: 700 }}>
+                          <i className={`fa-solid ${child.shift === 'Afternoon' ? 'fa-cloud-sun' : 'fa-sun'}`} style={{ marginRight: '4px' }}></i>
+                          {child.shift || 'Morning'} Shift
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: '15px', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.9rem' }}>{child.age} years</td>
                     <td style={{ padding: '15px' }}>
@@ -477,6 +483,28 @@ export default function ChildrenList() {
                     <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Full Name:</span> <br/><strong>{selectedChild.name}</strong></div>
                     <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Gender:</span> <br/><strong>{selectedChild.gender}</strong></div>
                     <div><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Date of Birth:</span> <br/><strong>{selectedChild.dob} (Age {selectedChild.age})</strong></div>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Class Shift:</span> <br/>
+                      <select 
+                        value={selectedChild.shift || 'Morning'}
+                        onChange={async (e) => {
+                          const newShift = e.target.value;
+                          try {
+                            await fetch(`/api/children/${selectedChild.id}/`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                              body: JSON.stringify({ shift: newShift })
+                            });
+                            setSelectedChild(prev => ({ ...prev, shift: newShift }));
+                            fetchChildren();
+                          } catch(err) { console.error(err); }
+                        }}
+                        style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-color)', fontWeight: 700, marginTop: '4px', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                      >
+                        <option value="Morning">Morning Shift (AM)</option>
+                        <option value="Afternoon">Afternoon Shift (PM)</option>
+                      </select>
+                    </div>
                     <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Home Address:</span> <br/><strong>{selectedChild.address_line1}, {selectedChild.barangay}, {selectedChild.city_municipality}, {selectedChild.province}, {selectedChild.region}</strong></div>
                     <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Health Conditions:</span> <br/><strong>{selectedChild.health_conditions || 'None Reported'}</strong></div>
                   </div>

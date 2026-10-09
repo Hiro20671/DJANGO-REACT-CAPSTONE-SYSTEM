@@ -878,6 +878,70 @@ export default function TeacherDashboard() {
         <button className={`resp-mobile-tab-btn ${mobileTab === 'growth-risk' ? 'active' : ''}`} onClick={() => setMobileTab('growth-risk')}>Operations &amp; Safety Analytics</button>
       </div>
 
+      {/* AI Analytics & Early-Warning Intelligence Suite Launch Banner */}
+      <a href="/analytics/" style={{ textDecoration: 'none', color: 'inherit', display: 'block', marginBottom: '22px' }}>
+        <div className="modern-card card" style={{
+          background: 'linear-gradient(135deg, #091e42 0%, #1e40af 60%, #3b82f6 100%)',
+          color: '#ffffff',
+          padding: '20px 24px',
+          borderRadius: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 8px 24px rgba(30, 64, 175, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          cursor: 'pointer',
+          flexWrap: 'wrap',
+          gap: '15px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '50px',
+              height: '50px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              color: '#ffffff'
+            }}>
+              <i className="fa-solid fa-brain"></i>
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
+                  AI Analytics &amp; Early-Warning Intelligence Suite
+                </h3>
+                <span style={{ background: '#10b981', color: '#ffffff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 9px', borderRadius: '12px', textTransform: 'uppercase' }}>
+                  10-PILLAR MODULE
+                </span>
+              </div>
+              <p style={{ margin: '5px 0 0 0', fontSize: '0.86rem', color: 'rgba(255, 255, 255, 0.88)' }}>
+                Smart Attendance (AM/PM), Development Readiness Index (DRI), Multi-Factor Risk Scoring, Predictive Trends, &amp; Interventions
+              </p>
+            </div>
+          </div>
+          <div>
+            <span style={{
+              background: '#ffffff',
+              color: '#1e40af',
+              padding: '9px 18px',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.15)'
+            }}>
+              <span>Launch Analytics</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
       {/* KPI Cards Row */}
       {(!isMobile || mobileTab === 'overview') && (
         <div className="resp-grid-4" style={{ marginBottom: '25px' }}>

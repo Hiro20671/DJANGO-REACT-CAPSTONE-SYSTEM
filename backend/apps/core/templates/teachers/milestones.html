@@ -1,4 +1,5 @@
 {% extends "teachers/base_teacher.html" %}
+{% load static %}
 
 {% block content %}
 {% include "teachers/dss.html" %}
@@ -118,49 +119,119 @@
     border-color: #043263 !important;
 }
 
-/* Mobile Responsive Optimizations */
+/* Comprehensive Responsive System for ECCD Booklet & Milestones */
+.tabs {
+    display: flex;
+    overflow-x: auto !important;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 8px;
+    margin-bottom: 22px;
+    border-bottom: 2px solid #e2e8f0;
+}
+.tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    border-radius: 12px;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 992px) {
+    .resp-grid-3 {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+    .domain-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+        gap: 16px !important;
+    }
+}
+
 @media (max-width: 768px) {
-    .page-header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
+    .resp-grid-2 {
+        grid-template-columns: 1fr !important;
         gap: 15px !important;
     }
-    .page-header div {
+    .page-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
+    }
+    .page-header > div {
         width: 100% !important;
     }
     .page-header button {
         width: 100% !important;
+        justify-content: center !important;
     }
-    .tabs {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 5px;
-        -webkit-overflow-scrolling: touch;
+
+    #activeChildBookletBar {
+        padding: 16px 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
     }
-    .tab {
-        flex-shrink: 0;
+    #activeChildBookletBar > div:first-child {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
     }
+    #activeChildBookletBar > div:first-child div[style*="display:flex"] {
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+    #activeChildBookletBar > div:last-child {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+    #activeChildBookletBar button {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px 14px !important;
+        font-size: 0.88rem !important;
+    }
+
+    .booklet-sheet {
+        padding: 16px 12px !important;
+        margin-bottom: 18px !important;
+        border-radius: 10px !important;
+    }
+    .booklet-sheet h2 {
+        font-size: 1.35rem !important;
+    }
+    .booklet-sheet h3 {
+        font-size: 1.1rem !important;
+    }
+    .booklet-sheet div[style*="justify-content:space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    .booklet-sheet div[style*="justify-content:space-between"] button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
     .assess-header {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 15px !important;
     }
-    .assess-header div {
+    .assess-header div, .assess-header button {
         width: 100% !important;
-    }
-    .assess-header button {
-        width: 100% !important;
-    }
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        margin-bottom: 20px;
     }
     .assess-table {
-        min-width: 750px; /* Prevent column squeezing on mobile */
+        min-width: 680px;
     }
     .explanation-card {
         padding: 15px !important;
@@ -175,13 +246,43 @@
         flex-direction: column !important;
         gap: 15px !important;
     }
+
+    /* Sub-navigators scroll horizontally on mobile */
+    div[style*="display:inline-flex"][style*="background:#f1f5f9"] {
+        display: flex !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 3px !important;
+    }
+    div[style*="display:inline-flex"][style*="background:#f1f5f9"] button {
+        flex: 1 0 auto !important;
+        text-align: center !important;
+        font-size: 0.78rem !important;
+        padding: 7px 10px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header h2 {
+        font-size: 1.4rem !important;
+    }
+    .pill {
+        font-size: 0.7rem !important;
+        padding: 2px 8px !important;
+    }
+    .tab {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+    }
 }
 </style>
 
 <div class="page-header">
     <div>
-        <h2>ECCD Milestone Tracker</h2>
-        <p>Early Childhood Care and Development Assessment System</p>
+        <h2>ECCD Booklet</h2>
+        <p>Early Childhood Care and Development Assessment System & DepEd Child's Record 2</p>
     </div>
     <div style="display:flex; gap:10px; align-items:center;">
         <div id="assessingChildDisplay" style="font-weight:bold; color:#043263; display:none; align-items:center; gap:10px;">
@@ -189,15 +290,51 @@
             <button class="btn btn-outline" onclick="switchTab('overview')" style="padding:4px 8px; font-size:0.8rem;">Change</button>
         </div>
         <input type="hidden" id="childSelect" value="">
-        <button class="btn btn-outline" style="color: #4a90e2; border-color: #4a90e2;" onclick="printECCDReport()">
+        <button class="btn btn-outline" style="color: #043263; border-color: #cbd5e1; background:white;" onclick="printECCDReport()">
             <i class="fa-solid fa-print"></i> Print ECCD Report
         </button>
     </div>
 </div>
 
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('overview')" id="tab-overview">Overview</div>
-    <div class="tab" onclick="switchTab('dashboard')" id="tab-dashboard" style="display:none;">Dashboard</div>
+<!-- Active Student ECCD Booklet Header Bar -->
+<div id="activeChildBookletBar" style="display:none; background: linear-gradient(135deg, #063970 0%, #1e3a8a 100%); color: white; border-radius: 14px; padding: 18px 24px; margin-bottom: 22px; box-shadow: 0 10px 25px -5px rgba(6, 57, 112, 0.25); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <div id="activeChildAvatar" style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; overflow: hidden; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"></div>
+        <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <h3 id="activeChildName" style="margin: 0; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.25rem; color: #fff; letter-spacing: -0.3px;">Student Name</h3>
+                <span id="activeChildShiftBadge"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px; margin-top: 4px; font-size: 0.82rem; color: #cbd5e1;">
+                <span><i class="fa-solid fa-cake-candles" style="margin-right: 5px; color: #38bdf8;"></i> Age: <strong id="activeChildAgeText" style="color: #fff;">-</strong></span>
+                <span><i class="fa-solid fa-calendar-day" style="margin-right: 5px; color: #38bdf8;"></i> DOB: <strong id="activeChildDobText" style="color: #fff;">-</strong></span>
+                <span style="background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 6px; color: #f8fafc;"><i class="fa-solid fa-book-bookmark" style="margin-right: 4px;"></i> Child's Record 2 (Age 3.1 - 5.0)</span>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-sm" onclick="saveBooklet()" style="background: #10b981; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); transition: transform 0.15s ease;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Booklet Data
+        </button>
+        <button type="button" class="btn btn-sm" onclick="printCompleteBooklet()" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-print"></i> Print Booklet
+        </button>
+        <button type="button" class="btn btn-sm" onclick="switchTab('overview')" style="background: rgba(255,255,255,0.1); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.25); padding: 9px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-users"></i> Back to Class List
+        </button>
+    </div>
+</div>
+
+<div class="tabs" style="overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; gap: 4px;">
+    <div class="tab active" onclick="switchTab('overview')" id="tab-overview"><i class="fa-solid fa-users" style="margin-right:6px;"></i> Overview</div>
+    <div class="tab" onclick="switchTab('cover')" id="tab-cover" style="display:none;"><i class="fa-solid fa-address-card" style="margin-right:6px;"></i> Cover & Profile</div>
+    <div class="tab" onclick="switchTab('dashboard')" id="tab-dashboard" style="display:none;"><i class="fa-solid fa-list-check" style="margin-right:6px;"></i> 109 Milestones Checklist</div>
+    <div class="tab" onclick="switchTab('summary18')" id="tab-summary18" style="display:none;"><i class="fa-solid fa-table" style="margin-right:6px;"></i> Summary Table (p.18)</div>
+    <div class="tab" onclick="switchTab('graphs')" id="tab-graphs" style="display:none;"><i class="fa-solid fa-chart-line" style="margin-right:6px;"></i> Score Graphs (p.19-20)</div>
+    <div class="tab" onclick="switchTab('notes17')" id="tab-notes17" style="display:none;"><i class="fa-solid fa-clipboard-list" style="margin-right:6px;"></i> Examiner's Notes (p.17)</div>
+    <div class="tab" onclick="switchTab('mchat')" id="tab-mchat" style="display:none;"><i class="fa-solid fa-shield-heart" style="margin-right:6px;"></i> M-CHAT-R (p.22)</div>
+    <div class="tab" onclick="switchTab('health')" id="tab-health" style="display:none;"><i class="fa-solid fa-heart-pulse" style="margin-right:6px;"></i> Health & Growth</div>
+    <div class="tab" onclick="switchTab('intake')" id="tab-intake" style="display:none;"><i class="fa-solid fa-file-signature" style="margin-right:6px;"></i> Intake & Consent</div>
     <div class="tab" onclick="switchTab('assessment')" id="tab-assessment" style="display:none;">Assessment Log</div>
     <div class="tab" onclick="switchTab('scoring-details')" id="tab-scoring-details" style="display:none;">Scoring Breakdown</div>
 </div>
@@ -206,9 +343,16 @@
 <div id="content-overview" class="content-section active">
     <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; flex-wrap:wrap; gap:15px;">
         <h3 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; color:#043263;">Classroom ECCD Progress Overview</h3>
-        <div style="display:flex; gap:10px; width: 100%; max-width: 400px; position: relative;">
-            <input type="text" id="overviewSearch" placeholder="Search student by name..." style="width: 100%; padding: 10px 15px; padding-left: 38px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-family:'Montserrat', sans-serif;" oninput="filterOverviewTable()">
-            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.9rem;"></i>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:8px; gap:4px;">
+                <button type="button" id="mileShiftAll" onclick="setMilestoneShift('all')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:#063970; color:white; transition:0.2s;">All Shifts</button>
+                <button type="button" id="mileShiftMorning" onclick="setMilestoneShift('Morning')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-sun" style="color:#eab308; margin-right:4px;"></i> Morning (AM)</button>
+                <button type="button" id="mileShiftAfternoon" onclick="setMilestoneShift('Afternoon')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-cloud-sun" style="color:#f97316; margin-right:4px;"></i> Afternoon (PM)</button>
+            </div>
+            <div style="position: relative; width: 250px;">
+                <input type="text" id="overviewSearch" placeholder="Search student by name..." style="width: 100%; padding: 8px 12px; padding-left: 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; font-family:'Montserrat', sans-serif;" oninput="filterOverviewTable()">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+            </div>
         </div>
     </div>
     
@@ -250,16 +394,17 @@
             <thead>
                 <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                     <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Student</th>
-                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 120px;">Age</th>
-                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 120px;">Gender</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 120px;">Shift</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 90px;">Age</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 90px;">Gender</th>
                     <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Milestone Observed Rate</th>
-                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 250px;">ECCD Completion %</th>
-                    <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:150px;">Actions</th>
+                    <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 220px;">ECCD Completion %</th>
+                    <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:130px;">Actions</th>
                 </tr>
             </thead>
             <tbody id="overviewContainer">
                 <tr>
-                    <td colspan="6" style="text-align:center; padding:40px; color:#888;">Loading overview...</td>
+                    <td colspan="7" style="text-align:center; padding:40px; color:#888;">Loading overview...</td>
                 </tr>
             </tbody>
         </table>
@@ -590,7 +735,34 @@
     </div>
 </div>
 
+<!-- ECCD BOOKLET PAGES -->
+<div id="content-cover" class="content-section">
+    {% include 'teachers/eccd_booklet/cover_profile.html' %}
+</div>
 
+<div id="content-summary18" class="content-section">
+    {% include 'teachers/eccd_booklet/summary_table.html' %}
+</div>
+
+<div id="content-graphs" class="content-section">
+    {% include 'teachers/eccd_booklet/score_graphs.html' %}
+</div>
+
+<div id="content-notes17" class="content-section">
+    {% include 'teachers/eccd_booklet/examiner_notes.html' %}
+</div>
+
+<div id="content-mchat" class="content-section">
+    {% include 'teachers/eccd_booklet/mchat_r.html' %}
+</div>
+
+<div id="content-health" class="content-section">
+    {% include 'teachers/eccd_booklet/health_growth.html' %}
+</div>
+
+<div id="content-intake" class="content-section">
+    {% include 'teachers/eccd_booklet/intake_consent.html' %}
+</div>
 
 <script>
 let childrenList = [];
@@ -713,44 +885,69 @@ function switchTab(tabId) {
 
     if (isArchive) {
         if (childId) {
-            document.getElementById('tab-scoring-details').style.display = 'block';
+            const sdTab = document.getElementById('tab-scoring-details');
+            if (sdTab) sdTab.style.display = 'block';
             const archiveBtnContainer = document.getElementById('archiveScoringBreakdownBtnContainer');
             if (archiveBtnContainer) archiveBtnContainer.style.display = 'block';
         } else {
-            document.getElementById('tab-scoring-details').style.display = 'none';
+            const sdTab = document.getElementById('tab-scoring-details');
+            if (sdTab) sdTab.style.display = 'none';
             const archiveBtnContainer = document.getElementById('archiveScoringBreakdownBtnContainer');
             if (archiveBtnContainer) archiveBtnContainer.style.display = 'none';
         }
-        document.getElementById('tab-assessment').style.display = 'none';
+        const aTab = document.getElementById('tab-assessment');
+        if (aTab) aTab.style.display = 'none';
     }
 
-    document.getElementById('tab-' + tabId).classList.add('active');
-    document.getElementById('content-' + tabId).classList.add('active');
+    const targetTab = document.getElementById('tab-' + tabId);
+    if (targetTab) targetTab.classList.add('active');
+    const targetContent = document.getElementById('content-' + tabId);
+    if (targetContent) targetContent.classList.add('active');
 
     // Handle visibility of the context-sensitive tabs
     if (!isArchive) {
+        const aTab = document.getElementById('tab-assessment');
+        const sdTab = document.getElementById('tab-scoring-details');
         if (tabId === 'assessment') {
-            document.getElementById('tab-assessment').style.display = 'block';
-            document.getElementById('tab-scoring-details').style.display = 'none';
+            if (aTab) aTab.style.display = 'block';
+            if (sdTab) sdTab.style.display = 'none';
         } else if (tabId === 'scoring-details') {
-            document.getElementById('tab-scoring-details').style.display = 'block';
-            document.getElementById('tab-assessment').style.display = 'none';
+            if (sdTab) sdTab.style.display = 'block';
+            if (aTab) aTab.style.display = 'none';
         } else {
-            document.getElementById('tab-assessment').style.display = 'none';
-            document.getElementById('tab-scoring-details').style.display = 'none';
+            if (aTab) aTab.style.display = 'none';
+            if (sdTab) sdTab.style.display = 'none';
         }
     }
 
+    const bookletTabIds = ['tab-cover', 'tab-dashboard', 'tab-summary18', 'tab-graphs', 'tab-notes17', 'tab-mchat', 'tab-health', 'tab-intake'];
     if (tabId === 'overview') {
-        document.getElementById('tab-dashboard').style.display = 'none';
+        bookletTabIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        const bar = document.getElementById('activeChildBookletBar');
+        if (bar) bar.style.display = 'none';
         document.getElementById('childSelect').value = '';
         loadChildAssessment();
         renderOverview();
     } else {
-        document.getElementById('tab-dashboard').style.display = 'block';
+        bookletTabIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'inline-flex';
+        });
+        const bar = document.getElementById('activeChildBookletBar');
+        if (bar && childId) bar.style.display = 'flex';
     }
 
-    if (tabId === 'scoring-details') {
+    if (tabId === 'summary18') {
+        if (typeof renderPage18Table === 'function') renderPage18Table();
+    } else if (tabId === 'graphs') {
+        if (typeof renderPage19Graph === 'function') renderPage19Graph();
+        if (typeof renderPage20Graph === 'function') renderPage20Graph();
+    } else if (tabId === 'health') {
+        if (typeof renderGrowthChartSvg === 'function') renderGrowthChartSvg();
+    } else if (tabId === 'scoring-details') {
         if (window.currentChildReports) {
             const period = window.lastScoringPeriod || 'Overall';
             if (!window.renderingScoringDetails) {
@@ -1292,6 +1489,26 @@ function toggleScoringSummary() {
 // ---------------------------
 // OVERVIEW & DASHBOARD
 // ---------------------------
+let milestoneShiftFilter = 'all';
+
+function setMilestoneShift(shift) {
+    milestoneShiftFilter = shift;
+    ['all', 'Morning', 'Afternoon'].forEach(s => {
+        const btnId = s === 'all' ? 'mileShiftAll' : (s === 'Morning' ? 'mileShiftMorning' : 'mileShiftAfternoon');
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            if (s.toLowerCase() === shift.toLowerCase()) {
+                btn.style.background = '#063970';
+                btn.style.color = 'white';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#64748b';
+            }
+        }
+    });
+    renderOverview();
+}
+
 async function renderOverview() {
     const container = document.getElementById('overviewContainer');
     
@@ -1309,7 +1526,7 @@ async function renderOverview() {
     const enrolledChildren = childrenList.filter(c => c.enrollment_status === 'Enrolled');
 
     if (enrolledChildren.length === 0) {
-        container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No enrolled students found.</td></tr>`;
+        container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No enrolled students found.</td></tr>`;
         return;
     }
 
@@ -1321,15 +1538,18 @@ async function renderOverview() {
         return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
     });
 
-    // Filtering by search input
+    // Filtering by search input and shift
     const searchVal = document.getElementById('overviewSearch') ? document.getElementById('overviewSearch').value.trim().toLowerCase() : '';
-    const filteredChildren = enrolledChildren.filter(c => {
+    let filteredChildren = enrolledChildren.filter(c => {
         const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
         return fullName.includes(searchVal);
     });
+    if (milestoneShiftFilter !== 'all') {
+        filteredChildren = filteredChildren.filter(c => (c.shift || 'Morning').toLowerCase() === milestoneShiftFilter.toLowerCase());
+    }
 
     if (filteredChildren.length === 0) {
-        container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching students found.</td></tr>`;
+        container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching students found.</td></tr>`;
         return;
     }
 
@@ -1345,10 +1565,14 @@ async function renderOverview() {
 
         let color = pct >= 75 ? '#1cc88a' : (pct >= 50 ? '#f6c23e' : '#e74a3b');
         const init = ((c.first_name ? c.first_name[0] : '') + (c.last_name ? c.last_name[0] : '')).toUpperCase();
+        const isMorning = (c.shift || 'Morning').toLowerCase().includes('morning');
+        const shiftBadge = isMorning 
+            ? '<span style="background:#e0f2fe; color:#0284c7; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning AM</span>'
+            : '<span style="background:#ffedd5; color:#ea580c; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>';
 
         container.innerHTML += `
         <tr style="border-bottom:1px solid var(--border-color, #edf2f7); transition:background 0.2s;" onmouseover="this.style.background='var(--hover-bg, #f8fafc)';" onmouseout="this.style.background='transparent';">
-            <td style="padding:15px; display:flex; align-items:center; gap:12px; border:none; cursor:pointer;" onclick="document.getElementById('childSelect').value=${c.id}; loadChildAssessment(); switchTab('dashboard');" title="Click to assess child">
+            <td style="padding:15px; display:flex; align-items:center; gap:12px; border:none; cursor:pointer;" onclick="openStudentBooklet(${c.id});" title="Click to open child's ECCD Booklet">
                 <div style="width:36px; height:36px; border-radius:50%; background:var(--input-bg, #f0f4f8); color:var(--text-primary, #4a90e2); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; border:1px solid var(--border-color, #cbd5e1); overflow:hidden; flex-shrink:0;">
                     ${c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : `<span>${init}</span>`}
                 </div>
@@ -1356,6 +1580,7 @@ async function renderOverview() {
                     <span style="font-weight:750; color:var(--text-primary, #1e293b); font-size:0.95rem; border-bottom:1px dashed var(--border-color, #cbd5e1);">${c.last_name}, ${c.first_name}</span>
                 </div>
             </td>
+            <td style="padding:15px;">${shiftBadge}</td>
             <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${c.age} years</td>
             <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${c.gender || 'N/A'}</td>
             <td style="padding:15px; color:#475569; font-weight:600; font-size:0.9rem;">
@@ -1372,8 +1597,8 @@ async function renderOverview() {
                 </div>
             </td>
             <td style="padding:15px; text-align:center;">
-                <button class="btn btn-primary" onclick="document.getElementById('childSelect').value=${c.id}; loadChildAssessment(); switchTab('dashboard');" style="padding:6px 12px; font-size:0.8rem; font-weight:700; font-family:'Montserrat', sans-serif;">
-                    <i class="fa-solid fa-clipboard-check"></i> Assess
+                <button class="btn btn-primary" onclick="openStudentBooklet(${c.id});" style="padding:7px 14px; font-size:0.8rem; font-weight:700; font-family:'Montserrat', sans-serif; display:inline-flex; align-items:center; gap:6px; border-radius:7px; background:#063970; border:none; box-shadow:0 2px 6px rgba(6,57,112,0.2); cursor:pointer;">
+                    <i class="fa-solid fa-book-open"></i> Open Booklet
                 </button>
             </td>
         </tr>`;
@@ -3058,4 +3283,5 @@ function printCompletionCertificate() {
 // START
 fetchSystemData();
 </script>
+<script src="{% static 'core/js/eccd_booklet.js' %}"></script>
 {% endblock %}

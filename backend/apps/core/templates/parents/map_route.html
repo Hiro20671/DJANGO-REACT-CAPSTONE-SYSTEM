@@ -162,7 +162,7 @@
                     const timeMins = Math.round(summary.totalTime / 60);
 
                     document.getElementById('parentRouteDist').innerText = `${distKm} km`;
-                    document.getElementById('parentRouteTime').innerText = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
+                    document.getElementById('parentRouteTime').innerHTML = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
                 }
             });
         }

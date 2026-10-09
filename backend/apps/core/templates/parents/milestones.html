@@ -149,10 +149,11 @@
             <img id="mobMileChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
             <div>
                 <div id="mobMileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                     <span id="mobMileChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
                     <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                     <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                    <span id="mobMileChildShiftBadge"></span>
                 </div>
             </div>
         </div>
@@ -172,11 +173,12 @@
     </div>
 </div>
 
-<div class="page-header">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
     <div>
         <h2>Child Milestone Tracker</h2>
         <p>Review comprehensive developmental reports for your child</p>
     </div>
+    <div id="mileChildShiftBadge" style="display:none; align-items:center;"></div>
 </div>
 
 <div class="tabs">
@@ -546,6 +548,22 @@ async function fetchSystemData() {
         }
         if (document.getElementById('mobMileChildAge') && childData.age) {
             document.getElementById('mobMileChildAge').innerText = `${childData.age} yrs`;
+        }
+
+        // Shift Badge Binding
+        const isPM = (childData.shift || 'Morning').toLowerCase().includes('afternoon');
+        const deskBadge = document.getElementById('mileChildShiftBadge');
+        if (deskBadge) {
+            deskBadge.style.display = 'inline-flex';
+            deskBadge.innerHTML = isPM
+                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+        }
+        const mobBadge = document.getElementById('mobMileChildShiftBadge');
+        if (mobBadge) {
+            mobBadge.innerHTML = isPM
+                ? '<span style="font-size: 0.72rem; font-weight: 700; background: #ffedd5; color: #ea580c; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                : '<span style="font-size: 0.72rem; font-weight: 700; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
         }
 
         domainsList = await domRes.json();
@@ -950,7 +968,7 @@ async function checkScoringRequestStatus() {
         } else if (status === 'Requested') {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-hourglass-half\"></i> Verification Request Sent";
+            document.getElementById('scoringLockTitle').innerHTML = "<i class=\"fa-solid fa-hourglass-half\"></i> Verification Request Sent";
             document.getElementById('scoringLockDesc').innerText = "Your request has been submitted to the classroom teacher. Overall scores and chronological age calculations will be displayed as soon as the teacher approves the request.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-outline" disabled style="padding:12px 24px; border-radius:8px; font-weight:bold; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">
@@ -960,7 +978,7 @@ async function checkScoringRequestStatus() {
         } else if (status === 'Expired') {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-lock\"></i> Scoring Access Expired";
+            document.getElementById('scoringLockTitle').innerHTML = "<i class=\"fa-solid fa-lock\"></i> Scoring Access Expired";
             document.getElementById('scoringLockDesc').innerText = "Your previous access has expired (access is valid for 1 day only). To view the ECCD Index, scaled scorecards, and age calculations again, please submit a new verification request to the teacher.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-primary btn-history-view" onclick="requestScoringAccess()" style="background:#043263; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">
@@ -970,7 +988,7 @@ async function checkScoringRequestStatus() {
         } else {
             lockView.style.display = 'block';
             unlockedView.style.display = 'none';
-            document.getElementById('scoringLockTitle').innerText = "<i class=\"fa-solid fa-lock\"></i> Milestone Scoring Breakdown is Locked";
+            document.getElementById('scoringLockTitle').innerHTML = "<i class=\"fa-solid fa-lock\"></i> Milestone Scoring Breakdown is Locked";
             document.getElementById('scoringLockDesc').innerText = "Milestone evaluations are finalized by the classroom teacher. To view the official ECCD Index, scaled scorecards, and chronological age calculations, please send a verification request to the teacher.";
             document.getElementById('requestActionContainer').innerHTML = `
                 <button class="btn btn-primary btn-history-view" onclick="requestScoringAccess()" style="background:#043263; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">

@@ -1381,8 +1381,8 @@
         </div>
 
         <div class="sidebar-menu" style="padding: 15px 0;">
-            <a href="{% url 'parent_home' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
+            <a href="{% url 'home' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
                 <i class="fa-solid fa-chevron-right menu-chevron"></i>
@@ -1435,8 +1435,8 @@
                 <span>Children</span>
                 <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
-            <a href="{% url 'parent_engagement' %}?tab=announcements"
-                class="menu-item {% if request.GET.tab == 'announcements' %}active{% endif %}">
+            <a href="{% url 'home' %}#announcements"
+                class="menu-item">
                 <i class="fa-solid fa-bullhorn"></i>
                 <span>Announcements</span>
                 <i class="fa-solid fa-chevron-right menu-chevron"></i>
@@ -1498,7 +1498,7 @@
 
     <!-- Mobile Bottom Navigation Bar (Screen Reference Matching) -->
     <div class="mobile-bottom-nav">
-        <a href="{% url 'parent_home' %}" class="nav-tab {% if request.resolver_match.url_name == 'parent_home' %}active{% endif %}">
+        <a href="{% url 'home' %}" class="nav-tab {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
@@ -1572,7 +1572,11 @@
                         
                         if (nameEl) nameEl.innerText = `${activeChild.first_name} ${activeChild.last_name}`;
                         if (subEl) {
-                            subEl.innerHTML = `<span>${activeChild.age || 3} yrs</span> &bull; <span class="child-status-badge">${activeChild.enrollment_status || 'Enrolled'}</span>`;
+                            const isPM = (activeChild.shift || 'Morning').toLowerCase().includes('afternoon');
+                            const sBadge = isPM 
+                                ? '<span style="background:#ffedd5; color:#ea580c; font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:10px; margin-left:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                                : '<span style="background:#e0f2fe; color:#0284c7; font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:10px; margin-left:6px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
+                            subEl.innerHTML = `<span>${activeChild.age || 3} yrs</span> &bull; <span class="child-status-badge">${activeChild.enrollment_status || 'Enrolled'}</span> ${sBadge}`;
                         }
                         if (avatarEl) {
                             const imgUrl = activeChild.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + activeChild.first_name);

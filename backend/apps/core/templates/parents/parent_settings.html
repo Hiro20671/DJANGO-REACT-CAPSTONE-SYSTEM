@@ -698,111 +698,555 @@ input:checked + .slider:before { transform: translateX(26px); }
 
     // PHILIPPINE ADDRESS HIERARCHY (COMPREHENSIVE)
     const PHILIPPINE_ADDRESSES = {
-        "Region IV-A (CALABARZON)": {
-            "Quezon": {
-                "Lucena City": [
-                    "Barangay 1 (Poblacion)", "Barangay 2 (Poblacion)", "Barangay 3 (Poblacion)", "Barangay 4 (Poblacion)",
-                    "Barangay 5 (Poblacion)", "Barangay 6 (Poblacion)", "Barangay 7 (Poblacion)", "Barangay 8 (Poblacion)",
-                    "Barangay 9 (Poblacion)", "Barangay 10 (Poblacion)", "Barangay 11 (Poblacion)", "Barra", "Bocohan",
-                    "Cotta", "Dalahican", "Domoit", "Gulang-Gulang", "Ibabang Dupay", "Ibabang Iyam", "Ibabang Talim",
-                    "Ilayang Dupay", "Ilayang Iyam", "Ilayang Talim", "Isabang", "Market View", "Mayao Castillo",
-                    "Mayao Crossing", "Mayao Kanluran", "Mayao Parada", "Mayao Silangan", "Ransohan", "Salinas", "Talao-Talao"
-                ],
-                "Tayabas City": ["Alitao", "Angeles", "Baguio", "Camasan", "Dapdap", "Ilasan", "Ipilan", "Isabang", "Lalo", "Mate", "Palale", "Potol", "San Diego", "San Isidro", "San Roque", "Wakas"],
-                "Pagbilao": ["Alupaye", "Antipolo", "Añog", "Bilocao", "Bukal", "Castillo", "Del Carmen", "Iba. Palo", "Ila. Palo", "Iba. Bagumbayan", "Ila. Bagumbayan", "Mapagong", "Parang", "Santa Catalina", "Talipan"],
-                "Sariaya": ["Balubal", "Bignay", "Castañas", "Concepcion I", "Concepcion Banahaw", "Guisguis", "Lutgarda", "Mamala I", "Manggalang 1", "Montecillo", "Pili", "Sampaloc 1", "Talaan", "Tumbaga 1"],
-                "Candelaria": ["Bukal Norte", "Bukal Sur", "Buenavista", "Malabanban Norte", "Malabanban Sur", "Masalukot I", "Masalukot II", "Poblacion", "San Andres", "San Isidro", "Santa Catalina"],
-                "Tiaong": ["Ayusan I", "Behia", "Bukal", "Cabay", "Del Rosario", "Lalaguna", "Lumingon", "Paiisa", "Palagaran", "Poblacion", "Quipot", "San Agustin", "San Jose", "Tagbakin"],
-                "Dolores": ["Bulakin I", "Bulakin II", "Cabatang", "Dagatan", "Kinabuhayan", "Maligaya", "Manggahan", "Pinagdanlayan", "Poblacion", "Santa Lucia"],
-                "Lucban": ["Abang", "Aliliw", "Atano", "Ayuti", "Igang", "Kulapi", "Nagsinamo", "Palola", "Poblacion", "Samil", "Tinamnan"],
-                "Sampaloc": ["Alupay", "Bataan", "Bayongon", "Bilucao", "Caldong", "Mamala", "Poblacion", "San Bueno", "San Roque"],
-                "Mauban": ["Bagong Bayan", "Cagbalete I", "Cagbalete II", "Daungan", "Lual", "Poblacion", "Polo", "Remedios", "San Jose", "Santol"],
-                "Atimonan": ["Angeles", "Balubad", "Caridad Ibaba", "Caridad Ilaya", "Inaclagan", "Malinao Ibaba", "Malinao Ilaya", "Poblacion", "San Rafael", "Tagbakin"],
-                "Gumaca": ["Aloneros", "Bamban", "Bantad", "Camohaguin", "Inaclagan", "Mabini", "Poblacion", "Progreso", "Rosario", "Villa Victoria"],
-                "Lopez": ["Burgos", "Cogorin", "Danlagan", "Esperanza", "Hondagua", "Magsaysay", "Poblacion", "San Antonio", "Santa Maria", "Vegaflor"]
-            },
-            "Laguna": {
-                "San Pablo City": ["Barangay I-A", "Barangay I-B", "Barangay II-A", "Barangay II-B", "Barangay III-A", "Barangay III-B", "Concepcion", "Del Remedio", "San Cristobal", "San Francisco", "San Gabriel", "San Jose", "San Lucas 1", "San Roque", "Santa Maria", "Santisimo Rosario"],
-                "Calamba City": ["Bagong Kalsada", "Bañadero", "Barandal", "Bucal", "Canlubang", "Halang", "Lawa", "Makiling", "Palingon", "Pansol", "Parian", "Real", "Turbina"],
-                "Santa Rosa City": ["Aplaya", "Balibago", "Caingin", "Dila", "Dita", "Don Jose", "Ibaba", "Kanluran", "Labas", "Macabling", "Malusak", "Market Area", "Pooc", "Pulong Santa Cruz", "Sinalhan", "Tagapo"],
-                "Biñan City": ["Canlalay", "Casile", "De La Paz", "Ganado", "Langkiwa", "Malaban", "Mamplasan", "Platero", "Poblacion", "San Antonio", "San Francisco", "San Vicente", "Santo Tomas", "Tubigan", "Zapote"],
-                "Cabuyao City": ["Baclaran", "Banay-banay", "Banlic", "Bigaa", "Butong", "Casile", "Gulod", "Mamatid", "Marinig", "Niugan", "Pittland", "Poblacion I", "Poblacion II", "Poblacion III", "Pulo", "Sala", "San Isidro"],
-                "Los Baños": ["Anos", "Bagong Silang", "Bambang", "Batong Malake", "Bayog", "Lalakay", "Maahas", "Malinta", "Mayondon", "Poblacion", "Putho-Tuntungin", "San Antonio", "Tadlac", "Timugan"]
-            },
-            "Batangas": {
-                "Batangas City": ["Alangilan", "Balagtas", "Balete", "Bolbok", "Calicanto", "Cuta", "Gulod Itaas", "Gulod Labac", "Kumintang Ibaba", "Kumintang Ilaya", "Pallocan Kanluran", "Pallocan Silangan", "Poblacion", "San Isidro", "Santa Clara", "Santa Rita Aplaya", "Wawa"],
-                "Lipa City": ["Balintawak", "Banaybanay", "Bolbok", "Dagatan", "Inosluban", "Lodlod", "Lumbang", "Mabini", "Marawoy", "Mataas Na Lupa", "Poblacion", "Sabang", "Sampaguita", "San Carlos", "Tambo", "Tangway"],
-                "Tanauan City": ["Bagumbayan", "Darasa", "Hidalgo", "Natatas", "Pantay Bata", "Pantay Matanda", "Poblacion", "Sambat", "Santor", "Trapiche"],
-                "Sto. Tomas City": ["San Antonio", "San Bartolome", "San Felix", "San Fernando", "San Miguel", "San Pedro", "San Rafael", "San Roque", "Santa Anastacia", "Santa Maria", "Santiago"]
-            },
-            "Cavite": {
-                "Dasmariñas City": ["Burol I", "Burol II", "Fatima I", "Langkaan I", "Langkaan II", "Paliparan I", "Paliparan II", "Paliparan III", "Salawag", "Salitran I", "Salitran II", "Sampaloc I", "San Agustin I"],
-                "Bacoor City": ["Habay I", "Habay II", "Mambog I", "Mambog II", "Molino I", "Molino II", "Molino III", "Molino IV", "Niog I", "Niog II", "Panapaan I", "Queens Row Central", "Talaba I", "Zapote I"],
-                "Imus City": ["Alapan I-A", "Anabu I-A", "Bucandala I", "Carsadang Bago I", "Malagasang I-A", "Medicion I-A", "Poblacion I-A", "Tanzang Luma I", "Toclong I-A"],
-                "Tagaytay City": ["Asisan", "Bagong Tubig", "Caloocan", "Francisco", "Guinhawa Norte", "Kaybagal North", "Maharlika East", "Mendez Crossing East", "Sambong", "Silang Junction North", "Tolentino East"],
-                "General Trias City": ["Arnaldo", "Bacao I", "Bacao II", "Buenavista I", "Corregidor", "Dulong Bayan", "Gov. Ferrer", "Manggahan", "Navarro", "Pasong Camachile I", "Pinagtipunan", "San Francisco", "Tejero"]
-            },
-            "Rizal": {
-                "Antipolo City": ["Bagong Nayon", "Beverly Hills", "Calawis", "Cupang", "Dalig", "Dela Paz", "Inarawan", "Mambugan", "Mayamot", "Muntindilaw", "San Isidro", "San Jose", "San Juan", "San Luis", "San Roque", "Santa Cruz"],
-                "Taytay": ["Dolores (Poblacion)", "Muzon", "San Isidro", "San Juan", "Santa Ana"],
-                "Cainta": ["San Andres", "San Isidro", "San Juan", "San Roque", "Santa Rosa", "Santo Domingo", "Santo Niño"],
-                "Angono": ["Bagumbayan", "Kalayaan", "Mahabang Parang", "Poblacion Ibaba", "Poblacion Itaas", "San Isidro", "San Pedro", "San Roque", "San Vicente", "Santo Niño"]
-            }
+      "Region IV-A (CALABARZON)": {
+        "Quezon": {
+          "Lucena City": [
+            "Barangay 1 (Poblacion)", "Barangay 2 (Poblacion)", "Barangay 3 (Poblacion)", "Barangay 4 (Poblacion)",
+            "Barangay 5 (Poblacion)", "Barangay 6 (Poblacion)", "Barangay 7 (Poblacion)", "Barangay 8 (Poblacion)",
+            "Barangay 9 (Poblacion)", "Barangay 10 (Poblacion)", "Barangay 11 (Poblacion)", "Barra", "Bocohan",
+            "Cotta", "Dalahican", "Domoit", "Gulang-Gulang", "Ibabang Dupay", "Ibabang Iyam", "Ibabang Talim",
+            "Ilayang Dupay", "Ilayang Iyam", "Ilayang Talim", "Isabang", "Market View", "Mayao Castillo",
+            "Mayao Crossing", "Mayao Kanluran", "Mayao Parada", "Mayao Silangan", "Ransohan", "Salinas", "Talao-Talao"
+          ],
+          "Tayabas City": [
+            "Alitao", "Angeles", "Baguio", "Camasan", "Dapdap", "Ilasan", "Ipilan", "Isabang",
+            "Lalo", "Mate", "Palale", "Potol", "San Diego", "San Isidro", "San Roque", "Wakas"
+          ],
+          "Pagbilao": [
+            "Alupaye", "Antipolo", "Añog", "Bilocao", "Bukal", "Castillo", "Del Carmen",
+            "Iba. Palo", "Ila. Palo", "Iba. Bagumbayan", "Ila. Bagumbayan", "Mapagong", "Parang", "Santa Catalina", "Talipan"
+          ],
+          "Sariaya": [
+            "Balubal", "Bignay", "Castañas", "Concepcion I", "Concepcion Banahaw", "Guisguis", "Lutgarda",
+            "Mamala I", "Manggalang 1", "Montecillo", "Pili", "Sampaloc 1", "Talaan", "Tumbaga 1"
+          ],
+          "Candelaria": [
+            "Bukal Norte", "Bukal Sur", "Buenavista", "Malabanban Norte", "Malabanban Sur",
+            "Masalukot I", "Masalukot II", "Poblacion", "San Andres", "San Isidro", "Santa Catalina"
+          ],
+          "Tiaong": [
+            "Ayusan I", "Behia", "Bukal", "Cabay", "Del Rosario", "Lalaguna", "Lumingon",
+            "Paiisa", "Palagaran", "Poblacion", "Quipot", "San Agustin", "San Jose", "Tagbakin"
+          ],
+          "Dolores": [
+            "Bulakin I", "Bulakin II", "Cabatang", "Dagatan", "Kinabuhayan", "Maligaya", "Manggahan", "Pinagdanlayan", "Poblacion", "Santa Lucia"
+          ],
+          "Lucban": [
+            "Abang", "Aliliw", "Atano", "Ayuti", "Igang", "Kulapi", "Nagsinamo", "Palola", "Poblacion", "Samil", "Tinamnan"
+          ],
+          "Sampaloc": [
+            "Alupay", "Bataan", "Bayongon", "Bilucao", "Caldong", "Mamala", "Poblacion", "San Bueno", "San Roque"
+          ],
+          "Mauban": [
+            "Bagong Bayan", "Cagbalete I", "Cagbalete II", "Daungan", "Lual", "Poblacion", "Polo", "Remedios", "San Jose", "Santol"
+          ],
+          "Atimonan": [
+            "Angeles", "Balubad", "Caridad Ibaba", "Caridad Ilaya", "Inaclagan", "Malinao Ibaba", "Malinao Ilaya", "Poblacion", "San Rafael", "Tagbakin"
+          ],
+          "Gumaca": [
+            "Aloneros", "Bamban", "Bantad", "Camohaguin", "Inaclagan", "Mabini", "Poblacion", "Progreso", "Rosario", "Villa Victoria"
+          ],
+          "Lopez": [
+            "Burgos", "Cogorin", "Danlagan", "Esperanza", "Hondagua", "Magsaysay", "Poblacion", "San Antonio", "Santa Maria", "Vegaflor"
+          ],
+          "Calauag": [
+            "Bagong Silang", "Biyan", "Doña Aurora", "Poblacion", "Sabang", "Santa Maria", "Viñas"
+          ],
+          "Tagkawayan": [
+            "Bamban", "Katimo", "Poblacion", "Rizal", "San Vicente", "Tabing Dagat"
+          ],
+          "Infanta": [
+            "Antikin", "Dinahican", "Libjo", "Poblacion 38", "Poblacion 39", "Silangan"
+          ],
+          "Real": [
+            "Capalong", "Kiloloron", "Maragondon", "Poblacion 1", "Ungos"
+          ]
         },
-        "NCR (National Capital Region)": {
-            "Metro Manila": {
-                "Quezon City": ["Alicia", "Bagong Silangan", "Batasan Hills", "Commonwealth", "Culiat", "Diliman", "Fairview", "Holy Spirit", "Loyola Heights", "Matandang Balara", "Novaliches Proper", "Pasong Tamo", "Payatas", "Project 6", "San Bartolome", "Tandang Sora"],
-                "City of Manila": ["Binondo", "Ermita", "Intramuros", "Malate", "Paco", "Pandacan", "Port Area", "Quiapo", "Sampaloc", "San Andres", "San Miguel", "San Nicolas", "Santa Ana", "Santa Cruz", "Santa Mesa", "Tondo"],
-                "Makati City": ["Bangkal", "Bel-Air", "Carmona", "Dasmarinas", "Forbes Park", "Guadalupe Nuevo", "Guadalupe Viejo", "Kasilawan", "Magallanes", "Olympia", "Palanan", "Pemerbo", "Pio del Pilar", "Poblacion", "San Antonio", "San Lorenzo", "Tejeros", "Urdaneta"],
-                "Taguig City": ["Bagumbayan", "Bambang", "Calzada", "Central Bicutan", "Fort Bonifacio", "Hagonoy", "Ibayo-Tipas", "Lower Bicutan", "Maharlika Village", "Napindan", "New Lower Bicutan", "Palingon", "Pinagsama", "San Miguel", "Santa Ana", "Tuktukan", "Upper Bicutan", "Ususan", "Western Bicutan"],
-                "Pasig City": ["Bagong Ilog", "Bagong Katipunan", "Bambang", "Buting", "Caniogan", "Kapitolyo", "Malinao", "Manggahan", "Maybunga", "Oranbo", "Palatiw", "Pinagbuhatan", "Pineda", "Rosario", "Sagad", "San Antonio", "San Joaquin", "San Nicolas", "Santa Cruz", "Santa Lucia", "Santa Rosa", "Santolan", "Sumilang", "Ugong"],
-                "Parañaque City": ["Baclaran", "BF Homes", "Don Bosco", "Don Galo", "La Huerta", "Marcelo Green", "Merville", "Moonwalk", "San Antonio", "San Dionisio", "San Isidro", "San Martin de Porres", "Santo Niño", "Sun Valley", "Tambo", "Vitalez"],
-                "Muntinlupa City": ["Alabang", "Bayanan", "Buli", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"],
-                "Pasay City": ["Barangay 1", "Barangay 76", "Barangay 183 (Villamor)", "Malibay", "Maricaban", "Pia", "San Isidro", "San Jose", "San Rafael", "San Roque", "Santa Clara"],
-                "Mandaluyong City": ["Addition Hills", "Bagong Silang", "Barangka Drive", "Barangka Ilaya", "Highway Hills", "Hulo", "Malamig", "Namayan", "Plainview", "Pleasant Hills", "Poblacion", "Vergara", "Wack-Wack Greenhills"],
-                "Caloocan City": ["Bagong Barrio", "Bagumbong", "Camarin", "Deparo", "Grace Park East", "Grace Park West", "Morning Breeze", "Poblacion", "Tala"]
-            }
+        "Laguna": {
+          "San Pablo City": [
+            "Barangay I-A", "Barangay I-B", "Barangay II-A", "Barangay II-B", "Barangay III-A", "Barangay III-B",
+            "Concepcion", "Del Remedio", "San Cristobal", "San Francisco", "San Gabriel", "San Jose", "San Lucas 1", "San Roque", "Santa Maria", "Santisimo Rosario"
+          ],
+          "Calamba City": [
+            "Bagong Kalsada", "Bañadero", "Barandal", "Bucal", "Canlubang", "Halang", "Lawa", "Makiling", "Palingon", "Pansol", "Parian", "Real", "Turbina"
+          ],
+          "Santa Rosa City": [
+            "Aplaya", "Balibago", "Caingin", "Dila", "Dita", "Don Jose", "Ibaba", "Kanluran", "Labas", "Macabling", "Malusak", "Market Area", "Pooc", "Pulong Santa Cruz", "Sinalhan", "Tagapo"
+          ],
+          "Biñan City": [
+            "Canlalay", "Casile", "De La Paz", "Ganado", "Langkiwa", "Malaban", "Mamplasan", "Platero", "Poblacion", "San Antonio", "San Francisco", "San Vicente", "Santo Tomas", "Tubigan", "Zapote"
+          ],
+          "Cabuyao City": [
+            "Baclaran", "Banay-banay", "Banlic", "Bigaa", "Butong", "Casile", "Gulod", "Mamatid", "Marinig", "Niugan", "Pittland", "Poblacion I", "Poblacion II", "Poblacion III", "Pulo", "Sala", "San Isidro"
+          ],
+          "Los Baños": [
+            "Anos", "Bagong Silang", "Bambang", "Batong Malake", "Bayog", "Lalakay", "Maahas", "Malinta", "Mayondon", "Poblacion", "Putho-Tuntungin", "San Antonio", "Tadlac", "Timugan"
+          ],
+          "San Pedro City": [
+            "Bagong Silang", "Chrysanthemum", "Cuyab", "Landayan", "Magsaysay", "Narra", "Nueva", "Poblacion", "Riverside", "San Antonio", "San Roque", "San Vicente", "Santo Niño"
+          ],
+          "Santa Cruz": [
+            "Alipit", "Bagumbayan", "Bubukal", "Calios", "Duhat", "Gatid", "Juañgat", "Labuin", "Malinao", "Oogong", "Pagsawitan", "Palasan", "Patimbao", "Poblacion I", "Poblacion II", "San Angel", "San Jose"
+          ]
         },
-        "Region III (Central Luzon)": {
-            "Bulacan": {
-                "Malolos City": ["Bulihan", "Caingin", "Catmon", "Cofradia", "Dakila", "Guinhawa", "Liang", "Lugam", "Mojon", "Panasahan", "San Gabriel", "San Vicente", "Santo Rosario", "Sumapang Matanda"],
-                "City of Meycauayan": ["Bancal", "Calvario", "Camalig", "Hulo", "Iba", "Langka", "Malhacan", "Perez", "Saluysoy", "Tugatog", "Zamora"],
-                "San Jose del Monte City": ["Citrus", "Ciudad Real", "Dulong Bayan", "Gaya-Gaya", "Graceville", "Kaybanban", "Muzon", "Poblacion", "Sapang Palay", "Tungkong Mangga"]
-            },
-            "Pampanga": {
-                "San Fernando City": ["Baliti", "Calulut", "Del Carmen", "Dolores", "Juliana", "Magliman", "Maimpis", "Malpitic", "Quebiawan", "Saguin", "San Agustin", "San Jose", "San Nicolas", "Sindalan", "Telebastagan"],
-                "Angeles City": ["Balibago", "Capaya", "Claro M. Recto", "Cutcut", "Lourdes North West", "Malabañas", "Pampang", "Pulung Maragul", "Salapungan", "Santo Domingo", "Santo Rosario"]
-            }
+        "Batangas": {
+          "Batangas City": [
+            "Alangilan", "Balagtas", "Balete", "Bolbok", "Calicanto", "Cuta", "Gulod Itaas", "Gulod Labac",
+            "Kumintang Ibaba", "Kumintang Ilaya", "Pallocan Kanluran", "Pallocan Silangan", "Poblacion", "San Isidro", "Santa Clara", "Santa Rita Aplaya", "Wawa"
+          ],
+          "Lipa City": [
+            "Balintawak", "Banaybanay", "Bolbok", "Dagatan", "Inosluban", "Lodlod", "Lumbang", "Mabini",
+            "Marawoy", "Mataas Na Lupa", "Poblacion", "Sabang", "Sampaguita", "San Carlos", "Tambo", "Tangway"
+          ],
+          "Tanauan City": [
+            "Bagumbayan", "Darasa", "Hidalgo", "Natatas", "Pantay Bata", "Pantay Matanda", "Poblacion", "Sambat", "Santor", "Trapiche"
+          ],
+          "Sto. Tomas City": [
+            "San Antonio", "San Bartolome", "San Felix", "San Fernando", "San Miguel", "San Pedro", "San Rafael", "San Roque", "Santa Anastacia", "Santa Maria", "Santiago"
+          ],
+          "Nasugbu": [
+            "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Bucana", "Calayo", "Kaylaway", "Natipuan", "Wawa"
+          ],
+          "Bauan": [
+            "Aplaya", "As-Is", "Bolo", "Cupang", "Manghinao Proper", "Poblacion I", "Poblacion II", "San Agustin", "San Roque"
+          ],
+          "Lemery": [
+            "District I", "District II", "District III", "District IV", "Malinis", "Palanas", "Payapa Ibaba", "Wawa"
+          ]
         },
-        "Region I (Ilocos Region)": {
-            "Pangasinan": {
-                "Dagupan City": ["Bonuan Boquig", "Bonuan Gueset", "Caranglaan", "Herrero", "Lucao", "Malued", "Mayombo", "Pantalan", "Poblacion Oeste", "Tapuac"],
-                "San Carlos City": ["Abanon", "Balaya", "Bocboc", "Caoayan Kiling", "Coliling", "Ilang", "Mabalbalino", "Palaris", "Poblacion", "Talang"]
-            },
-            "La Union": {
-                "San Fernando City": ["Biday", "Catbangen", "Dalumpinas Este", "Ilocanos Norte", "Lingsat", "Madayegdeg", "Parian", "Sevilla", "Tanqui"]
-            }
+        "Cavite": {
+          "Dasmariñas City": [
+            "Burol I", "Burol II", "Fatima I", "Langkaan I", "Langkaan II", "Paliparan I", "Paliparan II", "Paliparan III", "Salawag", "Salitran I", "Salitran II", "Sampaloc I", "San Agustin I"
+          ],
+          "Bacoor City": [
+            "Habay I", "Habay II", "Mambog I", "Mambog II", "Molino I", "Molino II", "Molino III", "Molino IV", "Niog I", "Niog II", "Panapaan I", "Queens Row Central", "Talaba I", "Zapote I"
+          ],
+          "Imus City": [
+            "Alapan I-A", "Anabu I-A", "Bucandala I", "Carsadang Bago I", "Malagasang I-A", "Medicion I-A", "Poblacion I-A", "Tanzang Luma I", "Toclong I-A"
+          ],
+          "Tagaytay City": [
+            "Asisan", "Bagong Tubig", "Caloocan", "Francisco", "Guinhawa Norte", "Kaybagal North", "Maharlika East", "Mendez Crossing East", "Sambong", "Silang Junction North", "Tolentino East"
+          ],
+          "General Trias City": [
+            "Arnaldo", "Bacao I", "Bacao II", "Buenavista I", "Corregidor", "Dulong Bayan", "Gov. Ferrer", "Manggahan", "Navarro", "Pasong Camachile I", "Pinagtipunan", "San Francisco", "Tejero"
+          ],
+          "Cavite City": [
+            "Barangay 1", "Barangay 8", "Caridad", "Dalahican", "San Antonio", "San Roque", "Santa Cruz"
+          ],
+          "Trece Martires City": [
+            "Aguado", "Cabezas", "Conchu", "De Ocampo", "Gregoria De Jesus", "Inocencio", "Lallana", "Osorio", "Perez", "San Agustin"
+          ],
+          "Silang": [
+            "Adlas", "Balite I", "Biga I", "Biluso", "Bulihan", "Iba", "Kaong", "Lalaan I", "Lucsuhin", "Poblacion", "Puting Kahoy", "Tartaria"
+          ]
         },
-        "Region V (Bicol Region)": {
-            "Albay": {
-                "Legazpi City": ["Bagacay", "Bitano", "Bogtong", "Cruzada", "Gogon", "Ilawod", "Oro Site", "Pinaric", "Rawis", "San Roque", "Tamaoyan", "Victory Village"]
-            },
-            "Camarines Sur": {
-                "Naga City": ["Abella", "Bagumbayan Norte", "Balatas", "Concepcion Grande", "Concepcion Pequeña", "Dayangdang", "Dinaga", "Igualdad", "Mabolo", "Peñafrancia", "San Francisco", "Triangulo"]
-            }
-        },
-        "Region VII (Central Visayas)": {
-            "Cebu": {
-                "Cebu City": ["Apas", "Banilad", "Basak San Nicolas", "Guadalupe", "Kamputhaw", "Kasambagan", "Lahug", "Mabolo", "Pardo", "Punta Princesa", "Sambag I", "Talamban", "Tisa"],
-                "Mandaue City": ["Bakilid", "Banilad", "Basak", "Cabancalan", "Centro", "Guizo", "Ibabao-Estancia", "Looc", "Maguikay", "Subangdaku", "Tipolo"],
-                "Lapu-Lapu City": ["Basak", "Gun-ob", "Ibo", "Mactan", "Maribago", "Marigondon", "Pajac", "Pajo", "Pusok", "Subabasbas"]
-            }
-        },
-        "Region XI (Davao Region)": {
-            "Davao del Sur": {
-                "Davao City": ["Agdao", "Buhangin", "Bucana", "Catalunan Grande", "Matina Crossing", "Poblacion", "Sasa", "Talomo", "Toril"]
-            }
+        "Rizal": {
+          "Antipolo City": [
+            "Bagong Nayon", "Beverly Hills", "Calawis", "Cupang", "Dalig", "Dela Paz", "Inarawan", "Mambugan", "Mayamot", "Muntindilaw", "San Isidro", "San Jose", "San Juan", "San Luis", "San Roque", "Santa Cruz"
+          ],
+          "Taytay": [
+            "Dolores (Poblacion)", "Muzon", "San Isidro", "San Juan", "Santa Ana"
+          ],
+          "Cainta": [
+            "San Andres", "San Isidro", "San Juan", "San Roque", "Santa Rosa", "Santo Domingo", "Santo Niño"
+          ],
+          "Angono": [
+            "Bagumbayan", "Kalayaan", "Mahabang Parang", "Poblacion Ibaba", "Poblacion Itaas", "San Isidro", "San Pedro", "San Roque", "San Vicente", "Santo Niño"
+          ],
+          "Binangonan": [
+            "Bilibiran", "Calumpang", "Darangan", "Layunan", "Libis", "Lunsad", "Macamot", "Mahabang Parang", "Pag-asa", "Palangoy", "Pantok", "Pila-pila", "Poblacion", "Tagpos", "Tatala"
+          ],
+          "San Mateo": [
+            "Ampid I", "Ampid II", "Banaba", "Dulong Bayan 1", "Dulong Bayan 2", "Guitnang Bayan 1", "Guitnang Bayan 2", "Guinayang", "Malanday", "Maly", "Pintong Bukawe", "Silangan"
+          ],
+          "Rodriguez (Montalban)": [
+            "Balite", "Burgos", "Geronimo", "Macabud", "Manggahan", "Mascap", "Puray", "Rosario", "San Isidro", "San Jose", "San Rafael"
+          ]
         }
+      },
+      "NCR (National Capital Region)": {
+        "Metro Manila": {
+          "City of Manila": [
+            "Binondo", "Ermita", "Intramuros", "Malate", "Paco", "Pandacan", "Port Area", "Quiapo", "Sampaloc", "San Andres", "San Miguel", "San Nicolas", "Santa Ana", "Santa Cruz", "Santa Mesa", "Tondo"
+          ],
+          "Quezon City": [
+            "Alicia", "Bagong Silangan", "Batasan Hills", "Commonwealth", "Culiat", "Diliman", "Fairview", "Holy Spirit",
+            "Loyola Heights", "Matandang Balara", "Novaliches Proper", "Pasong Tamo", "Payatas", "Project 6", "San Bartolome", "Tandang Sora"
+          ],
+          "Caloocan City": [
+            "Bagong Barrio", "Bagumbong", "Camarin", "Deparo", "Grace Park East", "Grace Park West", "Morning Breeze", "Poblacion", "Tala"
+          ],
+          "Las Piñas City": [
+            "Almanza Uno", "Almanza Dos", "BF International Village", "Daniel Fajardo", "Elias Aldana", "Ilaya", "Manuyo Uno", "Manuyo Dos", "Pamplona Uno", "Pamplona Dos", "Pamplona Tres", "Pilar", "Pulang Lupa Uno", "Pulang Lupa Dos", "Talon Uno", "Talon Dos", "Talon Tres", "Talon Cuatro", "Talon Singko", "Zapote"
+          ],
+          "Makati City": [
+            "Bangkal", "Bel-Air", "Carmona", "Dasmarinas", "Forbes Park", "Guadalupe Nuevo", "Guadalupe Viejo", "Kasilawan", "Magallanes", "Olympia", "Palanan", "Pembo", "Pinagkaisahan", "Pio del Pilar", "Poblacion", "San Antonio", "San Isidro", "San Lorenzo", "Santa Cruz", "Tejeros", "Urdaneta"
+          ],
+          "Malabon City": [
+            "Baritan", "Bayan-bayanan", "Catmon", "Concepcion", "Dampalit", "Flores", "Hulong Duhat", "Ibaba", "Longos", "Maysilo", "Muzon", "Niugan", "Panghulo", "Potrero", "San Agustin", "Santolan", "Tañong", "Tinajeros", "Tonsuya", "Tugatog"
+          ],
+          "Mandaluyong City": [
+            "Addition Hills", "Bagong Silang", "Barangka Drive", "Barangka Ilaya", "Highway Hills", "Hulo", "Malamig", "Namayan", "Plainview", "Pleasant Hills", "Poblacion", "Vergara", "Wack-Wack Greenhills"
+          ],
+          "Marikina City": [
+            "Barangka", "Calumpang", "Concepcion Uno", "Concepcion Dos", "Fortune", "Industrial Valley", "Jesus Dela Peña", "Malanday", "Marikina Heights", "Nangka", "Parang", "San Roque", "Santa Elena", "Santo Niño", "Tañong", "Tumana"
+          ],
+          "Muntinlupa City": [
+            "Alabang", "Bayanan", "Buli", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"
+          ],
+          "Navotas City": [
+            "Bagumbayan North", "Bagumbayan South", "Bangculasi", "Daanghari", "Navotas East", "Navotas West", "North Bay Boulevard North", "North Bay Boulevard South", "San Jose", "San Rafael Village", "San Roque", "Sipac-Almacen", "Tangos North", "Tangos South", "Tanza 1", "Tanza 2"
+          ],
+          "Parañaque City": [
+            "Baclaran", "BF Homes", "Don Bosco", "Don Galo", "La Huerta", "Marcelo Green", "Merville", "Moonwalk", "San Antonio", "San Dionisio", "San Isidro", "San Martin de Porres", "Santo Niño", "Sun Valley", "Tambo", "Vitalez"
+          ],
+          "Pasay City": [
+            "Barangay 1", "Barangay 76", "Barangay 183 (Villamor)", "Malibay", "Maricaban", "Pia", "San Isidro", "San Jose", "San Rafael", "San Roque", "Santa Clara"
+          ],
+          "Pasig City": [
+            "Bagong Ilog", "Bagong Katipunan", "Bambang", "Buting", "Caniogan", "Kapitolyo", "Malinao", "Manggahan", "Maybunga", "Oranbo", "Palatiw", "Pinagbuhatan", "Pineda", "Rosario", "Sagad", "San Antonio", "San Joaquin", "San Nicolas", "Santa Cruz", "Santa Lucia", "Santa Rosa", "Santolan", "Sumilang", "Ugong"
+          ],
+          "San Juan City": [
+            "Addition Hills", "Balong-Bato", "Batis", "Corazon de Jesus", "Ermitaño", "Greenhills", "Isabelita", "Kabayanan", "Maytunas", "Onse", "Pasadeña", "Pedro Cruz", "Progreso", "Rivera", "Salapan", "San Perfecto", "Santa Lucia", "Tibagan", "West Crame"
+          ],
+          "Taguig City": [
+            "Bagumbayan", "Bambang", "Calzada", "Central Bicutan", "Fort Bonifacio", "Hagonoy", "Ibayo-Tipas", "Lower Bicutan", "Maharlika Village", "Napindan", "New Lower Bicutan", "Palingon", "Pinagsama", "San Miguel", "Santa Ana", "Tuktukan", "Upper Bicutan", "Ususan", "Western Bicutan"
+          ],
+          "Valenzuela City": [
+            "Arkong Bato", "Bagbaguin", "Balangkas", "Bignay", "Bisig", "Canumay East", "Canumay West", "Coloong", "Dalandanan", "Gen. T. de Leon", "Isla", "Karuhatan", "Lawang Bato", "Lingunan", "Mabolo", "Malanday", "Malinta", "Mapulang Lupa", "Marulas", "Maysan", "Palasan", "Parada", "Pariancillo Villa", "Paso de Blas", "Pasolo", "Poblacion", "Pulo", "Punturin", "Rincon", "Tagalag", "Ugong", "Viente Reales", "Wawang Pulo"
+          ],
+          "Pateros": [
+            "Aguho", "Magtanggol", "Martires del 96", "Poblacion", "San Pedro", "San Roque", "Santa Ana", "Santo Rosario-Kanluran", "Santo Rosario-Silangan", "Tabacalera"
+          ]
+        }
+      },
+      "CAR (Cordillera Administrative Region)": {
+        "Benguet": {
+          "Baguio City": ["Bakakeng Central", "Camp 7", "Guisad Central", "Irisan", "Loakan Proper", "Pacdal", "Trancoville"],
+          "La Trinidad": ["Balili", "Betag", "Pico", "Poblacion", "Puguis", "Wangal"],
+          "Itogon": ["Ampucao", "Poblacion", "Tuding", "Ucab", "Virac"],
+          "Tuba": ["Camp 1", "Camp 3", "Poblacion", "San Roque", "Twin Peaks"]
+        },
+        "Abra": {
+          "Bangued": ["Zone 1 (Poblacion)", "Zone 2 (Poblacion)", "Zone 3 (Poblacion)", "Zone 4 (Poblacion)", "Zone 5 (Poblacion)"],
+          "Bucay": ["Bangcagan", "Pakiling", "Palao", "Poblacion", "Siblong"]
+        },
+        "Apayao": {
+          "Conner": ["Buluan", "Caglayan", "Malama", "Poblacion"],
+          "Kabugao": ["Badduat", "Lenneng", "Musimut", "Poblacion"]
+        },
+        "Ifugao": {
+          "Lagawe": ["Boliwong", "Burnay", "Montabiong", "Poblacion East", "Poblacion West"],
+          "Banaue": ["Batad", "Bocos", "Cambulo", "Poblacion", "Tam-an"]
+        },
+        "Kalinga": {
+          "Tabuk City": ["Agbañno", "Bulanao", "Dagupan Centro", "Laya", "Naneng", "San Juan"]
+        },
+        "Mountain Province": {
+          "Bontoc": ["Caluttit", "Poblacion", "Samoki", "Tocucan"],
+          "Sagada": ["Aguid", "Ambasing", "Demang", "Madongo", "Poblacion", "Tetepan"]
+        }
+      },
+      "Region I (Ilocos Region)": {
+        "Ilocos Norte": {
+          "Laoag City": ["Barangay 1 (San Lorenzo)", "Barangay 2 (Santa Joaquina)", "Barangay 9 (San Salvador)", "Nalbo", "San Guillermo"],
+          "Batac City": ["Aglipay", "Callaguip", "Palpalicong", "Poblacion", "Quiling Sur"]
+        },
+        "Ilocos Sur": {
+          "Vigan City": ["Ayusan Norte", "Ayusan Sur", "Beddeng Laud", "Camangaan", "Poblacion", "Rizal", "Tamag"],
+          "Candon City": ["Bagani Campo", "Calaoan", "Caterman", "Parioc Primero", "Poblacion"]
+        },
+        "La Union": {
+          "San Fernando City": ["Biday", "Catbangen", "Dalumpinas Este", "Ilocanos Norte", "Lingsat", "Madayegdeg", "Parian", "Sevilla", "Tanqui"],
+          "Bauang": ["Central East", "Central West", "Payocpoc Norte", "Pugo"]
+        },
+        "Pangasinan": {
+          "Dagupan City": ["Bonuan Boquig", "Bonuan Gueset", "Caranglaan", "Herrero", "Lucao", "Malued", "Mayombo", "Pantalan", "Poblacion Oeste", "Tapuac"],
+          "San Carlos City": ["Abanon", "Balaya", "Bocboc", "Caoayan Kiling", "Coliling", "Ilang", "Mabalbalino", "Palaris", "Poblacion", "Talang"],
+          "Urdaneta City": ["Anonas", "Camantiles", "Nancayasan", "Pinmaludpod", "Poblacion", "San Vicente"],
+          "Alaminos City": ["Lucap", "Palamis", "Poblacion", "San Jose", "Telbang"],
+          "Lingayen": ["Aliwekwek", "Baay", "Maniboc", "Pangapisan North", "Poblacion"]
+        }
+      },
+      "Region II (Cagayan Valley)": {
+        "Cagayan": {
+          "Tuguegarao City": ["Atulayan Norte", "Bagay", "Buntun", "Carig Sur", "Centro 1 (Poblacion)", "Pengue-Ruyu", "San Gabriel", "Ugac Sur"],
+          "Aparri": ["Centro 1", "Centro 2", "Punta", "San Antonio", "Toran"]
+        },
+        "Isabela": {
+          "Ilagan City": ["Alibagu", "Baligatan", "Calamagui 1st", "Centro Poblacion", "Guinatan", "Marana 1st"],
+          "Santiago City": ["Centro East", "Centro West", "Dubinan East", "Malvar", "Victory Norte", "Victory Sur"],
+          "Cauayan City": ["Cabugao", "Centro", "District I", "District II", "San Fermin", "Tagaran"]
+        },
+        "Nueva Vizcaya": {
+          "Bayombong": ["Bonfal Proper", "Don Domingo Maddela", "Don Tomas Maddela", "La Torre", "Vista Alegre"],
+          "Solano": ["Aggub", "Bascaran", "Poblacion North", "Poblacion South", "Roxas"]
+        },
+        "Quirino": {
+          "Cabarroguis": ["Gundaway", "Mangandingay", "San Marcos", "Villamor", "Zamora"]
+        },
+        "Batanes": {
+          "Basco": ["Chanarian", "Kaychanarianan", "Kayhuvokan", "San Antonio", "San Jose"]
+        }
+      },
+      "Region III (Central Luzon)": {
+        "Bulacan": {
+          "Malolos City": ["Bulihan", "Caingin", "Catmon", "Cofradia", "Dakila", "Guinhawa", "Liang", "Lugam", "Mojon", "Panasahan", "San Gabriel", "San Vicente", "Santo Rosario", "Sumapang Matanda"],
+          "City of Meycauayan": ["Bancal", "Calvario", "Camalig", "Hulo", "Iba", "Langka", "Malhacan", "Perez", "Saluysoy", "Tugatog", "Zamora"],
+          "San Jose del Monte City": ["Citrus", "Ciudad Real", "Dulong Bayan", "Gaya-Gaya", "Graceville", "Kaybanban", "Muzon", "Poblacion", "Sapang Palay", "Tungkong Mangga"],
+          "Marilao": ["Abangan Norte", "Abangan Sur", "Ibayo", "Lias", "Poblacion I", "Poblacion II", "Saog", "Tabing Ilog"],
+          "Santa Maria": ["Bagbaguin", "Caypombo", "Guyong", "Parada", "Poblacion", "Pulong Buhangin", "San Gabriel"],
+          "Baliwag City": ["Bagong Nayon", "Concepcion", "Poblacion", "San Jose", "Subic", "Tangos", "Tibag"]
+        },
+        "Pampanga": {
+          "San Fernando City": ["Baliti", "Calulut", "Del Carmen", "Dolores", "Juliana", "Magliman", "Maimpis", "Malpitic", "Quebiawan", "Saguin", "San Agustin", "San Jose", "San Nicolas", "Sindalan", "Telebastagan"],
+          "Angeles City": ["Balibago", "Capaya", "Claro M. Recto", "Cutcut", "Lourdes North West", "Malabañas", "Pampang", "Pulung Maragul", "Salapungan", "Santo Domingo", "Santo Rosario"],
+          "Mabalacat City": ["Atlu-Bola", "Camachiles", "Dau", "Mabiga", "Poblacion", "San Francisco"]
+        },
+        "Bataan": {
+          "Balanga City": ["Bagumbayan", "Camacho", "Central", "Cupang North", "Cupang Proper", "Doña Francisca", "Ibayo", "Malabia", "Poblacion", "Puerto Rivas Ibaba", "Puerto Rivas Itaas", "San Jose", "Sibacan", "Talisay", "Tanato", "Tenejero", "Tortugas", "Tuyo"],
+          "Dinalupihan": ["Kataasan", "Luacan", "Poblacion", "San Benito", "San Ramon"],
+          "Mariveles": ["Alas-asin", "Baseco", "Camaya", "Malaya", "Poblacion", "Townsite"]
+        },
+        "Nueva Ecija": {
+          "Cabanatuan City": ["Bantug Bulalo", "Bitas", "D.S. Garcia", "General Luna", "Kapitan Pepe", "Mabini Homesite", "Magsaysay Sur", "Mayapyap Sur", "Quezon District", "San Josef Sur", "Sangitan", "Zulueta"],
+          "Gapan City": ["Bamban", "Bayanihan", "San Nicolas", "San Vicente", "Santo Cristo Norte"],
+          "Palayan City": ["Atate", "Caballero", "Caimito", "Ganaderia", "Singalat"],
+          "San Jose City": ["Malasin", "Palusapis", "Rafael Rueda", "Sto. Niño 1st", "Sto. Tomas"]
+        },
+        "Tarlac": {
+          "Tarlac City": ["Aguso", "Binauganan", "Cut-cut 1st", "Fairlane", "Maliwalo", "Matatalaib", "Poblacion", "San Nicolas", "San Roque", "San Sebastian", "San Vicente", "Sepung Calzada", "Sto. Cristo", "Tibag"],
+          "Capas": ["Cristo Rey", "Cutcut 1st", "Dolores", "O'Donnell", "Poblacion", "Sto. Domingo"]
+        },
+        "Zambales": {
+          "Olongapo City": ["Asinan", "Barretto", "East Bajac-bajac", "East Tapinac", "Gordon Heights", "Kalaklan", "Mabayuan", "New Cabalan", "Old Cabalan", "Pag-asa", "Santa Rita", "West Bajac-bajac", "West Tapinac"],
+          "Subic": ["Baraca-Camachile", "Calapacuan", "Ilwas", "Manggahan", "Matain", "Pamatawan"]
+        },
+        "Aurora": {
+          "Baler": ["Barangay 1 (Poblacion)", "Barangay 2 (Poblacion)", "Barangay 3 (Poblacion)", "Barangay 4 (Poblacion)", "Calabuanan", "Pingit", "Reserva", "Sabang", "Suklayin", "Zabali"]
+        }
+      },
+      "Region IV-B (MIMAROPA)": {
+        "Oriental Mindoro": {
+          "Calapan City": ["Balingayan", "Camamilig", "Ibaba East", "Ilaya", "Lalud", "Lumangbayan", "Pachoca", "San Vicente", "Tawiran"],
+          "Naujan": ["Barcenaga", "Inarawan", "Poblacion 1", "San Agustin"],
+          "Puerto Galera": ["Aninuan", "Balatero", "Poblacion", "Sabang", "San Isidro", "White Beach"]
+        },
+        "Occidental Mindoro": {
+          "San Jose": ["Bagong Sikat", "Central", "Labangan Poblacion", "San Roque"],
+          "Mamburao": ["Balansay", "Fatima", "Payompon", "Poblacion 1", "Poblacion 2"]
+        },
+        "Marinduque": {
+          "Boac": ["Balanacan", "Isok 1", "Murallon", "Poblacion", "Santol"],
+          "Santa Cruz": ["Buyabod", "Matalaba", "Morales", "Poblacion"],
+          "Gasan": ["Bognuyan", "Dili", "Libtangin", "Poblacion"]
+        },
+        "Romblon": {
+          "Romblon": ["Bagacay", "Capaclan", "Ilauran", "Poblacion"],
+          "Odiongan": ["Budiong", "Ligaya", "Poctoy", "Poblacion"]
+        },
+        "Palawan": {
+          "Puerto Princesa City": ["Bancao-Bancao", "Bagong Sikat", "Irawan", "Mandaragat", "San Jose", "San Manuel", "San Miguel", "San Pedro", "Santa Lourdes", "Santa Monica", "Tagburos", "Tiniguiban"],
+          "Coron": ["Banuang Daan", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Tagumpay"],
+          "El Nido": ["Barotuan", "Buena Suerte", "Corong-Corong", "Maligaya", "Masagana", "Villa Libertad"]
+        }
+      },
+      "Region V (Bicol Region)": {
+        "Albay": {
+          "Legazpi City": ["Bagacay", "Bitano", "Bogtong", "Cruzada", "Gogon", "Ilawod", "Oro Site", "Pinaric", "Rawis", "San Roque", "Tamaoyan", "Victory Village"],
+          "Ligao City": ["Dunao", "Guilid", "Tinago", "Tuburan"],
+          "Tabaco City": ["Basud", "Fatima", "San Carlos", "San Juan"],
+          "Daraga": ["Bañag", "Binitayan", "Cullat", "Ilawod", "Kimantong", "Market Site", "San Roque"]
+        },
+        "Camarines Sur": {
+          "Naga City": ["Abella", "Bagumbayan Norte", "Balatas", "Concepcion Grande", "Concepcion Pequeña", "Dayangdang", "Dinaga", "Igualdad", "Mabolo", "Peñafrancia", "San Francisco", "Triangulo"],
+          "Iriga City": ["Francia", "San Agustin", "San Francisco", "San Nicolas", "San Roque"]
+        },
+        "Camarines Norte": {
+          "Daet": ["Bagasbas", "Camambugan", "Gahonon", "Magang", "Poblacion", "San Isidro"]
+        },
+        "Sorsogon": {
+          "Sorsogon City": ["Balogo", "Bibincahan", "Burabod", "Cabid-an", "Piot", "Talisay", "Tugos"]
+        },
+        "Catanduanes": {
+          "Virac": ["Caprehahan", "Concepcion", "Francia", "Gogon", "Rawis", "San Roque"]
+        },
+        "Masbate": {
+          "Masbate City": ["Bapor", "Centro", "Ibingay", "Nursery", "Tugbo"]
+        }
+      },
+      "Region VI (Western Visayas)": {
+        "Iloilo": {
+          "Iloilo City": ["Baldoza", "Bolilao", "Calumpang", "City Proper", "Dungon A", "Jaro", "La Paz", "Mandurriao", "Molo", "Sambag", "Sooc", "Tabuc Suba", "Villa Arevalo"],
+          "Passi City": ["Man-It", "Poblacion Ilawod", "Poblacion Ilaya", "Salngan"],
+          "Oton": ["Alegre", "Botong", "Buray", "Poblacion South", "Poblacion West"]
+        },
+        "Negros Occidental": {
+          "Bacolod City": ["Alangilan", "Alijis", "Banago", "Bata", "Cabug", "Estefania", "Granada", "Mandalagan", "Mansilingan", "Singcang-Airport", "Sum-ag", "Taculing", "Tangub", "Villamonte"],
+          "Silay City": ["Guinhalaran", "Mambulac", "Rizal", "Silay Poblacion"],
+          "Talisay City": ["Bubog", "Dos Hermanas", "Matab-ang", "Zone 1", "Zone 2"],
+          "Bago City": ["Balingasag", "Caridad", "Ma-ao", "Poblacion"]
+        },
+        "Capiz": {
+          "Roxas City": ["Banica", "Baybay", "Dayao", "Inzo Arnaldo", "Lawaan", "Mongpong", "Poblacion", "Tiza"]
+        },
+        "Aklan": {
+          "Kalibo": ["Andagao", "Bachaw Norte", "Desposorio", "Mobo", "New Buswang", "Old Buswang", "Poblacion", "Pook"],
+          "Malay / Boracay": ["Balabag", "Manoc-Manoc", "Yapak", "Caticlan", "Poblacion"]
+        },
+        "Antique": {
+          "San Jose de Buenavista": ["Atabay", "Funda-Dalipe", "Madrangca", "Maybato", "Mojon", "San Fernando"]
+        },
+        "Guimaras": {
+          "Jordan": ["Alaguisoc", "Hoskin", "Poblacion", "San Miguel"]
+        }
+      },
+      "Region VII (Central Visayas)": {
+        "Cebu": {
+          "Cebu City": ["Apas", "Banilad", "Basak San Nicolas", "Guadalupe", "Kamputhaw", "Kasambagan", "Lahug", "Mabolo", "Pardo", "Punta Princesa", "Sambag I", "Talamban", "Tisa", "Tinago", "Zapatera"],
+          "Mandaue City": ["Bakilid", "Banilad", "Basak", "Cabancalan", "Centro", "Guizo", "Ibabao-Estancia", "Looc", "Maguikay", "Subangdaku", "Tipolo"],
+          "Lapu-Lapu City": ["Basak", "Gun-ob", "Ibo", "Mactan", "Maribago", "Marigondon", "Pajac", "Pajo", "Pusok", "Subabasbas"],
+          "Talisay City": ["Bulacao", "Cansojong", "Dumlog", "Lawaan I", "Poblacion", "San Roque"],
+          "Toledo City": ["Cantabaco", "Ibo", "Luray I", "Poblacion", "Sangi"],
+          "Danao City": ["Guinsay", "Poblacion", "Sabang", "Tuburan Sur"]
+        },
+        "Bohol": {
+          "Tagbilaran City": ["Bool", "Booy", "Cabawan", "Cogon", "Dampas", "Manga", "Mansasa", "Poblacion I", "Poblacion II", "Poblacion III", "San Isidro", "Taloto", "Tiptip", "Ubujan"],
+          "Panglao": ["Bil-isan", "Bolod", "Danao", "Libaong", "Poblacion", "Tawala"]
+        },
+        "Negros Oriental": {
+          "Dumaguete City": ["Bagacay", "Bajumpandan", "Banilad", "Bantayan", "Batinguel", "Cadawinonan", "Calindagan", "Camanjac", "Candau-ay", "Cantil-e", "Daro", "Junob", "Looc", "Mangnao-Canal", "Motong", "Piapi", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Poblacion 4", "Poblacion 5", "Poblacion 6", "Poblacion 7", "Poblacion 8", "Pulantubig", "Tabuctubig", "Taclobo", "Talay"],
+          "Bais City": ["Can-ayon", "Hangyad", "Talungon", "Tangculogan"]
+        },
+        "Siquijor": {
+          "Siquijor": ["Cang-alwang", "Canal", "Poblacion", "Pangi", "Tacdog"]
+        }
+      },
+      "Region VIII (Eastern Visayas)": {
+        "Leyte": {
+          "Tacloban City": ["Abucay", "Bagacay", "Caibaan", "Marasbaras", "Nula-Tula", "Sagkahan", "San Jose", "Utap"],
+          "Ormoc City": ["Cogon", "Ipil", "Linao", "San Pablo", "Valencia"]
+        },
+        "Southern Leyte": {
+          "Maasin City": ["Abgao", "Combado", "Ibarra", "Mantahan", "Tunga-tunga"]
+        },
+        "Samar": {
+          "Catbalogan City": ["Bunuanan", "Canlapwas", "Guinsorongan", "Mercedes", "Muñoz", "Poblacion 1"],
+          "Calbayog City": ["Capoocan", "Dagum", "Hamorawon", "Matobato", "Obrero"]
+        },
+        "Eastern Samar": {
+          "Borongan City": ["Alang-alang", "Balud", "Campesao", "Songco", "Taboc"]
+        },
+        "Northern Samar": {
+          "Catarman": ["Casoy", "Cawayan", "Dalakit", "Narra", "Poblacion"]
+        },
+        "Biliran": {
+          "Naval": ["Atipolo", "Castin", "P.I. Garcia", "Santissimo Rosario", "Smo. Rosario"]
+        }
+      },
+      "Region IX (Zamboanga Peninsula)": {
+        "Zamboanga del Sur": {
+          "Zamboanga City": ["Ayala", "Baliwasan", "Canelar", "Guiwan", "Pasonanca", "Santa Maria", "Tetuan", "Tumaga", "Putik", "San Jose Gusu"],
+          "Pagadian City": ["Balangasan", "Danlugan", "Gatas", "San Jose", "San Pedro", "Santa Lucia", "Tuburan"]
+        },
+        "Zamboanga del Norte": {
+          "Dipolog City": ["Barra", "Biasong", "Central", "Estaka", "Galas", "Miputak", "Olingan", "Turno"],
+          "Dapitan City": ["Bagting", "Dawo", "Potungan", "San Vicente"]
+        },
+        "Zamboanga Sibugay": {
+          "Ipil": ["Don Andres", "Poblacion", "Sanito", "Tiayon", "Veterans Village"]
+        }
+      },
+      "Region X (Northern Mindanao)": {
+        "Misamis Oriental": {
+          "Cagayan de Oro City": ["Balulang", "Bugo", "Bulua", "Carmen", "Gusa", "Iponan", "Kauswagan", "Lapasan", "Macabalan", "Macasandig", "Nazareth", "Patag", "Puerto", "Puntod"],
+          "Gingoog City": ["Agay-ayan", "Daan-Lungsod", "Lunao", "Poblacion"]
+        },
+        "Bukidnon": {
+          "Malaybalay City": ["Aglayan", "Casisang", "Kalasungay", "Poblacion", "Sumpong"],
+          "Valencia City": ["Bagontaas", "Batangan", "Catualan", "Poblacion", "Sugod"]
+        },
+        "Lanao del Norte": {
+          "Iligan City": ["Ditucalan", "Hinaplanon", "Kiwalan", "Pala-o", "Poblacion", "Saray", "Suarez", "Tambacan", "Tibanga", "Tubod"]
+        },
+        "Misamis Occidental": {
+          "Ozamiz City": ["Aguada", "Banadero", "Catadman-Manabay", "Gango", "San Roque"],
+          "Oroquieta City": ["Canubay", "Lower Langcangan", "Mobod", "Poblacion 1"]
+        },
+        "Camiguin": {
+          "Mambajao": ["Agoho", "Balbagon", "Baylao", "Poblacion", "Yumbing"]
+        }
+      },
+      "Region XI (Davao Region)": {
+        "Davao del Sur": {
+          "Davao City": ["Agdao", "Buhangin", "Bucana", "Catalunan Grande", "Catalunan Pequeño", "Matina Aplaya", "Matina Crossing", "Matina Pangi", "Mintal", "Poblacion", "Sasa", "Talomo", "Toril", "Tugbok", "Bunawan"],
+          "Digos City": ["Aplaya", "Cogon", "Colorado", "San Jose", "Zone 1", "Zone 2", "Zone 3"]
+        },
+        "Davao del Norte": {
+          "Tagum City": ["Apokon", "Canocotan", "Mankilam", "Magugpo East", "Magugpo North", "Magugpo Poblacion", "Magugpo South", "Magugpo West", "San Miguel", "Visayan Village"],
+          "Panabo City": ["Gredu", "New Pandan", "San Francisco", "Sto. Niño"]
+        },
+        "Davao de Oro": {
+          "Nabunturan": ["Anislagan", "Mainit", "Poblacion", "San Vicente"]
+        },
+        "Davao Oriental": {
+          "Mati City": ["Central", "Dahican", "Matiao", "Sainz", "Tamisan"]
+        },
+        "Davao Occidental": {
+          "Malita": ["Bolia", "Fishing Village", "Poblacion", "Tubalan"]
+        }
+      },
+      "Region XII (SOCCSKSARGEN)": {
+        "South Cotabato": {
+          "General Santos City": ["Apopong", "Baluan", "Bula", "Calumpang", "City Heights", "Dadiangas East", "Dadiangas North", "Dadiangas South", "Dadiangas West", "Fatima", "Labangal", "Lagao", "Mabuhay", "San Isidro", "Tambler"],
+          "Koronadal City": ["General Paulino Santos", "Morales", "Santa Cruz", "Zone I", "Zone II", "Zone III", "Zone IV"]
+        },
+        "Cotabato": {
+          "Kidapawan City": ["Balindog", "Manongol", "Poblacion", "Singao", "Sudapin"]
+        },
+        "Sultan Kudarat": {
+          "Tacurong City": ["Griño", "New Isabela", "Poblacion", "San Emmanuel"]
+        },
+        "Sarangani": {
+          "Alabel": ["Alegria", "Kawas", "Maribulan", "Poblacion"]
+        }
+      },
+      "Region XIII (Caraga)": {
+        "Agusan del Norte": {
+          "Butuan City": ["Ambago", "Baan KM 3", "Bayanihan", "Doongan", "Golden Ribbon", "Holy Redeemer", "Libertad", "Ong Yiu", "Pangabugan", "San Vicente", "Villa Kananga"],
+          "Cabadbaran City": ["Bay-ang", "Cabiltinan", "Comagascas", "Mabini", "Poblacion 1"]
+        },
+        "Agusan del Sur": {
+          "Bayugan City": ["Fili", "Maygatasan", "Poblacion", "Taglatawan"]
+        },
+        "Surigao del Norte": {
+          "Surigao City": ["Cagdianao", "Canlanipa", "Ipil", "Luna", "Rizal", "San Juan", "Taft", "Washington"]
+        },
+        "Surigao del Sur": {
+          "Tandag City": ["Bag-ong Lungsod", "Bongtud", "Dagocdoc", "Mabua", "Telaje"],
+          "Bislig City": ["Mangagoy", "Poblacion", "San Fernando", "Tabon"]
+        },
+        "Dinagat Islands": {
+          "San Jose": ["Cuarenta", "Don Ruben Ecleo", "Justiniana Edera", "Poblacion"]
+        }
+      },
+      "BARMM (Bangsamoro Autonomous Region in Muslim Mindanao)": {
+        "Maguindanao del Norte": {
+          "Cotabato City": ["Bagua 1", "Bagua 2", "Kalanganan 1", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Poblacion 4", "Rosary Heights 1", "Rosary Heights 2", "Tamontaka 1"]
+        },
+        "Lanao del Sur": {
+          "Marawi City": ["Banggolo", "Bo. Green", "Dayawan", "Datu Saber", "East Basak", "Lilod Madaya", "Marawi Poblacion", "Raya Saduc", "Toros"]
+        },
+        "Basilan": {
+          "Isabela City": ["Eastside", "Kaumpurnah", "Menzi", "Port Area", "Riverside", "Sunrise", "Tabuk"]
+        },
+        "Sulu": {
+          "Jolo": ["Alhuda", "Asturias", "Chinese Pier", "San Raymundo", "Tulay", "Walled City"]
+        },
+        "Tawi-Tawi": {
+          "Bongao": ["Lamion", "Pag-asa", "Poblacion", "Simandagit", "Tubig Boh"]
+        }
+      }
     };
 
     function initAddressDropdowns(savedRegion, savedProvince, savedCity, savedBarangay) {
@@ -812,7 +1256,6 @@ input:checked + .slider:before { transform: translateX(26px); }
         Object.keys(PHILIPPINE_ADDRESSES).forEach(r => {
             regSelect.innerHTML += `<option value="${r}">${r}</option>`;
         });
-        regSelect.innerHTML += '<option value="Other">Other</option>';
 
         if (savedRegion) {
             regSelect.value = savedRegion;
@@ -826,12 +1269,11 @@ input:checked + .slider:before { transform: translateX(26px); }
         if (!provSelect) return;
         provSelect.innerHTML = '<option value="">Select Province</option>';
 
-        if (reg && reg !== 'Other' && PHILIPPINE_ADDRESSES[reg]) {
+        if (reg && PHILIPPINE_ADDRESSES[reg]) {
             Object.keys(PHILIPPINE_ADDRESSES[reg]).forEach(p => {
                 provSelect.innerHTML += `<option value="${p}">${p}</option>`;
             });
         }
-        provSelect.innerHTML += '<option value="Other">Other</option>';
         if (targetProv) provSelect.value = targetProv;
 
         onProvinceChange(targetCity, targetBrgy);
@@ -844,12 +1286,11 @@ input:checked + .slider:before { transform: translateX(26px); }
         if (!citySelect) return;
         citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
 
-        if (reg && reg !== 'Other' && prov && prov !== 'Other' && PHILIPPINE_ADDRESSES[reg] && PHILIPPINE_ADDRESSES[reg][prov]) {
+        if (reg && prov && PHILIPPINE_ADDRESSES[reg] && PHILIPPINE_ADDRESSES[reg][prov]) {
             Object.keys(PHILIPPINE_ADDRESSES[reg][prov]).forEach(c => {
                 citySelect.innerHTML += `<option value="${c}">${c}</option>`;
             });
         }
-        citySelect.innerHTML += '<option value="Other">Other</option>';
         if (targetCity) citySelect.value = targetCity;
 
         onCityChange(targetBrgy);
@@ -863,13 +1304,12 @@ input:checked + .slider:before { transform: translateX(26px); }
         if (!brgySelect) return;
         brgySelect.innerHTML = '<option value="">Select Barangay</option>';
 
-        if (reg && reg !== 'Other' && prov && prov !== 'Other' && city && city !== 'Other' && 
+        if (reg && prov && city && 
             PHILIPPINE_ADDRESSES[reg] && PHILIPPINE_ADDRESSES[reg][prov] && PHILIPPINE_ADDRESSES[reg][prov][city]) {
             PHILIPPINE_ADDRESSES[reg][prov][city].forEach(b => {
                 brgySelect.innerHTML += `<option value="${b}">${b}</option>`;
             });
         }
-        brgySelect.innerHTML += '<option value="Other">Other</option>';
         if (targetBrgy) brgySelect.value = targetBrgy;
     }
 
@@ -1407,7 +1847,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     const timeMins = Math.round(summary.totalTime / 60);
 
                     document.getElementById('settingsRouteDistance').innerText = `${distKm} km to BMV3 Center`;
-                    document.getElementById('settingsRouteDuration').innerText = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
+                    document.getElementById('settingsRouteDuration').innerHTML = `<i class="fa-solid fa-clock" style="margin-right:6px;"></i> ~${timeMins} mins drive`;
                 }
             });
         }

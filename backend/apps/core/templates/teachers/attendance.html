@@ -185,10 +185,31 @@
 
 <!-- NEW SECTION: Daily Attendance Checklist -->
 <div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;">
-    <div class="section-title" style="color: #4a90e2;">Daily Checklist</div>
-    <div class="section-subtitle">
-        Take attendance for class date: 
-        <input type="date" id="attendanceDate" class="date-picker">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px;">
+        <div>
+            <div class="section-title" style="color: #4a90e2; margin:0;">Daily Attendance Checklist</div>
+            <div class="section-subtitle" style="margin:5px 0 0 0; display:flex; align-items:center; gap:8px;">
+                <span>Class Date:</span>
+                <input type="date" id="attendanceDate" class="date-picker">
+            </div>
+        </div>
+        
+        <!-- BMV3 Shift Class Switcher -->
+        <div style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:5px; border-radius:10px; border:1px solid #cbd5e1;">
+            <button type="button" id="btn-shift-morning" onclick="setAttendanceShift('Morning')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:#063970; color:#fff; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Morning Shift (AM)
+            </button>
+            <button type="button" id="btn-shift-afternoon" onclick="setAttendanceShift('Afternoon')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-cloud-sun" style="color:#f97316;"></i> Afternoon Shift (PM)
+            </button>
+            <button type="button" id="btn-shift-all" onclick="setAttendanceShift('All')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-users"></i> All Shifts
+            </button>
+        </div>
+    </div>
+    
+    <div id="shift-count-badge" style="font-size:0.82rem; color:#475569; margin-bottom:15px; padding:6px 12px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; display:inline-block;">
+        Loading students...
     </div>
     
     <div class="student-list" id="daily-checklist-container">
@@ -196,9 +217,19 @@
     </div>
 </div>
 
-<div class="tabs">
-    <div class="tab active" id="tab-all" onclick="switchTab('all')">All Children</div>
-    <div class="tab" id="tab-alerts" onclick="switchTab('alerts')">Alerts Only</div>
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+    <div class="tabs" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+        <div class="tab active" id="tab-all" onclick="switchTab('all')">All Children</div>
+        <div class="tab" id="tab-alerts" onclick="switchTab('alerts')">Alerts Only</div>
+    </div>
+    
+    <!-- Overview Shift Filter -->
+    <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:0.8rem; color:#64748b; font-weight:600;">Filter Overview:</span>
+        <button type="button" id="btn-overview-shift-all" onclick="setOverviewShift('All')" style="border:1px solid #cbd5e1; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.78rem; cursor:pointer; background:#063970; color:#fff;">All</button>
+        <button type="button" id="btn-overview-shift-morning" onclick="setOverviewShift('Morning')" style="border:1px solid #cbd5e1; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.78rem; cursor:pointer; background:transparent; color:#64748b;">Morning</button>
+        <button type="button" id="btn-overview-shift-afternoon" onclick="setOverviewShift('Afternoon')" style="border:1px solid #cbd5e1; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.78rem; cursor:pointer; background:transparent; color:#64748b;">Afternoon</button>
+    </div>
 </div>
 
 <!-- Attendance Overview -->
@@ -262,6 +293,63 @@
     let noClassDB = {};
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth();
+
+    let currentChecklistShift = 'Morning'; // 'Morning', 'Afternoon', 'All'
+    let currentOverviewShift = 'All'; // 'All', 'Morning', 'Afternoon'
+
+    function setAttendanceShift(shift) {
+        currentChecklistShift = shift;
+        ['morning', 'afternoon', 'all'].forEach(s => {
+            const btn = document.getElementById('btn-shift-' + s);
+            if (!btn) return;
+            if (s === shift.toLowerCase()) {
+                btn.style.background = '#063970';
+                btn.style.color = '#fff';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#64748b';
+            }
+        });
+        renderChecklistForDate(datePicker.value);
+    }
+    window.setAttendanceShift = setAttendanceShift;
+
+    function setOverviewShift(shift) {
+        currentOverviewShift = shift;
+        ['all', 'morning', 'afternoon'].forEach(s => {
+            const btn = document.getElementById('btn-overview-shift-' + s);
+            if (!btn) return;
+            if (s === shift.toLowerCase()) {
+                btn.style.background = '#063970';
+                btn.style.color = '#fff';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#64748b';
+            }
+        });
+        renderOverview();
+    }
+    window.setOverviewShift = setOverviewShift;
+
+    async function toggleStudentShift(studentId, currentShift) {
+        const newShift = currentShift === 'Morning' ? 'Afternoon' : 'Morning';
+        if (!confirm(`Switch this student from ${currentShift} Shift to ${newShift} Shift class?`)) return;
+        try {
+            await fetch(`/api/children/${studentId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ shift: newShift })
+            });
+            await fetchData();
+        } catch(e) {
+            console.error('Error toggling shift', e);
+            alert('Failed to update student shift.');
+        }
+    }
+    window.toggleStudentShift = toggleStudentShift;
 
     function getParentName(st) {
         if (st.mother_first_name && st.mother_last_name) {
@@ -332,11 +420,14 @@
                 });
             }
             
-            // Reformat records into dictionary by date
+            // Reformat records into dictionary by date, child, and session
             window.mockDatabase = {};
             attendanceRecords.forEach(a => {
+                const s = a.session || 'Morning';
                 if(!mockDatabase[a.date]) mockDatabase[a.date] = {};
-                mockDatabase[a.date][a.child] = a; // Store whole record object
+                if(!mockDatabase[a.date][a.child]) mockDatabase[a.date][a.child] = {};
+                mockDatabase[a.date][a.child][s] = a;
+                mockDatabase[a.date][a.child]['_latest'] = a;
             });
 
             renderCalendar();
@@ -537,7 +628,7 @@
     function renderChecklistForDate(date) {
         const container = document.getElementById('daily-checklist-container');
         container.innerHTML = '';
- 
+
         const parts = date.split('-');
         const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
         const dayOfWeek = dt.getDay();
@@ -557,13 +648,33 @@
             return;
         }
 
-        if(studentsMaster.length === 0) {
-            container.innerHTML = `<div class="empty-state"><h3>System Empty.</h3><p>Please enroll a student via the Children Directory to take attendance.</p></div>`;
+        // Filter students by currentChecklistShift
+        let filteredStudents = studentsMaster;
+        if (currentChecklistShift !== 'All') {
+            filteredStudents = studentsMaster.filter(st => (st.shift || 'Morning') === currentChecklistShift);
+        }
+
+        const shiftCountBadge = document.getElementById('shift-count-badge');
+        if (shiftCountBadge) {
+            const mCount = studentsMaster.filter(s => (s.shift || 'Morning') === 'Morning').length;
+            const aCount = studentsMaster.filter(s => s.shift === 'Afternoon').length;
+            shiftCountBadge.innerHTML = `Showing <strong>${filteredStudents.length}</strong> students in <strong>${currentChecklistShift === 'All' ? 'All Shifts' : currentChecklistShift + ' Shift'}</strong> &bull; Total Morning: <strong>${mCount}</strong> | Total Afternoon: <strong>${aCount}</strong>`;
+        }
+
+        if(filteredStudents.length === 0) {
+            container.innerHTML = `<div class="empty-state"><h3>No students found in ${currentChecklistShift} Shift.</h3><p>Assign students to ${currentChecklistShift} Shift or switch to 'All Shifts'.</p></div>`;
             return;
         }
 
-        studentsMaster.forEach(st => {
-            let recordObj = (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) ? window.mockDatabase[date][st.id] : null;
+        filteredStudents.forEach(st => {
+            const studentShift = st.shift || 'Morning';
+            const targetSession = currentChecklistShift === 'All' ? studentShift : currentChecklistShift;
+            
+            let recordObj = null;
+            if (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) {
+                recordObj = window.mockDatabase[date][st.id][targetSession] || (currentChecklistShift === 'All' ? window.mockDatabase[date][st.id]['_latest'] : null);
+            }
+
             let status = recordObj ? recordObj.status : null;
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
             let badgeHtml = '';
@@ -573,7 +684,11 @@
                 let bn = status === 'present' ? 'Excellent' : (status==='late'?'Warning':'Poor');
                 let bc = status === 'present' ? 'excellent' : (status==='late'?'warning':'poor');
                 let t = status.charAt(0).toUpperCase() + status.slice(1);
-                badgeHtml = `<span class="status-badge ${bc}">${t}</span>`;
+                badgeHtml = `
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                    <span class="status-badge ${bc}">${t}</span>
+                    <span style="font-size:0.72rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession}</span>
+                </div>`;
                 if (status === 'absent' && recordObj.absence_reason) {
                     badgeHtml += `<div style="font-size:0.75rem; color:#d9534f; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
                 }
@@ -588,15 +703,25 @@
                     <div id="reason-area-${st.id}" style="display:none; margin-top:5px; width:100%;">
                         <input type="text" id="reason-input-${st.id}" placeholder="Reason for absence" style="padding: 5px; width: 100%; border-radius:4px; border:1px solid #ccc; font-size: 0.8rem;">
                     </div>
-                    <button class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; margin-top:5px;" onclick="confirmAttendance('${st.id}')">Confirm</button>
+                    <button class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; margin-top:5px;" onclick="confirmAttendance('${st.id}')">Confirm (${targetSession})</button>
                 </div>
                 `;
             }
 
+            const shiftBadge = studentShift === 'Afternoon'
+                ? `<span class="pill" onclick="toggleStudentShift(${st.id}, '${studentShift}')" title="Click to switch class shift" style="background:#fef3c7; color:#b45309; cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift ✎</span>`
+                : `<span class="pill" onclick="toggleStudentShift(${st.id}, '${studentShift}')" title="Click to switch class shift" style="background:#e0f2fe; color:#0369a1; cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning Shift ✎</span>`;
+
             container.innerHTML += `
             <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
-                <div class="item-details"><div class="item-name">${st.first_name} ${st.last_name}</div></div>
+                <div class="item-details">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="item-name">${st.first_name} ${st.last_name}</div>
+                        ${shiftBadge}
+                    </div>
+                    <div class="item-sub">${st.age} years old &bull; Taking: <strong>${targetSession} Attendance</strong></div>
+                </div>
                 ${toggleHtml}
                 <div class="attendance-result">${badgeHtml}</div>
             </div>`;
@@ -618,18 +743,27 @@
             return;
         }
 
+        let filteredStudents = studentsMaster;
+        if (currentOverviewShift !== 'All') {
+            filteredStudents = studentsMaster.filter(st => (st.shift || 'Morning') === currentOverviewShift);
+        }
+
         let totalDates = Object.keys(window.mockDatabase || {}).length || 5; 
         let poorCount = 0;
         let lateCount = 0;
 
-        studentsMaster.forEach(st => {
+        filteredStudents.forEach(st => {
             let daysP = 0;
             let daysL = 0;
             Object.keys(window.mockDatabase || {}).forEach(d => { 
-                let record = window.mockDatabase[d][st.id];
-                if (record) {
-                    if (record.status === 'present') daysP++; 
-                    if (record.status === 'late') daysL++; 
+                let childRecords = window.mockDatabase[d][st.id];
+                if (childRecords) {
+                    // Check shift record or latest
+                    let record = currentOverviewShift === 'All' ? childRecords['_latest'] : (childRecords[currentOverviewShift] || childRecords['_latest']);
+                    if (record) {
+                        if (record.status === 'present') daysP++; 
+                        if (record.status === 'late') daysL++; 
+                    }
                 }
             });
             let attPct = totalDates > 0 ? Math.round((daysP/totalDates)*100) : 0;
@@ -639,12 +773,20 @@
             if(attPct < 80) { badgeClass = 'warning'; badgeText = 'Warning'; poorCount++; }
             if(daysL >= 3) { badgeClass = 'poor'; badgeText = 'Frequent Late'; lateCount++; }
 
+            const studentShift = st.shift || 'Morning';
+            const shiftBadge = studentShift === 'Afternoon'
+                ? `<span class="pill" onclick="toggleStudentShift(${st.id}, '${studentShift}')" title="Click to switch class shift" style="background:#fef3c7; color:#b45309; cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift ✎</span>`
+                : `<span class="pill" onclick="toggleStudentShift(${st.id}, '${studentShift}')" title="Click to switch class shift" style="background:#e0f2fe; color:#0369a1; cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning Shift ✎</span>`;
+
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
             let html = `
             <div class="list-item">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
-                    <div class="item-name">${st.first_name} ${st.last_name}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="item-name">${st.first_name} ${st.last_name}</div>
+                        ${shiftBadge}
+                    </div>
                     <div class="item-sub">${st.age} years old</div>
                 </div>
                 <div class="attendance-stats">
@@ -700,9 +842,13 @@
             reason = document.getElementById('reason-input-' + studentId).value;
         }
         
+        const studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
+        const sessionToRecord = currentChecklistShift === 'All' ? (studentObj?.shift || 'Morning') : currentChecklistShift;
+
         const payload = {
             child: parseInt(studentId),
             date: date,
+            session: sessionToRecord,
             status: status,
             absence_reason: reason
         };
@@ -720,7 +866,6 @@
             // Synchronize with the parent's chat store bmv3_chat_messages
             if (status === 'absent') {
                 let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
-                let studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
                 let chatKey = studentObj ? getStudentChatKey(studentObj) : studentId;
 
                 if (!chatDB[chatKey]) chatDB[chatKey] = [];
@@ -733,7 +878,7 @@
 
                 chatDB[chatKey].push({
                     type: 'system-absent',
-                    text: `[ATTENDANCE RECORD] ${childName} marked ABSENT on ${dateStrFormatted}. Reason logged${reasonText}`,
+                    text: `[ATTENDANCE RECORD] ${childName} marked ABSENT for ${sessionToRecord} Shift on ${dateStrFormatted}. Reason logged${reasonText}`,
                     timestamp: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                     date: now.toLocaleDateString()
                 });

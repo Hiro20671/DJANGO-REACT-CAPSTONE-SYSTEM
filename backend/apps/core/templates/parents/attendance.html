@@ -358,10 +358,11 @@
                 <img id="mobAttChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
                 <div>
                     <div id="mobAttChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
-                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
                         <span id="mobAttChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
                         <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                         <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
+                        <span id="mobAttChildShiftBadge"></span>
                     </div>
                 </div>
             </div>
@@ -440,9 +441,12 @@
     </div>
     
     <!-- HEADER (Desktop) -->
-    <div class="p-header">
-        <h1>Attendance</h1>
-        <p><span id="ui-child-name">Student</span> • <span id="ui-current-month">Month Year</span></p>
+    <div class="p-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1>Attendance</h1>
+            <p><span id="ui-child-name">Student</span> • <span id="ui-current-month">Month Year</span></p>
+        </div>
+        <div id="ui-child-shift-badge" style="display:none; align-items:center;"></div>
     </div>
 
     <!-- STATS (Desktop) -->
@@ -546,6 +550,22 @@
         const child = data.child;
         linkedChildId = child.id;
         document.getElementById('ui-child-name').innerText = child.first_name + ' ' + child.last_name;
+
+        // Shift Badge Binding
+        const isPM = (child.shift || 'Morning').toLowerCase().includes('afternoon');
+        const deskBadge = document.getElementById('ui-child-shift-badge');
+        if (deskBadge) {
+            deskBadge.style.display = 'inline-flex';
+            deskBadge.innerHTML = isPM
+                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+        }
+        const mobBadge = document.getElementById('mobAttChildShiftBadge');
+        if (mobBadge) {
+            mobBadge.innerHTML = isPM
+                ? '<span style="font-size:0.72rem; font-weight:700; background:#ffedd5; color:#ea580c; padding:2px 8px; border-radius:10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
+                : '<span style="font-size:0.72rem; font-weight:700; background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
+        }
         
         const attData = data.attendance || [];
         attData.forEach(record => {

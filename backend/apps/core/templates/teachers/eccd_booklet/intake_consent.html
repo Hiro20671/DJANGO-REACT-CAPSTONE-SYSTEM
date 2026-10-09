@@ -1,0 +1,320 @@
+<div class="booklet-sheet card" style="background:#fff; border-radius:12px; border:1px solid #cbd5e1; padding:30px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    <!-- Header with Sub-Tab Navigators -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #043263; padding-bottom:12px; margin-bottom:25px; flex-wrap:wrap; gap:15px;">
+        <div>
+            <h3 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; color:#043263; font-size:1.3rem;">
+                <i class="fa-solid fa-file-contract" style="margin-right:8px; color:#6366f1;"></i> Day Care Intake, Consent & Behavior Records
+            </h3>
+            <p style="margin:4px 0 0 0; color:#64748b; font-size:0.85rem;">Official administrative intake records, parental consent and ongoing behavioral observation documentation.</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:8px; gap:4px;">
+                <button type="button" id="btnSubIntakeForm" onclick="switchIntakeSubTab('intake')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:#043263; color:white; transition:0.2s;">
+                    Intake Form (Pg 23-24)
+                </button>
+                <button type="button" id="btnSubConsent" onclick="switchIntakeSubTab('consent')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;">
+                    Consent Form (Pg 21)
+                </button>
+                <button type="button" id="btnSubBehavior" onclick="switchIntakeSubTab('behavior')" style="padding:8px 14px; border-radius:6px; border:none; font-weight:800; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;">
+                    Behavior Records
+                </button>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 16px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Form
+            </button>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 1: INTAKE FORM FOR DAY CARE SERVICE (PG 23-24) -->
+    <!-- ======================================================== -->
+    <div id="intakeSubSectionIntake">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin:0 0 12px 0; color:#043263; font-weight:900; font-size:1.1rem; text-transform:uppercase;">
+                INTAKE FORM FOR DAY CARE SERVICE &bull; Page 23
+            </h4>
+            
+            <!-- I. PERSONAL DATA -->
+            <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
+                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">I. PERSONAL DATA:</h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                    <div>
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Religion:</label>
+                        <input type="text" id="intake_religion" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Roman Catholic">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Place of Birth:</label>
+                        <input type="text" id="intake_birthplace" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Lucena City">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Nutritional Status:</label>
+                        <input type="text" id="intake_nutritional_status" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Normal / Underweight">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Physical Handicap/Impairment:</label>
+                        <input type="text" id="intake_handicap" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="None / Specify">
+                    </div>
+                </div>
+            </div>
+
+            <!-- II. FAMILY COMPOSITION TABLE -->
+            <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h5 style="margin:0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                        II. FAMILY COMPOSITION <span style="font-weight:400; color:#64748b; font-size:0.78rem;">(Include parents and all members of the family who live as one household)</span>
+                    </h5>
+                    <button type="button" class="btn btn-outline" onclick="addFamilyMemberRow()" style="padding:4px 10px; font-size:0.8rem; border-color:#0284c7; color:#0284c7;">
+                        <i class="fa-solid fa-plus"></i> Add Member
+                    </button>
+                </div>
+                <div class="table-responsive" style="border:1px solid #cbd5e1; border-radius:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                    <table style="min-width:680px; width:100%; border-collapse:collapse; font-size:0.8rem;" id="familyCompTable">
+                        <thead>
+                            <tr style="background:#091e42; color:white;">
+                                <th style="padding:8px; text-align:left;">Name / Birth Order</th>
+                                <th style="padding:8px; text-align:center; width:50px;">Age</th>
+                                <th style="padding:8px; text-align:center; width:65px;">Sex</th>
+                                <th style="padding:8px; text-align:center; width:90px;">Civil Status</th>
+                                <th style="padding:8px; text-align:left; width:110px;">Relation</th>
+                                <th style="padding:8px; text-align:left;">Highest Educ.</th>
+                                <th style="padding:8px; text-align:left;">Occupation</th>
+                                <th style="padding:8px; text-align:left; width:80px;">Income</th>
+                                <th style="padding:8px; text-align:center; width:40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="familyCompTbody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- III. DEVELOPMENT INFORMATION -->
+            <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
+                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                    III. DEVELOPMENT INFORMATION:
+                </h5>
+                <div style="margin-bottom:10px;">
+                    <label style="font-weight:700; font-size:0.82rem; margin-right:15px;">1. Birth Certificate:</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; margin-right:15px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Available" checked> Available</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Not Available"> Not Available</label>
+                </div>
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; margin-bottom:6px; color:#1e293b;">
+                        2. Child Development Checklist: Check if child's achievement on admission corresponds to 50% and above of indicators for his age:
+                    </label>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:8px; font-size:0.82rem;">
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_motor"> a. Motor development</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_personal_social"> b. Personal-social development</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_cognitive"> c. Cognitive adaptive development</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_language"> d. Language competency</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_god"> e. Social values in relation to God</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_self"> f. Social values in relation to self</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_family"> g. Social values in relation to family</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_nonrelatives"> h. Social values in relation to non-relatives</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_community"> i. Social values in relation to community</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IV. HOME CONDITIONS -->
+            <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
+                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                    IV. HOME CONDITIONS:
+                </h5>
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:0.8rem; font-weight:700;">1. Home conditions observed as likely detrimental to the child:</label>
+                    <input type="text" id="home_detrimental_home" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Mother working part of day, leaving no supervision">
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:0.8rem; font-weight:700;">2. Conditions in the neighborhood that are detrimental to the child:</label>
+                    <input type="text" id="home_detrimental_neigh" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Near high-traffic street, gambling areas">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:10px;" class="resp-grid-2">
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:700;">3. Distance of home to day care center:</label>
+                        <input type="text" id="home_distance" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. 500 meters / 10 mins walk">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:700;">Transportation facility to center:</label>
+                        <input type="text" id="home_transpo" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Walking / Tricycle">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;" class="resp-grid-2">
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:700;">4. Name of escort for child & Relationship:</label>
+                        <input type="text" id="home_escort" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Maria Santos (Mother)">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; font-weight:700;">5. Adult who will receive child upon return & Relationship:</label>
+                        <input type="text" id="home_receiver" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Juan Santos (Father)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- V. PARENTAL EXPECTATIONS (7 QUESTIONS) -->
+            <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
+                <h5 style="margin:0 0 12px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                    V. PARENTAL EXPECTATIONS &bull; Page 24
+                </h5>
+                <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
+                    <div>
+                        <label style="font-weight:700;">1. What do parents expect to learn from attendance at the day care center?</label>
+                        <input type="text" id="pexpect_1" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">2. What are the parents perceived role in instilling values to the child at home?</label>
+                        <input type="text" id="pexpect_2" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">3. What do the parents perceive as their role in relation to the Day Care Worker?</label>
+                        <input type="text" id="pexpect_3" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">4. What do they expect of the Day Care Worker?</label>
+                        <input type="text" id="pexpect_4" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">5. What do the parents perceive as their role in contributing to the success of the Day Care Center?</label>
+                        <input type="text" id="pexpect_5" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">6. What do the parents expect of their children at the Day Care Center?</label>
+                        <input type="text" id="pexpect_6" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight:700;">7. Other Expectations:</label>
+                        <input type="text" id="pexpect_7" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- VI. EVALUATION AND RECOMMENDATION -->
+            <div>
+                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                    VI. EVALUATION AND RECOMMENDATION:
+                </h5>
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:0.8rem; font-weight:700;">1. Assessment of eligibility of child for day care service:</label>
+                    <input type="text" id="eval_eligibility" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="Eligible for Day Care Service Program">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:0.8rem; font-weight:700;">2. Recommended period of day care service (time and months):</label>
+                    <input type="text" id="eval_period" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" value="1 School Year (10 months)">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;" class="resp-grid-2">
+                    <div style="border:1px dashed #cbd5e1; padding:12px; border-radius:6px; text-align:center;">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Accomplished by (Day Care Worker):</label>
+                        <input type="text" id="eval_worker_name" class="form-control" style="width:100%; padding:6px; text-align:center;">
+                    </div>
+                    <div style="border:1px dashed #cbd5e1; padding:12px; border-radius:6px; text-align:center;">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Reviewed by (Social Worker):</label>
+                        <input type="text" id="eval_social_worker_name" class="form-control" style="width:100%; padding:6px; text-align:center;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 2: CONSENT FOR PROVISION OF DAY CARE SERVICE  -->
+    <!-- ======================================================== -->
+    <div id="intakeSubSectionConsent" style="display:none;">
+        <div style="border:2px solid #0f172a; border-radius:10px; padding:30px; background:#fff; max-width:850px; margin:0 auto; box-shadow:0 4px 10px rgba(0,0,0,0.03);">
+            <div style="text-align:center; border-bottom:2px solid #0f172a; padding-bottom:15px; margin-bottom:25px;">
+                <h4 style="margin:0 0 6px 0; font-size:1.3rem; font-weight:900; text-transform:uppercase; color:#0f172a; letter-spacing:0.5px;">
+                    CONSENT OF THE PROVISION OF DAY CARE SERVICE
+                </h4>
+                <div style="font-size:0.85rem; color:#64748b;">Page 21 &bull; Official Parent & Child Care Agreement</div>
+            </div>
+
+            <div style="font-size:0.95rem; line-height:2; color:#1e293b; text-align:justify; margin-bottom:30px;">
+                <p>
+                    We, <input type="text" id="consent_father_name" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:220px; padding:2px 6px;" placeholder="Father / Guardian"> and <input type="text" id="consent_mother_name" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:220px; padding:2px 6px;" placeholder="Mother / Guardian"> of legal age/s resident of <input type="text" id="consent_residence" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:280px; padding:2px 6px;" placeholder="Barangay Market View 3, Lucena City"> are/is the parent/s guardian/s of the minor, <strong id="consent_child_name_text" style="color:#043263;">[Child Name]</strong>.
+                </p>
+                <p>
+                    That said minor was born on <input type="date" id="consent_birthdate" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:160px;"> at <input type="text" id="consent_birthplace" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:180px;" placeholder="Place of birth">.
+                </p>
+                <p>
+                    That said minor is found to be eligible for the Day Care Service and referred to <input type="text" id="consent_referred_to" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:240px;" value="BMV3 Child Development Center"> by <input type="text" id="consent_referred_by" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:180px;" placeholder="Day Care Teacher"> for the period of <input type="text" id="consent_period" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:160px;" value="1 School Year">.
+                </p>
+                <p>
+                    That we consent to the provision of said service to our child for the stated period of here;
+                </p>
+                <p>
+                    That we will provide support in the different activities and continue such activities at home in order to attain the objective of Day Care Service for the welfare of our child.
+                </p>
+                <p>
+                    That we will report any difficulties/problems to the Social Worker/Day Care Worker and cooperate with them to solve said problems.
+                </p>
+                <p>
+                    That, this consent was explained to us and we fully understand into implication.
+                </p>
+            </div>
+
+            <div style="margin-bottom:30px; font-size:0.9rem;">
+                Issued on <input type="date" id="consent_issued_date" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:160px;"> at <input type="text" id="consent_issued_place" style="border:none; border-bottom:1px solid #000; font-weight:bold; width:200px;" value="Lucena City, Quezon">.
+            </div>
+
+            <!-- Signatures Section -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:25px;" class="resp-grid-2">
+                <div style="text-align:center;">
+                    <div style="border-bottom:1px solid #000; height:40px; margin-bottom:6px;"></div>
+                    <strong style="font-size:0.85rem; text-transform:uppercase;">Signature of the Father</strong>
+                </div>
+                <div style="text-align:center;">
+                    <div style="border-bottom:1px solid #000; height:40px; margin-bottom:6px;"></div>
+                    <strong style="font-size:0.85rem; text-transform:uppercase;">Signature of the Mother</strong>
+                </div>
+            </div>
+
+            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size:0.9rem;">Witness:</div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;" class="resp-grid-2">
+                <div style="text-align:center;">
+                    <input type="text" id="consent_witness_social" style="border:none; border-bottom:1px solid #000; text-align:center; width:90%; font-weight:bold;" placeholder="Social Worker Name">
+                    <div style="font-size:0.8rem; margin-top:4px;">(Social Worker)</div>
+                </div>
+                <div style="text-align:center;">
+                    <input type="text" id="consent_witness_worker" style="border:none; border-bottom:1px solid #000; text-align:center; width:90%; font-weight:bold;" placeholder="Day Care Worker Name">
+                    <div style="font-size:0.8rem; margin-top:4px;">(Day Care Worker)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SUB-SECTION 3: OBSERVATIONS & RECORDS OF CHILD'S BEHAVIOR -->
+    <!-- ======================================================== -->
+    <div id="intakeSubSectionBehavior" style="display:none;">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #0f172a; padding-bottom:10px; margin-bottom:15px;">
+                <div>
+                    <h4 style="margin:0; font-size:1.1rem; font-weight:900; text-transform:uppercase; color:#0f172a;">
+                        OBSERVATIONS & RECORDS OF THE CHILD'S BEHAVIOR
+                    </h4>
+                    <p style="margin:4px 0 0 0; color:#64748b; font-size:0.82rem;">Continuous log of special developmental needs, behavioral incidents, and teacher/parent actions taken.</p>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="addBehaviorRow()" style="padding:6px 14px; font-size:0.85rem; border-color:#0284c7; color:#0284c7; font-weight:bold;">
+                    <i class="fa-solid fa-plus"></i> Add Behavior Entry
+                </button>
+            </div>
+
+            <div class="table-responsive" style="border:1px solid #cbd5e1; border-radius:8px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+                <table style="min-width:600px; width:100%; border-collapse:collapse; font-size:0.85rem;" id="behaviorRecordsTable">
+                    <thead>
+                        <tr style="background:#091e42; color:white;">
+                            <th style="padding:10px; text-align:center; width:150px; font-weight:800;">DATE</th>
+                            <th style="padding:10px; text-align:left; font-weight:800;">OBSERVATIONS (Special Need/s)</th>
+                            <th style="padding:10px; text-align:left; font-weight:800;">DISCUSSION/S (Activity taken)</th>
+                            <th style="padding:10px; text-align:center; width:50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="behaviorRecordsTbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

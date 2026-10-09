@@ -82,9 +82,16 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         </div>
         
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; flex-wrap:wrap; gap:15px; margin-top:20px;">
-            <div style="display:flex; gap:10px; width: 100%; max-width: 400px; position: relative;">
-                <input type="text" id="nutritionSearch" placeholder="Search student by name..." style="width: 100%; padding: 10px 15px; padding-left: 38px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-family:'Montserrat', sans-serif;" oninput="renderDashboard()">
-                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.9rem;"></i>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <div style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:8px; gap:4px;">
+                    <button type="button" id="nutriShiftAll" onclick="setNutriShift('all')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:#063970; color:white; transition:0.2s;">All Shifts</button>
+                    <button type="button" id="nutriShiftMorning" onclick="setNutriShift('Morning')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-sun" style="color:#eab308; margin-right:4px;"></i> Morning (AM)</button>
+                    <button type="button" id="nutriShiftAfternoon" onclick="setNutriShift('Afternoon')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-cloud-sun" style="color:#f97316; margin-right:4px;"></i> Afternoon (PM)</button>
+                </div>
+                <div style="position: relative; width: 250px;">
+                    <input type="text" id="nutritionSearch" placeholder="Search student by name..." style="width: 100%; padding: 8px 12px; padding-left: 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; font-family:'Montserrat', sans-serif;" oninput="renderDashboard()">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+                </div>
             </div>
         </div>
 
@@ -93,16 +100,17 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 <thead>
                     <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Student</th>
-                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 100px;">Age</th>
-                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 250px;">Physical Stats</th>
-                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 150px;">Snack Status</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 120px;">Class Shift</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 90px;">Age</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 230px;">Physical Stats</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 140px;">Snack Status</th>
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Teacher Notes</th>
-                        <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:150px;">Actions</th>
+                        <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:130px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="student-list-container">
                     <tr>
-                        <td colspan="6" style="text-align:center; padding:40px; color:#888;">Loading...</td>
+                        <td colspan="7" style="text-align:center; padding:40px; color:#888;">Loading...</td>
                     </tr>
                 </tbody>
             </table>
@@ -280,7 +288,9 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             historyStudentDropdown.innerHTML = '<option value="" disabled selected>Select a child...</option>';
             childrenList.forEach(st => {
                 if(st.enrollment_status !== 'Pending' && st.enrollment_status !== 'Rejected') {
-                    const opt = `<option value="${st.id}">${st.first_name} ${st.last_name}</option>`;
+                    const isM = (st.shift || 'Morning').toLowerCase().includes('morning');
+                    const shiftLbl = isM ? '☀️ Morning AM' : '🌤️ Afternoon PM';
+                    const opt = `<option value="${st.id}">${st.first_name} ${st.last_name} (${shiftLbl})</option>`;
                     logStudentDropdown.innerHTML += opt;
                     bmiStudentDropdown.innerHTML += opt;
                     historyStudentDropdown.innerHTML += opt;
@@ -743,6 +753,26 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         });
     }
 
+    let nutriShiftFilter = 'all';
+
+    function setNutriShift(shift) {
+        nutriShiftFilter = shift;
+        ['all', 'Morning', 'Afternoon'].forEach(s => {
+            const btnId = s === 'all' ? 'nutriShiftAll' : (s === 'Morning' ? 'nutriShiftMorning' : 'nutriShiftAfternoon');
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                if (s.toLowerCase() === shift.toLowerCase()) {
+                    btn.style.background = '#063970';
+                    btn.style.color = 'white';
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#64748b';
+                }
+            }
+        });
+        renderDashboard();
+    }
+
     function renderDashboard() {
         const container = document.getElementById('student-list-container');
         container.innerHTML = '';
@@ -750,18 +780,21 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         const activeChildren = childrenList.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
 
         if(activeChildren.length === 0) {
-            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">System Empty. Please enroll a student via the Children Directory to begin tracking meals.</td></tr>`;
+            container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">System Empty. Please enroll a student via the Children Directory to begin tracking meals.</td></tr>`;
             return;
         }
 
         const isArchive = sessionStorage.getItem('bmv3_archive_year_id');
         
-        // Search & Sort filter
+        // Search & Shift filter
         const searchVal = document.getElementById('nutritionSearch') ? document.getElementById('nutritionSearch').value.trim().toLowerCase() : '';
-        const filteredChildren = activeChildren.filter(c => {
+        let filteredChildren = activeChildren.filter(c => {
             const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
             return fullName.includes(searchVal);
         });
+        if (nutriShiftFilter !== 'all') {
+            filteredChildren = filteredChildren.filter(c => (c.shift || 'Morning').toLowerCase() === nutriShiftFilter.toLowerCase());
+        }
 
         filteredChildren.sort((a, b) => {
             const lastA = (a.last_name || '').toLowerCase();
@@ -791,7 +824,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             }
 
             if (filteredChildren.length === 0) {
-                container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
                 return;
             }
 
@@ -811,6 +844,10 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                     bmiText = `${bmi} (${cat})`;
                 }
                 const init = ((st.first_name ? st.first_name[0] : '') + (st.last_name ? st.last_name[0] : '')).toUpperCase();
+                const isM = (st.shift || 'Morning').toLowerCase().includes('morning');
+                const shiftBadge = isM
+                    ? '<span style="background:#e0f2fe; color:#0284c7; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning AM</span>'
+                    : '<span style="background:#ffedd5; color:#ea580c; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>';
 
                 let html = `
                 <tr style="border-bottom:1px solid #edf2f7; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
@@ -822,6 +859,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                             <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.last_name}, ${st.first_name}</span>
                         </div>
                     </td>
+                    <td style="padding:15px;">${shiftBadge}</td>
                     <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
                     <td style="padding:15px; color:#475569; font-weight:500; font-size:0.85rem;">
                         Height: <strong>${height}</strong><br>
@@ -844,7 +882,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         const overviewDate = document.getElementById('overviewDate').value;
 
         if (filteredChildren.length === 0) {
-            container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
+            container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
             return;
         }
 
@@ -874,6 +912,10 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 bmiText = `${bmi} (${cat})`;
             }
             const init = ((st.first_name ? st.first_name[0] : '') + (st.last_name ? st.last_name[0] : '')).toUpperCase();
+            const isM = (st.shift || 'Morning').toLowerCase().includes('morning');
+            const shiftBadge = isM
+                ? '<span style="background:#e0f2fe; color:#0284c7; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning AM</span>'
+                : '<span style="background:#ffedd5; color:#ea580c; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>';
 
             let html = `
             <tr style="border-bottom:1px solid #edf2f7; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
@@ -885,6 +927,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                         <span style="font-weight:750; color:#1e293b; font-size:0.95rem;">${st.last_name}, ${st.first_name}</span>
                     </div>
                 </td>
+                <td style="padding:15px;">${shiftBadge}</td>
                 <td style="padding:15px; color:#475569; font-weight:500; font-size:0.9rem;">${st.age} years</td>
                 <td style="padding:15px; color:#475569; font-weight:500; font-size:0.85rem;">
                     Height: <strong>${height}</strong> &bull; Weight: <strong>${weight}</strong><br>

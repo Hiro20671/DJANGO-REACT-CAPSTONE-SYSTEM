@@ -1,0 +1,184 @@
+<div class="booklet-sheet card" style="background:#fff; border-radius:12px; border:1px solid #cbd5e1; padding:30px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    <div style="border-bottom:2px solid #043263; padding-bottom:8px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h3 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; color:#043263; font-size:1.3rem;">
+                <i class="fa-solid fa-clipboard-user" style="margin-right:8px;"></i> Examiner's Notes (Page 17)
+            </h3>
+            <p style="margin:4px 0 0 0; color:#64748b; font-size:0.85rem;">Write down your notes, descriptions and observations on the columns provided for each assessment administration.</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 18px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Notes
+        </button>
+    </div>
+
+    <!-- 3 Evaluation Columns Grid -->
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;" class="resp-grid-3">
+        <!-- 1st Evaluation Column -->
+        <div style="background:#f8fafc; border:2px solid #cbd5e1; border-top:5px solid #0284c7; border-radius:10px; padding:18px;">
+            <div style="text-align:center; padding-bottom:10px; margin-bottom:12px; border-bottom:2px solid #e2e8f0;">
+                <span style="background:#0284c7; color:white; padding:3px 12px; border-radius:20px; font-weight:800; font-size:0.8rem; text-transform:uppercase;">1st Evaluation</span>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Name of examiner:</label>
+                <input type="text" id="notes_examiner_1" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Date administered:</label>
+                <input type="date" id="notes_date_1" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Place of test:</label>
+                <input type="text" id="notes_place_1" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;" value="BMV3 Child Development Center">
+            </div>
+
+            <!-- Notes Categories -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Child's background <span style="font-weight:400; color:#64748b;">(ex. behavior/health/etc.)</span>
+                </label>
+                <textarea id="notes_child_bg_1" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Family environment <span style="font-weight:400; color:#64748b;">(ex. Health of family members/problems/economic/etc.)</span>
+                </label>
+                <textarea id="notes_family_env_1" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Parents' stimulating activities for the child <span style="font-weight:400; color:#64748b;">(Activities to help stimulate development)</span>
+                </label>
+                <textarea id="notes_stimulating_1" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Home environment <span style="font-weight:400; color:#64748b;">(ex. Facilities/house type/items/interaction/etc.)</span>
+                </label>
+                <textarea id="notes_home_env_1" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">Others:</label>
+                <textarea id="notes_others_1" rows="2" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+        </div>
+
+        <!-- 2nd Evaluation Column -->
+        <div style="background:#f8fafc; border:2px solid #cbd5e1; border-top:5px solid #d97706; border-radius:10px; padding:18px;">
+            <div style="text-align:center; padding-bottom:10px; margin-bottom:12px; border-bottom:2px solid #e2e8f0;">
+                <span style="background:#d97706; color:white; padding:3px 12px; border-radius:20px; font-weight:800; font-size:0.8rem; text-transform:uppercase;">2nd Evaluation</span>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Name of examiner:</label>
+                <input type="text" id="notes_examiner_2" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Date administered:</label>
+                <input type="date" id="notes_date_2" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Place of test:</label>
+                <input type="text" id="notes_place_2" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;" value="BMV3 Child Development Center">
+            </div>
+
+            <!-- Notes Categories -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Child's background <span style="font-weight:400; color:#64748b;">(ex. behavior/health/etc.)</span>
+                </label>
+                <textarea id="notes_child_bg_2" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Family environment <span style="font-weight:400; color:#64748b;">(ex. Health of family members/problems/economic/etc.)</span>
+                </label>
+                <textarea id="notes_family_env_2" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Parents' stimulating activities for the child <span style="font-weight:400; color:#64748b;">(Activities to help stimulate development)</span>
+                </label>
+                <textarea id="notes_stimulating_2" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Home environment <span style="font-weight:400; color:#64748b;">(ex. Facilities/house type/items/interaction/etc.)</span>
+                </label>
+                <textarea id="notes_home_env_2" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">Others:</label>
+                <textarea id="notes_others_2" rows="2" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+        </div>
+
+        <!-- 3rd Evaluation Column -->
+        <div style="background:#f8fafc; border:2px solid #cbd5e1; border-top:5px solid #16a34a; border-radius:10px; padding:18px;">
+            <div style="text-align:center; padding-bottom:10px; margin-bottom:12px; border-bottom:2px solid #e2e8f0;">
+                <span style="background:#16a34a; color:white; padding:3px 12px; border-radius:20px; font-weight:800; font-size:0.8rem; text-transform:uppercase;">3rd Evaluation</span>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Name of examiner:</label>
+                <input type="text" id="notes_examiner_3" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Date administered:</label>
+                <input type="date" id="notes_date_3" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:3px;">Place of test:</label>
+                <input type="text" id="notes_place_3" class="form-control" style="width:100%; padding:6px 10px; font-size:0.85rem; border:1px solid #cbd5e1; border-radius:6px;" value="BMV3 Child Development Center">
+            </div>
+
+            <!-- Notes Categories -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Child's background <span style="font-weight:400; color:#64748b;">(ex. behavior/health/etc.)</span>
+                </label>
+                <textarea id="notes_child_bg_3" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Family environment <span style="font-weight:400; color:#64748b;">(ex. Health of family members/problems/economic/etc.)</span>
+                </label>
+                <textarea id="notes_family_env_3" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Parents' stimulating activities for the child <span style="font-weight:400; color:#64748b;">(Activities to help stimulate development)</span>
+                </label>
+                <textarea id="notes_stimulating_3" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">
+                    Home environment <span style="font-weight:400; color:#64748b;">(ex. Facilities/house type/items/interaction/etc.)</span>
+                </label>
+                <textarea id="notes_home_env_3" rows="3" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="display:block; font-size:0.78rem; font-weight:700; color:#1e293b; margin-bottom:4px;">Others:</label>
+                <textarea id="notes_others_3" rows="2" class="form-control" style="width:100%; padding:8px; font-size:0.82rem; border:1px solid #cbd5e1; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:25px; text-align:right;">
+        <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:white; box-shadow:0 2px 6px rgba(22,163,74,0.3);">
+            <i class="fa-solid fa-floppy-disk"></i> Save Examiner's Notes
+        </button>
+    </div>
+</div>

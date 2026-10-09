@@ -51,6 +51,18 @@ const PHILIPPINE_ADDRESSES = {
       ],
       "Lopez": [
         "Burgos", "Cogorin", "Danlagan", "Esperanza", "Hondagua", "Magsaysay", "Poblacion", "San Antonio", "Santa Maria", "Vegaflor"
+      ],
+      "Calauag": [
+        "Bagong Silang", "Biyan", "Doña Aurora", "Poblacion", "Sabang", "Santa Maria", "Viñas"
+      ],
+      "Tagkawayan": [
+        "Bamban", "Katimo", "Poblacion", "Rizal", "San Vicente", "Tabing Dagat"
+      ],
+      "Infanta": [
+        "Antikin", "Dinahican", "Libjo", "Poblacion 38", "Poblacion 39", "Silangan"
+      ],
+      "Real": [
+        "Capalong", "Kiloloron", "Maragondon", "Poblacion 1", "Ungos"
       ]
     },
     "Laguna": {
@@ -72,6 +84,12 @@ const PHILIPPINE_ADDRESSES = {
       ],
       "Los Baños": [
         "Anos", "Bagong Silang", "Bambang", "Batong Malake", "Bayog", "Lalakay", "Maahas", "Malinta", "Mayondon", "Poblacion", "Putho-Tuntungin", "San Antonio", "Tadlac", "Timugan"
+      ],
+      "San Pedro City": [
+        "Bagong Silang", "Chrysanthemum", "Cuyab", "Landayan", "Magsaysay", "Narra", "Nueva", "Poblacion", "Riverside", "San Antonio", "San Roque", "San Vicente", "Santo Niño"
+      ],
+      "Santa Cruz": [
+        "Alipit", "Bagumbayan", "Bubukal", "Calios", "Duhat", "Gatid", "Juañgat", "Labuin", "Malinao", "Oogong", "Pagsawitan", "Palasan", "Patimbao", "Poblacion I", "Poblacion II", "San Angel", "San Jose"
       ]
     },
     "Batangas": {
@@ -88,6 +106,15 @@ const PHILIPPINE_ADDRESSES = {
       ],
       "Sto. Tomas City": [
         "San Antonio", "San Bartolome", "San Felix", "San Fernando", "San Miguel", "San Pedro", "San Rafael", "San Roque", "Santa Anastacia", "Santa Maria", "Santiago"
+      ],
+      "Nasugbu": [
+        "Barangay 1", "Barangay 2", "Barangay 3", "Barangay 4", "Bucana", "Calayo", "Kaylaway", "Natipuan", "Wawa"
+      ],
+      "Bauan": [
+        "Aplaya", "As-Is", "Bolo", "Cupang", "Manghinao Proper", "Poblacion I", "Poblacion II", "San Agustin", "San Roque"
+      ],
+      "Lemery": [
+        "District I", "District II", "District III", "District IV", "Malinis", "Palanas", "Payapa Ibaba", "Wawa"
       ]
     },
     "Cavite": {
@@ -105,6 +132,15 @@ const PHILIPPINE_ADDRESSES = {
       ],
       "General Trias City": [
         "Arnaldo", "Bacao I", "Bacao II", "Buenavista I", "Corregidor", "Dulong Bayan", "Gov. Ferrer", "Manggahan", "Navarro", "Pasong Camachile I", "Pinagtipunan", "San Francisco", "Tejero"
+      ],
+      "Cavite City": [
+        "Barangay 1", "Barangay 8", "Caridad", "Dalahican", "San Antonio", "San Roque", "Santa Cruz"
+      ],
+      "Trece Martires City": [
+        "Aguado", "Cabezas", "Conchu", "De Ocampo", "Gregoria De Jesus", "Inocencio", "Lallana", "Osorio", "Perez", "San Agustin"
+      ],
+      "Silang": [
+        "Adlas", "Balite I", "Biga I", "Biluso", "Bulihan", "Iba", "Kaong", "Lalaan I", "Lucsuhin", "Poblacion", "Puting Kahoy", "Tartaria"
       ]
     },
     "Rizal": {
@@ -119,82 +155,399 @@ const PHILIPPINE_ADDRESSES = {
       ],
       "Angono": [
         "Bagumbayan", "Kalayaan", "Mahabang Parang", "Poblacion Ibaba", "Poblacion Itaas", "San Isidro", "San Pedro", "San Roque", "San Vicente", "Santo Niño"
+      ],
+      "Binangonan": [
+        "Bilibiran", "Calumpang", "Darangan", "Layunan", "Libis", "Lunsad", "Macamot", "Mahabang Parang", "Pag-asa", "Palangoy", "Pantok", "Pila-pila", "Poblacion", "Tagpos", "Tatala"
+      ],
+      "San Mateo": [
+        "Ampid I", "Ampid II", "Banaba", "Dulong Bayan 1", "Dulong Bayan 2", "Guitnang Bayan 1", "Guitnang Bayan 2", "Guinayang", "Malanday", "Maly", "Pintong Bukawe", "Silangan"
+      ],
+      "Rodriguez (Montalban)": [
+        "Balite", "Burgos", "Geronimo", "Macabud", "Manggahan", "Mascap", "Puray", "Rosario", "San Isidro", "San Jose", "San Rafael"
       ]
     }
   },
   "NCR (National Capital Region)": {
     "Metro Manila": {
+      "City of Manila": [
+        "Binondo", "Ermita", "Intramuros", "Malate", "Paco", "Pandacan", "Port Area", "Quiapo", "Sampaloc", "San Andres", "San Miguel", "San Nicolas", "Santa Ana", "Santa Cruz", "Santa Mesa", "Tondo"
+      ],
       "Quezon City": [
         "Alicia", "Bagong Silangan", "Batasan Hills", "Commonwealth", "Culiat", "Diliman", "Fairview", "Holy Spirit",
         "Loyola Heights", "Matandang Balara", "Novaliches Proper", "Pasong Tamo", "Payatas", "Project 6", "San Bartolome", "Tandang Sora"
       ],
-      "City of Manila": [
-        "Binondo", "Ermita", "Intramuros", "Malate", "Paco", "Pandacan", "Port Area", "Quiapo", "Sampaloc", "San Andres", "San Miguel", "San Nicolas", "Santa Ana", "Santa Cruz", "Santa Mesa", "Tondo"
+      "Caloocan City": [
+        "Bagong Barrio", "Bagumbong", "Camarin", "Deparo", "Grace Park East", "Grace Park West", "Morning Breeze", "Poblacion", "Tala"
+      ],
+      "Las Piñas City": [
+        "Almanza Uno", "Almanza Dos", "BF International Village", "Daniel Fajardo", "Elias Aldana", "Ilaya", "Manuyo Uno", "Manuyo Dos", "Pamplona Uno", "Pamplona Dos", "Pamplona Tres", "Pilar", "Pulang Lupa Uno", "Pulang Lupa Dos", "Talon Uno", "Talon Dos", "Talon Tres", "Talon Cuatro", "Talon Singko", "Zapote"
       ],
       "Makati City": [
-        "Bangkal", "Bel-Air", "Carmona", "Dasmarinas", "Forbes Park", "Guadalupe Nuevo", "Guadalupe Viejo", "Kasilawan", "Magallanes", "Olympia", "Palanan", "Pemerbo", "Pio del Pilar", "Poblacion", "San Antonio", "San Lorenzo", "Tejeros", "Urdaneta"
+        "Bangkal", "Bel-Air", "Carmona", "Dasmarinas", "Forbes Park", "Guadalupe Nuevo", "Guadalupe Viejo", "Kasilawan", "Magallanes", "Olympia", "Palanan", "Pembo", "Pinagkaisahan", "Pio del Pilar", "Poblacion", "San Antonio", "San Isidro", "San Lorenzo", "Santa Cruz", "Tejeros", "Urdaneta"
       ],
-      "Taguig City": [
-        "Bagumbayan", "Bambang", "Calzada", "Central Bicutan", "Fort Bonifacio", "Hagonoy", "Ibayo-Tipas", "Lower Bicutan", "Maharlika Village", "Napindan", "New Lower Bicutan", "Palingon", "Pinagsama", "San Miguel", "Santa Ana", "Tuktukan", "Upper Bicutan", "Ususan", "Western Bicutan"
-      ],
-      "Pasig City": [
-        "Bagong Ilog", "Bagong Katipunan", "Bambang", "Buting", "Caniogan", "Kapitolyo", "Malinao", "Manggahan", "Maybunga", "Oranbo", "Palatiw", "Pinagbuhatan", "Pineda", "Rosario", "Sagad", "San Antonio", "San Joaquin", "San Nicolas", "Santa Cruz", "Santa Lucia", "Santa Rosa", "Santolan", "Sumilang", "Ugong"
-      ],
-      "Parañaque City": [
-        "Baclaran", "BF Homes", "Don Bosco", "Don Galo", "La Huerta", "Marcelo Green", "Merville", "Moonwalk", "San Antonio", "San Dionisio", "San Isidro", "San Martin de Porres", "Santo Niño", "Sun Valley", "Tambo", "Vitalez"
-      ],
-      "Muntinlupa City": [
-        "Alabang", "Bayanan", "Buli", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"
-      ],
-      "Pasay City": [
-        "Barangay 1", "Barangay 76", "Barangay 183 (Villamor)", "Malibay", "Maricaban", "Pia", "San Isidro", "San Jose", "San Rafael", "San Roque", "Santa Clara"
+      "Malabon City": [
+        "Baritan", "Bayan-bayanan", "Catmon", "Concepcion", "Dampalit", "Flores", "Hulong Duhat", "Ibaba", "Longos", "Maysilo", "Muzon", "Niugan", "Panghulo", "Potrero", "San Agustin", "Santolan", "Tañong", "Tinajeros", "Tonsuya", "Tugatog"
       ],
       "Mandaluyong City": [
         "Addition Hills", "Bagong Silang", "Barangka Drive", "Barangka Ilaya", "Highway Hills", "Hulo", "Malamig", "Namayan", "Plainview", "Pleasant Hills", "Poblacion", "Vergara", "Wack-Wack Greenhills"
       ],
-      "Caloocan City": [
-        "Bagong Barrio", "Bagumbong", "Camarin", "Deparo", "Grace Park East", "Grace Park West", "Morning Breeze", "Poblacion", "Tala"
+      "Marikina City": [
+        "Barangka", "Calumpang", "Concepcion Uno", "Concepcion Dos", "Fortune", "Industrial Valley", "Jesus Dela Peña", "Malanday", "Marikina Heights", "Nangka", "Parang", "San Roque", "Santa Elena", "Santo Niño", "Tañong", "Tumana"
+      ],
+      "Muntinlupa City": [
+        "Alabang", "Bayanan", "Buli", "Cupang", "Poblacion", "Putatan", "Sucat", "Tunasan"
+      ],
+      "Navotas City": [
+        "Bagumbayan North", "Bagumbayan South", "Bangculasi", "Daanghari", "Navotas East", "Navotas West", "North Bay Boulevard North", "North Bay Boulevard South", "San Jose", "San Rafael Village", "San Roque", "Sipac-Almacen", "Tangos North", "Tangos South", "Tanza 1", "Tanza 2"
+      ],
+      "Parañaque City": [
+        "Baclaran", "BF Homes", "Don Bosco", "Don Galo", "La Huerta", "Marcelo Green", "Merville", "Moonwalk", "San Antonio", "San Dionisio", "San Isidro", "San Martin de Porres", "Santo Niño", "Sun Valley", "Tambo", "Vitalez"
+      ],
+      "Pasay City": [
+        "Barangay 1", "Barangay 76", "Barangay 183 (Villamor)", "Malibay", "Maricaban", "Pia", "San Isidro", "San Jose", "San Rafael", "San Roque", "Santa Clara"
+      ],
+      "Pasig City": [
+        "Bagong Ilog", "Bagong Katipunan", "Bambang", "Buting", "Caniogan", "Kapitolyo", "Malinao", "Manggahan", "Maybunga", "Oranbo", "Palatiw", "Pinagbuhatan", "Pineda", "Rosario", "Sagad", "San Antonio", "San Joaquin", "San Nicolas", "Santa Cruz", "Santa Lucia", "Santa Rosa", "Santolan", "Sumilang", "Ugong"
+      ],
+      "San Juan City": [
+        "Addition Hills", "Balong-Bato", "Batis", "Corazon de Jesus", "Ermitaño", "Greenhills", "Isabelita", "Kabayanan", "Maytunas", "Onse", "Pasadeña", "Pedro Cruz", "Progreso", "Rivera", "Salapan", "San Perfecto", "Santa Lucia", "Tibagan", "West Crame"
+      ],
+      "Taguig City": [
+        "Bagumbayan", "Bambang", "Calzada", "Central Bicutan", "Fort Bonifacio", "Hagonoy", "Ibayo-Tipas", "Lower Bicutan", "Maharlika Village", "Napindan", "New Lower Bicutan", "Palingon", "Pinagsama", "San Miguel", "Santa Ana", "Tuktukan", "Upper Bicutan", "Ususan", "Western Bicutan"
+      ],
+      "Valenzuela City": [
+        "Arkong Bato", "Bagbaguin", "Balangkas", "Bignay", "Bisig", "Canumay East", "Canumay West", "Coloong", "Dalandanan", "Gen. T. de Leon", "Isla", "Karuhatan", "Lawang Bato", "Lingunan", "Mabolo", "Malanday", "Malinta", "Mapulang Lupa", "Marulas", "Maysan", "Palasan", "Parada", "Pariancillo Villa", "Paso de Blas", "Pasolo", "Poblacion", "Pulo", "Punturin", "Rincon", "Tagalag", "Ugong", "Viente Reales", "Wawang Pulo"
+      ],
+      "Pateros": [
+        "Aguho", "Magtanggol", "Martires del 96", "Poblacion", "San Pedro", "San Roque", "Santa Ana", "Santo Rosario-Kanluran", "Santo Rosario-Silangan", "Tabacalera"
       ]
+    }
+  },
+  "CAR (Cordillera Administrative Region)": {
+    "Benguet": {
+      "Baguio City": ["Bakakeng Central", "Camp 7", "Guisad Central", "Irisan", "Loakan Proper", "Pacdal", "Trancoville"],
+      "La Trinidad": ["Balili", "Betag", "Pico", "Poblacion", "Puguis", "Wangal"],
+      "Itogon": ["Ampucao", "Poblacion", "Tuding", "Ucab", "Virac"],
+      "Tuba": ["Camp 1", "Camp 3", "Poblacion", "San Roque", "Twin Peaks"]
+    },
+    "Abra": {
+      "Bangued": ["Zone 1 (Poblacion)", "Zone 2 (Poblacion)", "Zone 3 (Poblacion)", "Zone 4 (Poblacion)", "Zone 5 (Poblacion)"],
+      "Bucay": ["Bangcagan", "Pakiling", "Palao", "Poblacion", "Siblong"]
+    },
+    "Apayao": {
+      "Conner": ["Buluan", "Caglayan", "Malama", "Poblacion"],
+      "Kabugao": ["Badduat", "Lenneng", "Musimut", "Poblacion"]
+    },
+    "Ifugao": {
+      "Lagawe": ["Boliwong", "Burnay", "Montabiong", "Poblacion East", "Poblacion West"],
+      "Banaue": ["Batad", "Bocos", "Cambulo", "Poblacion", "Tam-an"]
+    },
+    "Kalinga": {
+      "Tabuk City": ["Agbañno", "Bulanao", "Dagupan Centro", "Laya", "Naneng", "San Juan"]
+    },
+    "Mountain Province": {
+      "Bontoc": ["Caluttit", "Poblacion", "Samoki", "Tocucan"],
+      "Sagada": ["Aguid", "Ambasing", "Demang", "Madongo", "Poblacion", "Tetepan"]
+    }
+  },
+  "Region I (Ilocos Region)": {
+    "Ilocos Norte": {
+      "Laoag City": ["Barangay 1 (San Lorenzo)", "Barangay 2 (Santa Joaquina)", "Barangay 9 (San Salvador)", "Nalbo", "San Guillermo"],
+      "Batac City": ["Aglipay", "Callaguip", "Palpalicong", "Poblacion", "Quiling Sur"]
+    },
+    "Ilocos Sur": {
+      "Vigan City": ["Ayusan Norte", "Ayusan Sur", "Beddeng Laud", "Camangaan", "Poblacion", "Rizal", "Tamag"],
+      "Candon City": ["Bagani Campo", "Calaoan", "Caterman", "Parioc Primero", "Poblacion"]
+    },
+    "La Union": {
+      "San Fernando City": ["Biday", "Catbangen", "Dalumpinas Este", "Ilocanos Norte", "Lingsat", "Madayegdeg", "Parian", "Sevilla", "Tanqui"],
+      "Bauang": ["Central East", "Central West", "Payocpoc Norte", "Pugo"]
+    },
+    "Pangasinan": {
+      "Dagupan City": ["Bonuan Boquig", "Bonuan Gueset", "Caranglaan", "Herrero", "Lucao", "Malued", "Mayombo", "Pantalan", "Poblacion Oeste", "Tapuac"],
+      "San Carlos City": ["Abanon", "Balaya", "Bocboc", "Caoayan Kiling", "Coliling", "Ilang", "Mabalbalino", "Palaris", "Poblacion", "Talang"],
+      "Urdaneta City": ["Anonas", "Camantiles", "Nancayasan", "Pinmaludpod", "Poblacion", "San Vicente"],
+      "Alaminos City": ["Lucap", "Palamis", "Poblacion", "San Jose", "Telbang"],
+      "Lingayen": ["Aliwekwek", "Baay", "Maniboc", "Pangapisan North", "Poblacion"]
+    }
+  },
+  "Region II (Cagayan Valley)": {
+    "Cagayan": {
+      "Tuguegarao City": ["Atulayan Norte", "Bagay", "Buntun", "Carig Sur", "Centro 1 (Poblacion)", "Pengue-Ruyu", "San Gabriel", "Ugac Sur"],
+      "Aparri": ["Centro 1", "Centro 2", "Punta", "San Antonio", "Toran"]
+    },
+    "Isabela": {
+      "Ilagan City": ["Alibagu", "Baligatan", "Calamagui 1st", "Centro Poblacion", "Guinatan", "Marana 1st"],
+      "Santiago City": ["Centro East", "Centro West", "Dubinan East", "Malvar", "Victory Norte", "Victory Sur"],
+      "Cauayan City": ["Cabugao", "Centro", "District I", "District II", "San Fermin", "Tagaran"]
+    },
+    "Nueva Vizcaya": {
+      "Bayombong": ["Bonfal Proper", "Don Domingo Maddela", "Don Tomas Maddela", "La Torre", "Vista Alegre"],
+      "Solano": ["Aggub", "Bascaran", "Poblacion North", "Poblacion South", "Roxas"]
+    },
+    "Quirino": {
+      "Cabarroguis": ["Gundaway", "Mangandingay", "San Marcos", "Villamor", "Zamora"]
+    },
+    "Batanes": {
+      "Basco": ["Chanarian", "Kaychanarianan", "Kayhuvokan", "San Antonio", "San Jose"]
     }
   },
   "Region III (Central Luzon)": {
     "Bulacan": {
       "Malolos City": ["Bulihan", "Caingin", "Catmon", "Cofradia", "Dakila", "Guinhawa", "Liang", "Lugam", "Mojon", "Panasahan", "San Gabriel", "San Vicente", "Santo Rosario", "Sumapang Matanda"],
       "City of Meycauayan": ["Bancal", "Calvario", "Camalig", "Hulo", "Iba", "Langka", "Malhacan", "Perez", "Saluysoy", "Tugatog", "Zamora"],
-      "San Jose del Monte City": ["Citrus", "Ciudad Real", "Dulong Bayan", "Gaya-Gaya", "Graceville", "Kaybanban", "Muzon", "Poblacion", "Sapang Palay", "Tungkong Mangga"]
+      "San Jose del Monte City": ["Citrus", "Ciudad Real", "Dulong Bayan", "Gaya-Gaya", "Graceville", "Kaybanban", "Muzon", "Poblacion", "Sapang Palay", "Tungkong Mangga"],
+      "Marilao": ["Abangan Norte", "Abangan Sur", "Ibayo", "Lias", "Poblacion I", "Poblacion II", "Saog", "Tabing Ilog"],
+      "Santa Maria": ["Bagbaguin", "Caypombo", "Guyong", "Parada", "Poblacion", "Pulong Buhangin", "San Gabriel"],
+      "Baliwag City": ["Bagong Nayon", "Concepcion", "Poblacion", "San Jose", "Subic", "Tangos", "Tibag"]
     },
     "Pampanga": {
       "San Fernando City": ["Baliti", "Calulut", "Del Carmen", "Dolores", "Juliana", "Magliman", "Maimpis", "Malpitic", "Quebiawan", "Saguin", "San Agustin", "San Jose", "San Nicolas", "Sindalan", "Telebastagan"],
-      "Angeles City": ["Balibago", "Capaya", "Claro M. Recto", "Cutcut", "Lourdes North West", "Malabañas", "Pampang", "Pulung Maragul", "Salapungan", "Santo Domingo", "Santo Rosario"]
+      "Angeles City": ["Balibago", "Capaya", "Claro M. Recto", "Cutcut", "Lourdes North West", "Malabañas", "Pampang", "Pulung Maragul", "Salapungan", "Santo Domingo", "Santo Rosario"],
+      "Mabalacat City": ["Atlu-Bola", "Camachiles", "Dau", "Mabiga", "Poblacion", "San Francisco"]
+    },
+    "Bataan": {
+      "Balanga City": ["Bagumbayan", "Camacho", "Central", "Cupang North", "Cupang Proper", "Doña Francisca", "Ibayo", "Malabia", "Poblacion", "Puerto Rivas Ibaba", "Puerto Rivas Itaas", "San Jose", "Sibacan", "Talisay", "Tanato", "Tenejero", "Tortugas", "Tuyo"],
+      "Dinalupihan": ["Kataasan", "Luacan", "Poblacion", "San Benito", "San Ramon"],
+      "Mariveles": ["Alas-asin", "Baseco", "Camaya", "Malaya", "Poblacion", "Townsite"]
+    },
+    "Nueva Ecija": {
+      "Cabanatuan City": ["Bantug Bulalo", "Bitas", "D.S. Garcia", "General Luna", "Kapitan Pepe", "Mabini Homesite", "Magsaysay Sur", "Mayapyap Sur", "Quezon District", "San Josef Sur", "Sangitan", "Zulueta"],
+      "Gapan City": ["Bamban", "Bayanihan", "San Nicolas", "San Vicente", "Santo Cristo Norte"],
+      "Palayan City": ["Atate", "Caballero", "Caimito", "Ganaderia", "Singalat"],
+      "San Jose City": ["Malasin", "Palusapis", "Rafael Rueda", "Sto. Niño 1st", "Sto. Tomas"]
+    },
+    "Tarlac": {
+      "Tarlac City": ["Aguso", "Binauganan", "Cut-cut 1st", "Fairlane", "Maliwalo", "Matatalaib", "Poblacion", "San Nicolas", "San Roque", "San Sebastian", "San Vicente", "Sepung Calzada", "Sto. Cristo", "Tibag"],
+      "Capas": ["Cristo Rey", "Cutcut 1st", "Dolores", "O'Donnell", "Poblacion", "Sto. Domingo"]
+    },
+    "Zambales": {
+      "Olongapo City": ["Asinan", "Barretto", "East Bajac-bajac", "East Tapinac", "Gordon Heights", "Kalaklan", "Mabayuan", "New Cabalan", "Old Cabalan", "Pag-asa", "Santa Rita", "West Bajac-bajac", "West Tapinac"],
+      "Subic": ["Baraca-Camachile", "Calapacuan", "Ilwas", "Manggahan", "Matain", "Pamatawan"]
+    },
+    "Aurora": {
+      "Baler": ["Barangay 1 (Poblacion)", "Barangay 2 (Poblacion)", "Barangay 3 (Poblacion)", "Barangay 4 (Poblacion)", "Calabuanan", "Pingit", "Reserva", "Sabang", "Suklayin", "Zabali"]
     }
   },
-  "Region I (Ilocos Region)": {
-    "Pangasinan": {
-      "Dagupan City": ["Bonuan Boquig", "Bonuan Gueset", "Caranglaan", "Herrero", "Lucao", "Malued", "Mayombo", "Pantalan", "Poblacion Oeste", "Tapuac"],
-      "San Carlos City": ["Abanon", "Balaya", "Bocboc", "Caoayan Kiling", "Coliling", "Ilang", "Mabalbalino", "Palaris", "Poblacion", "Talang"]
+  "Region IV-B (MIMAROPA)": {
+    "Oriental Mindoro": {
+      "Calapan City": ["Balingayan", "Camamilig", "Ibaba East", "Ilaya", "Lalud", "Lumangbayan", "Pachoca", "San Vicente", "Tawiran"],
+      "Naujan": ["Barcenaga", "Inarawan", "Poblacion 1", "San Agustin"],
+      "Puerto Galera": ["Aninuan", "Balatero", "Poblacion", "Sabang", "San Isidro", "White Beach"]
     },
-    "La Union": {
-      "San Fernando City": ["Biday", "Catbangen", "Dalumpinas Este", "Ilocanos Norte", "Lingsat", "Madayegdeg", "Parian", "Sevilla", "Tanqui"]
+    "Occidental Mindoro": {
+      "San Jose": ["Bagong Sikat", "Central", "Labangan Poblacion", "San Roque"],
+      "Mamburao": ["Balansay", "Fatima", "Payompon", "Poblacion 1", "Poblacion 2"]
+    },
+    "Marinduque": {
+      "Boac": ["Balanacan", "Isok 1", "Murallon", "Poblacion", "Santol"],
+      "Santa Cruz": ["Buyabod", "Matalaba", "Morales", "Poblacion"],
+      "Gasan": ["Bognuyan", "Dili", "Libtangin", "Poblacion"]
+    },
+    "Romblon": {
+      "Romblon": ["Bagacay", "Capaclan", "Ilauran", "Poblacion"],
+      "Odiongan": ["Budiong", "Ligaya", "Poctoy", "Poblacion"]
+    },
+    "Palawan": {
+      "Puerto Princesa City": ["Bancao-Bancao", "Bagong Sikat", "Irawan", "Mandaragat", "San Jose", "San Manuel", "San Miguel", "San Pedro", "Santa Lourdes", "Santa Monica", "Tagburos", "Tiniguiban"],
+      "Coron": ["Banuang Daan", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Tagumpay"],
+      "El Nido": ["Barotuan", "Buena Suerte", "Corong-Corong", "Maligaya", "Masagana", "Villa Libertad"]
     }
   },
   "Region V (Bicol Region)": {
     "Albay": {
-      "Legazpi City": ["Bagacay", "Bitano", "Bogtong", "Cruzada", "Gogon", "Ilawod", "Oro Site", "Pinaric", "Rawis", "San Roque", "Tamaoyan", "Victory Village"]
+      "Legazpi City": ["Bagacay", "Bitano", "Bogtong", "Cruzada", "Gogon", "Ilawod", "Oro Site", "Pinaric", "Rawis", "San Roque", "Tamaoyan", "Victory Village"],
+      "Ligao City": ["Dunao", "Guilid", "Tinago", "Tuburan"],
+      "Tabaco City": ["Basud", "Fatima", "San Carlos", "San Juan"],
+      "Daraga": ["Bañag", "Binitayan", "Cullat", "Ilawod", "Kimantong", "Market Site", "San Roque"]
     },
     "Camarines Sur": {
-      "Naga City": ["Abella", "Bagumbayan Norte", "Balatas", "Concepcion Grande", "Concepcion Pequeña", "Dayangdang", "Dinaga", "Igualdad", "Mabolo", "Peñafrancia", "San Francisco", "Triangulo"]
+      "Naga City": ["Abella", "Bagumbayan Norte", "Balatas", "Concepcion Grande", "Concepcion Pequeña", "Dayangdang", "Dinaga", "Igualdad", "Mabolo", "Peñafrancia", "San Francisco", "Triangulo"],
+      "Iriga City": ["Francia", "San Agustin", "San Francisco", "San Nicolas", "San Roque"]
+    },
+    "Camarines Norte": {
+      "Daet": ["Bagasbas", "Camambugan", "Gahonon", "Magang", "Poblacion", "San Isidro"]
+    },
+    "Sorsogon": {
+      "Sorsogon City": ["Balogo", "Bibincahan", "Burabod", "Cabid-an", "Piot", "Talisay", "Tugos"]
+    },
+    "Catanduanes": {
+      "Virac": ["Caprehahan", "Concepcion", "Francia", "Gogon", "Rawis", "San Roque"]
+    },
+    "Masbate": {
+      "Masbate City": ["Bapor", "Centro", "Ibingay", "Nursery", "Tugbo"]
+    }
+  },
+  "Region VI (Western Visayas)": {
+    "Iloilo": {
+      "Iloilo City": ["Baldoza", "Bolilao", "Calumpang", "City Proper", "Dungon A", "Jaro", "La Paz", "Mandurriao", "Molo", "Sambag", "Sooc", "Tabuc Suba", "Villa Arevalo"],
+      "Passi City": ["Man-It", "Poblacion Ilawod", "Poblacion Ilaya", "Salngan"],
+      "Oton": ["Alegre", "Botong", "Buray", "Poblacion South", "Poblacion West"]
+    },
+    "Negros Occidental": {
+      "Bacolod City": ["Alangilan", "Alijis", "Banago", "Bata", "Cabug", "Estefania", "Granada", "Mandalagan", "Mansilingan", "Singcang-Airport", "Sum-ag", "Taculing", "Tangub", "Villamonte"],
+      "Silay City": ["Guinhalaran", "Mambulac", "Rizal", "Silay Poblacion"],
+      "Talisay City": ["Bubog", "Dos Hermanas", "Matab-ang", "Zone 1", "Zone 2"],
+      "Bago City": ["Balingasag", "Caridad", "Ma-ao", "Poblacion"]
+    },
+    "Capiz": {
+      "Roxas City": ["Banica", "Baybay", "Dayao", "Inzo Arnaldo", "Lawaan", "Mongpong", "Poblacion", "Tiza"]
+    },
+    "Aklan": {
+      "Kalibo": ["Andagao", "Bachaw Norte", "Desposorio", "Mobo", "New Buswang", "Old Buswang", "Poblacion", "Pook"],
+      "Malay / Boracay": ["Balabag", "Manoc-Manoc", "Yapak", "Caticlan", "Poblacion"]
+    },
+    "Antique": {
+      "San Jose de Buenavista": ["Atabay", "Funda-Dalipe", "Madrangca", "Maybato", "Mojon", "San Fernando"]
+    },
+    "Guimaras": {
+      "Jordan": ["Alaguisoc", "Hoskin", "Poblacion", "San Miguel"]
     }
   },
   "Region VII (Central Visayas)": {
     "Cebu": {
-      "Cebu City": ["Apas", "Banilad", "Basak San Nicolas", "Guadalupe", "Kamputhaw", "Kasambagan", "Lahug", "Mabolo", "Pardo", "Punta Princesa", "Sambag I", "Talamban", "Tisa"],
+      "Cebu City": ["Apas", "Banilad", "Basak San Nicolas", "Guadalupe", "Kamputhaw", "Kasambagan", "Lahug", "Mabolo", "Pardo", "Punta Princesa", "Sambag I", "Talamban", "Tisa", "Tinago", "Zapatera"],
       "Mandaue City": ["Bakilid", "Banilad", "Basak", "Cabancalan", "Centro", "Guizo", "Ibabao-Estancia", "Looc", "Maguikay", "Subangdaku", "Tipolo"],
-      "Lapu-Lapu City": ["Basak", "Gun-ob", "Ibo", "Mactan", "Maribago", "Marigondon", "Pajac", "Pajo", "Pusok", "Subabasbas"]
+      "Lapu-Lapu City": ["Basak", "Gun-ob", "Ibo", "Mactan", "Maribago", "Marigondon", "Pajac", "Pajo", "Pusok", "Subabasbas"],
+      "Talisay City": ["Bulacao", "Cansojong", "Dumlog", "Lawaan I", "Poblacion", "San Roque"],
+      "Toledo City": ["Cantabaco", "Ibo", "Luray I", "Poblacion", "Sangi"],
+      "Danao City": ["Guinsay", "Poblacion", "Sabang", "Tuburan Sur"]
+    },
+    "Bohol": {
+      "Tagbilaran City": ["Bool", "Booy", "Cabawan", "Cogon", "Dampas", "Manga", "Mansasa", "Poblacion I", "Poblacion II", "Poblacion III", "San Isidro", "Taloto", "Tiptip", "Ubujan"],
+      "Panglao": ["Bil-isan", "Bolod", "Danao", "Libaong", "Poblacion", "Tawala"]
+    },
+    "Negros Oriental": {
+      "Dumaguete City": ["Bagacay", "Bajumpandan", "Banilad", "Bantayan", "Batinguel", "Cadawinonan", "Calindagan", "Camanjac", "Candau-ay", "Cantil-e", "Daro", "Junob", "Looc", "Mangnao-Canal", "Motong", "Piapi", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Poblacion 4", "Poblacion 5", "Poblacion 6", "Poblacion 7", "Poblacion 8", "Pulantubig", "Tabuctubig", "Taclobo", "Talay"],
+      "Bais City": ["Can-ayon", "Hangyad", "Talungon", "Tangculogan"]
+    },
+    "Siquijor": {
+      "Siquijor": ["Cang-alwang", "Canal", "Poblacion", "Pangi", "Tacdog"]
+    }
+  },
+  "Region VIII (Eastern Visayas)": {
+    "Leyte": {
+      "Tacloban City": ["Abucay", "Bagacay", "Caibaan", "Marasbaras", "Nula-Tula", "Sagkahan", "San Jose", "Utap"],
+      "Ormoc City": ["Cogon", "Ipil", "Linao", "San Pablo", "Valencia"]
+    },
+    "Southern Leyte": {
+      "Maasin City": ["Abgao", "Combado", "Ibarra", "Mantahan", "Tunga-tunga"]
+    },
+    "Samar": {
+      "Catbalogan City": ["Bunuanan", "Canlapwas", "Guinsorongan", "Mercedes", "Muñoz", "Poblacion 1"],
+      "Calbayog City": ["Capoocan", "Dagum", "Hamorawon", "Matobato", "Obrero"]
+    },
+    "Eastern Samar": {
+      "Borongan City": ["Alang-alang", "Balud", "Campesao", "Songco", "Taboc"]
+    },
+    "Northern Samar": {
+      "Catarman": ["Casoy", "Cawayan", "Dalakit", "Narra", "Poblacion"]
+    },
+    "Biliran": {
+      "Naval": ["Atipolo", "Castin", "P.I. Garcia", "Santissimo Rosario", "Smo. Rosario"]
+    }
+  },
+  "Region IX (Zamboanga Peninsula)": {
+    "Zamboanga del Sur": {
+      "Zamboanga City": ["Ayala", "Baliwasan", "Canelar", "Guiwan", "Pasonanca", "Santa Maria", "Tetuan", "Tumaga", "Putik", "San Jose Gusu"],
+      "Pagadian City": ["Balangasan", "Danlugan", "Gatas", "San Jose", "San Pedro", "Santa Lucia", "Tuburan"]
+    },
+    "Zamboanga del Norte": {
+      "Dipolog City": ["Barra", "Biasong", "Central", "Estaka", "Galas", "Miputak", "Olingan", "Turno"],
+      "Dapitan City": ["Bagting", "Dawo", "Potungan", "San Vicente"]
+    },
+    "Zamboanga Sibugay": {
+      "Ipil": ["Don Andres", "Poblacion", "Sanito", "Tiayon", "Veterans Village"]
+    }
+  },
+  "Region X (Northern Mindanao)": {
+    "Misamis Oriental": {
+      "Cagayan de Oro City": ["Balulang", "Bugo", "Bulua", "Carmen", "Gusa", "Iponan", "Kauswagan", "Lapasan", "Macabalan", "Macasandig", "Nazareth", "Patag", "Puerto", "Puntod"],
+      "Gingoog City": ["Agay-ayan", "Daan-Lungsod", "Lunao", "Poblacion"]
+    },
+    "Bukidnon": {
+      "Malaybalay City": ["Aglayan", "Casisang", "Kalasungay", "Poblacion", "Sumpong"],
+      "Valencia City": ["Bagontaas", "Batangan", "Catualan", "Poblacion", "Sugod"]
+    },
+    "Lanao del Norte": {
+      "Iligan City": ["Ditucalan", "Hinaplanon", "Kiwalan", "Pala-o", "Poblacion", "Saray", "Suarez", "Tambacan", "Tibanga", "Tubod"]
+    },
+    "Misamis Occidental": {
+      "Ozamiz City": ["Aguada", "Banadero", "Catadman-Manabay", "Gango", "San Roque"],
+      "Oroquieta City": ["Canubay", "Lower Langcangan", "Mobod", "Poblacion 1"]
+    },
+    "Camiguin": {
+      "Mambajao": ["Agoho", "Balbagon", "Baylao", "Poblacion", "Yumbing"]
     }
   },
   "Region XI (Davao Region)": {
     "Davao del Sur": {
-      "Davao City": ["Agdao", "Buhangin", "Bucana", "Catalunan Grande", "Matina Crossing", "Poblacion", "Sasa", "Talomo", "Toril"]
+      "Davao City": ["Agdao", "Buhangin", "Bucana", "Catalunan Grande", "Catalunan Pequeño", "Matina Aplaya", "Matina Crossing", "Matina Pangi", "Mintal", "Poblacion", "Sasa", "Talomo", "Toril", "Tugbok", "Bunawan"],
+      "Digos City": ["Aplaya", "Cogon", "Colorado", "San Jose", "Zone 1", "Zone 2", "Zone 3"]
+    },
+    "Davao del Norte": {
+      "Tagum City": ["Apokon", "Canocotan", "Mankilam", "Magugpo East", "Magugpo North", "Magugpo Poblacion", "Magugpo South", "Magugpo West", "San Miguel", "Visayan Village"],
+      "Panabo City": ["Gredu", "New Pandan", "San Francisco", "Sto. Niño"]
+    },
+    "Davao de Oro": {
+      "Nabunturan": ["Anislagan", "Mainit", "Poblacion", "San Vicente"]
+    },
+    "Davao Oriental": {
+      "Mati City": ["Central", "Dahican", "Matiao", "Sainz", "Tamisan"]
+    },
+    "Davao Occidental": {
+      "Malita": ["Bolia", "Fishing Village", "Poblacion", "Tubalan"]
+    }
+  },
+  "Region XII (SOCCSKSARGEN)": {
+    "South Cotabato": {
+      "General Santos City": ["Apopong", "Baluan", "Bula", "Calumpang", "City Heights", "Dadiangas East", "Dadiangas North", "Dadiangas South", "Dadiangas West", "Fatima", "Labangal", "Lagao", "Mabuhay", "San Isidro", "Tambler"],
+      "Koronadal City": ["General Paulino Santos", "Morales", "Santa Cruz", "Zone I", "Zone II", "Zone III", "Zone IV"]
+    },
+    "Cotabato": {
+      "Kidapawan City": ["Balindog", "Manongol", "Poblacion", "Singao", "Sudapin"]
+    },
+    "Sultan Kudarat": {
+      "Tacurong City": ["Griño", "New Isabela", "Poblacion", "San Emmanuel"]
+    },
+    "Sarangani": {
+      "Alabel": ["Alegria", "Kawas", "Maribulan", "Poblacion"]
+    }
+  },
+  "Region XIII (Caraga)": {
+    "Agusan del Norte": {
+      "Butuan City": ["Ambago", "Baan KM 3", "Bayanihan", "Doongan", "Golden Ribbon", "Holy Redeemer", "Libertad", "Ong Yiu", "Pangabugan", "San Vicente", "Villa Kananga"],
+      "Cabadbaran City": ["Bay-ang", "Cabiltinan", "Comagascas", "Mabini", "Poblacion 1"]
+    },
+    "Agusan del Sur": {
+      "Bayugan City": ["Fili", "Maygatasan", "Poblacion", "Taglatawan"]
+    },
+    "Surigao del Norte": {
+      "Surigao City": ["Cagdianao", "Canlanipa", "Ipil", "Luna", "Rizal", "San Juan", "Taft", "Washington"]
+    },
+    "Surigao del Sur": {
+      "Tandag City": ["Bag-ong Lungsod", "Bongtud", "Dagocdoc", "Mabua", "Telaje"],
+      "Bislig City": ["Mangagoy", "Poblacion", "San Fernando", "Tabon"]
+    },
+    "Dinagat Islands": {
+      "San Jose": ["Cuarenta", "Don Ruben Ecleo", "Justiniana Edera", "Poblacion"]
+    }
+  },
+  "BARMM (Bangsamoro Autonomous Region in Muslim Mindanao)": {
+    "Maguindanao del Norte": {
+      "Cotabato City": ["Bagua 1", "Bagua 2", "Kalanganan 1", "Poblacion 1", "Poblacion 2", "Poblacion 3", "Poblacion 4", "Rosary Heights 1", "Rosary Heights 2", "Tamontaka 1"]
+    },
+    "Lanao del Sur": {
+      "Marawi City": ["Banggolo", "Bo. Green", "Dayawan", "Datu Saber", "East Basak", "Lilod Madaya", "Marawi Poblacion", "Raya Saduc", "Toros"]
+    },
+    "Basilan": {
+      "Isabela City": ["Eastside", "Kaumpurnah", "Menzi", "Port Area", "Riverside", "Sunrise", "Tabuk"]
+    },
+    "Sulu": {
+      "Jolo": ["Alhuda", "Asturias", "Chinese Pier", "San Raymundo", "Tulay", "Walled City"]
+    },
+    "Tawi-Tawi": {
+      "Bongao": ["Lamion", "Pag-asa", "Poblacion", "Simandagit", "Tubig Boh"]
     }
   }
 };
@@ -223,14 +576,44 @@ const parseFullAddress = (fullText) => {
     } else if (cleanText.includes("ilocos") || cleanText.includes("region i") || cleanText.includes("region 1")) {
       matchedRegion = "Region I (Ilocos Region)";
       break;
+    } else if (cleanText.includes("cagayan valley") || cleanText.includes("region ii") || cleanText.includes("region 2")) {
+      matchedRegion = "Region II (Cagayan Valley)";
+      break;
+    } else if (cleanText.includes("mimaropa") || cleanText.includes("region iv-b") || cleanText.includes("region 4b")) {
+      matchedRegion = "Region IV-B (MIMAROPA)";
+      break;
     } else if (cleanText.includes("bicol") || cleanText.includes("region v") || cleanText.includes("region 5")) {
       matchedRegion = "Region V (Bicol Region)";
+      break;
+    } else if (cleanText.includes("western visayas") || cleanText.includes("region vi") || cleanText.includes("region 6")) {
+      matchedRegion = "Region VI (Western Visayas)";
       break;
     } else if (cleanText.includes("central visayas") || cleanText.includes("region vii") || cleanText.includes("region 7")) {
       matchedRegion = "Region VII (Central Visayas)";
       break;
+    } else if (cleanText.includes("eastern visayas") || cleanText.includes("region viii") || cleanText.includes("region 8")) {
+      matchedRegion = "Region VIII (Eastern Visayas)";
+      break;
+    } else if (cleanText.includes("zamboanga") || cleanText.includes("region ix") || cleanText.includes("region 9")) {
+      matchedRegion = "Region IX (Zamboanga Peninsula)";
+      break;
+    } else if (cleanText.includes("northern mindanao") || cleanText.includes("region x") || cleanText.includes("region 10")) {
+      matchedRegion = "Region X (Northern Mindanao)";
+      break;
     } else if (cleanText.includes("davao") || cleanText.includes("region xi") || cleanText.includes("region 11")) {
       matchedRegion = "Region XI (Davao Region)";
+      break;
+    } else if (cleanText.includes("soccsksargen") || cleanText.includes("region xii") || cleanText.includes("region 12")) {
+      matchedRegion = "Region XII (SOCCSKSARGEN)";
+      break;
+    } else if (cleanText.includes("caraga") || cleanText.includes("region xiii") || cleanText.includes("region 13")) {
+      matchedRegion = "Region XIII (Caraga)";
+      break;
+    } else if (cleanText.includes("barmm") || cleanText.includes("bangsamoro")) {
+      matchedRegion = "BARMM (Bangsamoro Autonomous Region in Muslim Mindanao)";
+      break;
+    } else if (cleanText.includes("cordillera") || cleanText.includes("car ")) {
+      matchedRegion = "CAR (Cordillera Administrative Region)";
       break;
     } else if (cleanText.includes(regLower)) {
       matchedRegion = region;
@@ -412,7 +795,7 @@ function ParentDashboard() {
   const [enrollForm, setEnrollForm] = useState({
       first_name: '', middle_initial: '', last_name: '', dob: '', gender: 'Male',
       address_line1: '', barangay: '', city_municipality: '', province: '', region: '',
-      allergies: '', health_conditions: ''
+      allergies: '', health_conditions: '', shift: 'Morning'
   });
   const [childImg, setChildImg] = useState(null);
   const [enrollError, setEnrollError] = useState('');
@@ -940,9 +1323,16 @@ function ParentDashboard() {
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Gender</label>
-                        <select name="gender" value={enrollForm.gender} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)' }}>
+                        <select name="gender" value={enrollForm.gender} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Preferred Class Shift</label>
+                        <select name="shift" value={enrollForm.shift || 'Morning'} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontWeight: 600 }}>
+                            <option value="Morning">Morning Shift (8:00 AM – 10:30 AM)</option>
+                            <option value="Afternoon">Afternoon Shift (1:00 PM – 3:30 PM)</option>
                         </select>
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
@@ -973,37 +1363,33 @@ function ParentDashboard() {
                             {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
                                 <option key={r} value={r}>{r}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
                         <select required name="province" value={enrollForm.province} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
-                            {enrollForm.region && enrollForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region] || {}).map(p => (
+                            {enrollForm.region && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region] || {}).map(p => (
                                 <option key={p} value={p}>{p}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
                         <select required name="city_municipality" value={enrollForm.city_municipality} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
-                            {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province] || {}).map(c => (
+                            {enrollForm.region && enrollForm.province && Object.keys(PHILIPPINE_ADDRESSES[enrollForm.region]?.[enrollForm.province] || {}).map(c => (
                                 <option key={c} value={c}>{c}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
                         <select required name="barangay" value={enrollForm.barangay} onChange={handleEnrollChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
-                            {enrollForm.region && enrollForm.region !== 'Other' && enrollForm.province && enrollForm.province !== 'Other' && enrollForm.city_municipality && enrollForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[enrollForm.region][enrollForm.province][enrollForm.city_municipality] || []).map(b => (
+                            {enrollForm.region && enrollForm.province && enrollForm.city_municipality && (PHILIPPINE_ADDRESSES[enrollForm.region]?.[enrollForm.province]?.[enrollForm.city_municipality] || []).map(b => (
                                 <option key={b} value={b}>{b}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
@@ -1039,8 +1425,28 @@ function ParentDashboard() {
                     </div>
                 </div>
 
-                <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '40px', marginBottom: '20px' }}>Part 2: Guardian Profile Setup</h4>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>Fill out your information to link with this child.</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '40px', marginBottom: '20px' }}>
+                    <div>
+                        <h4 style={{ margin: 0, fontSize: '1.2rem' }}>Part 2: Guardian Profile Setup</h4>
+                        <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0 0', fontSize: '0.9rem' }}>Fill out your information to link with this child.</p>
+                    </div>
+                    <button 
+                        type="button" 
+                        onClick={() => {
+                            setGuardianForm(prev => ({
+                                ...prev,
+                                address_line1: enrollForm.address_line1 || prev.address_line1,
+                                region: enrollForm.region || prev.region,
+                                province: enrollForm.province || prev.province,
+                                city_municipality: enrollForm.city_municipality || prev.city_municipality,
+                                barangay: enrollForm.barangay || prev.barangay
+                            }));
+                        }}
+                        style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: '6px', padding: '7px 14px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                        <i className="fa-solid fa-copy"></i> Copy Child's Address
+                    </button>
+                </div>
                 
                 <div className="resp-grid-2-form" style={{ marginBottom: '20px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
@@ -1079,6 +1485,14 @@ function ParentDashboard() {
                 </div>
 
                 <h4 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Guardian Address Details</h4>
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Paste Full Address (Auto-detects fields)</label>
+                    <textarea 
+                        placeholder="e.g. 123 Mabini St., Market View, Lucena City, Quezon"
+                        onChange={(e) => handleAddressPaste(e.target.value, 'guardian')} 
+                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', height: '60px', boxSizing: 'border-box' }}
+                    />
+                </div>
                 <div className="resp-grid-2-form" style={{ marginBottom: '30px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Address Line 1 (Street/House) *</label>
@@ -1088,43 +1502,46 @@ function ParentDashboard() {
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Region *</label>
                         <select required name="region" value={guardianForm.region} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Region</option>
-                            <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
-                            <option value="NCR">NCR</option>
-                            <option value="Other">Other</option>
+                            {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
                         <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
-                            <option value="Quezon">Quezon Province</option>
-                            <option value="Laguna">Laguna</option>
-                            <option value="Batangas">Batangas</option>
-                            <option value="Other">Other</option>
+                            {guardianForm.region && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region] || {}).map(p => (
+                                <option key={p} value={p}>{p}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
                         <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
-                            <option value="Lucena City">Lucena City</option>
-                            <option value="Tayabas City">Tayabas City</option>
-                            <option value="Pagbilao">Pagbilao</option>
-                            <option value="Sariaya">Sariaya</option>
-                            <option value="Other">Other</option>
+                            {guardianForm.region && guardianForm.province && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region]?.[guardianForm.province] || {}).map(c => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
                         <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
-                            <option value="Market View">Market View</option>
-                            <option value="Ilayang Dupay">Ilayang Dupay</option>
-                            <option value="Ibabang Dupay">Ibabang Dupay</option>
-                            <option value="Cotta">Cotta</option>
-                            <option value="Gulang-Gulang">Gulang-Gulang</option>
-                            <option value="Other">Other</option>
+                            {guardianForm.region && guardianForm.province && guardianForm.city_municipality && (PHILIPPINE_ADDRESSES[guardianForm.region]?.[guardianForm.province]?.[guardianForm.city_municipality] || []).map(b => (
+                                <option key={b} value={b}>{b}</option>
+                            ))}
                         </select>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                        <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Full Address Preview</label>
+                        <input 
+                            type="text" 
+                            readOnly 
+                            value={`${guardianForm.address_line1 || ''}${guardianForm.barangay ? ', ' + guardianForm.barangay : ''}${guardianForm.city_municipality ? ', ' + guardianForm.city_municipality : ''}${guardianForm.province ? ', ' + guardianForm.province : ''}${guardianForm.region ? ', ' + guardianForm.region : ''}`} 
+                            style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-secondary)', fontWeight: 500 }} 
+                        />
                     </div>
                 </div>
 
@@ -1241,37 +1658,33 @@ function ParentDashboard() {
                             {Object.keys(PHILIPPINE_ADDRESSES).map(r => (
                                 <option key={r} value={r}>{r}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Province *</label>
                         <select required name="province" value={guardianForm.province} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Province</option>
-                            {guardianForm.region && guardianForm.region !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region] || {}).map(p => (
+                            {guardianForm.region && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region] || {}).map(p => (
                                 <option key={p} value={p}>{p}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>City/Municipality *</label>
                         <select required name="city_municipality" value={guardianForm.city_municipality} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select City/Municipality</option>
-                            {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province] || {}).map(c => (
+                            {guardianForm.region && guardianForm.province && Object.keys(PHILIPPINE_ADDRESSES[guardianForm.region]?.[guardianForm.province] || {}).map(c => (
                                 <option key={c} value={c}>{c}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Barangay *</label>
                         <select required name="barangay" value={guardianForm.barangay} onChange={handleGuardianChange} style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                             <option value="">Select Barangay</option>
-                            {guardianForm.region && guardianForm.region !== 'Other' && guardianForm.province && guardianForm.province !== 'Other' && guardianForm.city_municipality && guardianForm.city_municipality !== 'Other' && (PHILIPPINE_ADDRESSES[guardianForm.region][guardianForm.province][guardianForm.city_municipality] || []).map(b => (
+                            {guardianForm.region && guardianForm.province && guardianForm.city_municipality && (PHILIPPINE_ADDRESSES[guardianForm.region]?.[guardianForm.province]?.[guardianForm.city_municipality] || []).map(b => (
                                 <option key={b} value={b}>{b}</option>
                             ))}
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
@@ -1496,7 +1909,7 @@ function ParentDashboard() {
                           />
                           <div>
                               <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{c.first_name} {c.last_name}</div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
                                   <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>{c.age} yrs</span>
                                   <span style={{ 
                                       fontSize: '0.7rem', 
@@ -1507,6 +1920,16 @@ function ParentDashboard() {
                                       borderRadius: '10px'
                                   }}>
                                       {c.enrollment_status}
+                                  </span>
+                                  <span style={{
+                                      fontSize: '0.68rem',
+                                      fontWeight: 800,
+                                      color: isSelected ? '#fff' : ((c.shift || 'Morning').toLowerCase().includes('afternoon') ? '#ea580c' : '#0284c7'),
+                                      background: isSelected ? 'rgba(255,255,255,0.2)' : ((c.shift || 'Morning').toLowerCase().includes('afternoon') ? 'rgba(234, 88, 12, 0.1)' : 'rgba(2, 132, 199, 0.1)'),
+                                      padding: '2px 7px',
+                                      borderRadius: '10px'
+                                  }}>
+                                      {(c.shift || 'Morning').toLowerCase().includes('afternoon') ? '🌤️ PM Shift' : '☀️ AM Shift'}
                                   </span>
                               </div>
                           </div>
@@ -1529,7 +1952,25 @@ function ParentDashboard() {
                   <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-primary)' }}>
                     {student.first_name} {student.last_name}
                   </h3>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{student.age} years old &bull; Enrolled Student</p>
+                  <div style={{ margin: '6px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span>{student.age} years old</span>
+                    <span>&bull;</span>
+                    <span style={{
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        color: (student.shift || 'Morning').toLowerCase().includes('afternoon') ? '#ea580c' : '#0284c7',
+                        background: (student.shift || 'Morning').toLowerCase().includes('afternoon') ? '#ffedd5' : '#e0f2fe',
+                        padding: '3px 10px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                    }}>
+                        {(student.shift || 'Morning').toLowerCase().includes('afternoon') ? '🌤️ Afternoon Shift (1:00 PM – 3:30 PM)' : '☀️ Morning Shift (8:00 AM – 10:30 AM)'}
+                    </span>
+                    <span>&bull;</span>
+                    <span>{student.enrollment_status || 'Enrolled Student'}</span>
+                  </div>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>

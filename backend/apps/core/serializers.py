@@ -147,7 +147,7 @@ class NoClassDaySerializer(serializers.ModelSerializer):
         model = NoClassDay
         fields = '__all__'
 
-from .models import ScoringAccessRequest
+from .models import ScoringAccessRequest, ECCDBookletRecord
 class ScoringAccessRequestSerializer(serializers.ModelSerializer):
     child_name = serializers.ReadOnlyField(source='child.first_name')
     child_lastname = serializers.ReadOnlyField(source='child.last_name')
@@ -156,6 +156,13 @@ class ScoringAccessRequestSerializer(serializers.ModelSerializer):
         model = ScoringAccessRequest
         fields = '__all__'
         read_only_fields = ('parent', 'approved_at')
+
+class ECCDBookletRecordSerializer(serializers.ModelSerializer):
+    child_name = serializers.ReadOnlyField(source='child.first_name')
+    child_lastname = serializers.ReadOnlyField(source='child.last_name')
+    class Meta:
+        model = ECCDBookletRecord
+        fields = '__all__'
 
 from .models import Activity, StudentActivityCompletion
 

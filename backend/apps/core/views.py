@@ -67,7 +67,7 @@ def login_view(request):
             else:
                 if profile.first_login:
                     return redirect("force_password_change")
-                return redirect("parent_home")
+                return redirect("home")
 
         messages.error(request, "Invalid username or password")
 
@@ -76,19 +76,7 @@ def login_view(request):
 
 @login_required
 def parent_home(request):
-    profile, _ = UserProfile.objects.get_or_create(
-        user=request.user,
-        defaults={'is_teacher': request.user.is_staff or request.user.is_superuser}
-    )
-    if profile.is_teacher:
-        return redirect("home")
-    children = profile.children.all()
-    active_child = children.first() if children.exists() else None
-    return render(request, "parents/parent_home.html", {
-        "profile": profile,
-        "children": children,
-        "active_child": active_child
-    })
+    return redirect("home")
 
 @login_required
 def parent_dashboard(request):
@@ -197,6 +185,11 @@ def teacher_student_map(request):
 @login_required
 def teacher_textblast(request):
     return render(request, 'teachers/textblast.html')
+
+@login_required
+def teacher_analytics(request):
+    return render(request, 'teachers/analytics.html')
+
 
 
 

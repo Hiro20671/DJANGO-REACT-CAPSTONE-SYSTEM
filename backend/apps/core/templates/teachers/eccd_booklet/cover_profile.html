@@ -1,0 +1,199 @@
+<div class="booklet-sheet card" style="background:#fff; border-radius:12px; border:1px solid #cbd5e1; padding:30px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    <!-- Header Banner mirroring physical booklet cover -->
+    <div style="background: linear-gradient(135deg, #15803d 0%, #166534 100%); color:white; border-radius:10px; padding:25px; text-align:center; margin-bottom:30px; position:relative; overflow:hidden;">
+        <div style="position:absolute; right:-20px; top:-20px; font-size:6rem; color:rgba(255,255,255,0.08); pointer-events:none;">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div style="display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:4px 16px; font-size:0.75rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">
+            PROVINCE OF QUEZON • OFFICIAL RECORD
+        </div>
+        <h2 style="margin:0 0 6px 0; font-size:1.8rem; font-weight:900; letter-spacing:0.5px; font-family:'Montserrat', sans-serif;">
+            Child's Record 2
+        </h2>
+        <div style="font-size:1rem; font-weight:700; opacity:0.95; margin-bottom:12px;">
+            Age 3 years 1 month to 5 years
+        </div>
+        <h3 style="margin:0 0 15px 0; font-size:1.4rem; font-weight:800; text-transform:uppercase; letter-spacing:0.8px;">
+            Early Childhood Care and Development (ECCD) Checklist
+        </h3>
+        <!-- Partner Agency Logos / Badges -->
+        <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; align-items:center; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px; margin-top:10px; font-size:0.85rem; font-weight:700;">
+            <span style="background:rgba(255,255,255,0.9); color:#166534; padding:4px 12px; border-radius:6px;"><i class="fa-solid fa-graduation-cap"></i> DepED</span>
+            <span style="background:rgba(255,255,255,0.9); color:#166534; padding:4px 12px; border-radius:6px;"><i class="fa-solid fa-heart-pulse"></i> DOH</span>
+            <span style="background:rgba(255,255,255,0.9); color:#166534; padding:4px 12px; border-radius:6px;"><i class="fa-solid fa-hands-holding-child"></i> DSWD</span>
+            <span style="background:rgba(255,255,255,0.9); color:#166534; padding:4px 12px; border-radius:6px;"><i class="fa-solid fa-earth-asia"></i> UNICEF</span>
+        </div>
+    </div>
+
+    <!-- Sociodemographic Profile Section -->
+    <div style="border-bottom:2px solid #043263; padding-bottom:8px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h3 style="margin:0; font-family:'Montserrat', sans-serif; font-weight:800; color:#043263; font-size:1.3rem;">
+                <i class="fa-solid fa-id-card" style="margin-right:8px;"></i> Sociodemographic Profile
+            </h3>
+            <p style="margin:4px 0 0 0; color:#64748b; font-size:0.85rem;">Indicate the complete sociodemographic profile of the child.</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 18px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Profile
+        </button>
+    </div>
+
+    <form id="socioProfileForm">
+        <!-- Child Primary Details -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
+            <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                1. Child Basic Identification
+            </h4>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-bottom:15px;">
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Full Name:</label>
+                    <input type="text" id="socio_child_name" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;" placeholder="Last Name, First Name, Middle Name">
+                </div>
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Sex:</label>
+                    <select id="socio_sex" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;">
+                        <option value="">Select Sex</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Date of Birth (Month / Day / Year):</label>
+                    <input type="date" id="socio_dob" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;">
+                </div>
+            </div>
+
+            <!-- Address Group -->
+            <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Residential Address:</label>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                <div>
+                    <input type="text" id="socio_barangay" class="form-control" placeholder="Barangay (e.g. Market View 3)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                </div>
+                <div>
+                    <input type="text" id="socio_city" class="form-control" placeholder="Municipality / City (e.g. Lucena City)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                </div>
+                <div>
+                    <input type="text" id="socio_province" class="form-control" placeholder="Province (e.g. Quezon)" value="Quezon" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                </div>
+                <div>
+                    <input type="text" id="socio_region" class="form-control" placeholder="Region (e.g. Region IV-A CALABARZON)" value="Region IV-A" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Handedness & Day Care Status -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
+            <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                2. Developmental Indicators & Center Enrolment
+            </h4>
+            <div style="margin-bottom:18px;">
+                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">
+                    Child's Handedness <span style="font-weight:400; color:#64748b;">(Check appropriate box)</span>:
+                </label>
+                <div style="display:flex; gap:18px; flex-wrap:wrap;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_handedness" value="Right"> Right
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_handedness" value="Left"> Left
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_handedness" value="Both"> Both
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_handedness" value="Not yet established"> Not yet established
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">
+                    Is the child presently studying? <span style="font-weight:400; color:#64748b;">(Check appropriate box)</span>:
+                </label>
+                <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_is_studying" value="Yes" checked> Yes
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
+                        <input type="radio" name="socio_is_studying" value="No"> No
+                    </label>
+                </div>
+                <div style="margin-top:10px;">
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">If Yes, write name of child's school / learning center / day care:</label>
+                    <input type="text" id="socio_school_name" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;" value="Barangay Market View 3 Child Development Center">
+                </div>
+            </div>
+        </div>
+
+        <!-- Parents Background Information -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
+            <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                3. Parental Background & Family Structure
+            </h4>
+            
+            <!-- Father -->
+            <div style="margin-bottom:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:15px;">
+                <h5 style="margin:0 0 10px 0; color:#0369a1; font-size:0.9rem; font-weight:800;"><i class="fa-solid fa-person" style="margin-right:6px;"></i> Father's Information</h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Name:</label>
+                        <input type="text" id="socio_father_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Age:</label>
+                        <input type="number" id="socio_father_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Years">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Occupation:</label>
+                        <input type="text" id="socio_father_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Educational Attainment:</label>
+                        <input type="text" id="socio_father_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. High School Graduate, College">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mother -->
+            <div style="margin-bottom:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:15px;">
+                <h5 style="margin:0 0 10px 0; color:#b45309; font-size:0.9rem; font-weight:800;"><i class="fa-solid fa-person-dress" style="margin-right:6px;"></i> Mother's Information</h5>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Name:</label>
+                        <input type="text" id="socio_mother_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Age:</label>
+                        <input type="number" id="socio_mother_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Years">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Occupation:</label>
+                        <input type="text" id="socio_mother_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Educational Attainment:</label>
+                        <input type="text" id="socio_mother_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. High School Graduate, College">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Siblings and Birth Order -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Number of Siblings:</label>
+                    <input type="number" id="socio_siblings_count" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. 2">
+                </div>
+                <div>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Birth Order (1st, 2nd, 3rd, etc.):</label>
+                    <input type="text" id="socio_birth_order" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. 1st child">
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:right;">
+            <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:white; box-shadow:0 2px 6px rgba(22,163,74,0.3);">
+                <i class="fa-solid fa-floppy-disk"></i> Save Sociodemographic Profile
+            </button>
+        </div>
+    </form>
+</div>

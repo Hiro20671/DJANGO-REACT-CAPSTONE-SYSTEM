@@ -731,7 +731,7 @@
                     const timeMins = Math.round(summary.totalTime / 60);
 
                     document.getElementById('routeDistanceText').innerText = `${distKm} km to BMV3 Center`;
-                    document.getElementById('routeDurationText').innerText = `<i class="fa-solid fa-clock" style="margin-right:4px;"></i> ~${timeMins} mins`;
+                    document.getElementById('routeDurationText').innerHTML = `<i class="fa-solid fa-clock" style="margin-right:4px;"></i> ~${timeMins} mins`;
                 }
             });
         }

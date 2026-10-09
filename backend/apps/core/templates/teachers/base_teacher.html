@@ -1210,6 +1210,10 @@
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
                 <i class="fa-solid fa-border-all"></i> Dashboard
             </a>
+            <a href="{% url 'teacher_analytics' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_analytics' %}active{% endif %}">
+                <i class="fa-solid fa-brain"></i> Analytics & AI Insights
+            </a>
             <a href="{% url 'teacher_dropoff_pickup' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}active{% endif %}">
                 <i class="fa-solid fa-car"></i> Drop-Off/Pick-Up
@@ -1220,7 +1224,7 @@
             </a>
             <a href="{% url 'teacher_milestones' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_milestones' %}active{% endif %}">
-                <i class="fa-solid fa-chart-line"></i> Milestones
+                <i class="fa-solid fa-book-open"></i> ECCD Booklet
             </a>
             <a href="{% url 'teacher_activities' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_activities' %}active{% endif %}">

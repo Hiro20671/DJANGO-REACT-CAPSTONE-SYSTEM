@@ -1,7 +1,947 @@
 {% extends "teachers/base_teacher.html" %}
-{% load static django_vite %}
+{% load static %}
 
 {% block content %}
-<div id="react-children-root"></div>
-{% vite_asset 'src/main.jsx' %}
+<style>
+    /* Children Management & Shift Allocation Styles */
+    .children-page {
+        padding: 10px 0 60px 0;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .children-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .children-title h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .children-title p {
+        color: var(--text-secondary, #64748b);
+        margin: 6px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .children-header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .sy-filter-select {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #1e293b);
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .btn-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-child-primary {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+    }
+    .btn-child-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        transform: translateY(-1px);
+    }
+
+    .btn-child-secondary {
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #1e293b);
+        border: 1px solid var(--border-color, #cbd5e1);
+    }
+    .btn-child-secondary:hover {
+        background: var(--btn-neutral-bg, #f1f5f9);
+    }
+
+    /* Shift Allocation Summary Banner */
+    .shift-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .shift-summary-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .shift-icon-box {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+    .shift-icon-box.blue { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+    .shift-icon-box.amber { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+    .shift-icon-box.purple { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
+    .shift-icon-box.emerald { background: rgba(16, 185, 129, 0.12); color: #059669; }
+
+    .shift-summary-info h4 {
+        margin: 0;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .shift-summary-info .val {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 3px 0;
+    }
+    .shift-summary-info .sub {
+        font-size: 0.76rem;
+        color: var(--text-secondary, #64748b);
+    }
+
+    /* Tabs */
+    .children-nav-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
+        margin-bottom: 20px;
+    }
+    .children-tab-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 18px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--text-secondary, #64748b);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    .children-tab-btn:hover {
+        color: #1e40af;
+    }
+    .children-tab-btn.active {
+        color: #1e40af;
+        border-bottom-color: #1e40af;
+    }
+    html.dark-mode .children-tab-btn.active {
+        color: #60a5fa;
+        border-bottom-color: #60a5fa;
+    }
+
+    /* Table Container */
+    .children-card {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .table-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .search-input {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--input-bg, #ffffff);
+        color: var(--input-text, #0f172a);
+        font-size: 0.88rem;
+        width: 240px;
+        outline: none;
+    }
+
+    /* Main Table */
+    .children-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+    .children-table th {
+        background: var(--btn-neutral-bg, #f8fafc);
+        color: var(--text-secondary, #475569);
+        padding: 12px 14px;
+        font-weight: 700;
+        text-align: left;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
+    }
+    .children-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-color, #f1f5f9);
+        color: var(--text-primary, #1e293b);
+        vertical-align: middle;
+    }
+    .children-table tr:hover td {
+        background: rgba(0, 0, 0, 0.015);
+    }
+
+    /* Editable Shift Selector on row */
+    .row-shift-select {
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #1e293b);
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .row-shift-select.morning {
+        background: #e0f2fe;
+        color: #0369a1;
+        border-color: #bae6fd;
+    }
+    .row-shift-select.afternoon {
+        background: #fef3c7;
+        color: #b45309;
+        border-color: #fde68a;
+    }
+
+    .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 0.74rem;
+        font-weight: 700;
+    }
+    .pill-badge.success { background: #dcfce7; color: #15803d; }
+    .pill-badge.warning { background: #fef3c7; color: #b45309; }
+    .pill-badge.danger { background: #fee2e2; color: #b91c1c; }
+    .pill-badge.info { background: #e0f2fe; color: #0369a1; }
+    .pill-badge.neutral { background: #f1f5f9; color: #475569; }
+
+    /* Modals */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .modal-overlay.active {
+        display: flex;
+    }
+    .modal-box {
+        background: var(--bg-card, #ffffff);
+        border-radius: 14px;
+        max-width: 650px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        border: 1px solid var(--border-color, #cbd5e1);
+    }
+    .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border-color, #e2e8f0);
+    }
+    .modal-body {
+        padding: 22px;
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--text-primary, #0f172a);
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color, #cbd5e1);
+        background: var(--input-bg, #ffffff);
+        color: var(--input-text, #0f172a);
+        font-size: 0.9rem;
+        outline: none;
+        box-sizing: border-box;
+    }
+    .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* Toast */
+    #saveToast {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: #10b981;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        z-index: 10001;
+    }
+
+    /* Mobile & Tablet Responsive Styles */
+    @media (max-width: 768px) {
+        .children-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 15px !important;
+        }
+        .children-header-actions {
+            width: 100% !important;
+            justify-content: space-between !important;
+        }
+        .children-header-actions .sy-filter-select {
+            flex-grow: 1 !important;
+        }
+        .shift-summary-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+        }
+        .table-toolbar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+        }
+        .search-input {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .table-toolbar > div[style*="display: flex"] {
+            width: 100% !important;
+            justify-content: space-between !important;
+        }
+        .table-container {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px !important;
+            margin: 0 -5px !important;
+        }
+        .children-table {
+            min-width: 650px !important;
+        }
+        .modal-box {
+            max-width: 95% !important;
+            margin: 10px !important;
+        }
+        .modal-body {
+            padding: 16px !important;
+        }
+        .form-row-2 {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+        }
+    }
+</style>
+
+<div class="children-page">
+    <!-- Header -->
+    <div class="children-header">
+        <div class="children-title">
+            <h2>
+                <i class="fa-regular fa-address-card" style="color: #10b981;"></i>
+                Pupil Management & Shift Allocation
+            </h2>
+            <p>Manage student profiles, assign class shifts (Morning AM / Afternoon PM), and review enrollment applications</p>
+        </div>
+        <div class="children-header-actions">
+            <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-secondary);">School Year:</label>
+            <select class="sy-filter-select" id="childrenSySelect" onchange="onSchoolYearChange()">
+                <option value="">Current Active School Year</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Shift Allocation Summary Banner -->
+    <div class="shift-summary-grid">
+        <div class="shift-summary-card">
+            <div class="shift-icon-box blue"><i class="fa-solid fa-users"></i></div>
+            <div class="shift-summary-info">
+                <h4>Total Active Cohort</h4>
+                <div class="val" id="sumTotalEnrolled">--</div>
+                <div class="sub">Enrolled Pupils</div>
+            </div>
+        </div>
+
+        <div class="shift-summary-card">
+            <div class="shift-icon-box amber"><i class="fa-regular fa-sun"></i></div>
+            <div class="shift-summary-info">
+                <h4>Morning Shift (AM)</h4>
+                <div class="val" id="sumMorningCount">--</div>
+                <div class="sub">8:00 AM – 10:30 AM</div>
+            </div>
+        </div>
+
+        <div class="shift-summary-card">
+            <div class="shift-icon-box purple"><i class="fa-solid fa-cloud-sun"></i></div>
+            <div class="shift-summary-info">
+                <h4>Afternoon Shift (PM)</h4>
+                <div class="val" id="sumAfternoonCount">--</div>
+                <div class="sub">1:00 PM – 3:30 PM</div>
+            </div>
+        </div>
+
+        <div class="shift-summary-card">
+            <div class="shift-icon-box emerald"><i class="fa-solid fa-file-signature"></i></div>
+            <div class="shift-summary-info">
+                <h4>Pending Applications</h4>
+                <div class="val" id="sumPendingCount">0</div>
+                <div class="sub">Awaiting Teacher Review</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="children-nav-tabs">
+        <button class="children-tab-btn active" id="tabBtnEnrolled" onclick="switchTab('enrolled')">
+            <i class="fa-solid fa-user-check"></i> Enrolled Pupils (<span id="tabCountEnrolled">0</span>)
+        </button>
+        <button class="children-tab-btn" id="tabBtnPending" onclick="switchTab('pending')">
+            <i class="fa-solid fa-user-clock"></i> Pending Applications (<span id="tabCountPending">0</span>)
+        </button>
+    </div>
+
+    <!-- Tab Pane 1: Enrolled Pupils with EDITABLE CLASS SHIFT -->
+    <div id="paneEnrolled">
+        <div class="children-card">
+            <div class="table-toolbar">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="enrolledSearchInput" class="search-input" placeholder="Search pupil name..." oninput="filterEnrolledTable()">
+                    <select id="shiftTableFilter" class="sy-filter-select" onchange="filterEnrolledTable()">
+                        <option value="ALL">All Class Shifts</option>
+                        <option value="Morning">Morning Shift (AM) Only</option>
+                        <option value="Afternoon">Afternoon Shift (PM) Only</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                    <i class="fa-solid fa-circle-info" style="color: #3b82f6; margin-right: 4px;"></i>
+                    Teachers can switch and assign shifts directly in the <strong>Class Shift</strong> column.
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="children-table">
+                    <thead>
+                        <tr>
+                            <th>Pupil Name</th>
+                            <th style="min-width: 170px;">Class Shift (Editable)</th>
+                            <th>Age & Gender</th>
+                            <th>Date of Birth</th>
+                            <th>Guardian & Contact</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrolledTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">Loading enrolled pupils...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Pane 2: Pending Applications Review -->
+    <div id="panePending" style="display: none;">
+        <div class="children-card">
+            <div class="table-toolbar">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #1e40af;">
+                    <i class="fa-solid fa-file-pen"></i> Enrollment Applications Awaiting Approval
+                </h3>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="children-table">
+                    <thead>
+                        <tr>
+                            <th>Applicant Child</th>
+                            <th>Preferred Shift Requested</th>
+                            <th>Age & Gender</th>
+                            <th>Guardian Name & Contact</th>
+                            <th>Allergies & Health</th>
+                            <th>Decision Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No pending applications found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: PUPIL PROFILE DETAIL & APPLICATION REVIEW -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800;" id="profileModalTitle">
+                <i class="fa-solid fa-id-badge" style="color: #3b82f6;"></i> Pupil Profile & Shift Details
+            </h3>
+            <button onclick="closeProfileModal()" style="border: none; background: transparent; font-size: 1.3rem; cursor: pointer; color: #64748b;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="profileModalBody">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Feedback -->
+<div id="saveToast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMessage">Class Shift successfully updated!</span>
+</div>
+
+<script>
+    let masterChildrenList = [];
+    let activeSyId = '';
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        await loadSchoolYears();
+        await loadChildrenData();
+    });
+
+    async function loadSchoolYears() {
+        try {
+            const res = await fetch('/api/school-years/');
+            const years = await res.json();
+            const select = document.getElementById('childrenSySelect');
+            const archiveId = sessionStorage.getItem('bmv3_archive_year_id');
+
+            select.innerHTML = years.map(y => `
+                <option value="${y.id}" ${archiveId == y.id ? 'selected' : (y.is_active ? 'selected' : '')}>
+                    ${y.name} ${y.is_active ? '(Active Current)' : '(Past Batch)'}
+                </option>
+            `).join('');
+            
+            const active = years.find(y => y.is_active);
+            if (active) activeSyId = active.id;
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadChildrenData() {
+        try {
+            const sySelect = document.getElementById('childrenSySelect');
+            const syId = (sySelect && sySelect.value) ? sySelect.value : activeSyId;
+            const qs = syId ? `?school_year=${syId}` : '';
+            
+            const res = await fetch(`/api/children/${qs}`);
+            const data = await res.json();
+            masterChildrenList = data;
+
+            renderSummaryStats(data);
+            renderEnrolledTable(data);
+            renderPendingTable(data);
+        } catch(e) { console.error(e); }
+    }
+
+    function renderSummaryStats(children) {
+        const enrolled = children.filter(c => c.enrollment_status === 'Enrolled');
+        const pending = children.filter(c => c.enrollment_status === 'Pending');
+        const morning = enrolled.filter(c => (c.shift || 'Morning').toLowerCase() === 'morning');
+        const afternoon = enrolled.filter(c => (c.shift || '').toLowerCase() === 'afternoon');
+
+        document.getElementById('sumTotalEnrolled').innerText = enrolled.length;
+        document.getElementById('sumMorningCount').innerText = morning.length;
+        document.getElementById('sumAfternoonCount').innerText = afternoon.length;
+        document.getElementById('sumPendingCount').innerText = pending.length;
+
+        document.getElementById('tabCountEnrolled').innerText = enrolled.length;
+        document.getElementById('tabCountPending').innerText = pending.length;
+    }
+
+    function renderEnrolledTable(children) {
+        const enrolled = children.filter(c => c.enrollment_status === 'Enrolled');
+        const tbody = document.getElementById('enrolledTableBody');
+
+        if (enrolled.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">No enrolled students found in this school year.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = enrolled.map(c => `
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #334155;">
+                            ${c.first_name ? c.first_name[0] : 'S'}
+                        </div>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: var(--text-primary);">${c.last_name}, ${c.first_name}</strong>
+                            <div style="font-size: 0.74rem; color: #64748b;">ID: #${c.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <select class="row-shift-select ${(c.shift || 'Morning') === 'Morning' ? 'morning' : 'afternoon'}" 
+                            onchange="updateStudentShift(${c.id}, this.value, this)" title="Click to change student's class shift">
+                        <option value="Morning" ${(c.shift || 'Morning') === 'Morning' ? 'selected' : ''}>☀️ Morning (AM)</option>
+                        <option value="Afternoon" ${(c.shift || 'Morning') === 'Afternoon' ? 'selected' : ''}>🌤️ Afternoon (PM)</option>
+                    </select>
+                </td>
+                <td>${c.age || 4} yrs • ${c.gender || 'Not specified'}</td>
+                <td>${c.dob || 'N/A'}</td>
+                <td>
+                    <div style="font-size: 0.86rem; font-weight: 600;">${c.mother_first_name ? c.mother_first_name + ' ' + (c.mother_last_name || '') : 'Guardian on file'}</div>
+                    <div style="font-size: 0.76rem; color: #64748b;">${c.mother_phone || c.phone || 'No phone'}</div>
+                </td>
+                <td style="font-size: 0.82rem; color: #475569;">
+                    ${c.barangay || 'Brgy. Market View'}, ${c.city_municipality || 'Lucena City'}
+                </td>
+                <td>
+                    <button class="btn-child btn-child-secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="openProfileModal(${c.id})">
+                        <i class="fa-solid fa-user-pen"></i> Profile
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderPendingTable(children) {
+        const pending = children.filter(c => c.enrollment_status === 'Pending');
+        const tbody = document.getElementById('pendingTableBody');
+
+        if (pending.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No pending applications to review at this time.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = pending.map(c => `
+            <tr>
+                <td>
+                    <strong style="color: var(--text-primary); font-size: 0.95rem;">${c.last_name}, ${c.first_name}</strong>
+                    <div style="font-size: 0.75rem; color: #64748b;">Submitted: ${c.date_added ? new Date(c.date_added).toLocaleDateString() : 'Recent'}</div>
+                </td>
+                <td>
+                    <span class="pill-badge ${(c.shift || 'Morning') === 'Morning' ? 'info' : 'warning'}" style="font-size: 0.8rem; padding: 4px 10px;">
+                        <i class="fa-solid ${(c.shift || 'Morning') === 'Morning' ? 'fa-sun' : 'fa-cloud-sun'}"></i>
+                        ${c.shift || 'Morning'} Shift
+                    </span>
+                </td>
+                <td>${c.age || 4} yrs • ${c.gender}</td>
+                <td>
+                    <div style="font-weight: 600;">${c.mother_first_name ? c.mother_first_name + ' ' + (c.mother_last_name || '') : 'Parent Contact'}</div>
+                    <div style="font-size: 0.76rem; color: #64748b;">${c.mother_phone || c.phone || 'N/A'}</div>
+                </td>
+                <td>
+                    <span class="pill-badge ${c.allergies && c.allergies !== 'None' ? 'danger' : 'neutral'}">
+                        ${c.allergies || 'None'}
+                    </span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <button class="btn-child btn-child-secondary" style="padding: 5px 10px; font-size: 0.78rem;" onclick="openProfileModal(${c.id})" title="Review full application form and details">
+                            <i class="fa-solid fa-file-lines"></i> Details
+                        </button>
+                        <button class="btn-child" style="background: #10b981; color: white; padding: 5px 12px; font-size: 0.78rem;" onclick="processEnrollment(${c.id}, 'Enrolled')">
+                            <i class="fa-solid fa-check"></i> Approve
+                        </button>
+                        <button class="btn-child" style="background: #ef4444; color: white; padding: 5px 12px; font-size: 0.78rem;" onclick="processEnrollment(${c.id}, 'Rejected')">
+                            <i class="fa-solid fa-xmark"></i> Reject
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Interactive Shift Change Auto-Save
+    async function updateStudentShift(childId, newShift, selectEl) {
+        try {
+            const resp = await fetch(`/api/children/${childId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ shift: newShift })
+            });
+
+            if (!resp.ok) throw new Error('Failed to update shift');
+
+            // Update badge color
+            if (selectEl) {
+                selectEl.className = `row-shift-select ${newShift === 'Morning' ? 'morning' : 'afternoon'}`;
+            }
+
+            // Update local memory
+            const target = masterChildrenList.find(c => c.id === childId);
+            if (target) target.shift = newShift;
+
+            renderSummaryStats(masterChildrenList);
+            showToast(`Assigned ${target ? target.first_name : 'Student'} to ${newShift} Shift!`);
+        } catch(err) {
+            console.error(err);
+            alert('Failed to update class shift. Please try again.');
+        }
+    }
+
+    // Process enrollment approval / rejection
+    async function processEnrollment(childId, newStatus) {
+        if (!confirm(`Are you sure you want to mark this applicant as ${newStatus}?`)) return;
+
+        try {
+            const resp = await fetch(`/api/children/${childId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ enrollment_status: newStatus })
+            });
+
+            if (!resp.ok) throw new Error('Failed to update enrollment');
+
+            showToast(`Application marked as ${newStatus}!`);
+            loadChildrenData();
+        } catch(err) {
+            console.error(err);
+            alert('Error updating application status.');
+        }
+    }
+
+    // Switch Tabs
+    function switchTab(tab) {
+        document.getElementById('paneEnrolled').style.display = tab === 'enrolled' ? 'block' : 'none';
+        document.getElementById('panePending').style.display = tab === 'pending' ? 'block' : 'none';
+
+        document.getElementById('tabBtnEnrolled').className = `children-tab-btn ${tab === 'enrolled' ? 'active' : ''}`;
+        document.getElementById('tabBtnPending').className = `children-tab-btn ${tab === 'pending' ? 'active' : ''}`;
+    }
+
+    // Filter Table
+    function filterEnrolledTable() {
+        const query = (document.getElementById('enrolledSearchInput').value || '').toLowerCase();
+        const shiftFilter = document.getElementById('shiftTableFilter').value;
+
+        const filtered = masterChildrenList.filter(c => {
+            if (c.enrollment_status !== 'Enrolled') return false;
+            const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+            const matchesQuery = fullName.includes(query);
+            const matchesShift = shiftFilter === 'ALL' || c.shift === shiftFilter;
+            return matchesQuery && matchesShift;
+        });
+
+        renderEnrolledTable(filtered);
+    }
+
+    function onSchoolYearChange() {
+        loadChildrenData();
+    }
+
+    // Profile / Verification Modal
+    function openProfileModal(childId) {
+        const child = masterChildrenList.find(c => c.id === childId);
+        if (!child) return;
+
+        const isPending = child.enrollment_status === 'Pending';
+        const titleEl = document.getElementById('profileModalTitle');
+        if (titleEl) {
+            if (isPending) {
+                titleEl.innerHTML = `<i class="fa-solid fa-file-signature" style="color: #10b981;"></i> Review Parent Enrollment Application`;
+            } else {
+                titleEl.innerHTML = `<i class="fa-solid fa-id-badge" style="color: #3b82f6;"></i> Pupil Profile & Shift Details`;
+            }
+        }
+
+        const guardianDisplay = child.mother_first_name 
+            ? `${child.mother_first_name} ${child.mother_last_name || ''} (Mother)` 
+            : (child.father_first_name 
+                ? `${child.father_first_name} ${child.father_last_name || ''} (Father)` 
+                : (child.other_guardian_first_name 
+                    ? `${child.other_guardian_first_name} ${child.other_guardian_last_name || ''} (Guardian)` 
+                    : 'Guardian on file'));
+
+        const phoneDisplay = child.mother_phone || child.father_phone || child.other_guardian_phone || child.phone || 'No phone recorded';
+
+        const addressDisplay = [
+            child.street,
+            child.purok,
+            child.barangay || 'BMV3',
+            child.city_municipality || 'Lucena City'
+        ].filter(Boolean).join(', ');
+
+        const body = document.getElementById('profileModalBody');
+        body.innerHTML = `
+            ${isPending ? `
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #b45309;">
+                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.1rem;"></i>
+                    <div>
+                        <strong>Parent Application Pending Verification:</strong> Please review the parent's submitted pupil and guardian information below before approving into the active cohort.
+                    </div>
+                </div>
+            ` : ''}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">PUPIL FULL NAME</label>
+                    <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-primary);">${child.first_name} ${child.last_name}</div>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">ASSIGNED CLASS SHIFT</label>
+                    <div>
+                        <select id="modalShiftSelect" class="form-control" style="font-weight: 700; padding: 6px 10px;">
+                            <option value="Morning" ${(child.shift || 'Morning') === 'Morning' ? 'selected' : ''}>☀️ Morning Shift (8:00 AM – 10:30 AM)</option>
+                            <option value="Afternoon" ${(child.shift || 'Morning') === 'Afternoon' ? 'selected' : ''}>🌤️ Afternoon Shift (1:00 PM – 3:30 PM)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">AGE & GENDER</label>
+                    <div style="font-weight: 600;">${child.age || 4} yrs old • ${child.gender || 'Not specified'}</div>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">DATE OF BIRTH</label>
+                    <div style="font-weight: 600;">${child.dob || 'Not provided'}</div>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">GUARDIAN CONTACT</label>
+                    <div style="font-weight: 600;">${guardianDisplay} &bull; ${phoneDisplay}</div>
+                </div>
+                <div>
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">HOME ADDRESS</label>
+                    <div style="font-weight: 600;">${addressDisplay}</div>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">KNOWN ALLERGIES</label>
+                    <div style="font-weight: 600; color: ${child.allergies && child.allergies !== 'None' ? '#ef4444' : 'inherit'};">
+                        ${child.allergies || 'None reported'}
+                    </div>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">HEALTH CONDITIONS / SPECIAL NEEDS</label>
+                    <div style="font-weight: 600; color: ${child.health_conditions && child.health_conditions !== 'None' ? '#ea580c' : 'inherit'};">
+                        ${child.health_conditions || 'None reported'}
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 15px;">
+                <button class="btn-child btn-child-secondary" onclick="closeProfileModal()">Close</button>
+                ${isPending ? `
+                    <button class="btn-child" style="background: #ef4444; color: white;" onclick="closeProfileModal(); processEnrollment(${child.id}, 'Rejected');">
+                        <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                    <button class="btn-child" style="background: #10b981; color: white;" onclick="approveFromModal(${child.id})">
+                        <i class="fa-solid fa-check"></i> Verify & Approve Enrollment
+                    </button>
+                ` : `
+                    <button class="btn-child btn-child-primary" onclick="saveModalShift(${child.id})">Save Shift Assignment</button>
+                `}
+            </div>
+        `;
+
+        document.getElementById('profileModal').classList.add('active');
+    }
+
+    async function approveFromModal(childId) {
+        const newShift = document.getElementById('modalShiftSelect').value;
+        closeProfileModal();
+        await updateStudentShift(childId, newShift);
+        await processEnrollment(childId, 'Enrolled');
+    }
+
+    async function saveModalShift(childId) {
+        const newShift = document.getElementById('modalShiftSelect').value;
+        await updateStudentShift(childId, newShift);
+        closeProfileModal();
+        loadChildrenData();
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('saveToast');
+        document.getElementById('toastMessage').innerText = msg;
+        toast.style.display = 'flex';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 {% endblock %}
