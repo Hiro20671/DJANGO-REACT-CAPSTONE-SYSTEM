@@ -54,8 +54,13 @@ class Command(BaseCommand):
         self.stdout.write(f"  [OK] Mandatory First-Login Password Change: ENABLED for all 60 accounts")
         self.stdout.write(f"  [OK] Credentials exported to: {acc_res['csv_path']}")
 
-        # STEP 4: Integrity Verification
-        self.stdout.write(self.style.WARNING("\n[STEP 4/4] Running Database Integrity and Verification Checks..."))
+        # STEP 4: Active Cohort Seeding (Sky Dylan Villanueva, Denies Dador, active pupils)
+        self.stdout.write(self.style.WARNING("\n[STEP 4/5] Enrolling Active Pupils (Sky Dylan Villanueva & Cohort)..."))
+        from django.core.management import call_command
+        call_command('seed_active_pupils')
+
+        # STEP 5: Integrity Verification
+        self.stdout.write(self.style.WARNING("\n[STEP 5/5] Running Database Integrity and Verification Checks..."))
         hist_sy = SchoolYear.objects.filter(name="2024-2025").first()
         active_sy = SchoolYear.objects.filter(name="2025-2026").first()
         total_children = Child.objects.filter(school_year=hist_sy).count()
