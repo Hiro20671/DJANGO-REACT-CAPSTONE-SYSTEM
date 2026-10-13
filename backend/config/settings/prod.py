@@ -5,8 +5,8 @@ import dj_database_url
 # Allow PyMySQL for MySQL connections (common on Aiven MySQL)
 try:
     import pymysql
-    pymysql.install_as_mysqldb()
-except ImportError:
+    pymysql.install_as_MySQLdb()
+except Exception:
     pass
 
 # SECURITY WARNING: keep the secret key used in production secret!
