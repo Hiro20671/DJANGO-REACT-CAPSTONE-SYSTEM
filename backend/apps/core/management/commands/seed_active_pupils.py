@@ -43,6 +43,11 @@ class Command(BaseCommand):
                 "city_municipality": "Lucena City",
             }
         )
+        # Link parent profile for Sky Dylan
+        jeremy_parent = User.objects.filter(username="jeremy_960").first() or User.objects.filter(username="parent001").first()
+        if jeremy_parent and hasattr(jeremy_parent, 'userprofile'):
+            sky.parents.add(jeremy_parent.userprofile)
+
         self.stdout.write(self.style.SUCCESS(f"  [OK] Sky Dylan Villanueva enrolled in {active_sy.name} ({'Created' if created_sky else 'Updated'})"))
 
         # 2. Denies Dador
@@ -66,6 +71,9 @@ class Command(BaseCommand):
                 "city_municipality": "Lucena City",
             }
         )
+        d_parent = User.objects.filter(username="parent002").first()
+        if d_parent and hasattr(d_parent, 'userprofile'):
+            denies.parents.add(d_parent.userprofile)
         self.stdout.write(self.style.SUCCESS(f"  [OK] Denies Dador enrolled in {active_sy.name} ({'Created' if created_denies else 'Updated'})"))
 
         # 3. Also populate sample cohort if empty so class list is lively
