@@ -403,17 +403,86 @@ input:checked + .slider:before { transform: translateX(26px); }
                 <p>Control the academic year lifecycle and backup routines</p>
             </div>
 
-            <div style="background: #fffcf5; border: 1px solid #ffeeba; border-radius: 8px; padding: 20px; max-width: 600px; margin-bottom: 30px;">
-                <h4 style="color: #856404; margin-top: 0;">End of Academic Year Reset</h4>
-                <p style="color: #666; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
-                    This action will package all currently enrolled students, their attendance logs, milestone progress, behavior incidents, and feeding records into an archived backup. <br><br>
-                    <strong>The dashboard and operational modules will then be cleared to accommodate the incoming batch of children for the new school year.</strong>
-                </p>
-                <div class="form-group" style="max-width:300px;">
-                    <label>Archive Name (e.g. 2025-2026 Batch)</label>
-                    <input type="text" id="archiveName" placeholder="Enter Label">
+            <!-- ACTIVE & ROLLOVER CARD -->
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; max-width: 680px; margin-bottom: 25px; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <h4 style="color: #0f172a; margin: 0; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-calendar-check" style="color: #2563eb;"></i> End of Academic Year Rollover & Archival
+                    </h4>
+                    <span id="current-sy-badge" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.78rem; text-transform: uppercase;">
+                        Active Batch
+                    </span>
                 </div>
-                <button class="btn-danger" onclick="confirmReset()">Archive Current Year & Reset All Data</button>
+
+                <!-- Current Active School Year Indicator -->
+                <div style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">Current Operational School Year</div>
+                        <div style="font-size: 1.45rem; font-weight: 800; color: #1e3a8a; margin-top: 2px;" id="display-active-sy">Loading...</div>
+                        <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;" id="display-active-sy-meta">Currently handling daily attendance, nutrition, and ECCD</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.75rem; background: #2563eb; color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 700;">Live Session</span>
+                    </div>
+                </div>
+
+                <p style="color: #475569; font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
+                    When you archive the current school year:
+                    <br>&bull; All currently enrolled pupils, attendance logs, ECCD evaluations, and nutrition records are preserved in the <strong>Archived Batches</strong> directory.
+                    <br>&bull; Outgoing parent accounts from this batch are <strong>automatically disabled</strong> to protect pupil data privacy.
+                    <br>&bull; The <strong>Next School Year</strong> will be immediately activated fresh for new pupil enrollments.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155; display: block; margin-bottom: 6px;">
+                            Archive Label for Current Batch
+                        </label>
+                        <input type="text" id="archiveLabel" placeholder="e.g. 2025-2026" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600;">
+                        <small style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Historical directory name</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #1e40af; display: block; margin-bottom: 6px;">
+                            <i class="fa-solid fa-arrow-right-long"></i> Next School Year to Activate *
+                        </label>
+                        <input type="text" id="nextSchoolYearName" placeholder="e.g. 2026-2027" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 2px solid #2563eb; font-weight: 700; background: #f8fafc;" required>
+                        <small style="color: #2563eb; font-size: 0.75rem; margin-top: 4px; display: block;">Incoming active school year</small>
+                    </div>
+                </div>
+
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 0.82rem; color: #92400e; display: flex; align-items: flex-start; gap: 10px;">
+                    <i class="fa-solid fa-shield-halved" style="font-size: 1.1rem; color: #d97706; margin-top: 2px;"></i>
+                    <div>
+                        <strong>Accident Protection:</strong> If you accidentally archive or need to revert back to the previous batch, you can undo at any time using the <strong>"Undo / Restore as Active"</strong> button below.
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <button class="btn-danger" id="btnArchiveRollover" onclick="executeArchiveRollover()" style="background: #dc2626; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(220,38,38,0.2);">
+                        <i class="fa-solid fa-box-archive"></i> Archive Current Year & Activate Next
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="autoSuggestNextYear()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 12px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Fill Next Year
+                    </button>
+                </div>
+            </div>
+
+            <!-- QUICK UNDO NOTIFICATION BANNER (Hidden by default, shown if recently archived) -->
+            <div id="quick-undo-banner" style="display: none; background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 18px 22px; max-width: 680px; margin-bottom: 25px; box-shadow: 0 4px 14px rgba(16,185,129,0.12);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <div style="color: #065f46; font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-circle-check" style="font-size: 1.2rem;"></i> School Year Rollover Completed!
+                        </div>
+                        <div id="quick-undo-text" style="color: #047857; font-size: 0.88rem; margin-top: 4px;">
+                            Archived: <strong id="qu-archived">--</strong> &bull; Now Active: <strong id="qu-active">--</strong>
+                        </div>
+                    </div>
+                    <button id="btnQuickUndo" onclick="undoLastArchive()" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                        <i class="fa-solid fa-rotate-left"></i> Undo Archive & Revert
+                    </button>
+                </div>
             </div>
 
             <div class="panel-header" style="margin-top: 30px;">
@@ -1256,6 +1325,28 @@ input:checked + .slider:before { transform: translateX(26px); }
     // ARCHIVAL LOGIC
     let currentViewingArchiveId = null;
     let currentViewingArchiveName = '';
+    let lastArchivedYearId = null;
+    let lastArchivedYearName = '';
+    let lastActiveYearName = '';
+
+    function autoSuggestNextYear(currentName) {
+        const srcName = currentName || (document.getElementById('display-active-sy') ? document.getElementById('display-active-sy').innerText : '');
+        const matches = srcName ? srcName.match(/\d{4}/g) : null;
+        let nextName = '';
+        if (matches && matches.length >= 2) {
+            const start = parseInt(matches[0]);
+            const end = parseInt(matches[1]);
+            nextName = `${end}-${end + (end - start)}`;
+        } else if (matches && matches.length === 1) {
+            const yr = parseInt(matches[0]);
+            nextName = `${yr + 1}-${yr + 2}`;
+        } else {
+            const nowYr = new Date().getFullYear();
+            nextName = `${nowYr}-${nowYr + 1}`;
+        }
+        const input = document.getElementById('nextSchoolYearName');
+        if (input) input.value = nextName;
+    }
 
     function loadArchives() {
         fetch('/api/school-years/')
@@ -1263,6 +1354,20 @@ input:checked + .slider:before { transform: translateX(26px); }
         .then(archives => {
             let cont = document.getElementById('archives-container');
             let historical = archives.filter(a => !a.is_active);
+            let active = archives.find(a => a.is_active);
+
+            // Update active school year indicator & inputs
+            const activeDisplay = document.getElementById('display-active-sy');
+            const archiveInput = document.getElementById('archiveLabel');
+            if (active) {
+                if (activeDisplay) activeDisplay.innerText = active.name;
+                if (archiveInput) archiveInput.value = active.name;
+                autoSuggestNextYear(active.name);
+            } else {
+                if (activeDisplay) activeDisplay.innerText = "None Active";
+                if (archiveInput) archiveInput.value = "";
+                autoSuggestNextYear("");
+            }
             
             if (historical.length === 0) {
                 cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
@@ -1273,15 +1378,18 @@ input:checked + .slider:before { transform: translateX(26px); }
             let html = '';
             historical.forEach((arc) => {
                 html += `
-                <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; border:1px solid #edf2f7; background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
+                <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; border:1px solid #edf2f7; background:#fff; padding:20px; border-radius:12px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02); flex-wrap:wrap; gap:12px;">
                     <div>
                         <div class="year-title" style="font-weight:800; font-size:1.15rem; color:#1e293b; margin-bottom:4px;">${arc.name}</div>
                         <div class="year-stats" style="font-size:0.85rem; color:#64748b; font-weight:500;">Status: Archived &bull; Read-Only</div>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn-primary" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; font-weight:700; cursor:pointer;" onclick="openArchiveViewModal(${arc.id}, '${arc.name}')">View Enrolled Children</button>
-                        <button class="btn-primary" style="background:#4a90e2; color:#fff; border:none; font-weight:700; cursor:pointer;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
-                        <button class="btn-danger" style="font-weight:700; cursor:pointer; background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; padding: 8px 15px; border-radius: 6px;" onclick="softDeleteArchive(${arc.id}, '${arc.name}')">Delete</button>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-primary" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; font-weight:700; cursor:pointer; padding:8px 14px; border-radius:6px;" onclick="openArchiveViewModal(${arc.id}, '${arc.name}')">View Enrolled Children</button>
+                        <button class="btn-primary" style="background:#4a90e2; color:#fff; border:none; font-weight:700; cursor:pointer; padding:8px 14px; border-radius:6px;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                        <button class="btn-success" style="background:#10b981; color:#fff; border:none; font-weight:700; cursor:pointer; padding:8px 14px; border-radius:6px; display:inline-flex; align-items:center; gap:6px;" onclick="undoArchive(${arc.id}, '${arc.name}')" title="Restore this batch as active and re-enable parent accounts">
+                            <i class="fa-solid fa-rotate-left"></i> Undo / Make Active
+                        </button>
+                        <button class="btn-danger" style="font-weight:700; cursor:pointer; background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; padding: 8px 14px; border-radius: 6px;" onclick="softDeleteArchive(${arc.id}, '${arc.name}')">Delete</button>
                     </div>
                 </div>`;
             });
@@ -1492,27 +1600,128 @@ input:checked + .slider:before { transform: translateX(26px); }
         });
     }
 
-    function confirmReset() {
-        let label = document.getElementById('archiveName').value.trim();
-        if(!label) { alert("Please provide a name for the NEXT active School Year (e.g. 2026-2027) before resetting."); return; }
+    function executeArchiveRollover() {
+        const nextSyName = (document.getElementById('nextSchoolYearName') ? document.getElementById('nextSchoolYearName').value : '').trim();
+        const archiveLabel = (document.getElementById('archiveLabel') ? document.getElementById('archiveLabel').value : '').trim();
+        const currentActiveName = (document.getElementById('display-active-sy') ? document.getElementById('display-active-sy').innerText : '').trim();
 
-        let confirmed = confirm("WARNING: This will archive all current student data and start a fresh academic year. The old data will be accessible via the 'View Time Travel Dashboard' button. Are you sure?");
-        if(!confirmed) return;
+        if (!nextSyName) {
+            showToast("Please enter the Next School Year name to activate (e.g. 2026-2027).", "error");
+            if (document.getElementById('nextSchoolYearName')) document.getElementById('nextSchoolYearName').focus();
+            return;
+        }
 
-        fetch('/api/school-years/', {
+        if (nextSyName === currentActiveName) {
+            showToast(`The Next School Year (${nextSyName}) cannot be the same as the current active year.`, "error");
+            return;
+        }
+
+        const confirmMsg = `ACADEMIC YEAR ROLLOVER CONFIRMATION:\n\n` +
+            `• Current School Year [${currentActiveName}] will be ARCHIVED as read-only.\n` +
+            `• Outgoing parent accounts from this batch will be DISABLED to protect pupil privacy.\n` +
+            `• New School Year [${nextSyName}] will be ACTIVATED for new pupil enrollments.\n\n` +
+            `NOTE: You can easily undo this at any time using the "Undo / Make Active" button.\n\n` +
+            `Do you want to proceed with the rollover?`;
+
+        if (!confirm(confirmMsg)) return;
+
+        const btn = document.getElementById('btnArchiveRollover');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Archiving & Activating Next Year...`;
+        }
+
+        fetch('/api/school-years/archive_and_rollover/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-            body: JSON.stringify({ name: label, is_active: true })
-        }).then(res => {
-            if(!res.ok) throw new Error("Could not create school year. Name might already exist.");
-            return res.json();
-        }).then(data => {
-            document.getElementById('archiveName').value = '';
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                archive_label: archiveLabel || currentActiveName,
+                next_school_year_name: nextSyName
+            })
+        })
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Rollover failed.");
+            return data;
+        })
+        .then(data => {
+            showToast(data.message, "success");
+            lastArchivedYearId = data.archived_year_id;
+            lastArchivedYearName = data.archived_year_name;
+            lastActiveYearName = data.active_year_name;
+
+            // Show Quick Undo Banner
+            const quBanner = document.getElementById('quick-undo-banner');
+            if (quBanner) {
+                quBanner.style.display = 'block';
+                const elArch = document.getElementById('qu-archived');
+                const elAct = document.getElementById('qu-active');
+                if (elArch) elArch.innerText = data.archived_year_name || currentActiveName;
+                if (elAct) elAct.innerText = data.active_year_name || nextSyName;
+            }
+
             loadArchives();
-            showToast("System successfully reset for the new academic year!", "success");
-        }).catch(err => {
+            loadActiveSchoolYearDates();
+        })
+        .catch(err => {
+            showToast(err.message, "error");
+        })
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-box-archive"></i> Archive Current Year & Activate Next`;
+            }
+        });
+    }
+
+    function confirmReset() {
+        executeArchiveRollover();
+    }
+
+    function undoArchive(id, name) {
+        const confirmMsg = `RESTORE & UNDO ARCHIVE CONFIRMATION:\n\n` +
+            `Are you sure you want to restore [${name}] as the ACTIVE operational school year?\n\n` +
+            `• [${name}] will become the operational active school year.\n` +
+            `• Parent accounts with children in [${name}] will be RE-ENABLED.\n` +
+            `• The current school year will be set to archived.\n\n` +
+            `Do you want to restore [${name}] now?`;
+
+        if (!confirm(confirmMsg)) return;
+
+        fetch(`/api/school-years/${id}/undo_archive/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to restore school year.");
+            return data;
+        })
+        .then(data => {
+            showToast(data.message, "success");
+            const quBanner = document.getElementById('quick-undo-banner');
+            if (quBanner) quBanner.style.display = 'none';
+
+            loadArchives();
+            loadActiveSchoolYearDates();
+        })
+        .catch(err => {
             showToast(err.message, "error");
         });
+    }
+
+    function undoLastArchive() {
+        if (lastArchivedYearId) {
+            undoArchive(lastArchivedYearId, lastArchivedYearName);
+        } else {
+            showToast("No recent archive found to undo.", "warning");
+        }
     }
 
     function viewArchive(id, name) {

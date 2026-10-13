@@ -1037,6 +1037,127 @@ class SchoolYearViewSet(viewsets.ModelViewSet):
         # Only return non-deleted school years by default
         return SchoolYear.objects.filter(is_deleted=False).order_by('-start_date')
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.is_active:
+            SchoolYear.objects.exclude(id=instance.id).update(is_active=False)
+
+    @action(detail=False, methods=['post'])
+    def archive_and_rollover(self, request):
+        profile = getattr(request.user, 'userprofile', None)
+        if not profile or not profile.is_teacher:
+            return Response({'error': 'Only teachers can perform academic year rollover.'}, status=403)
+
+        next_name = (request.data.get('next_school_year_name') or '').strip()
+        archive_name = (request.data.get('archive_label') or request.data.get('archive_name') or '').strip()
+
+        if not next_name:
+            return Response({'error': 'Please provide the next school year name to activate (e.g. 2026-2027).'}, status=400)
+
+        current_active = SchoolYear.objects.filter(is_active=True).first()
+        
+        # 1. Archive current active year
+        disabled_parents_count = 0
+        if current_active:
+            if archive_name and archive_name != current_active.name:
+                if not SchoolYear.objects.exclude(id=current_active.id).filter(name=archive_name).exists():
+                    current_active.name = archive_name
+            current_active.is_active = False
+            current_active.save()
+
+            # Disable parent accounts whose children belong to this archived school year
+            archived_children = Child.objects.filter(school_year=current_active)
+            for child in archived_children:
+                for parent_prof in child.parents.all():
+                    if not parent_prof.is_teacher:
+                        has_other_active = parent_prof.children.filter(school_year__is_active=True).exclude(school_year=current_active).exists()
+                        if not has_other_active:
+                            parent_prof.is_account_restricted = True
+                            parent_prof.save()
+                            if parent_prof.user:
+                                parent_prof.user.is_active = False
+                                parent_prof.user.save()
+                            disabled_parents_count += 1
+
+        # 2. Create or activate next school year
+        next_sy = SchoolYear.objects.filter(name=next_name).first()
+        if not next_sy:
+            import re, datetime
+            years = [int(p) for p in re.findall(r'\d{4}', next_name)]
+            if len(years) >= 2:
+                sy_start_year, sy_end_year = years[0], years[1]
+            elif len(years) == 1:
+                sy_start_year, sy_end_year = years[0], years[0] + 1
+            else:
+                today_year = datetime.date.today().year
+                sy_start_year, sy_end_year = today_year, today_year + 1
+
+            next_sy = SchoolYear.objects.create(
+                name=next_name,
+                is_active=True,
+                is_deleted=False,
+                start_date=datetime.date(sy_start_year, 8, 24),
+                end_date=datetime.date(sy_end_year, 5, 28),
+                eccd_1st_start=datetime.date(sy_start_year, 9, 1),
+                eccd_1st_end=datetime.date(sy_start_year, 9, 25),
+                eccd_2nd_start=datetime.date(sy_end_year, 1, 4),
+                eccd_2nd_end=datetime.date(sy_end_year, 1, 29),
+                eccd_3rd_start=datetime.date(sy_end_year, 5, 3),
+                eccd_3rd_end=datetime.date(sy_end_year, 5, 28),
+            )
+        else:
+            next_sy.is_active = True
+            next_sy.is_deleted = False
+            next_sy.save()
+
+        # Ensure only next_sy is active
+        SchoolYear.objects.exclude(id=next_sy.id).update(is_active=False)
+
+        return Response({
+            'status': 'success',
+            'message': f"School Year '{current_active.name if current_active else 'Previous'}' archived. Next School Year '{next_sy.name}' is now active!",
+            'archived_year_id': current_active.id if current_active else None,
+            'archived_year_name': current_active.name if current_active else None,
+            'active_year_id': next_sy.id,
+            'active_year_name': next_sy.name,
+            'disabled_parents_count': disabled_parents_count
+        })
+
+    @action(detail=True, methods=['post'])
+    def undo_archive(self, request, pk=None):
+        profile = getattr(request.user, 'userprofile', None)
+        if not profile or not profile.is_teacher:
+            return Response({'error': 'Only teachers can restore school years.'}, status=403)
+
+        sy = get_object_or_404(SchoolYear, pk=pk)
+
+        # Make this school year active
+        sy.is_active = True
+        sy.is_deleted = False
+        sy.save()
+        SchoolYear.objects.exclude(id=sy.id).update(is_active=False)
+
+        # Re-enable parent accounts for pupils enrolled in this restored school year
+        re_enabled_count = 0
+        children = Child.objects.filter(school_year=sy)
+        for child in children:
+            for parent_prof in child.parents.all():
+                if not parent_prof.is_teacher:
+                    parent_prof.is_account_restricted = False
+                    parent_prof.save()
+                    if parent_prof.user:
+                        parent_prof.user.is_active = True
+                        parent_prof.user.save()
+                    re_enabled_count += 1
+
+        return Response({
+            'status': 'success',
+            'message': f"School Year '{sy.name}' has been restored as active! Associated parent accounts have been re-enabled.",
+            'active_year_id': sy.id,
+            'active_year_name': sy.name,
+            're_enabled_parents_count': re_enabled_count
+        })
+
     def destroy(self, request, *args, **kwargs):
         # Allow hard deleting from the recycle bin
         instance = get_object_or_404(SchoolYear, pk=kwargs.get('pk'))
