@@ -21,9 +21,11 @@ ALLOWED_HOSTS = ['*']
 # CSRF trusted origins for PythonAnywhere & custom domains
 CSRF_TRUSTED_ORIGINS = [
     'https://*.pythonanywhere.com',
+    'http://*.pythonanywhere.com',
 ]
 if os.environ.get('CUSTOM_DOMAIN'):
     CSRF_TRUSTED_ORIGINS.append(f"https://{os.environ.get('CUSTOM_DOMAIN')}")
+    CSRF_TRUSTED_ORIGINS.append(f"http://{os.environ.get('CUSTOM_DOMAIN')}")
 
 # Add whitenoise to middleware right after SecurityMiddleware (which is index 0)
 # This serves static files efficiently in production.

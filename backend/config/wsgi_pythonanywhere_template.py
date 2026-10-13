@@ -21,12 +21,15 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.prod'
 os.environ['DEBUG'] = 'False'
 os.environ['SECRET_KEY'] = 'bmv3-prod-capstone-secret-key-replace-with-random-chars'
 
-# 3. Aiven Database Service URI (PostgreSQL or MySQL)
+# 3. Aiven Database Service URI (PostgreSQL or MySQL with SSL)
 # Example: postgres://avnadmin:password@pg-xxx.aivencloud.com:12345/defaultdb?sslmode=require
 os.environ['DATABASE_URL'] = 'postgres://avnadmin:your_password@your-aiven-host:your-port/defaultdb?sslmode=require'
 
-# 4. Optional: Brevo Email API Key for system email alerts / parent invites
-# os.environ['BREVO_API_KEY'] = 'xkeysib-your-key-here'
+# 4. Brevo Email API Configuration (REQUIRED for email on PythonAnywhere)
+# IMPORTANT: In Brevo dashboard, go to 'SMTP & API' -> 'API Keys' tab (NOT SMTP) -> 'Generate a new API key'
+# The key starts with 'xkeysib-...'. Do NOT use the 'xsmtpsib-...' SMTP key here.
+os.environ['BREVO_API_KEY'] = 'xkeysib-paste-your-brevo-api-key-here'
+os.environ['DEFAULT_FROM_EMAIL'] = 'jeremybryanvillanueva@gmail.com'
 
 # 5. Serve Django WSGI Application
 from django.core.wsgi import get_wsgi_application

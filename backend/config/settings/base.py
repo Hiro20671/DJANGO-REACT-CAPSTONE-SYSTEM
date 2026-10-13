@@ -93,7 +93,6 @@ STATIC_URL = 'static/'
 # Ensure the static files from React build are found
 STATICFILES_DIRS = [
     BASE_DIR / 'apps' / 'core' / 'static',
-    BASE_DIR / 'apps' / 'core' / 'static' / 'react',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -123,11 +122,19 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / 'apps' / 'core' / 'static' / 'react'
 DJANGO_VITE_DEV_MODE = False
 
 # Email Configuration
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY') or os.environ.get('SENDINBLUE_API_KEY', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+# If the user pasted their xkeysib- API key into EMAIL_HOST_PASSWORD, auto-detect it
+if not BREVO_API_KEY and EMAIL_HOST_PASSWORD.startswith('xkeysib-'):
+    BREVO_API_KEY = EMAIL_HOST_PASSWORD
+
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'jeremybryanvillanueva@gmail.com')
+EMAIL_TIMEOUT = 10  # Prevent blocking requests if network/firewall drops connection
 
 if BREVO_API_KEY:
-    # Use django-anymail for Brevo HTTP API (works on PythonAnywhere free tier)
+    # Use django-anymail for Brevo HTTP API (uses port 443 HTTPS, works on PythonAnywhere Free & Paid)
     if 'anymail' not in INSTALLED_APPS:
         INSTALLED_APPS.append('anymail')
     EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
@@ -136,9 +143,6 @@ if BREVO_API_KEY:
         'SENDINBLUE_API_KEY': BREVO_API_KEY,
     }
 else:
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '') 
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-
     if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     else:
