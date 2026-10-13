@@ -1259,33 +1259,39 @@ function ParentDashboard() {
   if (!student || showEnrollForm || showLinkGuardianForm) {
     return (
       <div style={{ animation: 'fadeIn 0.5s ease-in', maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '30px' }}>
+        <div style={{ marginBottom: '25px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               {parentPic && (
                  <img src={parentPic} alt="Parent Profile" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #063970' }} />
               )}
               <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#063970', margin: 0 }}>Welcome back, {parentName}</h2>
             </div>
-            {!showEnrollForm && !showLinkGuardianForm && <p>No child profile linked to this account yet. Please choose an option below.</p>}
         </div>
 
         {!showEnrollForm && !showLinkGuardianForm && (
-            <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-                <div 
-                    onClick={() => setShowEnrollForm(true)}
-                    style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
-                >
-                    <div style={{ fontSize: '2.5rem', marginBottom: '15px', color: '#3b82f6' }}><i className="fa-solid fa-file-signature"></i></div>
-                    <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#063970' }}>Enroll New Child</h3>
-                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Fill out a new application for your child to join the center.</p>
+            <div style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '32px', marginBottom: '30px', textAlign: 'center', boxShadow: '0 4px 14px rgba(37, 99, 235, 0.08)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#2563eb', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', fontSize: '1.8rem', boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)' }}>
+                    <i className="fa-solid fa-child-reaching"></i>
                 </div>
-                <div 
-                    onClick={() => setShowLinkGuardianForm(true)}
-                    style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)', padding: '30px', borderRadius: '15px', cursor: 'pointer', textAlign: 'center', transition: '0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
-                >
-                    <div style={{ fontSize: '2.5rem', marginBottom: '15px', color: '#10b981' }}><i className="fa-solid fa-link"></i></div>
-                    <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#063970' }}>Link to Existing Child</h3>
-                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>If your child is already enrolled, set up your guardian profile and connect to their records.</p>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1e3a8a', margin: '0 0 10px 0' }}>
+                    Welcome to BMV3 Child Development Center
+                </h3>
+                <p style={{ fontSize: '1.02rem', color: '#334155', maxWidth: '580px', margin: '0 auto 24px auto', lineHeight: 1.6 }}>
+                    Your parent account is ready. You have not enrolled a child yet. Please complete the child enrollment form to get started.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => setShowEnrollForm(true)}
+                        style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '14px 28px', borderRadius: '10px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)', transition: 'all 0.2s' }}
+                    >
+                        <i className="fa-solid fa-file-signature"></i> Enroll Your Child
+                    </button>
+                    <button
+                        onClick={() => setShowLinkGuardianForm(true)}
+                        style={{ background: '#ffffff', color: '#1e40af', border: '1px solid #bfdbfe', padding: '14px 24px', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px' }}
+                    >
+                        <i className="fa-solid fa-link"></i> Link to Existing Child
+                    </button>
                 </div>
             </div>
         )}
@@ -1739,35 +1745,36 @@ function ParentDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: '#ffffff',
+              background: 'var(--bg-card, #ffffff)',
               padding: '12px 16px',
               borderRadius: '16px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border-color, #e2e8f0)',
               marginBottom: '16px',
-              cursor: childrenList.length > 1 ? 'pointer' : 'default'
+              cursor: childrenList.length > 1 ? 'pointer' : 'default',
+              minWidth: 0
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
               <img 
                 src={student.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + student.first_name)} 
                 alt={student.first_name}
-                style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', background: '#e0f2fe' }}
+                style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', background: '#e0f2fe', flexShrink: 0 }}
               />
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#091e42' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary, #091e42)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {student.first_name} {student.last_name}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                  <span style={{ fontSize: '0.78rem', color: '#64748b' }}>{student.age} yrs</span>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>•</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary, #64748b)' }}>{student.age} yrs</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)' }}>•</span>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '10px' }}>
                     {student.enrollment_status || 'Enrolled'}
                   </span>
                 </div>
               </div>
             </div>
-            <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+            <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '0.9rem', flexShrink: 0 }}>
               <i className="fa-solid fa-chevron-right"></i>
             </div>
           </div>
@@ -1781,7 +1788,7 @@ function ParentDashboard() {
             marginBottom: '20px',
             boxShadow: '0 8px 24px rgba(9, 30, 66, 0.15)'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -1807,7 +1814,7 @@ function ParentDashboard() {
             <p style={{ margin: '0 0 14px 0', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.82)', lineHeight: 1.4 }}>
               School Year 2026–2027 is currently ongoing. Daily attendance, nutritional tracking, and early learning sessions are active.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', flexWrap: 'wrap', gap: '6px' }}>
               <span>Start: Aug 18, 2026</span>
               <span>End: Jun 30, 2027</span>
             </div>
@@ -1815,44 +1822,44 @@ function ParentDashboard() {
 
           {/* Quick Actions (2x2 Grid) */}
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: 800, color: '#091e42' }}>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary, #091e42)' }}>
               Quick Actions
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-              <a href="/parent/milestones/" style={{ textDecoration: 'none', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: '#0f172a' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontSize: '1.05rem' }}>
+              <a href="/parent/milestones/" style={{ textDecoration: 'none', background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: 'var(--text-primary, #0f172a)', minWidth: 0 }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--btn-neutral-bg, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary, #0f172a)', fontSize: '1.05rem', flexShrink: 0 }}>
                   <i className="fa-solid fa-clipboard-list"></i>
                 </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#091e42' }}>View Records</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>ECCD Milestones</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary, #091e42)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>View Records</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary, #64748b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>ECCD Milestones</div>
                 </div>
               </a>
-              <a href="/parent/attendance/" style={{ textDecoration: 'none', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: '#0f172a' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontSize: '1.05rem' }}>
+              <a href="/parent/attendance/" style={{ textDecoration: 'none', background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: 'var(--text-primary, #0f172a)', minWidth: 0 }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--btn-neutral-bg, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary, #0f172a)', fontSize: '1.05rem', flexShrink: 0 }}>
                   <i className="fa-solid fa-calendar-check"></i>
                 </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#091e42' }}>Attendance</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Monthly Calendar</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary, #091e42)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Attendance</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary, #64748b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Monthly Calendar</div>
                 </div>
               </a>
-              <a href="/parent/engagement/" style={{ textDecoration: 'none', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: '#0f172a' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontSize: '1.05rem' }}>
+              <a href="/parent/engagement/" style={{ textDecoration: 'none', background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: 'var(--text-primary, #0f172a)', minWidth: 0 }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--btn-neutral-bg, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary, #0f172a)', fontSize: '1.05rem', flexShrink: 0 }}>
                   <i className="fa-solid fa-bullhorn"></i>
                 </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#091e42' }}>Announcements</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Events & Updates</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary, #091e42)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Announcements</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary, #64748b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Events & Updates</div>
                 </div>
               </a>
-              <a href="/parent/children/" style={{ textDecoration: 'none', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: '#0f172a' }}>
-                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontSize: '1.05rem' }}>
+              <a href="/parent/children/" style={{ textDecoration: 'none', background: 'var(--bg-card, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '14px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', color: 'var(--text-primary, #0f172a)', minWidth: 0 }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--btn-neutral-bg, #f1f5f9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary, #0f172a)', fontSize: '1.05rem', flexShrink: 0 }}>
                   <i className="fa-solid fa-children"></i>
                 </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#091e42' }}>My Children</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Profiles & Details</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary, #091e42)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>My Children</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary, #64748b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Profiles & Details</div>
                 </div>
               </a>
             </div>
@@ -2022,21 +2029,21 @@ function ParentDashboard() {
             <>
               <h4 style={{ margin: '20px 0 12px 0', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Overview for {isToday ? 'Today' : dateDisplay}</h4>
               <div className="resp-grid-4" style={{ marginBottom: '30px', textAlign: 'center' }}>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Drop-off time</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.time}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)', wordBreak: 'break-word' }}>{dropoffInfo.time}</div>
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Pick-up Status</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.status}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)', wordBreak: 'break-word' }}>{dropoffInfo.status}</div>
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Authorized Guardian</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.guardian}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)', wordBreak: 'break-word' }}>{dropoffInfo.guardian}</div>
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>Session</div>
-                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>{dropoffInfo.session}</div>
+                  <div style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '14px', fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,0.03)', wordBreak: 'break-word' }}>{dropoffInfo.session}</div>
                 </div>
               </div>
 
@@ -2077,8 +2084,8 @@ function ParentDashboard() {
                         </div>
 
                         {/* Activities Table/List */}
-                        <div style={{ overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', borderRadius: '10px' }}>
+                          <table style={{ width: '100%', minWidth: '500px', borderCollapse: 'collapse', textAlign: 'left' }}>
                             <thead>
                               <tr style={{ borderBottom: '2px solid #edf2f7', color: '#64748b', fontSize: '0.8rem', fontWeight: 700 }}>
                                 <th style={{ padding: '10px 15px' }}>Activity Name</th>

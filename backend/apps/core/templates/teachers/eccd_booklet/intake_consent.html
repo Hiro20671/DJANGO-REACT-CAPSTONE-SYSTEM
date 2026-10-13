@@ -36,23 +36,33 @@
             
             <!-- I. PERSONAL DATA -->
             <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
-                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">I. PERSONAL DATA:</h5>
+                <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                    I. PERSONAL DATA &bull; Pansariling Impormasyon ng Bata:
+                </h5>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
                     <div>
-                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Religion:</label>
-                        <input type="text" id="intake_religion" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Roman Catholic">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:2px;">
+                            Religion / Relihiyon:
+                        </label>
+                        <input type="text" id="intake_religion" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Roman Catholic, Iglesia, Born Again">
                     </div>
                     <div>
-                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Place of Birth:</label>
-                        <input type="text" id="intake_birthplace" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Lucena City">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:2px;">
+                            Place of Birth / Lugar ng Kapanganakan:
+                        </label>
+                        <input type="text" id="intake_birthplace" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Lucena City">
                     </div>
                     <div>
-                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Nutritional Status:</label>
-                        <input type="text" id="intake_nutritional_status" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Normal / Underweight">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:2px;">
+                            Nutritional Status / Kalagayan ng Nutrisyon:
+                        </label>
+                        <input type="text" id="intake_nutritional_status" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Normal / Underweight / Payat">
                     </div>
                     <div>
-                        <label style="font-size:0.75rem; font-weight:700; color:#475569;">Physical Handicap/Impairment:</label>
-                        <input type="text" id="intake_handicap" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="None / Specify">
+                        <label style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:2px;">
+                            Physical Handicap / Pisikal na Kapansanan:
+                        </label>
+                        <input type="text" id="intake_handicap" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Wala / None / Tukuyin">
                     </div>
                 </div>
             </div>
@@ -60,25 +70,28 @@
             <!-- II. FAMILY COMPOSITION TABLE -->
             <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h5 style="margin:0; color:#1e293b; font-weight:800; font-size:0.9rem;">
-                        II. FAMILY COMPOSITION <span style="font-weight:400; color:#64748b; font-size:0.78rem;">(Include parents and all members of the family who live as one household)</span>
-                    </h5>
+                    <div>
+                        <h5 style="margin:0; color:#1e293b; font-weight:800; font-size:0.9rem;">
+                            II. FAMILY COMPOSITION &bull; Komposisyon ng Pamilya
+                        </h5>
+                        <div style="font-size:0.75rem; color:#64748b;">Isama ang mga magulang at lahat ng miyembro ng pamilyang kasama sa iisang tahanan</div>
+                    </div>
                     <button type="button" class="btn btn-outline" onclick="addFamilyMemberRow()" style="padding:4px 10px; font-size:0.8rem; border-color:#0284c7; color:#0284c7;">
-                        <i class="fa-solid fa-plus"></i> Add Member
+                        <i class="fa-solid fa-plus"></i> Add Member / Magdagdag
                     </button>
                 </div>
                 <div class="table-responsive" style="border:1px solid #cbd5e1; border-radius:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
                     <table style="min-width:680px; width:100%; border-collapse:collapse; font-size:0.8rem;" id="familyCompTable">
                         <thead>
                             <tr style="background:#091e42; color:white;">
-                                <th style="padding:8px; text-align:left;">Name / Birth Order</th>
-                                <th style="padding:8px; text-align:center; width:50px;">Age</th>
-                                <th style="padding:8px; text-align:center; width:65px;">Sex</th>
-                                <th style="padding:8px; text-align:center; width:90px;">Civil Status</th>
-                                <th style="padding:8px; text-align:left; width:110px;">Relation</th>
-                                <th style="padding:8px; text-align:left;">Highest Educ.</th>
-                                <th style="padding:8px; text-align:left;">Occupation</th>
-                                <th style="padding:8px; text-align:left; width:80px;">Income</th>
+                                <th style="padding:8px; text-align:left;">Pangalan / Name</th>
+                                <th style="padding:8px; text-align:center; width:50px;">Edad</th>
+                                <th style="padding:8px; text-align:center; width:65px;">Kasarian</th>
+                                <th style="padding:8px; text-align:center; width:90px;">Katayuang Sibil</th>
+                                <th style="padding:8px; text-align:left; width:110px;">Relasyon</th>
+                                <th style="padding:8px; text-align:left;">Pinag-aralan</th>
+                                <th style="padding:8px; text-align:left;">Trabaho / Hanapbuhay</th>
+                                <th style="padding:8px; text-align:left; width:80px;">Kita / Buwan</th>
                                 <th style="padding:8px; text-align:center; width:40px;"></th>
                             </tr>
                         </thead>
@@ -92,27 +105,28 @@
             <!-- III. DEVELOPMENT INFORMATION -->
             <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
                 <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
-                    III. DEVELOPMENT INFORMATION:
+                    III. DEVELOPMENT INFORMATION &bull; Impormasyon sa Pag-unlad:
                 </h5>
                 <div style="margin-bottom:10px;">
-                    <label style="font-weight:700; font-size:0.82rem; margin-right:15px;">1. Birth Certificate:</label>
-                    <label style="display:inline-flex; align-items:center; gap:6px; margin-right:15px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Available" checked> Available</label>
-                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Not Available"> Not Available</label>
+                    <label style="font-weight:700; font-size:0.82rem; margin-right:15px;">1. Birth Certificate / Sertipiko ng Kapanganakan:</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; margin-right:15px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Available" checked> Available (Mayroon)</label>
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;"><input type="radio" name="intake_birth_cert" value="Not Available"> Not Available (Wala)</label>
                 </div>
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; margin-bottom:6px; color:#1e293b;">
-                        2. Child Development Checklist: Check if child's achievement on admission corresponds to 50% and above of indicators for his age:
+                    <label style="display:block; font-weight:700; font-size:0.82rem; margin-bottom:4px; color:#1e293b;">
+                        2. Child Development Checklist / Talaan ng Pag-unlad ng Bata:
                     </label>
+                    <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">Lagyan ng tsek kung naipakikita ng bata ang mga sumusunod na kakayahan:</div>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:8px; font-size:0.82rem;">
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_motor"> a. Motor development</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_personal_social"> b. Personal-social development</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_cognitive"> c. Cognitive adaptive development</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_language"> d. Language competency</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_god"> e. Social values in relation to God</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_self"> f. Social values in relation to self</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_family"> g. Social values in relation to family</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_nonrelatives"> h. Social values in relation to non-relatives</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_community"> i. Social values in relation to community</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_motor"> a. Motor development (Pagkilos at kalamnan)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_personal_social"> b. Personal-social (Pakikipagkapwa at sarili)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_cognitive"> c. Cognitive adaptive (Pag-unawa at pag-iisip)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_language"> d. Language competency (Pagsasalita at wika)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_god"> e. Social values: Diyos (Pananampalataya)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_self"> f. Social values: Sarili (Kalinisan at tiwala)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_family"> g. Social values: Pamilya (Paggalang sa magulang)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_nonrelatives"> h. Social values: Kapwa (Pakikitungo sa iba)</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" id="dev_val_community"> i. Social values: Pamayanan (Pakikiisa)</label>
                     </div>
                 </div>
             </div>
@@ -120,34 +134,34 @@
             <!-- IV. HOME CONDITIONS -->
             <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
                 <h5 style="margin:0 0 10px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
-                    IV. HOME CONDITIONS:
+                    IV. HOME CONDITIONS &bull; Kalagayan sa Tahanan at Pamayanan:
                 </h5>
                 <div style="margin-bottom:10px;">
-                    <label style="font-size:0.8rem; font-weight:700;">1. Home conditions observed as likely detrimental to the child:</label>
-                    <input type="text" id="home_detrimental_home" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Mother working part of day, leaving no supervision">
+                    <label style="font-size:0.8rem; font-weight:700;">1. Home conditions observed / Kalagayan sa tahanan:</label>
+                    <input type="text" id="home_detrimental_home" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Nagtatrabaho ang magulang, walang nagbabantay, o maayos ang tahanan">
                 </div>
                 <div style="margin-bottom:10px;">
-                    <label style="font-size:0.8rem; font-weight:700;">2. Conditions in the neighborhood that are detrimental to the child:</label>
-                    <input type="text" id="home_detrimental_neigh" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Near high-traffic street, gambling areas">
+                    <label style="font-size:0.8rem; font-weight:700;">2. Neighborhood conditions / Kalagayan sa kapaligiran ng komunidad:</label>
+                    <input type="text" id="home_detrimental_neigh" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Malapit sa kalsada, tahimik na komunidad">
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:10px;" class="resp-grid-2">
                     <div>
-                        <label style="font-size:0.8rem; font-weight:700;">3. Distance of home to day care center:</label>
-                        <input type="text" id="home_distance" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. 500 meters / 10 mins walk">
+                        <label style="font-size:0.8rem; font-weight:700;">3. Distance of home to day care center / Layo sa Center:</label>
+                        <input type="text" id="home_distance" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. 500 metro / 10 minutong lakad">
                     </div>
                     <div>
-                        <label style="font-size:0.8rem; font-weight:700;">Transportation facility to center:</label>
-                        <input type="text" id="home_transpo" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Walking / Tricycle">
+                        <label style="font-size:0.8rem; font-weight:700;">Transportation facility / Paraan ng Pagpunta:</label>
+                        <input type="text" id="home_transpo" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Paglalakad, Tricycle, Motorsiklo">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;" class="resp-grid-2">
                     <div>
-                        <label style="font-size:0.8rem; font-weight:700;">4. Name of escort for child & Relationship:</label>
-                        <input type="text" id="home_escort" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Maria Santos (Mother)">
+                        <label style="font-size:0.8rem; font-weight:700;">4. Escort for child & Relationship / Naghahatid at Relasyon:</label>
+                        <input type="text" id="home_escort" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Maria Santos (Ina / Nanay)">
                     </div>
                     <div>
-                        <label style="font-size:0.8rem; font-weight:700;">5. Adult who will receive child upon return & Relationship:</label>
-                        <input type="text" id="home_receiver" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="e.g. Juan Santos (Father)">
+                        <label style="font-size:0.8rem; font-weight:700;">5. Adult receiving child at home / Sumasalubong sa Bahay:</label>
+                        <input type="text" id="home_receiver" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="hal. Juan Santos (Ama / Tatay)">
                     </div>
                 </div>
             </div>
@@ -155,36 +169,43 @@
             <!-- V. PARENTAL EXPECTATIONS (7 QUESTIONS) -->
             <div style="margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:15px;">
                 <h5 style="margin:0 0 12px 0; color:#1e293b; font-weight:800; font-size:0.9rem;">
-                    V. PARENTAL EXPECTATIONS &bull; Page 24
+                    V. PARENTAL EXPECTATIONS &bull; Mga Inaasahan ng Magulang (Pahina 24)
                 </h5>
                 <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
                     <div>
-                        <label style="font-weight:700;">1. What do parents expect to learn from attendance at the day care center?</label>
-                        <input type="text" id="pexpect_1" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">1. What do parents expect to learn from attendance at the day care center?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang inaasahang matututuhan ng magulang mula sa pagpasok ng bata sa day care?</div>
+                        <input type="text" id="pexpect_1" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">2. What are the parents perceived role in instilling values to the child at home?</label>
-                        <input type="text" id="pexpect_2" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">2. What are the parents perceived role in instilling values to the child at home?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang pananaw ng magulang sa kanilang tungkulin sa pagtuturo ng magagandang asal sa tahanan?</div>
+                        <input type="text" id="pexpect_2" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">3. What do the parents perceive as their role in relation to the Day Care Worker?</label>
-                        <input type="text" id="pexpect_3" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">3. What do the parents perceive as their role in relation to the Day Care Worker?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang tingin ng magulang sa kanilang pakikipagtulungan sa Day Care Worker (Guro)?</div>
+                        <input type="text" id="pexpect_3" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">4. What do they expect of the Day Care Worker?</label>
-                        <input type="text" id="pexpect_4" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">4. What do they expect of the Day Care Worker?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang inaasahan ng mga magulang mula sa Day Care Worker (Guro)?</div>
+                        <input type="text" id="pexpect_4" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">5. What do the parents perceive as their role in contributing to the success of the Day Care Center?</label>
-                        <input type="text" id="pexpect_5" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">5. What do the parents perceive as their role in contributing to the success of the Day Care Center?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang maitutulong ng magulang para maging matagumpay ang Day Care Center?</div>
+                        <input type="text" id="pexpect_5" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">6. What do the parents expect of their children at the Day Care Center?</label>
-                        <input type="text" id="pexpect_6" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">6. What do the parents expect of their children at the Day Care Center?</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">Ano ang inaasahan ng magulang na marating o matutuhan ng kanilang anak sa Day Care Center?</div>
+                        <input type="text" id="pexpect_6" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Isulat ang inyong sagot dito...">
                     </div>
                     <div>
-                        <label style="font-weight:700;">7. Other Expectations:</label>
-                        <input type="text" id="pexpect_7" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;">
+                        <label style="font-weight:700; display:block; margin-bottom:2px;">7. Other Expectations / Iba pang Inaasahan:</label>
+                        <div style="font-size:0.73rem; color:#64748b; margin-bottom:3px;">May iba pa bang nais ibahagi o hilingin?</div>
+                        <input type="text" id="pexpect_7" class="form-control" style="width:100%; padding:6px; font-size:0.85rem;" placeholder="Iba pang kaisipan o kahilingan...">
                     </div>
                 </div>
             </div>

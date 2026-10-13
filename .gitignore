@@ -67,3 +67,8 @@ staticfiles/
 backend/inspect_milestones.py
 backend/scratch/
 scratch/
+
+# Demo credentials (Restricted for authorized demonstration team only)
+bmv3_demo_parent_credentials.csv
+bmv3_80_demo_parent_credentials.csv
+*credentials*.csv

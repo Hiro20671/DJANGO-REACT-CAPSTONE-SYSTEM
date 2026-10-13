@@ -313,16 +313,31 @@
         </div>
     </div>
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <button type="button" class="btn btn-sm" onclick="saveBooklet()" style="background: #10b981; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); transition: transform 0.15s ease;">
-            <i class="fa-solid fa-floppy-disk"></i> Save Booklet Data
+        <button type="button" id="btnToggleTeacherBookletEdit" class="btn btn-sm" onclick="toggleTeacherBookletEdit()" style="background: #f59e0b; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(245,158,11,0.3); transition: transform 0.15s ease;" title="Click to unlock and correct parent responses">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Answers
         </button>
-        <button type="button" class="btn btn-sm" onclick="printCompleteBooklet()" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <button type="button" id="btnSaveTeacherBooklet" class="btn btn-sm" onclick="saveBooklet()" style="background: #10b981; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); transition: transform 0.15s ease;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+        <button type="button" class="btn btn-sm" onclick="sendBookletParentWarning()" style="background: #ef4444; color: white; border: none; padding: 9px 15px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(239,68,68,0.3);" title="Send notice to parent if booklet is uncompleted">
+            <i class="fa-solid fa-triangle-exclamation"></i> Remind Parent
+        </button>
+        <button type="button" class="btn btn-sm" onclick="printCompleteBooklet()" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 9px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-print"></i> Print Booklet
         </button>
         <button type="button" class="btn btn-sm" onclick="switchTab('overview')" style="background: rgba(255,255,255,0.1); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.25); padding: 9px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-users"></i> Back to Class List
         </button>
     </div>
+</div>
+
+<!-- Teacher Mode Notification Bar -->
+<div id="teacherBookletStatusNotice" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 18px; margin-bottom:16px; color:#166534; font-size:0.88rem; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-shield-halved" style="color:#16a34a; font-size:1.1rem;"></i>
+        <span><strong>Viewing Parent Responses:</strong> Forms are displayed in read-only mode. Click <strong>Edit Answers</strong> above if you need to correct any parent entries.</span>
+    </div>
+    <span id="teacherBookletModeBadge" style="background:#dcfce7; color:#15803d; font-weight:700; font-size:0.75rem; padding:3px 10px; border-radius:12px;">Read-Only Mode</span>
 </div>
 
 <div class="tabs" style="overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; gap: 4px;">

@@ -464,6 +464,10 @@
             <i class="fa-solid fa-paper-plane" style="color: #ea580c;"></i>
             <span>Textblast SMS</span>
         </a>
+        <button type="button" class="shortcut-btn" onclick="openGenerateParentAccountModal()" style="border:none; cursor:pointer; background:var(--bg-card, #ffffff);">
+            <i class="fa-solid fa-user-plus" style="color: #0284c7;"></i>
+            <span>Generate Parent Account</span>
+        </button>
     </div>
 
     <!-- Main Workspace -->
@@ -558,10 +562,10 @@
             const res = await fetch('/api/school-years/');
             const years = await res.json();
             const select = document.getElementById('sySelector');
-            const archiveId = sessionStorage.getItem('bmv3_archive_year_id');
+            const archiveId = sessionStorage.getItem('bmv3_archive_year_id') || localStorage.getItem('bmv3_archive_year_id');
 
             select.innerHTML = years.map(y => `
-                <option value="${y.id}" ${archiveId == y.id ? 'selected' : (y.is_active ? 'selected' : '')}>
+                <option value="${y.id}" ${archiveId == y.id ? 'selected' : (!archiveId && y.is_active ? 'selected' : '')}>
                     ${y.name} ${y.is_active ? '(Active Current)' : '(Past Batch)'}
                 </option>
             `).join('');
@@ -671,9 +675,25 @@
     }
 
     function onSchoolYearChange() {
-        const syId = document.getElementById('sySelector').value;
-        loadDashboardStats(syId);
-        loadCohortStudents(syId);
+        const sySelect = document.getElementById('sySelector');
+        const selectedId = sySelect ? sySelect.value : '';
+        const selectedOpt = sySelect ? sySelect.options[sySelect.selectedIndex] : null;
+        const selectedText = selectedOpt ? selectedOpt.innerText.split('(')[0].trim() : 'Archived Year';
+        const isCurrent = selectedOpt ? selectedOpt.innerText.includes('Active Current') : false;
+
+        if (selectedId && !isCurrent) {
+            sessionStorage.setItem('bmv3_archive_year_id', selectedId);
+            sessionStorage.setItem('bmv3_archive_year_name', selectedText);
+            localStorage.setItem('bmv3_archive_year_id', selectedId);
+            localStorage.setItem('bmv3_archive_year_name', selectedText);
+            window.location.reload();
+        } else {
+            sessionStorage.removeItem('bmv3_archive_year_id');
+            sessionStorage.removeItem('bmv3_archive_year_name');
+            localStorage.removeItem('bmv3_archive_year_id');
+            localStorage.removeItem('bmv3_archive_year_name');
+            window.location.reload();
+        }
     }
 </script>
 {% endblock %}

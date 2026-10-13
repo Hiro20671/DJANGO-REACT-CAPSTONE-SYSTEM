@@ -167,9 +167,11 @@
 }
 </style>
 
-<div class="page-header">
-    <h2>Parent Notification & Engagement</h2>
-    <p>Automated communication and performance summaries</p>
+<div class="page-header" style="margin-bottom: 25px;">
+    <div>
+        <h2>Parent Notification & Engagement</h2>
+        <p>Automated communication and performance summaries</p>
+    </div>
 </div>
 
 <!-- KPIs -->
@@ -194,7 +196,9 @@
 <!-- Tabs to Toggle Workspace -->
 <div class="tabs">
     <div class="tab active" id="tab-reports" onclick="switchEngageTab('reports')">Weekly Digests</div>
-    <div class="tab" id="tab-chat" onclick="switchEngageTab('chat')">Parent Chat Inbox</div>
+    <div class="tab" id="tab-chat" onclick="switchEngageTab('chat')">
+        Parent Chat Inbox <span id="teacher-tab-chat-unread-badge" style="display:none; background:#e74a3b; color:white; border-radius:12px; padding:2px 7px; font-size:0.75rem; font-weight:800; margin-left:6px;"></span>
+    </div>
 </div>
 
 <!-- Main Digest Section -->
@@ -248,8 +252,14 @@
     <div class="dual-pane-chat">
         <!-- LEFT: Parent / Child list -->
         <div class="chat-sidebar-left">
-            <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: 700; color: #333; background: #fafafa; flex-shrink: 0;">
-                <i class="fa-solid fa-users"></i> Parents Thread List
+            <div style="padding: 15px; border-bottom: 1px solid #eee; font-weight: 700; color: #333; background: #fafafa; flex-shrink: 0; display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fa-solid fa-users"></i> Parents Thread List</span>
+            </div>
+            <div style="padding: 10px 14px; border-bottom: 1px solid #edf2f7; background: #fff; flex-shrink: 0;">
+                <div style="position: relative;">
+                    <input type="text" id="teacherParentChatSearch" placeholder="Search parent or pupil name..." oninput="renderTeacherChatStudentList()" style="width: 100%; padding: 8px 12px 8px 34px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 0.85rem; font-family: inherit; outline: none;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+                </div>
             </div>
             <div id="chat-student-list" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; height: 0; min-height: 0;">
                 <!-- Populated dynamically by JS -->
@@ -365,6 +375,7 @@ function fetchSystemData() {
         compileData(attendance, milestones, engagement, nutrition);
         renderDigest();
         renderHistory();
+        renderTeacherChatStudentList();
     }).catch(err => {
         console.error("Error loading data:", err);
     });
@@ -893,8 +904,64 @@ function renderTeacherChatStudentList() {
     
     let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
     let studentGroups = groupStudentsByParent(studentsMaster);
+    let searchInput = document.getElementById('teacherParentChatSearch');
+    let filterQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
     
     let html = '';
+    let totalUnread = 0;
+    
+    // Process and sort groups by most recent message timestamp (descending)
+    let groupsArray = Object.values(studentGroups).map(g => {
+        let myChat = getGroupMessages(g.key, g.students);
+        let unread = myChat.filter(msg => msg.sender === 'parent' && !msg.read).length;
+        totalUnread += unread;
+        
+        let lastTime = 0;
+        let lastMsg = "No conversation yet.";
+        if (myChat.length > 0) {
+            let lastRecord = myChat[myChat.length - 1];
+            lastMsg = lastRecord.text || (lastRecord.type === 'system-absent' ? "Absence Reported" : "");
+            if (lastRecord.epoch) {
+                lastTime = lastRecord.epoch;
+            } else if (lastRecord.date) {
+                let parsed = new Date(lastRecord.date + ' ' + (lastRecord.timestamp || '00:00')).getTime();
+                lastTime = isNaN(parsed) ? 1 : parsed;
+            } else {
+                lastTime = 1;
+            }
+        }
+        
+        return {
+            ...g,
+            myChat: myChat,
+            lastMsg: lastMsg,
+            unread: unread,
+            lastTime: lastTime
+        };
+    });
+    
+    // Update Tab Red Unread Badge (Messenger-style)
+    let tabBadge = document.getElementById('teacher-tab-chat-unread-badge');
+    if (tabBadge) {
+        if (totalUnread > 0) {
+            tabBadge.textContent = totalUnread;
+            tabBadge.style.display = 'inline-block';
+        } else {
+            tabBadge.style.display = 'none';
+        }
+    }
+    
+    // Sort so the contact who just messaged is at the very TOP
+    groupsArray.sort((a, b) => b.lastTime - a.lastTime);
+    
+    // Filter by search query if provided
+    if (filterQuery) {
+        groupsArray = groupsArray.filter(g => {
+            let pName = (g.parentName || '').toLowerCase();
+            let cNames = (g.childrenNames || '').toLowerCase();
+            return pName.includes(filterQuery) || cNames.includes(filterQuery);
+        });
+    }
     
     // Render Broadcast Announcement at the top
     let broadcastActive = currentChatGroupKey === 'broadcast' ? 'active-thread' : '';
@@ -904,49 +971,50 @@ function renderTeacherChatStudentList() {
         lastBroadcastMsg = broadcastChat[broadcastChat.length - 1].text || '';
     }
     
-    html += `
-    <div class="chat-student-item ${broadcastActive}" id="chat-item-broadcast" onclick="selectBroadcastThread()">
-        <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#fff2e6; color:#fd7e14; font-weight:bold; display:flex; justify-content:center; align-items:center; flex-shrink: 0;">
-            
-        </div>
-        <div style="flex-grow:1; min-width: 0;">
-            <h5 style="margin:0; color:#fd7e14;"><i class="fa-solid fa-bullhorn" style="margin-right:6px;"></i> Broadcast Announcement</h5>
-            <p title="${lastBroadcastMsg}" style="color:#fd7e14; font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastBroadcastMsg}</p>
-        </div>
-    </div>`;
-    
-    Object.values(studentGroups).forEach(g => {
-        let myChat = getGroupMessages(g.key, g.students);
-        let lastMsg = "No conversation yet.";
-        let unreadBadge = '';
-        
-        if (myChat.length > 0) {
-            let lastRecord = myChat[myChat.length - 1];
-            lastMsg = lastRecord.text || (lastRecord.type === 'system-absent' ? "Absence Reported" : "");
-            
-            let unread = myChat.filter(msg => msg.sender === 'parent' && !msg.read).length;
-            if (unread > 0) {
-                unreadBadge = `<span class="badge-unread">${unread}</span>`;
-            }
-        }
-        
-        let activeClass = currentChatGroupKey === g.key ? 'active-thread' : '';
-        
+    if (!filterQuery || 'broadcast announcement'.includes(filterQuery)) {
         html += `
-        <div class="chat-student-item ${activeClass}" id="chat-item-${g.key}" onclick="selectParentThread('${g.key}')">
-            <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#e0f0ff; color:#4a90e2; font-weight:bold; display:flex; justify-content:center; align-items:center; overflow:hidden; flex-shrink: 0;">
-                ${g.avatarHtml}
+        <div class="chat-student-item ${broadcastActive}" id="chat-item-broadcast" onclick="selectBroadcastThread()">
+            <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#fff2e6; color:#fd7e14; font-weight:bold; display:flex; justify-content:center; align-items:center; flex-shrink: 0;">
+                <i class="fa-solid fa-bullhorn"></i>
             </div>
             <div style="flex-grow:1; min-width: 0;">
-                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                    <h5 style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${g.parentName}</h5>
-                    ${unreadBadge}
-                </div>
-                <div style="font-size:0.75rem; color:#4a90e2; font-weight:600; margin-top:2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Children: ${g.childrenNames}</div>
-                <p title="${lastMsg}">${lastMsg}</p>
+                <h5 style="margin:0; color:#fd7e14;"><i class="fa-solid fa-bullhorn" style="margin-right:6px;"></i> Broadcast Announcement</h5>
+                <p title="${lastBroadcastMsg}" style="color:#fd7e14; font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin:2px 0 0 0; font-size:0.8rem;">${lastBroadcastMsg}</p>
             </div>
         </div>`;
-    });
+    }
+    
+    if (groupsArray.length === 0) {
+        html += `
+        <div style="padding: 30px 15px; text-align: center; color: #888; font-size: 0.85rem;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 1.6rem; color: #cbd5e1; margin-bottom: 8px; display: block;"></i>
+            No parents found matching "${filterQuery}"
+        </div>`;
+    } else {
+        groupsArray.forEach(g => {
+            let unreadBadge = '';
+            if (g.unread > 0) {
+                unreadBadge = `<span class="badge-unread" style="background:#e74a3b; color:#fff; border-radius:12px; padding:2px 7px; font-size:0.75rem; font-weight:800; min-width:20px; text-align:center; margin-left:6px; box-shadow:0 1px 3px rgba(231,74,59,0.3);">${g.unread}</span>`;
+            }
+            
+            let activeClass = currentChatGroupKey === g.key ? 'active-thread' : '';
+            
+            html += `
+            <div class="chat-student-item ${activeClass}" id="chat-item-${g.key}" onclick="selectParentThread('${g.key}')">
+                <div class="avatar" style="width:40px; height:40px; border-radius:50%; background:#e0f0ff; color:#4a90e2; font-weight:bold; display:flex; justify-content:center; align-items:center; overflow:hidden; flex-shrink: 0;">
+                    ${g.avatarHtml}
+                </div>
+                <div style="flex-grow:1; min-width: 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <h5 style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;">${g.parentName}</h5>
+                        ${unreadBadge}
+                    </div>
+                    <div style="font-size:0.75rem; color:#4a90e2; font-weight:600; margin-top:2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Children: ${g.childrenNames}</div>
+                    <p title="${g.lastMsg}" style="margin:2px 0 0 0; font-size:0.8rem; color:${g.unread > 0 ? '#1e293b' : '#64748b'}; font-weight:${g.unread > 0 ? '700' : 'normal'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.lastMsg}</p>
+                </div>
+            </div>`;
+        });
+    }
     
     listContainer.innerHTML = html;
 }
@@ -1048,8 +1116,8 @@ function selectParentThread(groupKey) {
     if (updated) {
         chatDB[groupKey] = myChat;
         localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
-        renderTeacherChatStudentList();
     }
+    renderTeacherChatStudentList();
     
     let chatHtml = '';
     if (myChat.length === 0) {
@@ -1206,6 +1274,7 @@ function sendTeacherChatMessage() {
         text: text,
         timestamp: timeStr,
         date: now.toLocaleDateString(),
+        epoch: now.getTime(),
         read: true
     });
 

@@ -276,17 +276,24 @@
     }
 
     /* Screen 9 Mobile Daily Activities Layout */
+    .desktop-activities-layout {
+        display: block;
+    }
     .mobile-activities-layout {
         display: none;
     }
 
     @media (max-width: 768px) {
+        .desktop-activities-layout { display: none !important; }
         .activities-header { display: none !important; }
         #childSwitcher { display: none !important; }
         .activities-grid { display: none !important; }
         .mobile-activities-layout {
-            display: block;
+            display: block !important;
             margin-bottom: 25px;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
     }
 
@@ -343,7 +350,9 @@
         <!-- Active Child Card -->
         <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img id="mobActChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+                <div id="mobActChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                    <i class="fa-solid fa-child-reaching"></i>
+                </div>
                 <div>
                     <div id="mobActChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
                     <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
@@ -386,6 +395,7 @@
     </div>
 
     <!-- Parent Dashboard Header (Desktop) -->
+    <div class="desktop-activities-layout">
     <div class="activities-header">
         <div class="header-info">
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
@@ -475,6 +485,7 @@
         </div>
     </div>
 </div>
+</div>
 
 <script>
     let children = [];
@@ -514,8 +525,14 @@
                 if (document.getElementById('mobActChildName')) {
                     document.getElementById('mobActChildName').innerText = `${activeChild.first_name} ${activeChild.last_name}`;
                 }
-                if (document.getElementById('mobActChildImg')) {
-                    document.getElementById('mobActChildImg').src = activeChild.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${activeChild.first_name}`);
+                const mobActAvatarWrap = document.getElementById('mobActChildAvatarWrap');
+                if (mobActAvatarWrap) {
+                    if (activeChild.img) {
+                        mobActAvatarWrap.innerHTML = `<img src="${activeChild.img}" alt="${activeChild.first_name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    } else {
+                        const initials = ((activeChild.first_name || 'C')[0] + (activeChild.last_name || '')[0]).toUpperCase();
+                        mobActAvatarWrap.innerHTML = initials;
+                    }
                 }
                 if (document.getElementById('mobActChildAge') && activeChild.age) {
                     document.getElementById('mobActChildAge').innerText = `${activeChild.age} yrs`;

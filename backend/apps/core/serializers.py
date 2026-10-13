@@ -164,6 +164,16 @@ class ECCDBookletRecordSerializer(serializers.ModelSerializer):
         model = ECCDBookletRecord
         fields = '__all__'
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            if not request.user.is_superuser:
+                profile = getattr(request.user, 'userprofile', None)
+                if not (profile and profile.is_teacher):
+                    ret.pop('examiner_notes', None)
+        return ret
+
 from .models import Activity, StudentActivityCompletion
 
 class ActivitySerializer(serializers.ModelSerializer):

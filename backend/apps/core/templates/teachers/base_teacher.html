@@ -33,22 +33,43 @@
             document.documentElement.classList.add('dark-mode');
         }
 
+        window.getCookie = function(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+
         // --- TIME TRAVEL ARCHIVE MODE CORE ---
         (function() {
-            let archiveId = sessionStorage.getItem('bmv3_archive_year_id');
-            let archiveName = sessionStorage.getItem('bmv3_archive_year_name');
+            let archiveId = sessionStorage.getItem('bmv3_archive_year_id') || localStorage.getItem('bmv3_archive_year_id');
+            let archiveName = sessionStorage.getItem('bmv3_archive_year_name') || localStorage.getItem('bmv3_archive_year_name');
 
             if (archiveId) {
-                // 1. Intercept Global Fetch
+                // Ensure synchronization between session and local storage
+                sessionStorage.setItem('bmv3_archive_year_id', archiveId);
+                sessionStorage.setItem('bmv3_archive_year_name', archiveName || 'Archived Year');
+                localStorage.setItem('bmv3_archive_year_id', archiveId);
+                localStorage.setItem('bmv3_archive_year_name', archiveName || 'Archived Year');
+
+                // 1. Intercept Global Fetch for historical isolation and read-only protection
                 const originalFetch = window.fetch;
                 window.fetch = async function() {
                     let args = arguments;
                     if (typeof args[0] === 'string' && args[0].startsWith('/api/')) {
                         let method = (args[1] && args[1].method) ? args[1].method.toUpperCase() : 'GET';
                         
-                        // Block modifications
-                        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !args[0].includes('verify-otp') && !args[0].includes('request-password')) {
-                            alert("Action disabled in Read-Only Archive Mode.");
+                        // Enforce read-only backend mutation protection in archive mode (exempt OTP, password change, and utility translation)
+                        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !args[0].includes('verify-otp') && !args[0].includes('request-password') && !args[0].includes('translate')) {
+                            alert("Action disabled: Archived school years are in Read-Only mode.");
                             return Promise.reject(new Error("Archive Mode Read-Only"));
                         }
 
@@ -65,28 +86,46 @@
                     return originalFetch.apply(this, args);
                 };
 
-                // 2. Inject Banner & Disable Buttons after DOM loads
+                // 2. Inject Persistent Warning Banner & Read-Only Locks
                 document.addEventListener('DOMContentLoaded', () => {
+                    const formattedYear = (archiveName && archiveName.toLowerCase().startsWith('school year')) ? archiveName : `School Year ${archiveName || '2024-2025'}`;
                     let banner = document.createElement('div');
-                    banner.style.cssText = 'background: #e74a3b; color: #fff; padding: 12px 25px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 1.05rem; letter-spacing: 0.5px;';
+                    banner.id = 'archivedSchoolYearBanner';
+                    banner.style.cssText = 'background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #dc2626 100%); color: #ffffff; padding: 14px 24px; font-family: "Montserrat", sans-serif; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99999; box-shadow: 0 4px 14px rgba(153, 27, 27, 0.35); border-bottom: 2px solid #7f1d1d; flex-wrap: wrap; gap: 12px;';
                     banner.innerHTML = `
-                        <div><i class="fa-solid fa-clock-rotate-left"></i> &nbsp; VIEWING ARCHIVED DATA: ${archiveName} (Read-Only Mode)</div>
-                        <button onclick="exitArchiveMode()" style="background:#fff; color:#e74a3b; border:none; padding:8px 20px; border-radius:6px; font-weight:800; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;">Exit Archive Mode</button>
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="background: rgba(255,255,255,0.2); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.96rem; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    ARCHIVED SCHOOL YEAR — READ-ONLY VIEW
+                                </div>
+                                <div style="font-size: 0.85rem; opacity: 0.95; font-weight: 500; margin-top: 2px;">
+                                    You are currently viewing <strong>${formattedYear}</strong>. This is not the current active school year. The records and statistics shown belong to the selected historical school year.
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="exitArchiveMode()" style="background: #ffffff; color: #b91c1c; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-rotate-left"></i> Return to Current School Year
+                        </button>
                     `;
                     let mainContent = document.querySelector('.main-content');
                     if(mainContent) {
                         mainContent.insertBefore(banner, mainContent.firstChild);
                     }
 
-                    // Repeatedly check for dynamic buttons to hide
+                    // Repeatedly check for dynamic buttons to hide in read-only mode
                     setInterval(() => {
                         document.querySelectorAll('.btn-primary, .btn-action, button[type="submit"], .add-btn, .btn-send').forEach(btn => {
-                            if (btn.innerText !== 'Exit Archive Mode' && !btn.classList.contains('mobile-sidebar-toggle') && !btn.classList.contains('logout-btn') && !btn.classList.contains('btn-history-view') && !btn.closest('#otp-request-section') && !btn.closest('#otp-verify-section') && btn.id !== 'btnRequestOTP' && btn.id !== 'btnVerifyOTP' && btn.id !== 'btnSubmitPassword') {
+                            if (btn.innerText !== 'Return to Current School Year' && !btn.classList.contains('mobile-sidebar-toggle') && !btn.classList.contains('logout-btn') && !btn.classList.contains('btn-history-view') && !btn.closest('#otp-request-section') && !btn.closest('#otp-verify-section') && btn.id !== 'btnRequestOTP' && btn.id !== 'btnVerifyOTP' && btn.id !== 'btnSubmitPassword' && btn.id !== 'btnTeacherTranslate' && !btn.closest('#panel-translator')) {
                                 btn.style.display = 'none';
                             }
                         });
-                        document.querySelectorAll('input[type="text"]:not([id^="pw"]):not([id^="otp"]), input[type="date"], select, textarea').forEach(el => {
-                            el.disabled = true;
+                        document.querySelectorAll('input[type="text"]:not([id^="pw"]):not([id^="otp"]), input[type="date"], select:not(#sySelector):not(#childrenSySelect), textarea').forEach(el => {
+                            if (!el.closest('#panel-translator') && el.id !== 'teacherTranslatorInputText' && el.id !== 'teacherTranslatorOutputText') {
+                                el.disabled = true;
+                            }
                         });
                     }, 1000);
                 });
@@ -95,6 +134,8 @@
             window.exitArchiveMode = function() {
                 sessionStorage.removeItem('bmv3_archive_year_id');
                 sessionStorage.removeItem('bmv3_archive_year_name');
+                localStorage.removeItem('bmv3_archive_year_id');
+                localStorage.removeItem('bmv3_archive_year_name');
                 window.location.href = "{% url 'teacher_dashboard' %}";
             };
         })();
@@ -470,10 +511,13 @@
         /* PWA Install Banner Style */
         #pwa-install-banner {
             display: none;
-            position: sticky;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
+            width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
             background: linear-gradient(135deg, #063970, #043263);
             color: white;
             padding: 12px 25px;
@@ -620,44 +664,91 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Tablet Layout (769px to 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 220px !important;
+            }
+            .main-content {
+                margin-left: 220px !important;
+                width: calc(100% - 220px) !important;
+                padding: 20px !important;
+            }
+            .resp-grid-4 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 14px !important;
+            }
+            .resp-grid-3 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 14px !important;
+            }
+            .resp-grid-2-ratio {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 14px !important;
+            }
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .mobile-only {
                 display: flex;
                 flex-direction: column;
             }
-            .menu-container {
-                margin-left: auto;
+
+            /* Hide top header burger menu on mobile dashboard */
+            .top-nav-right {
+                display: none !important;
             }
+
+            .mobile-sidebar-toggle {
+                display: none !important;
+            }
+
+            .burger-menu {
+                display: none !important;
+            }
+
+            .menu-container {
+                display: none !important;
+            }
+
             .sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 height: 100%;
-                z-index: 1000;
+                z-index: 1100 !important;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.35);
             }
+
             .sidebar.active {
                 transform: translateX(0);
             }
+
             .main-content {
                 margin-left: 0;
                 width: 100%;
                 padding: 15px;
                 transition: margin-left 0.3s, width 0.3s;
             }
-            .mobile-sidebar-toggle {
-                display: none !important;
-            }
             
             /* Responsive layout utility overrides */
-            .resp-grid-4 { grid-template-columns: 1fr !important; }
-            .resp-grid-3 { grid-template-columns: 1fr !important; }
-            .resp-grid-2 { grid-template-columns: 1fr !important; }
-            .resp-grid-2-form { grid-template-columns: 1fr !important; }
-            .resp-grid-dob { grid-template-columns: 1fr !important; }
-            .resp-grid-2-ratio { grid-template-columns: 1fr !important; }
-            .resp-flex-between { flex-direction: column !important; align-items: flex-start !important; gap: 15px !important; }
+            .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+            .resp-grid-3 { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .resp-grid-2 { grid-template-columns: 1fr !important; gap: 14px !important; }
+            .resp-grid-2-form { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .resp-grid-dob { grid-template-columns: 1fr !important; gap: 12px !important; }
+            .resp-grid-2-ratio { grid-template-columns: 1fr !important; gap: 14px !important; }
+            .resp-flex-between { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
             
             /* Responsive pill tabs for mobile scrolling */
             .tabs, .resp-mobile-tabs { 
@@ -699,15 +790,15 @@
                 color: #ffffff !important;
                 box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25) !important;
             }
-            .page-header h2 { font-size: 1.8rem; }
+            .page-header h2 { font-size: 1.5rem; line-height: 1.25; }
 
             /* Global feature layout overrides for mobile */
             .kpi-row, .status-grid, .auto-grid, .meal-grid, .intake-grid, .mtype-grid, 
             .summary-container, .overview-footer, .directory-grid, .perf-grid, 
-            .stat-blocks, .cards-container, div[style*="display:grid"] {
+            .stat-blocks, .cards-container {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 15px !important;
+                gap: 14px !important;
             }
 
             .student-header, .panel-header {
@@ -719,6 +810,26 @@
             .btn-send, .btn-action, .btn-primary { width: 100% !important; text-align: center !important; }
             .modal-content { width: 95% !important; max-width: 95vw !important; padding: 20px !important; }
             .kpi-card, .auto-card, .card, .status-box { width: 100% !important; box-sizing: border-box; }
+        }
+
+        @media (max-width: 480px) {
+            .resp-grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            .main-content {
+                padding: 12px !important;
+            }
+            .mobile-bottom-nav {
+                height: 60px !important;
+                padding: 0 4px !important;
+            }
+            .nav-tab {
+                font-size: 0.62rem !important;
+                gap: 2px !important;
+            }
+            .nav-tab i {
+                font-size: 1.15rem !important;
+            }
         }
 
         /* --- Dark Mode Styles --- */
@@ -1255,20 +1366,13 @@
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_textblast' %}active{% endif %}">
                 <i class="fa-solid fa-paper-plane"></i> Textblast Broadcast
             </a>
-
-
-
-
-            <div style="margin-top: auto;"></div>
-
-            <div class="mobile-only" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                <a href="{% url 'teacher_settings' %}" class="menu-item {% if request.resolver_match.url_name == 'teacher_settings' %}active{% endif %}">
-                    <i class="fa-solid fa-gear"></i> Settings
-                </a>
-                <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #ff6b6b;">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
-                </a>
-            </div>
+            <a href="{% url 'teacher_settings' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_settings' %}active{% endif %}">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+            <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #ff6b6b;">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+            </a>
         </div>
 
         <div class="sidebar-footer">
@@ -1281,22 +1385,19 @@
             <div class="ambient-blob ambient-blob-1"></div>
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
-        <div class="top-nav-right">
-            <!-- Mobile Toggle -->
-            <button class="mobile-sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
-
-            <div class="menu-container">
-                <div class="burger-menu" id="burgerToggle" title="Profile Menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="{% url 'teacher_settings' %}" class="dropdown-item"><i class="fa-solid fa-gear" style="margin-right:6px;"></i> Settings</a>
-                    <a href="{% url 'logout' %}" class="dropdown-item logout"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i> Logout</a>
-                </div>
+        <div class="top-nav-right" style="display: flex; align-items: center; gap: 12px;">
+            <!-- System Language Switcher (EN / TL) -->
+            <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+                <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
+                    🇺🇸 EN
+                </button>
+                <button type="button" id="sysLangBtnTl" onclick="window.setSystemLanguage('tl')" style="border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Ilipat ang sistema sa Tagalog / Filipino">
+                    🇵🇭 TL
+                </button>
             </div>
 
+            <!-- Mobile Toggle -->
+            <button class="mobile-sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
         </div>
 
         {% block content %}
@@ -1326,6 +1427,319 @@
             <span>More</span>
         </button>
     </div>
+
+    <!-- GLOBAL MODAL: GENERATE PARENT ACCOUNT VIA BREVO SMTP -->
+    <div class="modal-overlay" id="globalGenerateParentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+        <div style="background:#ffffff; width:95%; max-width:540px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid #e2e8f0;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="margin:0; font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-user-plus" style="color:#60a5fa;"></i>
+                        Generate Parent Account
+                    </h3>
+                    <p style="margin:4px 0 0 0; font-size:0.82rem; color:rgba(255,255,255,0.85);">
+                        Direct SMTP Dispatch via Brevo relay to parent email
+                    </p>
+                </div>
+                <button type="button" onclick="closeGenerateParentAccountModal()" style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1; padding:4px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <div style="padding:24px;" id="generateParentFormBody">
+                <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:0.84rem; color:#0369a1; line-height:1.45;">
+                    <i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>
+                    When a parent approaches you to enroll a child, enter their full name and email below. The system will automatically email login credentials via <strong>Brevo SMTP</strong> so the parent can log in, set their password, and enroll their child.
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="font-weight:700; font-size:0.86rem; color:#1e293b; margin:0;">
+                            Parent / Guardian Full Name <span style="color:#ef4444;">*</span>
+                        </label>
+                    </div>
+                    <input type="text" id="genParentFullName" class="form-control" placeholder="e.g. Maria Santos" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                        <label style="font-weight:700; font-size:0.86rem; color:#1e293b; margin:0;">
+                            Parent Email Address <span style="font-weight:400; color:#64748b;">(Optional)</span>
+                        </label>
+                        <label style="font-size:0.78rem; color:#475569; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="chkParentNoEmail" onchange="toggleParentNoEmail(this)" style="accent-color:#2563eb;">
+                            <span>Parent has no email address</span>
+                        </label>
+                    </div>
+                    <input type="email" id="genParentEmail" class="form-control" placeholder="e.g. maria.santos@gmail.com (Leave blank if no email)" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
+                    <div style="font-size:0.75rem; color:#64748b; margin-top:4px;" id="genParentEmailHelp">
+                        If an email is provided, credentials will be sent automatically via Brevo SMTP relay. If left blank, offline credentials will be generated directly on-screen.
+                    </div>
+                </div>
+
+                <div style="margin-bottom:22px;">
+                    <label style="display:block; font-weight:700; font-size:0.86rem; color:#1e293b; margin-bottom:6px;">
+                        Link to Enrolled Pupil <span style="font-weight:400; color:#64748b;">(Optional)</span>
+                    </label>
+                    <select id="genParentChildSelect" class="form-control" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.9rem; outline:none; box-sizing:border-box; background:#ffffff;">
+                        <option value="">-- No enrolled pupil yet (Parent will enroll child after login) --</option>
+                    </select>
+                    <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">
+                        Select an existing student if this parent already has a record in the system.
+                    </div>
+                </div>
+
+                <div id="genParentErrorAlert" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:16px;"></div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="closeGenerateParentAccountModal()" style="padding:10px 18px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
+                        Cancel
+                    </button>
+                    <button type="button" id="btnSubmitGenParent" onclick="submitGenerateParentAccount()" style="padding:10px 22px; border-radius:8px; border:none; background:linear-gradient(135deg, #1e40af, #3b82f6); color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(30,64,175,0.25);">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Generate Parent Account</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success Result View (Visible after generation) -->
+            <div style="padding:24px; display:none;" id="generateParentResultBody">
+                <div style="text-align:center; margin-bottom:18px;">
+                    <div style="width:58px; height:58px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:1.8rem; display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h4 style="margin:0 0 6px 0; font-size:1.35rem; font-weight:800; color:#0f172a;">Parent Account Created Successfully!</h4>
+                    <p style="margin:0; font-size:0.86rem; color:#64748b;">Credentials are active. The parent can log in immediately.</p>
+                </div>
+
+                <!-- Snapshot / Photo Prompt -->
+                <div style="background:#eff6ff; border:1px dashed #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:18px; text-align:center; font-size:0.85rem; color:#1e40af; font-weight:600;">
+                    📸 <strong>Photo Tip:</strong> The parent can take a picture of this screen with their mobile phone or write down these credentials.
+                </div>
+
+                <!-- Prominent Username Box -->
+                <div style="background:#f8fafc; border:2px solid #3b82f6; border-radius:10px; padding:14px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:0.74rem; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px;">Username</div>
+                        <div style="font-size:1.35rem; font-weight:900; color:#0f172a;" id="genResultUsername">--</div>
+                    </div>
+                    <button type="button" onclick="copyGenParentField('genResultUsername')" style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#2563eb; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                    </button>
+                </div>
+
+                <!-- Prominent Temporary Password Box -->
+                <div style="background:#fff7ed; border:2px solid #f97316; border-radius:10px; padding:14px 18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:0.74rem; font-weight:800; color:#c2410c; text-transform:uppercase; letter-spacing:0.5px;">Temporary Password</div>
+                        <div style="font-size:1.35rem; font-weight:900; color:#ea580c;" id="genResultPassword">--</div>
+                    </div>
+                    <button type="button" onclick="copyGenParentField('genResultPassword')" style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#ea580c; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                    </button>
+                </div>
+
+                <div style="font-size:0.82rem; color:#64748b; margin-bottom:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <span><strong>Parent:</strong> <span id="genResultFullName" style="color:#0f172a;">--</span></span>
+                    <span><strong>Linked Pupil:</strong> <span id="genResultChildName" style="color:#0f172a;">None</span></span>
+                </div>
+
+                <div id="genResultBrevoStatus" style="border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <!-- Dispatched via Brevo status banner -->
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" onclick="resetGenerateParentModal()" style="padding:10px 16px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
+                        Generate Another
+                    </button>
+                    <button type="button" onclick="closeGenerateParentAccountModal()" style="padding:10px 22px; border-radius:8px; border:none; background:#10b981; color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer;">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _cachedChildrenForParentGen = [];
+
+        window.toggleParentNoEmail = function(chk) {
+            const emailInput = document.getElementById('genParentEmail');
+            if (chk.checked) {
+                emailInput.value = '';
+                emailInput.disabled = true;
+                emailInput.placeholder = 'No email address (Offline / Direct Credentials)';
+            } else {
+                emailInput.disabled = false;
+                emailInput.placeholder = 'e.g. maria.santos@gmail.com (Leave blank if no email)';
+            }
+        };
+
+        window.openGenerateParentAccountModal = async function(preselectedChildId = null) {
+            const modal = document.getElementById('globalGenerateParentModal');
+            if (!modal) return;
+            
+            document.getElementById('generateParentFormBody').style.display = 'block';
+            document.getElementById('generateParentResultBody').style.display = 'none';
+            document.getElementById('genParentFullName').value = '';
+            document.getElementById('genParentEmail').value = '';
+            document.getElementById('genParentEmail').disabled = false;
+            const noEmailChk = document.getElementById('chkParentNoEmail');
+            if (noEmailChk) noEmailChk.checked = false;
+            document.getElementById('genParentErrorAlert').style.display = 'none';
+
+            const childSelect = document.getElementById('genParentChildSelect');
+            childSelect.innerHTML = '<option value="">-- No enrolled pupil yet (Parent will enroll child after login) --</option>';
+
+            function fillGuardianForChild(c) {
+                if (!c) return;
+                const guardianName = (c.mother_first_name ? (c.mother_first_name + ' ' + (c.mother_last_name || '')).trim() :
+                    (c.father_first_name ? (c.father_first_name + ' ' + (c.father_last_name || '')).trim() :
+                    (c.other_guardian_first_name ? (c.other_guardian_first_name + ' ' + (c.other_guardian_last_name || '')).trim() : '')));
+                const guardianEmail = c.mother_email || c.father_email || c.other_guardian_email || c.email || '';
+                if (guardianName && !document.getElementById('genParentFullName').value) {
+                    document.getElementById('genParentFullName').value = guardianName;
+                }
+                if (guardianEmail && !guardianEmail.endsWith('.local') && !document.getElementById('genParentEmail').value) {
+                    document.getElementById('genParentEmail').value = guardianEmail;
+                }
+            }
+
+            childSelect.onchange = function() {
+                const selId = childSelect.value;
+                const found = _cachedChildrenForParentGen.find(x => x.id == selId);
+                if (found) fillGuardianForChild(found);
+            };
+
+            try {
+                const res = await fetch('/api/children/');
+                if (res.ok) {
+                    _cachedChildrenForParentGen = await res.json();
+                    _cachedChildrenForParentGen.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = `${c.last_name}, ${c.first_name} (ID: #${c.id} - ${c.enrollment_status})`;
+                        childSelect.appendChild(opt);
+                    });
+
+                    if (preselectedChildId) {
+                        childSelect.value = preselectedChildId;
+                        const match = _cachedChildrenForParentGen.find(x => x.id == preselectedChildId);
+                        if (match) fillGuardianForChild(match);
+                    }
+                }
+            } catch(e) { console.error('Error fetching children for select:', e); }
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeGenerateParentAccountModal = function() {
+            const modal = document.getElementById('globalGenerateParentModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.resetGenerateParentModal = function() {
+            document.getElementById('generateParentFormBody').style.display = 'block';
+            document.getElementById('generateParentResultBody').style.display = 'none';
+            document.getElementById('genParentFullName').value = '';
+            document.getElementById('genParentEmail').value = '';
+            document.getElementById('genParentEmail').disabled = false;
+            const noEmailChk = document.getElementById('chkParentNoEmail');
+            if (noEmailChk) noEmailChk.checked = false;
+            document.getElementById('genParentChildSelect').value = '';
+            document.getElementById('genParentErrorAlert').style.display = 'none';
+        };
+
+        window.copyGenParentField = function(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
+                alert('Copied to clipboard: ' + text);
+            }
+        };
+
+        window.submitGenerateParentAccount = async function() {
+            const fullName = document.getElementById('genParentFullName').value.trim();
+            const emailInput = document.getElementById('genParentEmail');
+            const noEmailChk = document.getElementById('chkParentNoEmail');
+            const email = (noEmailChk && noEmailChk.checked) ? '' : emailInput.value.trim();
+            const childId = document.getElementById('genParentChildSelect').value;
+            const errAlert = document.getElementById('genParentErrorAlert');
+            const submitBtn = document.getElementById('btnSubmitGenParent');
+
+            if (!fullName) {
+                errAlert.innerText = 'Please enter the parent/guardian full name.';
+                errAlert.style.display = 'block';
+                return;
+            }
+            if (email && !email.includes('@')) {
+                errAlert.innerText = 'Please enter a valid email address or check "Parent has no email".';
+                errAlert.style.display = 'block';
+                return;
+            }
+            errAlert.style.display = 'none';
+
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating Account...';
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/generate_parent_account/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': (typeof window.getCookie === 'function' ? window.getCookie('csrftoken') : '')
+                    },
+                    body: JSON.stringify({
+                        parent_name: fullName,
+                        email: email,
+                        child_id: childId ? parseInt(childId) : null
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to generate parent account.');
+                }
+
+                document.getElementById('genResultFullName').innerText = fullName;
+                document.getElementById('genResultUsername').innerText = data.username || '--';
+                document.getElementById('genResultPassword').innerText = data.temporary_password || '(Generated)';
+                document.getElementById('genResultChildName').innerText = data.child_name || 'None (Parent will enroll child after login)';
+
+                const brevoStatus = document.getElementById('genResultBrevoStatus');
+                if (data.email_sent) {
+                    brevoStatus.style.background = '#ecfdf5';
+                    brevoStatus.style.border = '1px solid #a7f3d0';
+                    brevoStatus.style.color = '#065f46';
+                    brevoStatus.innerHTML = `<i class="fa-solid fa-paper-plane" style="color:#059669; font-size:1.1rem;"></i> <span><strong>Credentials Sent via Email!</strong> Sent to <strong>${data.email || email}</strong> via Brevo Relay.</span>`;
+                } else if (!data.has_email || !email) {
+                    brevoStatus.style.background = '#eff6ff';
+                    brevoStatus.style.border = '1px solid #bfdbfe';
+                    brevoStatus.style.color = '#1e40af';
+                    brevoStatus.innerHTML = `<i class="fa-solid fa-id-badge" style="color:#2563eb; font-size:1.1rem;"></i> <span><strong>Direct / Offline Account:</strong> No email provided. Parent can log in with username and password.</span>`;
+                } else {
+                    brevoStatus.style.background = '#fffbeb';
+                    brevoStatus.style.border = '1px solid #fde68a';
+                    brevoStatus.style.color = '#92400e';
+                    const notice = data.email_error ? `(${data.email_error})` : 'Provide credentials directly to parent.';
+                    brevoStatus.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color:#d97706; font-size:1.1rem;"></i> <div><strong>Credentials Active:</strong> ${notice}</div>`;
+                }
+
+                document.getElementById('generateParentFormBody').style.display = 'none';
+                document.getElementById('generateParentResultBody').style.display = 'block';
+
+            } catch (err) {
+                errAlert.innerText = err.message || 'An error occurred while creating the account.';
+                errAlert.style.display = 'block';
+            } finally {
+                submitBtn.innerHTML = originalBtnHtml;
+                submitBtn.disabled = false;
+            }
+        };
+    </script>
 
     <!-- Dropdown Toggle Script -->
     <script>
@@ -1427,6 +1841,7 @@
             });
         }
     </script>
+    <script src="{% static 'core/js/system_translator.js' %}"></script>
 </body>
 
 </html>

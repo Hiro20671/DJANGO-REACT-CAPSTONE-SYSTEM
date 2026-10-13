@@ -1,0 +1,498 @@
+{% extends "parents/base_parent.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .eccd-parent-container {
+        padding: 10px 0 60px 0;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .eccd-parent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .eccd-parent-title h2 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--text-primary, #0f172a);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .eccd-parent-title p {
+        color: var(--text-secondary, #64748b);
+        margin: 6px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    /* Child Switcher Banner */
+    .child-selector-banner {
+        background: #ffffff;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 14px;
+        padding: 18px 24px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .child-select-dropdown {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 2px solid #3b82f6;
+        background: #f8fafc;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        min-width: 240px;
+        outline: none;
+    }
+
+    /* Section Completion Badges */
+    .section-tracker-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .tracker-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .tracker-card .title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .tracker-card .status-pill {
+        font-size: 0.72rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+
+    /* Navigation Tabs */
+    .booklet-nav-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 25px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 2px;
+    }
+
+    .booklet-nav-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 11px 18px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #64748b;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .booklet-nav-btn:hover {
+        color: #1e40af;
+        background: rgba(30, 64, 175, 0.04);
+        border-radius: 8px 8px 0 0;
+    }
+
+    .booklet-nav-btn.active {
+        color: #1e40af;
+        border-bottom-color: #1e40af;
+    }
+
+    /* Tab content panes */
+    .booklet-content-pane {
+        display: none;
+    }
+    .booklet-content-pane.active {
+        display: block;
+    }
+
+    /* Active child pill bar */
+    #activeChildBookletBar {
+        background: linear-gradient(135deg, #091e42 0%, #1e40af 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 16px 22px;
+        margin-bottom: 25px;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    /* Save Banner */
+    .save-action-bar {
+        position: sticky;
+        bottom: 20px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 14px 24px;
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 100;
+    }
+
+    @media (max-width: 768px) {
+        .child-selector-banner {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .child-select-dropdown {
+            width: 100%;
+        }
+        .save-action-bar {
+            flex-direction: column;
+            gap: 10px;
+            bottom: 10px;
+        }
+        .save-action-bar button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="eccd-parent-container">
+    <!-- Header -->
+    <div class="eccd-parent-header">
+        <div class="eccd-parent-title">
+            <h2>
+                <i class="fa-solid fa-book-open-reader" style="color: #16a34a;"></i>
+                Early Childhood Care and Development (ECCD) Booklet
+            </h2>
+            <p>Official Child's Record 2 (Age 3y 1m to 5y) — Complete parent forms, update health & growth history, and view teacher evaluations</p>
+        </div>
+    </div>
+
+    {% if children %}
+    <!-- Child Selection Bar -->
+    <div class="child-selector-banner">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
+            <div>
+                <strong style="color: #0f172a; font-size: 0.98rem; display: block;">Select Child's Booklet</strong>
+                <span style="font-size: 0.8rem; color: #64748b;">Showing authorized booklet records for your enrolled children</span>
+            </div>
+        </div>
+        <div>
+            <select id="childSelect" class="child-select-dropdown" onchange="onChildSelectionChange(this.value)">
+                {% for child in children %}
+                <option value="{{ child.id }}" {% if forloop.first %}selected{% endif %}>
+                    {{ child.last_name }}, {{ child.first_name }} (ID: #{{ child.id }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Active Child Information Bar -->
+    <div id="activeChildBookletBar">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="activeChildAvatar" style="width: 46px; height: 46px; border-radius: 50%; background: #ffffff; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; overflow: hidden; border: 2px solid white;">
+                C
+            </div>
+            <div>
+                <div id="activeChildName" style="font-size: 1.1rem; font-weight: 800; letter-spacing: 0.3px;">Loading Student...</div>
+                <div style="font-size: 0.82rem; opacity: 0.9; margin-top: 2px;">
+                    <span id="activeChildAgeText">-- Years Old</span> &bull; 
+                    DOB: <span id="activeChildDobText">--</span>
+                </div>
+            </div>
+        </div>
+        <div id="activeChildShiftBadge">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Section Completion Status Tracker -->
+    <div class="section-tracker-grid">
+        <div class="tracker-card">
+            <span class="title"><i class="fa-solid fa-id-card" style="color: #2563eb; margin-right: 6px;"></i> Sociodemographics</span>
+            <span class="status-pill status-completed" id="badgeStatusSocio">Active</span>
+        </div>
+        <div class="tracker-card">
+            <span class="title"><i class="fa-solid fa-shapes" style="color: #10b981; margin-right: 6px;"></i> Developmental Milestones</span>
+            <span class="status-pill status-completed" id="badgeStatusMilestones">Active</span>
+        </div>
+        <div class="tracker-card">
+            <span class="title"><i class="fa-solid fa-brain" style="color: #7c3aed; margin-right: 6px;"></i> M-CHAT-R Screening</span>
+            <span class="status-pill status-completed" id="badgeStatusMchat">Active</span>
+        </div>
+        <div class="tracker-card">
+            <span class="title"><i class="fa-solid fa-heart-pulse" style="color: #e11d48; margin-right: 6px;"></i> Health & Growth</span>
+            <span class="status-pill status-completed" id="badgeStatusHealth">Active</span>
+        </div>
+        <div class="tracker-card">
+            <span class="title"><i class="fa-solid fa-file-signature" style="color: #d97706; margin-right: 6px;"></i> Intake & Consent</span>
+            <span class="status-pill status-completed" id="badgeStatusIntake">Active</span>
+        </div>
+    </div>
+
+    <!-- Booklet Navigation Tabs -->
+    <div class="booklet-nav-tabs">
+        <button class="booklet-nav-btn active" id="tabBtnCover" onclick="switchBookletTab('cover')">
+            <i class="fa-solid fa-id-card"></i> 1. Sociodemographic Profile
+        </button>
+        <button class="booklet-nav-btn" id="tabBtnMilestones" onclick="switchBookletTab('milestones')">
+            <i class="fa-solid fa-shapes"></i> 2. Developmental Milestones (7 Domains)
+        </button>
+        <button class="booklet-nav-btn" id="tabBtnMchat" onclick="switchBookletTab('mchat')">
+            <i class="fa-solid fa-brain"></i> 3. M-CHAT-R Autism Checklist
+        </button>
+        <button class="booklet-nav-btn" id="tabBtnHealth" onclick="switchBookletTab('health')">
+            <i class="fa-solid fa-heart-pulse"></i> 4. Health & Growth Records
+        </button>
+        <button class="booklet-nav-btn" id="tabBtnIntake" onclick="switchBookletTab('intake')">
+            <i class="fa-solid fa-file-signature"></i> 5. Intake & Consent Form
+        </button>
+        <button class="booklet-nav-btn" id="tabBtnSummary" onclick="switchBookletTab('summary')">
+            <i class="fa-solid fa-chart-pie"></i> 6. Teacher Score Summary & Graphs
+        </button>
+    </div>
+
+    <!-- Hidden elements required by existing eccd_booklet.js -->
+    <div style="display: none;">
+        <span id="tab-cover"></span>
+        <span id="tab-dashboard"></span>
+        <span id="tab-summary18"></span>
+        <span id="tab-graphs"></span>
+        <span id="tab-notes17"></span>
+        <span id="tab-mchat"></span>
+        <span id="tab-health"></span>
+        <span id="tab-intake"></span>
+    </div>
+
+    <!-- BOOKLET CONTENT PANES -->
+    
+    <!-- Pane 1: Sociodemographic Cover -->
+    <div id="content-cover" class="booklet-content-pane active">
+        {% include 'teachers/eccd_booklet/cover_profile.html' %}
+    </div>
+
+    <!-- Pane 2: Developmental Milestones (7 Domains & Indicators) -->
+    <div id="content-milestones" class="booklet-content-pane">
+        {% include 'parents/eccd_booklet/milestones_pane.html' %}
+    </div>
+
+    <!-- Pane 3: M-CHAT-R Screening -->
+    <div id="content-mchat" class="booklet-content-pane">
+        {% include 'teachers/eccd_booklet/mchat_r.html' %}
+    </div>
+
+    <!-- Pane 4: Health & Growth -->
+    <div id="content-health" class="booklet-content-pane">
+        {% include 'teachers/eccd_booklet/health_growth.html' %}
+    </div>
+
+    <!-- Pane 5: Intake & Consent Form -->
+    <div id="content-intake" class="booklet-content-pane">
+        {% include 'teachers/eccd_booklet/intake_consent.html' %}
+    </div>
+
+    <!-- Pane 6: DepEd Summary Table & Graphs (Teacher-Evaluated Results) -->
+    <div id="content-summary" class="booklet-content-pane">
+        <div style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:12px; padding:16px 20px; margin-bottom:20px; color:#0369a1; font-size:0.9rem; display:flex; align-items:center; gap:12px;">
+            <i class="fa-solid fa-circle-info" style="font-size:1.3rem;"></i>
+            <div>
+                <strong>Official Assessment Summary:</strong> The tables and graphs below present your child's standard and scaled scores computed by the authorized child development center teachers across the 1st, 2nd, and 3rd assessment periods.
+            </div>
+        </div>
+        <div id="content-summary18">
+            {% include 'teachers/eccd_booklet/summary_table.html' %}
+        </div>
+        <div id="content-graphs" style="margin-top:25px;">
+            {% include 'teachers/eccd_booklet/score_graphs.html' %}
+        </div>
+    </div>
+
+    <!-- Sticky Save Action Bar for Parents -->
+    <div class="save-action-bar">
+        <div style="display: flex; align-items: center; gap: 10px; color: #475569; font-size: 0.88rem;">
+            <i class="fa-solid fa-shield-halved" style="color: #10b981; font-size: 1.1rem;"></i>
+            <span>Your answers will be saved securely to the official DepEd database record for teacher review.</span>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none; padding: 12px 28px; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);">
+            <i class="fa-solid fa-floppy-disk"></i> Save All Booklet Answers
+        </button>
+    </div>
+
+    {% else %}
+    <!-- Empty State for accounts without children -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 50px 30px; text-align: center; max-width: 650px; margin: 40px auto; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+        <div style="width: 70px; height: 70px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 20px auto;">
+            <i class="fa-solid fa-child"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0 0 10px 0;">No Enrolled Children Found</h3>
+        <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6; margin: 0 0 25px 0;">
+            Welcome to BMV3 Child Development Center. Your parent account is ready. You have not enrolled a child yet. Please complete the child enrollment form to get started.
+        </p>
+        <a href="{% url 'parent_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 12px 24px; border-radius: 10px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 12px rgba(30,64,175,0.25);">
+            <i class="fa-solid fa-file-pen"></i> Enroll Your Child
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Provide childrenList in the format expected by eccd_booklet.js
+    window.childrenList = [
+        {% for c in children %}
+        {
+            id: {{ c.id }},
+            first_name: "{{ c.first_name|escapejs }}",
+            last_name: "{{ c.last_name|escapejs }}",
+            middle_initial: "{{ c.middle_initial|default:''|escapejs }}",
+            age: {{ c.age|default:4 }},
+            gender: "{{ c.gender|default:''|escapejs }}",
+            dob: "{{ c.dob|default:''|escapejs }}",
+            shift: "{{ c.shift|default:'Morning'|escapejs }}",
+            allergies: "{{ c.allergies|default:''|escapejs }}",
+            city_municipality: "{{ c.city_municipality|default:'Lucena City'|escapejs }}",
+            barangay: "{{ c.barangay|default:''|escapejs }}",
+            father_first_name: "{{ c.father_first_name|default:''|escapejs }}",
+            father_last_name: "{{ c.father_last_name|default:''|escapejs }}",
+            mother_first_name: "{{ c.mother_first_name|default:''|escapejs }}",
+            mother_last_name: "{{ c.mother_last_name|default:''|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function switchBookletTab(tabKey) {
+        // Tab buttons
+        const btnMap = {
+            'cover': 'tabBtnCover',
+            'mchat': 'tabBtnMchat',
+            'health': 'tabBtnHealth',
+            'intake': 'tabBtnIntake',
+            'milestones': 'tabBtnMilestones',
+            'summary': 'tabBtnSummary'
+        };
+
+        Object.keys(btnMap).forEach(key => {
+            const btn = document.getElementById(btnMap[key]);
+            if (btn) {
+                if (key === tabKey) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        });
+
+        // Content panes
+        const paneMap = {
+            'cover': 'content-cover',
+            'mchat': 'content-mchat',
+            'health': 'content-health',
+            'intake': 'content-intake',
+            'milestones': 'content-milestones',
+            'summary': 'content-summary'
+        };
+
+        Object.keys(paneMap).forEach(key => {
+            const pane = document.getElementById(paneMap[key]);
+            if (pane) {
+                if (key === tabKey) {
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.remove('active');
+                }
+            }
+        });
+
+        // Trigger render if switching to milestones
+        if (tabKey === 'milestones') {
+            if (typeof renderDomainCards === 'function') renderDomainCards();
+        }
+
+        // Re-render graphs if switching to summary
+        if (tabKey === 'summary') {
+            if (typeof renderPage18Table === 'function') renderPage18Table();
+            if (typeof renderPage19Graph === 'function') renderPage19Graph();
+            if (typeof renderPage20Graph === 'function') renderPage20Graph();
+        }
+    }
+
+    // Adapt switchTab called by eccd_booklet.js
+    window.switchTab = function(tabName) {
+        if (tabName === 'cover') switchBookletTab('cover');
+        else if (tabName === 'mchat') switchBookletTab('mchat');
+        else if (tabName === 'health') switchBookletTab('health');
+        else if (tabName === 'intake') switchBookletTab('intake');
+        else if (tabName === 'milestones') switchBookletTab('milestones');
+        else if (tabName === 'summary18' || tabName === 'graphs') switchBookletTab('summary');
+    };
+
+    async function onChildSelectionChange(childId) {
+        if (!childId) return;
+        await window.loadChildBooklet(childId);
+        if (typeof loadChildMilestones === 'function') {
+            await loadChildMilestones(childId);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (typeof initEyeSymptomsTable === 'function') initEyeSymptomsTable();
+        if (typeof initMChatQuestionsTable === 'function') initMChatQuestionsTable();
+
+        const childSelect = document.getElementById('childSelect');
+        if (childSelect && childSelect.value) {
+            await window.loadChildBooklet(childSelect.value);
+            if (typeof loadChildMilestones === 'function') {
+                await loadChildMilestones(childSelect.value);
+            }
+        }
+
+        // Handle URL parameter tab selection (e.g., ?tab=milestones)
+        const urlParams = new URLSearchParams(window.location.search);
+        const reqTab = urlParams.get('tab');
+        if (reqTab) {
+            switchBookletTab(reqTab);
+        }
+    });
+</script>
+
+<script src="{% static 'core/js/eccd_booklet.js' %}"></script>
+{% endblock %}

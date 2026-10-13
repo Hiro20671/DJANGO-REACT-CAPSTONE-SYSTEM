@@ -839,10 +839,13 @@
         /* PWA Install Banner Style */
         #pwa-install-banner {
             display: none;
-            position: sticky;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
+            width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
             background: linear-gradient(135deg, #063970, #043263);
             color: white;
             padding: 12px 25px;

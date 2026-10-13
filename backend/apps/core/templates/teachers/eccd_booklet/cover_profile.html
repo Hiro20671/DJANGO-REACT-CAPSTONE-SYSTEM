@@ -33,50 +33,67 @@
             </h3>
             <p style="margin:4px 0 0 0; color:#64748b; font-size:0.85rem;">Indicate the complete sociodemographic profile of the child.</p>
         </div>
-        <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 18px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
-            <i class="fa-solid fa-floppy-disk"></i> Save Profile
-        </button>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button type="button" class="btn btn-outline" onclick="showBookletAuditModal()" style="border:1px solid #cbd5e1; background:white; color:#475569; padding:8px 14px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Audit History
+            </button>
+            <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:8px 18px; border-radius:8px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; color:white;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Profile
+            </button>
+        </div>
     </div>
 
     <form id="socioProfileForm">
         <!-- Child Primary Details -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
             <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-                1. Child Basic Identification
+                1. Child Basic Identification &bull; Pangunahing Pagkakakilanlan ng Bata
             </h4>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-bottom:15px;">
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Full Name:</label>
-                    <input type="text" id="socio_child_name" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;" placeholder="Last Name, First Name, Middle Name">
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:3px;">
+                        Child's Full Name / Buong Pangalan ng Bata:
+                    </label>
+                    <div style="font-size:0.73rem; color:#64748b; margin-bottom:5px;">Isulat ang kumpletong pangalan ng bata</div>
+                    <input type="text" id="socio_child_name" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;" placeholder="Apelyido, Unang Pangalan, Gitnang Pangalan">
                 </div>
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Sex:</label>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:3px;">
+                        Sex / Kasarian:
+                    </label>
+                    <div style="font-size:0.73rem; color:#64748b; margin-bottom:5px;">Piliin kung Lalaki o Babae</div>
                     <select id="socio_sex" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;">
-                        <option value="">Select Sex</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="">Select Sex / Piliin ang Kasarian</option>
+                        <option value="Male">Male (Lalaki)</option>
+                        <option value="Female">Female (Babae)</option>
                     </select>
                 </div>
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Date of Birth (Month / Day / Year):</label>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:3px;">
+                        Date of Birth / Petsa ng Kapanganakan:
+                    </label>
+                    <div style="font-size:0.73rem; color:#64748b; margin-bottom:5px;">Araw, buwan, at taon kung kailan ipinanganak</div>
                     <input type="date" id="socio_dob" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;">
                 </div>
             </div>
 
             <!-- Address Group -->
-            <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Residential Address:</label>
+            <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:3px;">
+                Residential Address / Tirahan ng Pamilya:
+            </label>
+            <div style="font-size:0.73rem; color:#64748b; margin-bottom:6px;">Lugar kung saan kasalukuyang naninirahan ang bata at pamilya</div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
                 <div>
-                    <input type="text" id="socio_barangay" class="form-control" placeholder="Barangay (e.g. Market View 3)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    <input type="text" id="socio_barangay" class="form-control" placeholder="Barangay (hal. Market View 3)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
                 </div>
                 <div>
-                    <input type="text" id="socio_city" class="form-control" placeholder="Municipality / City (e.g. Lucena City)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    <input type="text" id="socio_city" class="form-control" placeholder="Bayan o Lungsod / City (hal. Lucena City)" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
                 </div>
                 <div>
-                    <input type="text" id="socio_province" class="form-control" placeholder="Province (e.g. Quezon)" value="Quezon" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    <input type="text" id="socio_province" class="form-control" placeholder="Lalawigan / Province (hal. Quezon)" value="Quezon" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
                 </div>
                 <div>
-                    <input type="text" id="socio_region" class="form-control" placeholder="Region (e.g. Region IV-A CALABARZON)" value="Region IV-A" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                    <input type="text" id="socio_region" class="form-control" placeholder="Rehiyon / Region (hal. Region IV-A)" value="Region IV-A" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
                 </div>
             </div>
         </div>
@@ -84,42 +101,51 @@
         <!-- Handedness & Day Care Status -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
             <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-                2. Developmental Indicators & Center Enrolment
+                2. Developmental Indicators & Center Enrolment &bull; Indikasyon sa Pag-unlad
             </h4>
             <div style="margin-bottom:18px;">
-                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">
-                    Child's Handedness <span style="font-weight:400; color:#64748b;">(Check appropriate box)</span>:
+                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:3px;">
+                    Child's Handedness / Ginagamit na Kamay:
                 </label>
+                <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
+                    Aling kamay ang mas madalas gamitin ng bata sa pagkain, pagguhit, o paghawak ng mga bagay?
+                </div>
                 <div style="display:flex; gap:18px; flex-wrap:wrap;">
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_handedness" value="Right"> Right
+                        <input type="radio" name="socio_handedness" value="Right"> Right (Kanan)
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_handedness" value="Left"> Left
+                        <input type="radio" name="socio_handedness" value="Left"> Left (Kaliwa)
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_handedness" value="Both"> Both
+                        <input type="radio" name="socio_handedness" value="Both"> Both (Parehong Kanan at Kaliwa)
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_handedness" value="Not yet established"> Not yet established
+                        <input type="radio" name="socio_handedness" value="Not yet established"> Not yet established (Hindi pa tiyak / Nagsasanay pa)
                     </label>
                 </div>
             </div>
 
             <div>
-                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:8px;">
-                    Is the child presently studying? <span style="font-weight:400; color:#64748b;">(Check appropriate box)</span>:
+                <label style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b; margin-bottom:3px;">
+                    Is the child presently studying? / Kasalukuyan bang nag-aaral ang bata?:
                 </label>
+                <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
+                    Piliin kung pormal o regular na pumapasok sa day care center
+                </div>
                 <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_is_studying" value="Yes" checked> Yes
+                        <input type="radio" name="socio_is_studying" value="Yes" checked> Yes (Oo, nag-aaral)
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#334155;">
-                        <input type="radio" name="socio_is_studying" value="No"> No
+                        <input type="radio" name="socio_is_studying" value="No"> No (Hindi pa nag-aaral)
                     </label>
                 </div>
                 <div style="margin-top:10px;">
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">If Yes, write name of child's school / learning center / day care:</label>
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:3px;">
+                        If Yes, write name of child's school / learning center / day care:
+                    </label>
+                    <div style="font-size:0.73rem; color:#64748b; margin-bottom:5px;">Kung Oo, isulat ang pangalan ng Child Development Center o Day Care</div>
                     <input type="text" id="socio_school_name" class="form-control" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-weight:600;" value="Barangay Market View 3 Child Development Center">
                 </div>
             </div>
@@ -128,51 +154,63 @@
         <!-- Parents Background Information -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:25px;">
             <h4 style="margin:0 0 15px 0; color:#1e293b; font-size:1rem; font-weight:800; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-                3. Parental Background & Family Structure
+                3. Parental Background & Family Structure &bull; Impormasyon ng Pamilya
             </h4>
             
             <!-- Father -->
             <div style="margin-bottom:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:15px;">
-                <h5 style="margin:0 0 10px 0; color:#0369a1; font-size:0.9rem; font-weight:800;"><i class="fa-solid fa-person" style="margin-right:6px;"></i> Father's Information</h5>
+                <h5 style="margin:0 0 10px 0; color:#0369a1; font-size:0.9rem; font-weight:800;">
+                    <i class="fa-solid fa-person" style="margin-right:6px;"></i> Father's Information &bull; Impormasyon ng Ama
+                </h5>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Name:</label>
-                        <input type="text" id="socio_father_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Father's Name / Pangalan:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Buong pangalan ni Tatay</div>
+                        <input type="text" id="socio_father_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Pangalan ng Ama">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Age:</label>
-                        <input type="number" id="socio_father_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Years">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Father's Age / Edad:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Ilang taon na si Tatay</div>
+                        <input type="number" id="socio_father_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Taon / Years">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Occupation:</label>
-                        <input type="text" id="socio_father_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Father's Occupation / Hanapbuhay:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Trabaho o pinagkakakitaan</div>
+                        <input type="text" id="socio_father_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Trabaho o Hanapbuhay">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Father's Educational Attainment:</label>
-                        <input type="text" id="socio_father_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. High School Graduate, College">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Educational Attainment / Pinag-aralan:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Naabot na antas sa paaralan</div>
+                        <input type="text" id="socio_father_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="hal. High School, College, Bokasyonal">
                     </div>
                 </div>
             </div>
 
             <!-- Mother -->
             <div style="margin-bottom:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:15px;">
-                <h5 style="margin:0 0 10px 0; color:#b45309; font-size:0.9rem; font-weight:800;"><i class="fa-solid fa-person-dress" style="margin-right:6px;"></i> Mother's Information</h5>
+                <h5 style="margin:0 0 10px 0; color:#b45309; font-size:0.9rem; font-weight:800;">
+                    <i class="fa-solid fa-person-dress" style="margin-right:6px;"></i> Mother's Information &bull; Impormasyon ng Ina
+                </h5>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Name:</label>
-                        <input type="text" id="socio_mother_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Mother's Name / Pangalan:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Buong pangalan ni Nanay</div>
+                        <input type="text" id="socio_mother_name" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Pangalan ng Ina">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Age:</label>
-                        <input type="number" id="socio_mother_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Years">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Mother's Age / Edad:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Ilang taon na si Nanay</div>
+                        <input type="number" id="socio_mother_age" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Taon / Years">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Occupation:</label>
-                        <input type="text" id="socio_mother_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Mother's Occupation / Hanapbuhay:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Trabaho o pinagkakakitaan</div>
+                        <input type="text" id="socio_mother_occupation" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="Trabaho o Hanapbuhay">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:4px;">Mother's Educational Attainment:</label>
-                        <input type="text" id="socio_mother_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. High School Graduate, College">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:2px;">Educational Attainment / Pinag-aralan:</label>
+                        <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Naabot na antas sa paaralan</div>
+                        <input type="text" id="socio_mother_education" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="hal. High School, College, Bokasyonal">
                     </div>
                 </div>
             </div>
@@ -180,19 +218,25 @@
             <!-- Siblings and Birth Order -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Number of Siblings:</label>
-                    <input type="number" id="socio_siblings_count" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. 2">
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:2px;">
+                        Child's Number of Siblings / Bilang ng Kapatid:
+                    </label>
+                    <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Ilan ang kapatid ng bata (hindi kasama ang bata)</div>
+                    <input type="number" id="socio_siblings_count" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="hal. 2">
                 </div>
                 <div>
-                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:5px;">Child's Birth Order (1st, 2nd, 3rd, etc.):</label>
-                    <input type="text" id="socio_birth_order" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="e.g. 1st child">
+                    <label style="display:block; font-weight:700; font-size:0.82rem; color:#475569; margin-bottom:2px;">
+                        Child's Birth Order / Pang-ilan sa Magkakapatid:
+                    </label>
+                    <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px;">Pang-ilan ang bata sa pamilya (hal. Panganay, Pangalawa)</div>
+                    <input type="text" id="socio_birth_order" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px;" placeholder="hal. Panganay / 1st child, Pangalawa / 2nd">
                 </div>
             </div>
         </div>
 
         <div style="text-align:right;">
             <button type="button" class="btn btn-primary" onclick="saveBooklet()" style="background:#16a34a; border:none; padding:10px 24px; border-radius:8px; font-weight:700; display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:white; box-shadow:0 2px 6px rgba(22,163,74,0.3);">
-                <i class="fa-solid fa-floppy-disk"></i> Save Sociodemographic Profile
+                <i class="fa-solid fa-floppy-disk"></i> Save Sociodemographic Profile &bull; I-save ang Profile
             </button>
         </div>
     </form>

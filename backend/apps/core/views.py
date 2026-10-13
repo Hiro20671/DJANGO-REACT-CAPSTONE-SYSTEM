@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from .models import UserProfile
-from django.contrib.auth.decorators import login_required
+from .decorators import teacher_required, parent_required
 
 @never_cache
 def public_home(request):
@@ -54,20 +54,44 @@ def login_view(request):
         if not user:
             user = authenticate(request, username=username, password=password)
 
+        # Check if the user credentials match an inactive or restricted parent account
+        restricted_candidate = None
+        if username:
+            if '@' in username:
+                for cand in candidate_users:
+                    cand_prof = getattr(cand, 'userprofile', None)
+                    if cand.check_password(password) and (not cand.is_active or (cand_prof and cand_prof.is_account_restricted)):
+                        restricted_candidate = cand
+                        break
+            else:
+                cand = User.objects.filter(username__iexact=username).first()
+                if cand:
+                    cand_prof = getattr(cand, 'userprofile', None)
+                    if cand.check_password(password) and (not cand.is_active or (cand_prof and cand_prof.is_account_restricted)):
+                        restricted_candidate = cand
+
+        if restricted_candidate:
+            messages.error(request, "This parent account is no longer active. Please contact the daycare administrator if you need assistance.")
+            return render(request, "login.html")
+
         if user:
             profile, _ = UserProfile.objects.get_or_create(
                 user=user,
                 defaults={'is_teacher': user.is_staff or user.is_superuser}
             )
 
+            if not profile.is_teacher and profile.is_account_restricted:
+                messages.error(request, "This parent account is no longer active. Please contact the daycare administrator if you need assistance.")
+                return render(request, "login.html")
+
             login(request, user)
             
             if profile.is_teacher:
-                return redirect("home")
+                return redirect("teacher_dashboard")
             else:
                 if profile.first_login:
                     return redirect("force_password_change")
-                return redirect("home")
+                return redirect("parent_dashboard")
 
         messages.error(request, "Invalid username or password")
 
@@ -75,45 +99,55 @@ def login_view(request):
 
 
 @login_required
+@parent_required
 def parent_home(request):
-    return redirect("home")
+    return redirect("parent_dashboard")
 
 @login_required
+@parent_required
 def parent_dashboard(request):
-    profile, _ = UserProfile.objects.get_or_create(
-        user=request.user,
-        defaults={'is_teacher': request.user.is_staff or request.user.is_superuser}
-    )
-    if profile.is_teacher:
-        return redirect("home")
     return render(request, "parents/parent_dashboard.html")
 
 
 @login_required
+@parent_required
 def parent_dropoff_pickup(request):
     return render(request, 'parents/drop_off_pick_up.html')
 
 @login_required
+@parent_required
 def parent_attendance(request):
     return render(request, 'parents/attendance.html')
 
 @login_required
+@parent_required
 def parent_milestones(request):
-    return render(request, 'parents/milestones.html')
+    return redirect('/parent/eccd-booklet/?tab=milestones')
 
 @login_required
+@parent_required
+def parent_eccd_booklet(request):
+    profile = request.user.userprofile
+    children = profile.children.all()
+    return render(request, 'parents/eccd_booklet.html', {'children': children})
+
+@login_required
+@parent_required
 def parent_engagement(request):
     return render(request, 'parents/parent_engagement.html')
 
 @login_required
+@parent_required
 def parent_nutrition(request):
     return render(request, 'parents/nutrition.html')
 
 @login_required
+@parent_required
 def parent_settings(request):
     return render(request, 'parents/parent_settings.html')
 
 @login_required
+@parent_required
 def parent_children(request):
     return render(request, 'parents/children.html')
 
@@ -127,35 +161,43 @@ def home_view(request):
 
 
 @login_required
+@teacher_required
 def teacher_dashboard(request):
     return render(request, 'teachers/dashboard.html')
 
 @login_required
+@teacher_required
 def teacher_dropoff_pickup(request):
     return render(request, 'teachers/drop_off_pick_up.html')
 
 @login_required
+@teacher_required
 def teacher_attendance(request):
     return render(request, 'teachers/attendance.html')
 
 @login_required
+@teacher_required
 def teacher_milestones(request):
     return render(request, 'teachers/milestones.html')
 
 
 @login_required
+@teacher_required
 def teacher_engagement(request):
     return render(request, 'teachers/parent_engagement.html')
 
 @login_required
+@teacher_required
 def teacher_nutrition(request):
     return render(request, 'teachers/nutrition.html')
 
 @login_required
+@teacher_required
 def teacher_children(request):
     return render(request, 'teachers/children.html')
 
 @login_required
+@teacher_required
 def teacher_settings(request):
     return render(request, 'teachers/settings.html')
 
@@ -163,30 +205,37 @@ def offline_view(request):
     return render(request, 'offline.html')
 
 @login_required
+@teacher_required
 def teacher_activities(request):
     return render(request, 'teachers/activities.html')
 
 @login_required
+@parent_required
 def parent_activities(request):
     return render(request, 'parents/activities.html')
 
 @login_required
+@teacher_required
 def teacher_announcements(request):
     return render(request, 'teachers/announcements.html')
 
 @login_required
+@parent_required
 def parent_map_route(request):
     return render(request, 'parents/map_route.html')
 
 @login_required
+@teacher_required
 def teacher_student_map(request):
     return render(request, 'teachers/student_map.html')
 
 @login_required
+@teacher_required
 def teacher_textblast(request):
     return render(request, 'teachers/textblast.html')
 
 @login_required
+@teacher_required
 def teacher_analytics(request):
     return render(request, 'teachers/analytics.html')
 

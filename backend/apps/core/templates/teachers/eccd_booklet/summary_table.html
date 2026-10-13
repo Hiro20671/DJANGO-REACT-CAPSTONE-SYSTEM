@@ -20,39 +20,40 @@
         <table class="assess-table" style="min-width:680px; width:100%; border-collapse:collapse; margin:0; font-family:'Montserrat', sans-serif;">
             <thead>
                 <tr style="background:#091e42; color:white;">
-                    <th rowspan="3" style="padding:14px; text-align:left; font-size:1.1rem; font-weight:900; border:1px solid #334155; width:22%;">
-                        Domain
+                    <th rowspan="3" style="padding:12px; text-align:left; font-size:1.05rem; font-weight:900; border:1px solid #334155; width:24%;">
+                        <div>Domain</div>
+                        <div style="font-size:0.75rem; font-weight:600; opacity:0.85;">Larangan ng Pag-unlad</div>
                     </th>
-                    <th colspan="6" style="padding:10px; text-align:center; font-size:1rem; font-weight:800; border:1px solid #334155; background:#0f2757;">
-                        Age & Evaluation Periods
+                    <th colspan="6" style="padding:10px; text-align:center; font-size:0.95rem; font-weight:800; border:1px solid #334155; background:#0f2757;">
+                        Age & Evaluation Periods &bull; Edad at Panahon ng Pagsusuri
                     </th>
                 </tr>
                 <tr style="background:#f1f5f9; color:#1e293b;">
-                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:26%;">
-                        <div style="font-size:0.9rem; color:#0284c7;">1st Evaluation</div>
+                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:25%;">
+                        <div style="font-size:0.88rem; color:#0284c7;">1st Evaluation (Unang Pagsusuri)</div>
                         <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:2px;">
                             Date: <span id="p18_date_1st">--</span> &bull; Age: <span id="p18_age_1st">--</span>
                         </div>
                     </th>
-                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:26%;">
-                        <div style="font-size:0.9rem; color:#d97706;">2nd Evaluation</div>
+                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:25%;">
+                        <div style="font-size:0.88rem; color:#d97706;">2nd Evaluation (Ikalawang Pagsusuri)</div>
                         <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:2px;">
                             Date: <span id="p18_date_2nd">--</span> &bull; Age: <span id="p18_age_2nd">--</span>
                         </div>
                     </th>
-                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:26%;">
-                        <div style="font-size:0.9rem; color:#16a34a;">3rd Evaluation</div>
+                    <th colspan="2" style="padding:8px; text-align:center; font-weight:800; border:1px solid #cbd5e1; width:25%;">
+                        <div style="font-size:0.88rem; color:#16a34a;">3rd Evaluation (Ikatlong Pagsusuri)</div>
                         <div style="font-size:0.75rem; color:#64748b; font-weight:600; margin-top:2px;">
                             Date: <span id="p18_date_3rd">--</span> &bull; Age: <span id="p18_age_3rd">--</span>
                         </div>
                     </th>
                 </tr>
-                <tr style="background:#e2e8f0; color:#334155; font-size:0.8rem;">
-                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw Score</th>
+                <tr style="background:#e2e8f0; color:#334155; font-size:0.78rem;">
+                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw (Hilaw)</th>
                     <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1; background:#f0f9ff; color:#0369a1;">Scaled Score</th>
-                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw Score</th>
+                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw (Hilaw)</th>
                     <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1; background:#fef3c7; color:#b45309;">Scaled Score</th>
-                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw Score</th>
+                    <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1;">Raw (Hilaw)</th>
                     <th style="padding:6px; text-align:center; font-weight:700; border:1px solid #cbd5e1; background:#f0fdf4; color:#15803d;">Scaled Score</th>
                 </tr>
             </thead>
@@ -71,36 +72,51 @@
         <!-- Interpretation of Scaled Score -->
         <div style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
             <div style="background:#0f172a; color:white; padding:10px 14px; font-weight:800; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
-                <span>Interpretation of Scaled Score:</span>
-                <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">(See page 19)</span>
+                <span>Interpretation of Scaled Score / Kahulugan ng Scaled Score:</span>
+                <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">(Pahina 19)</span>
             </div>
             <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
                 <thead>
                     <tr style="background:#f1f5f9; border-bottom:1px solid #cbd5e1;">
-                        <th style="padding:8px 12px; text-align:center; width:30%; border-right:1px solid #cbd5e1;">Scaled Score</th>
-                        <th style="padding:8px 12px; text-align:left;">Interpretation</th>
+                        <th style="padding:8px 12px; text-align:center; width:28%; border-right:1px solid #cbd5e1;">Scaled Score</th>
+                        <th style="padding:8px 12px; text-align:left;">Interpretation / Pagpapakahulugan</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#fef2f2;">
                         <td align="center" style="padding:8px; font-weight:800; color:#b91c1c; border-right:1px solid #e2e8f0;">1 - 3</td>
-                        <td style="padding:8px 12px; color:#7f1d1d; font-weight:600;">Development in the domain must be monitored after 3 months</td>
+                        <td style="padding:8px 12px; color:#7f1d1d; font-weight:600;">
+                            <div>Development in the domain must be monitored after 3 months</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Kailangang subaybayan ang pag-unlad pagkalipas ng 3 buwan)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#fffbeb;">
                         <td align="center" style="padding:8px; font-weight:800; color:#b45309; border-right:1px solid #e2e8f0;">4 - 6</td>
-                        <td style="padding:8px 12px; color:#78350f; font-weight:600;">Development in the domain must be monitored after 6 months</td>
+                        <td style="padding:8px 12px; color:#78350f; font-weight:600;">
+                            <div>Development in the domain must be monitored after 6 months</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Kailangang subaybayan ang pag-unlad pagkalipas ng 6 na buwan)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#f0fdf4;">
                         <td align="center" style="padding:8px; font-weight:800; color:#15803d; border-right:1px solid #e2e8f0;">7 - 13</td>
-                        <td style="padding:8px 12px; color:#14532d; font-weight:700;">Average overall development in the domain</td>
+                        <td style="padding:8px 12px; color:#14532d; font-weight:700;">
+                            <div>Average overall development in the domain</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Katamtaman o normal na pag-unlad sa larangang ito)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#f0fdfa;">
                         <td align="center" style="padding:8px; font-weight:800; color:#0f766e; border-right:1px solid #e2e8f0;">14 - 16</td>
-                        <td style="padding:8px 12px; color:#134e4a; font-weight:700;">Suggests slightly advanced development in the domain</td>
+                        <td style="padding:8px 12px; color:#134e4a; font-weight:700;">
+                            <div>Suggests slightly advanced development in the domain</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Bahagyang mas maunlad kaysa karaniwan)</div>
+                        </td>
                     </tr>
                     <tr style="background:#faf5ff;">
                         <td align="center" style="padding:8px; font-weight:800; color:#7e22ce; border-right:1px solid #e2e8f0;">17 - 19</td>
-                        <td style="padding:8px 12px; color:#581c87; font-weight:700;">Suggests highly advanced development in the domain</td>
+                        <td style="padding:8px 12px; color:#581c87; font-weight:700;">
+                            <div>Suggests highly advanced development in the domain</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Napakataas na antas ng pag-unlad)</div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -109,36 +125,51 @@
         <!-- Interpretation of Standard Score -->
         <div style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
             <div style="background:#0f172a; color:white; padding:10px 14px; font-weight:800; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
-                <span>Interpretation of Standard Score:</span>
-                <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">(See page 20)</span>
+                <span>Interpretation of Standard Score / Kahulugan ng Standard Score:</span>
+                <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">(Pahina 20)</span>
             </div>
             <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
                 <thead>
                     <tr style="background:#f1f5f9; border-bottom:1px solid #cbd5e1;">
-                        <th style="padding:8px 12px; text-align:center; width:32%; border-right:1px solid #cbd5e1;">Standard Score</th>
-                        <th style="padding:8px 12px; text-align:left;">Interpretation</th>
+                        <th style="padding:8px 12px; text-align:center; width:28%; border-right:1px solid #cbd5e1;">Standard Score</th>
+                        <th style="padding:8px 12px; text-align:left;">Interpretation / Pagpapakahulugan</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#fef2f2;">
-                        <td align="center" style="padding:8px; font-weight:800; color:#b91c1c; border-right:1px solid #e2e8f0;">69 and below</td>
-                        <td style="padding:8px 12px; color:#7f1d1d; font-weight:600;">Overall development must be monitored after 3 months</td>
+                        <td align="center" style="padding:8px; font-weight:800; color:#b91c1c; border-right:1px solid #e2e8f0;">69 and below (pababa)</td>
+                        <td style="padding:8px 12px; color:#7f1d1d; font-weight:600;">
+                            <div>Overall development must be monitored after 3 months</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Kailangang subaybayan ang kabuuang pag-unlad pagkaraan ng 3 buwan)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#fffbeb;">
                         <td align="center" style="padding:8px; font-weight:800; color:#b45309; border-right:1px solid #e2e8f0;">70 - 79</td>
-                        <td style="padding:8px 12px; color:#78350f; font-weight:600;">Overall development must be monitored after 6 months</td>
+                        <td style="padding:8px 12px; color:#78350f; font-weight:600;">
+                            <div>Overall development must be monitored after 6 months</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Kailangang subaybayan ang kabuuang pag-unlad pagkaraan ng 6 na buwan)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#f0fdf4;">
                         <td align="center" style="padding:8px; font-weight:800; color:#15803d; border-right:1px solid #e2e8f0;">80 - 119</td>
-                        <td style="padding:8px 12px; color:#14532d; font-weight:700;">Average overall development</td>
+                        <td style="padding:8px 12px; color:#14532d; font-weight:700;">
+                            <div>Average overall development</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Katamtaman o normal na kabuuang pag-unlad)</div>
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #e2e8f0; background:#f0fdfa;">
                         <td align="center" style="padding:8px; font-weight:800; color:#0f766e; border-right:1px solid #e2e8f0;">120 - 129</td>
-                        <td style="padding:8px 12px; color:#134e4a; font-weight:700;">Slightly advanced overall development</td>
+                        <td style="padding:8px 12px; color:#134e4a; font-weight:700;">
+                            <div>Slightly advanced overall development</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Bahagyang mas maunlad na kabuuang pag-unlad)</div>
+                        </td>
                     </tr>
                     <tr style="background:#faf5ff;">
-                        <td align="center" style="padding:8px; font-weight:800; color:#7e22ce; border-right:1px solid #e2e8f0;">130 and above</td>
-                        <td style="padding:8px 12px; color:#581c87; font-weight:700;">Highly advanced overall development</td>
+                        <td align="center" style="padding:8px; font-weight:800; color:#7e22ce; border-right:1px solid #e2e8f0;">130 and above (pataas)</td>
+                        <td style="padding:8px 12px; color:#581c87; font-weight:700;">
+                            <div>Highly advanced overall development</div>
+                            <div style="font-size:0.74rem; opacity:0.85; margin-top:2px;">(Napakataas na kabuuang pag-unlad)</div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

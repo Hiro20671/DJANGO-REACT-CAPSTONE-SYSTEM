@@ -410,7 +410,11 @@
             <p>Manage student profiles, assign class shifts (Morning AM / Afternoon PM), and review enrollment applications</p>
         </div>
         <div class="children-header-actions">
-            <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-secondary);">School Year:</label>
+            <button type="button" class="btn-child btn-child-primary" onclick="openGenerateParentAccountModal()" title="Generate Parent Login Account & Send Credentials via Brevo">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Generate Parent Account</span>
+            </button>
+            <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-secondary); margin-left: 6px;">School Year:</label>
             <select class="sy-filter-select" id="childrenSySelect" onchange="onSchoolYearChange()">
                 <option value="">Current Active School Year</option>
             </select>
@@ -463,6 +467,9 @@
         </button>
         <button class="children-tab-btn" id="tabBtnPending" onclick="switchTab('pending')">
             <i class="fa-solid fa-user-clock"></i> Pending Applications (<span id="tabCountPending">0</span>)
+        </button>
+        <button class="children-tab-btn" id="tabBtnWithdrawn" onclick="switchTab('withdrawn')">
+            <i class="fa-solid fa-box-archive"></i> Withdrawn Pupils (<span id="tabCountWithdrawn">0</span>)
         </button>
     </div>
 
@@ -537,6 +544,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Tab Pane 3: Withdrawn & Archived Pupils -->
+    <div id="paneWithdrawn" style="display: none;">
+        <div class="children-card">
+            <div class="table-toolbar">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #dc2626;">
+                        <i class="fa-solid fa-box-archive"></i> Withdrawn Pupil Records & Archives
+                    </h3>
+                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+                        Historical attendance, milestones, and ECCD records are securely preserved. Re-enrollment restores active status.
+                    </p>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="children-table">
+                    <thead>
+                        <tr>
+                            <th>Pupil Name</th>
+                            <th>Withdrawal Date</th>
+                            <th>Recorded Reason</th>
+                            <th>Age & Gender</th>
+                            <th>Guardian Details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawnTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No withdrawn students.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL: PUPIL PROFILE DETAIL & APPLICATION REVIEW -->
@@ -552,6 +595,41 @@
         </div>
         <div class="modal-body" id="profileModalBody">
             <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: WITHDRAW STUDENT CONFIRMATION -->
+<div class="modal-overlay" id="withdrawModal">
+    <div class="modal-box" style="max-width: 500px;">
+        <div class="modal-head">
+            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #dc2626;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Withdraw Student Confirmation
+            </h3>
+            <button onclick="closeWithdrawModal()" style="border: none; background: transparent; font-size: 1.3rem; cursor: pointer; color: #64748b;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #334155; font-size: 0.95rem; line-height: 1.5; margin-top: 0;">
+                Are you sure you want to mark <strong id="withdrawChildName">Student</strong> as <strong>Withdrawn</strong>?
+            </p>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem; color: #991b1b; line-height: 1.4;">
+                <i class="fa-solid fa-circle-exclamation"></i> <strong>Important:</strong> The pupil will be removed from active enrollment and daily attendance counts. Historical records will be preserved in the archive. If the parent has no other actively enrolled children, their portal access will be restricted.
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Withdrawal Date *</label>
+                <input type="date" id="withdrawDateInput" class="form-control" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Withdrawal Reason (Optional)</label>
+                <textarea id="withdrawReasonInput" class="form-control" placeholder="e.g. Relocated to another city, transferred to elementary preschool..." style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; height: 75px; font-family: inherit; font-size: 0.88rem; box-sizing: border-box;"></textarea>
+            </div>
+            <input type="hidden" id="withdrawChildId">
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn-child btn-child-secondary" onclick="closeWithdrawModal()">Cancel</button>
+                <button class="btn-child" style="background: #dc2626; color: white;" onclick="submitStudentWithdrawal()">Confirm Withdrawal</button>
+            </div>
         </div>
     </div>
 </div>
@@ -602,12 +680,14 @@
             renderSummaryStats(data);
             renderEnrolledTable(data);
             renderPendingTable(data);
+            renderWithdrawnTable(data);
         } catch(e) { console.error(e); }
     }
 
     function renderSummaryStats(children) {
         const enrolled = children.filter(c => c.enrollment_status === 'Enrolled');
         const pending = children.filter(c => c.enrollment_status === 'Pending');
+        const withdrawn = children.filter(c => c.enrollment_status === 'Withdrawn');
         const morning = enrolled.filter(c => (c.shift || 'Morning').toLowerCase() === 'morning');
         const afternoon = enrolled.filter(c => (c.shift || '').toLowerCase() === 'afternoon');
 
@@ -618,6 +698,7 @@
 
         document.getElementById('tabCountEnrolled').innerText = enrolled.length;
         document.getElementById('tabCountPending').innerText = pending.length;
+        document.getElementById('tabCountWithdrawn').innerText = withdrawn.length;
     }
 
     function renderEnrolledTable(children) {
@@ -659,9 +740,14 @@
                     ${c.barangay || 'Brgy. Market View'}, ${c.city_municipality || 'Lucena City'}
                 </td>
                 <td>
-                    <button class="btn-child btn-child-secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="openProfileModal(${c.id})">
-                        <i class="fa-solid fa-user-pen"></i> Profile
-                    </button>
+                    <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-child btn-child-secondary" style="padding: 5px 10px; font-size: 0.78rem;" onclick="openProfileModal(${c.id})" title="View pupil dossier">
+                            <i class="fa-solid fa-user-pen"></i> Profile
+                        </button>
+                        <button class="btn-child" style="background: #ef4444; color: white; padding: 5px 10px; font-size: 0.78rem;" onclick="openWithdrawModal(${c.id})" title="Withdraw pupil from active enrollment">
+                            <i class="fa-solid fa-user-minus"></i> Withdraw
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -774,29 +860,32 @@
     function switchTab(tab) {
         document.getElementById('paneEnrolled').style.display = tab === 'enrolled' ? 'block' : 'none';
         document.getElementById('panePending').style.display = tab === 'pending' ? 'block' : 'none';
+        document.getElementById('paneWithdrawn').style.display = tab === 'withdrawn' ? 'block' : 'none';
 
         document.getElementById('tabBtnEnrolled').className = `children-tab-btn ${tab === 'enrolled' ? 'active' : ''}`;
         document.getElementById('tabBtnPending').className = `children-tab-btn ${tab === 'pending' ? 'active' : ''}`;
-    }
-
-    // Filter Table
-    function filterEnrolledTable() {
-        const query = (document.getElementById('enrolledSearchInput').value || '').toLowerCase();
-        const shiftFilter = document.getElementById('shiftTableFilter').value;
-
-        const filtered = masterChildrenList.filter(c => {
-            if (c.enrollment_status !== 'Enrolled') return false;
-            const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
-            const matchesQuery = fullName.includes(query);
-            const matchesShift = shiftFilter === 'ALL' || c.shift === shiftFilter;
-            return matchesQuery && matchesShift;
-        });
-
-        renderEnrolledTable(filtered);
+        document.getElementById('tabBtnWithdrawn').className = `children-tab-btn ${tab === 'withdrawn' ? 'active' : ''}`;
     }
 
     function onSchoolYearChange() {
-        loadChildrenData();
+        const sySelect = document.getElementById('childrenSySelect');
+        const selectedId = sySelect ? sySelect.value : '';
+        const selectedOpt = sySelect ? sySelect.options[sySelect.selectedIndex] : null;
+        const selectedText = selectedOpt ? selectedOpt.innerText.split('(')[0].trim() : 'Archived Year';
+
+        if (selectedId && selectedId != activeSyId) {
+            sessionStorage.setItem('bmv3_archive_year_id', selectedId);
+            sessionStorage.setItem('bmv3_archive_year_name', selectedText);
+            localStorage.setItem('bmv3_archive_year_id', selectedId);
+            localStorage.setItem('bmv3_archive_year_name', selectedText);
+            window.location.reload();
+        } else {
+            sessionStorage.removeItem('bmv3_archive_year_id');
+            sessionStorage.removeItem('bmv3_archive_year_name');
+            localStorage.removeItem('bmv3_archive_year_id');
+            localStorage.removeItem('bmv3_archive_year_name');
+            window.location.reload();
+        }
     }
 
     // Profile / Verification Modal
@@ -886,7 +975,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 15px;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 15px; flex-wrap: wrap;">
                 <button class="btn-child btn-child-secondary" onclick="closeProfileModal()">Close</button>
                 ${isPending ? `
                     <button class="btn-child" style="background: #ef4444; color: white;" onclick="closeProfileModal(); processEnrollment(${child.id}, 'Rejected');">
@@ -896,7 +985,10 @@
                         <i class="fa-solid fa-check"></i> Verify & Approve Enrollment
                     </button>
                 ` : `
-                    <button class="btn-child btn-child-primary" onclick="saveModalShift(${child.id})">Save Shift Assignment</button>
+                    <button class="btn-child" style="background: #dc2626; color: white;" onclick="closeProfileModal(); openWithdrawModal(${child.id})">
+                        <i class="fa-solid fa-user-minus"></i> Withdraw Pupil
+                    </button>
+                    <button class="btn-child btn-child-primary" onclick="saveModalShift(${child.id})">Save Shift</button>
                 `}
             </div>
         `;
@@ -920,6 +1012,122 @@
 
     function closeProfileModal() {
         document.getElementById('profileModal').classList.remove('active');
+    }
+
+    function renderWithdrawnTable(children) {
+        const withdrawn = children.filter(c => c.enrollment_status === 'Withdrawn');
+        const tbody = document.getElementById('withdrawnTableBody');
+        if (!tbody) return;
+
+        if (withdrawn.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No withdrawn students in this cohort.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = withdrawn.map(c => `
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            ${c.first_name ? c.first_name[0] : 'S'}
+                        </div>
+                        <div>
+                            <strong style="color: var(--text-primary); font-size: 0.95rem;">${c.last_name}, ${c.first_name}</strong>
+                            <div style="font-size: 0.74rem; color: #64748b;">ID: #${c.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span style="font-weight: 700; color: #b91c1c;">
+                        <i class="fa-regular fa-calendar-xmark"></i> ${c.withdrawal_date || 'Archived'}
+                    </span>
+                </td>
+                <td style="font-size: 0.85rem; color: #475569;">
+                    ${c.withdrawal_reason || '<span style="color:#94a3b8; font-style:italic;">No reason recorded</span>'}
+                </td>
+                <td>${c.age || 4} yrs &bull; ${c.gender || 'Not specified'}</td>
+                <td>
+                    <div style="font-size: 0.86rem; font-weight: 600;">${c.mother_first_name ? c.mother_first_name + ' ' + (c.mother_last_name || '') : 'Guardian on file'}</div>
+                    <div style="font-size: 0.76rem; color: #64748b;">${c.mother_phone || c.phone || 'No phone'}</div>
+                </td>
+                <td>
+                    <button class="btn-child" style="background: #10b981; color: white; padding: 5px 12px; font-size: 0.78rem;" onclick="reEnrollChild(${c.id})" title="Restore and re-enroll student">
+                        <i class="fa-solid fa-rotate-left"></i> Re-Enroll
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function openWithdrawModal(childId) {
+        const child = masterChildrenList.find(c => c.id === childId);
+        if (!child) return;
+        document.getElementById('withdrawChildId').value = child.id;
+        document.getElementById('withdrawChildName').innerText = `${child.first_name} ${child.last_name}`;
+        document.getElementById('withdrawDateInput').value = new Date().toISOString().split('T')[0];
+        document.getElementById('withdrawReasonInput').value = '';
+        document.getElementById('withdrawModal').classList.add('active');
+    }
+
+    function closeWithdrawModal() {
+        document.getElementById('withdrawModal').classList.remove('active');
+    }
+
+    async function submitStudentWithdrawal() {
+        const childId = document.getElementById('withdrawChildId').value;
+        const withdrawalDate = document.getElementById('withdrawDateInput').value;
+        const withdrawalReason = document.getElementById('withdrawReasonInput').value;
+
+        if (!withdrawalDate) {
+            alert('Please specify the withdrawal date.');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/children/${childId}/withdraw/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    withdrawal_date: withdrawalDate,
+                    withdrawal_reason: withdrawalReason
+                })
+            });
+
+            const result = await resp.json();
+            if (!resp.ok) throw new Error(result.detail || result.error || 'Withdrawal failed.');
+
+            closeWithdrawModal();
+            showToast(result.message || 'Student marked as Withdrawn.');
+            await loadChildrenData();
+            switchTab('withdrawn');
+        } catch(err) {
+            console.error(err);
+            alert(err.message || 'Error processing student withdrawal.');
+        }
+    }
+
+    async function reEnrollChild(childId) {
+        if (!confirm('Re-enroll this student back into the active cohort?')) return;
+        try {
+            const resp = await fetch(`/api/children/${childId}/re-enroll/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+            const result = await resp.json();
+            if (!resp.ok) throw new Error(result.detail || result.error || 'Re-enrollment failed.');
+            showToast(result.message || 'Student re-enrolled successfully!');
+            await loadChildrenData();
+            switchTab('enrolled');
+        } catch(err) {
+            console.error(err);
+            alert(err.message || 'Error processing student re-enrollment.');
+        }
     }
 
     function showToast(msg) {

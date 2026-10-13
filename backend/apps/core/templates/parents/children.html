@@ -188,7 +188,7 @@
 </div>
 
 <!-- ================= CONTENT ================= -->
-<div class="main-content">
+<div class="children-content">
     
     <!-- Top KPIs -->
     <div class="kpi-row">
@@ -259,7 +259,7 @@
             </div>
             <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px;">
                 <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">School Year</div>
-                <div style="font-size:0.92rem; font-weight:700; color:#1e293b; margin-top:3px;" id="m-school-year">2025-2026</div>
+                <div style="font-size:0.92rem; font-weight:700; color:#1e293b; margin-top:3px;" id="m-school-year">2026-2027</div>
             </div>
         </div>
 
@@ -374,7 +374,9 @@
                     const shiftIcon = isPM ? 'fa-cloud-sun' : 'fa-sun';
                     const shiftTitle = isPM ? 'Afternoon Shift (PM)' : 'Morning Shift (AM)';
                     const shiftHours = isPM ? '1:00 PM – 3:30 PM' : '8:00 AM – 10:30 AM';
-                    const avatarUrl = c.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + c.first_name);
+                    const avatarHtml = c.img 
+                        ? `<img src="${c.img}" alt="${c.first_name}" class="child-card-avatar" style="object-fit:cover;">`
+                        : `<div class="child-card-avatar" style="display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #e0f2fe, #bae6fd); color:#0284c7; font-weight:800; font-size:1.1rem; border-radius:50%; border:2px solid #fff;">${((c.first_name||'C')[0]+(c.last_name||'')[0]).toUpperCase()}</div>`;
                     const attPct = c.stats ? (c.stats.attendance || 0) : 100;
                     const statusColor = c.enrollment_status === 'Enrolled' ? '#16a34a' : '#d97706';
 
@@ -383,7 +385,7 @@
                         <div>
                             <!-- Header -->
                             <div class="child-card-header">
-                                <img src="${avatarUrl}" alt="${c.first_name}" class="child-card-avatar">
+                                ${avatarHtml}
                                 <div class="child-card-title">
                                     <h3>${c.first_name} ${c.last_name}</h3>
                                     <p>${c.age || 4} years old &bull; <span style="font-weight:700; color:${statusColor};">${c.enrollment_status || 'Enrolled'}</span></p>
@@ -436,7 +438,14 @@
 
         document.getElementById('m-header-name').innerText = `${c.first_name} ${c.last_name}`;
         document.getElementById('m-name').innerText = `${c.first_name} ${c.last_name}`;
-        document.getElementById('m-avatar').src = c.img || ('https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + c.first_name);
+        const mAvatar = document.getElementById('m-avatar');
+        if (mAvatar) {
+            if (c.img) {
+                mAvatar.src = c.img;
+            } else {
+                mAvatar.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="%23e0f2fe"/><text x="50%" y="55%" font-size="28" font-family="sans-serif" font-weight="bold" fill="%230284c7" dominant-baseline="middle" text-anchor="middle">${encodeURIComponent(((c.first_name||'C')[0]+(c.last_name||'')[0]).toUpperCase())}</text></svg>`;
+            }
+        }
         document.getElementById('m-age').innerText = `${c.age || 4} years old`;
 
         const isPM = (c.shift || 'Morning').toLowerCase().includes('afternoon');
@@ -449,7 +458,7 @@
         document.getElementById('m-dob').innerText = c.dob || 'N/A';
         document.getElementById('m-gender').innerText = c.gender ? (c.gender.charAt(0).toUpperCase() + c.gender.slice(1)) : 'N/A';
         document.getElementById('m-lrn').innerText = c.lrn || 'Pending Assignment';
-        document.getElementById('m-school-year').innerText = c.school_year_name || '2025-2026';
+        document.getElementById('m-school-year').innerText = c.school_year_name || '2026-2027';
 
         // Health & Allergies
         const allergies = c.allergies ? c.allergies.trim() : '';

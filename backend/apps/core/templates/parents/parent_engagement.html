@@ -706,10 +706,10 @@
         <i class="fa-solid fa-envelope"></i> Classroom Inbox
     </button>
     <button class="eng-tab" id="tab-teacher-chat" onclick="switchEngageTab('teacher-chat')">
-        <i class="fa-solid fa-chalkboard-user"></i> Teacher Chat
+        <i class="fa-solid fa-chalkboard-user"></i> Teacher Chat <span id="parent-teacher-unread-badge" style="display:none; background:#e74a3b; color:white; border-radius:12px; padding:2px 7px; font-size:0.75rem; font-weight:800; margin-left:6px; box-shadow:0 1px 3px rgba(231,74,59,0.3);"></span>
     </button>
     <button class="eng-tab" id="tab-parents-chat" onclick="switchEngageTab('parents-chat')">
-        <i class="fa-solid fa-comments"></i> Parent Messenger
+        <i class="fa-solid fa-comments"></i> Parent Messenger <span id="p2p-unread-badge" style="display:none; background:#e74a3b; color:white; border-radius:12px; padding:2px 7px; font-size:0.75rem; font-weight:800; margin-left:6px; box-shadow:0 1px 3px rgba(231,74,59,0.3);"></span>
     </button>
 </div>
 
@@ -989,21 +989,28 @@
             </div>`;
         });
 
-        if (Array.isArray(noClassData) && noClassData.length > 0) {
-            noClassData.forEach(nc => {
-                totalReports++;
+        // Filter for active or upcoming No Class dates
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+        const activeNoClass = (Array.isArray(noClassData) ? noClassData : []).filter(nc => {
+            const ncDate = new Date(nc.date);
+            return ncDate >= todayDate;
+        });
+
+        if (activeNoClass.length > 0) {
+            activeNoClass.forEach(nc => {
                 let dt = new Date(nc.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
                 let reason = nc.reason || "No reason provided.";
                 let body = `Dear Parents,\n\nPlease be informed that there will be NO CLASS on ${dt}.\n\nReason: ${reason}\n\nThank you,\nBMV3 Management`;
                 
-                const safeTitle = `URGENT: No Class on ${dt}`.replace(/'/g, "\\'");
+                const safeTitle = `Notice: No Class on ${dt}`.replace(/'/g, "\\'");
                 const safeBody = body.replace(/'/g, "\\'").replace(/\n/g, "<br>");
-                const safeDate = new Date(nc.created_at).toLocaleDateString('en-US');
+                const safeDate = new Date(nc.created_at || nc.date).toLocaleDateString('en-US');
                 
                 html += `
                 <div class="msg-item urgent" onclick="openReportModal('${safeTitle}', '${safeDate}', '${safeBody}')">
                     <div class="msg-header">
-                        <div class="msg-title urgent-title"><i class="fa-solid fa-triangle-exclamation" style="color:#e74a3b; margin-right:6px;"></i> URGENT: No Class on ${dt}</div>
+                        <div class="msg-title urgent-title"><i class="fa-solid fa-triangle-exclamation" style="color:#e74a3b; margin-right:6px;"></i> Notice: No Class on ${dt}</div>
                         <div class="msg-date">${safeDate}</div>
                     </div>
                     <div class="msg-body-preview">
@@ -1050,13 +1057,13 @@
             });
         });
 
-        if (Array.isArray(noClassData) && noClassData.length > 0) {
-            noClassData.forEach(nc => {
+        if (activeNoClass.length > 0) {
+            activeNoClass.forEach(nc => {
                 let dt = new Date(nc.date).toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
                 window.allMobileAnnouncements.unshift({
                     title: `No Class Notice (${dt})`,
                     body: `Please be informed that there will be NO CLASS on ${dt}. Reason: ${nc.reason || 'School holiday / center maintenance'}`,
-                    date: new Date(nc.created_at).toLocaleDateString('en-US'),
+                    date: new Date(nc.created_at || nc.date).toLocaleDateString('en-US'),
                     category: 'Reminders',
                     isUrgent: true
                 });
@@ -1137,35 +1144,57 @@
         renderMobileAnnouncements(category);
     }
 
-    function renderParentChat() {
+    function renderParentChat(isViewingTeacherChat = false) {
         if (!parentChatKey) return;
         
         let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
         let myChat = chatDB[parentChatKey] || [];
         let chatContainer = document.getElementById('chat-messages-container');
         
-        // Mark all teacher messages as read
-        let updated = false;
-        myChat.forEach(msg => {
-            if (msg.sender === 'teacher' && !msg.read) {
-                msg.read = true;
-                updated = true;
+        let panelTeacherChat = document.getElementById('panel-teacher-chat');
+        let isPanelActive = isViewingTeacherChat || (panelTeacherChat && panelTeacherChat.classList.contains('active'));
+
+        // Mark teacher messages as read ONLY when parent is actually viewing the teacher chat tab
+        if (isPanelActive) {
+            let updated = false;
+            myChat.forEach(msg => {
+                if (msg.sender === 'teacher' && !msg.read) {
+                    msg.read = true;
+                    updated = true;
+                }
+            });
+            if (updated) {
+                chatDB[parentChatKey] = myChat;
+                localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
             }
-        });
-        if (updated) {
-            chatDB[parentChatKey] = myChat;
-            localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
         }
 
-        document.getElementById('unread-val').innerText = myChat.length;
+        // Count unread teacher messages
+        let unreadTeacherCount = myChat.filter(msg => msg.sender === 'teacher' && !msg.read).length;
+        let tabBadge = document.getElementById('parent-teacher-unread-badge');
+        if (tabBadge) {
+            if (unreadTeacherCount > 0) {
+                tabBadge.textContent = unreadTeacherCount;
+                tabBadge.style.display = 'inline-block';
+            } else {
+                tabBadge.style.display = 'none';
+            }
+        }
+
+        let unreadVal = document.getElementById('unread-val');
+        if (unreadVal) {
+            unreadVal.innerText = unreadTeacherCount > 0 ? `${unreadTeacherCount} New` : myChat.length;
+        }
 
         if (myChat.length === 0) {
-            chatContainer.innerHTML = `
-            <div style="text-align:center; color:#999; padding:40px; margin:auto;">
-                <i class="fa-regular fa-comment-dots" style="font-size:2.5rem; color:#ccc; margin-bottom:10px;"></i>
-                <h4>No messages yet</h4>
-                <p style="font-size:0.8rem; margin-top:5px;">Send a message to start direct communication with the teacher.</p>
-            </div>`;
+            if (chatContainer) {
+                chatContainer.innerHTML = `
+                <div style="text-align:center; color:#999; padding:40px; margin:auto;">
+                    <i class="fa-regular fa-comment-dots" style="font-size:2.5rem; color:#ccc; margin-bottom:10px;"></i>
+                    <h4>No messages yet</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;">Send a message to start direct communication with the teacher.</p>
+                </div>`;
+            }
             return;
         }
 
@@ -1190,8 +1219,10 @@
             }
         });
 
-        chatContainer.innerHTML = html;
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (chatContainer) {
+            chatContainer.innerHTML = html;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     }
 
     function sendParentChatMessage() {
@@ -1210,12 +1241,13 @@
             text: text,
             timestamp: timeStr,
             date: now.toLocaleDateString(),
+            epoch: now.getTime(),
             read: false
         });
 
         localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
         inputField.value = '';
-        renderParentChat();
+        renderParentChat(true);
     }
 
     function handleChatKey(event) {
@@ -1339,6 +1371,7 @@
         } else if (tabName === 'teacher-chat') {
             document.getElementById('tab-teacher-chat').classList.add('active');
             document.getElementById('panel-teacher-chat').classList.add('active');
+            renderParentChat(true);
             setTimeout(() => {
                 let chatContainer = document.getElementById('chat-messages-container');
                 if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1346,6 +1379,7 @@
         } else if (tabName === 'parents-chat') {
             document.getElementById('tab-parents-chat').classList.add('active');
             document.getElementById('panel-parents-chat').classList.add('active');
+            renderP2PInbox();
             setTimeout(() => {
                 let chatBodyContainer = document.getElementById('p2p-chat-body-container');
                 if (chatBodyContainer) chatBodyContainer.scrollTop = chatBodyContainer.scrollHeight;
@@ -1361,40 +1395,91 @@
         let query = document.getElementById('p2p-search-input').value.toLowerCase().trim();
         let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
 
-        let filtered = parentsMaster.filter(p => {
-            let nameMatch = p.name.toLowerCase().includes(query);
-            let childMatch = p.children.some(c => c.toLowerCase().includes(query));
-            return nameMatch || childMatch;
+        let totalP2PUnread = 0;
+
+        // Process all parents with their chat data
+        let processedParents = parentsMaster.map(p => {
+            let minId = Math.min(myParentProfileId, p.id);
+            let maxId = Math.max(myParentProfileId, p.id);
+            let p2pKey = `p2p_${minId}_${maxId}`;
+            let messages = chatDB[p2pKey] || [];
+            
+            let unread = messages.filter(m => m.sender !== myParentProfileId && !m.read).length;
+            totalP2PUnread += unread;
+
+            let lastTime = 0;
+            let lastMsgText = "No messages yet";
+            if (messages.length > 0) {
+                let lastMsg = messages[messages.length - 1];
+                lastMsgText = (lastMsg.sender === myParentProfileId ? 'You: ' : '') + lastMsg.text;
+                if (lastMsg.epoch) {
+                    lastTime = lastMsg.epoch;
+                } else if (lastMsg.date) {
+                    let parsed = new Date(lastMsg.date + ' ' + (lastMsg.timestamp || '00:00')).getTime();
+                    lastTime = isNaN(parsed) ? 1 : parsed;
+                } else {
+                    lastTime = 1;
+                }
+            }
+
+            return {
+                ...p,
+                messages: messages,
+                unread: unread,
+                lastTime: lastTime,
+                lastMsgText: lastMsgText
+            };
         });
 
+        // Update Tab Red Badge for P2P Messenger
+        let p2pTabBadge = document.getElementById('p2p-unread-badge');
+        if (p2pTabBadge) {
+            if (totalP2PUnread > 0) {
+                p2pTabBadge.textContent = totalP2PUnread;
+                p2pTabBadge.style.display = 'inline-block';
+            } else {
+                p2pTabBadge.style.display = 'none';
+            }
+        }
+
+        // Sort so the contact who just messaged is at the very TOP
+        processedParents.sort((a, b) => b.lastTime - a.lastTime);
+
+        // Filter by search query
+        let filtered = processedParents;
+        if (query) {
+            filtered = processedParents.filter(p => {
+                let nameMatch = p.name && p.name.toLowerCase().includes(query);
+                let childMatch = p.children && p.children.some(c => c.toLowerCase().includes(query));
+                return nameMatch || childMatch;
+            });
+        }
+
         if (filtered.length === 0) {
-            listContainer.innerHTML = `<div style="text-align:center; color:#999; padding:20px; font-size:0.85rem;">No parents found</div>`;
+            listContainer.innerHTML = `<div style="text-align:center; color:#999; padding:25px; font-size:0.85rem;"><i class="fa-solid fa-magnifying-glass" style="font-size:1.4rem; color:#cbd5e1; display:block; margin-bottom:8px;"></i>No parents found matching "${query}"</div>`;
             return;
         }
 
         let html = '';
         filtered.forEach(p => {
-            let minId = Math.min(myParentProfileId, p.id);
-            let maxId = Math.max(myParentProfileId, p.id);
-            let p2pKey = `p2p_${minId}_${maxId}`;
-            let messages = chatDB[p2pKey] || [];
-            let lastMsgText = "No messages yet";
-            if (messages.length > 0) {
-                let lastMsg = messages[messages.length - 1];
-                lastMsgText = (lastMsg.sender === myParentProfileId ? 'You: ' : '') + lastMsg.text;
-            }
-
             let initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             let isActive = activeP2PId === p.id ? 'active' : '';
-            let childrenLabel = p.children.join(', ');
+            let childrenLabel = (p.children || []).join(', ');
+            let unreadBadge = '';
+            if (p.unread > 0) {
+                unreadBadge = `<span class="badge-unread" style="background:#e74a3b; color:#fff; border-radius:12px; padding:2px 7px; font-size:0.75rem; font-weight:800; min-width:18px; text-align:center; margin-left:auto; box-shadow:0 1px 3px rgba(231,74,59,0.3);">${p.unread}</span>`;
+            }
 
             html += `
             <div class="messenger-parent-item ${isActive}" onclick="selectP2PParent(${p.id})">
                 <div class="messenger-avatar">${initials}</div>
-                <div class="messenger-info">
-                    <h5>${p.name}</h5>
-                    <p style="font-weight: 600; color: #4a90e2; font-size: 0.72rem;">Parents of: ${childrenLabel}</p>
-                    <p style="color: #888; font-size: 0.7rem;">${lastMsgText}</p>
+                <div class="messenger-info" style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h5 style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;">${p.name}</h5>
+                        ${unreadBadge}
+                    </div>
+                    <p style="font-weight: 600; color: #4a90e2; font-size: 0.72rem; margin:2px 0 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Parents of: ${childrenLabel}</p>
+                    <p style="color: ${p.unread > 0 ? '#1e293b' : '#888'}; font-weight:${p.unread > 0 ? '700' : 'normal'}; font-size: 0.7rem; margin:2px 0 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.lastMsgText}</p>
                 </div>
             </div>`;
         });
@@ -1406,8 +1491,8 @@
         activeP2PId = parentId;
         
         document.getElementById('p2p-messenger-container').classList.add('chat-active');
-        renderP2PInbox();
         renderP2PChatWorkspace();
+        renderP2PInbox();
     }
 
     function renderP2PChatWorkspace() {
@@ -1515,6 +1600,7 @@
             text: text,
             timestamp: timeStr,
             date: now.toLocaleDateString(),
+            epoch: now.getTime(),
             read: false
         });
 

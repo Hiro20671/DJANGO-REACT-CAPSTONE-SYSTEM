@@ -37,17 +37,24 @@
 }
 
 /* Mobile Screen 6 Styles */
+.desktop-dropoff-layout {
+    display: block;
+}
 .mobile-dropoff-layout {
     display: none;
 }
 
 @media (max-width: 768px) {
+    .desktop-dropoff-layout { display: none !important; }
     .page-header { display: none !important; }
     .summary-container { display: none !important; }
     .main-grid { display: none !important; }
     .mobile-dropoff-layout {
-        display: block;
+        display: block !important;
         margin-bottom: 25px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 </style>
@@ -65,11 +72,13 @@
     <!-- Active Child Card -->
     <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <img id="mobileDropChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div id="mobileDropChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
             <div>
                 <div id="mobileDropChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Child Name</div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
-                    <span id="mobileDropChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
+                    <span id="mobileDropChildAge" style="font-size: 0.78rem; color: #64748b;">-- yrs</span>
                     <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                     <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
                     <span id="mobileDropChildShiftBadge"></span>
@@ -91,19 +100,19 @@
                     <span style="font-size: 0.75rem; color: #64748b;">Daily Classroom Log</span>
                 </div>
             </div>
-            <span id="mobileDropStatusBadge" style="display: inline-flex; align-items: center; gap: 5px; background: #dcfce7; color: #15803d; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px;">
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span>
-                On Time
+            <span id="mobileDropStatusBadge" style="display: inline-flex; align-items: center; gap: 5px; background: #f1f5f9; color: #64748b; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px;">
+                <i class="fa-regular fa-clock" style="font-size: 0.75rem;"></i>
+                Awaiting Check-In
             </span>
         </div>
         <div style="background: #f8fafc; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem;">
             <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748b;">Class Shift:</span>
-                <strong id="mobileDropClassShift" style="color: #0284c7;">Morning (8:00 AM – 10:30 AM)</strong>
+                <strong id="mobileDropClassShift" style="color: #0284c7;">--</strong>
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748b;">Drop-Off Time:</span>
-                <strong id="mobileDropTime" style="color: #091e42;">07:45 AM</strong>
+                <strong id="mobileDropTime" style="color: #64748b;">--:--</strong>
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748b;">Authorized Contact:</span>
@@ -148,6 +157,8 @@
     </div>
 </div>
 
+<!-- Desktop Drop-Off & Pick-Up Layout -->
+<div class="desktop-dropoff-layout">
 <div class="page-header" style="margin-bottom:25px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
     <div>
         <h2 style="font-size: 1.8rem; font-weight: 800; color: #333; margin: 0;">Drop-Off & Pick-Up Monitor</h2>
@@ -211,6 +222,7 @@
         </div>
 
     </div>
+</div>
 </div>
 
 <script>
@@ -318,19 +330,45 @@
         if (document.getElementById('mobileDropChildName')) {
             document.getElementById('mobileDropChildName').innerText = `${child.first_name} ${child.last_name}`;
         }
-        if (document.getElementById('mobileDropChildImg')) {
-            document.getElementById('mobileDropChildImg').src = child.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${child.first_name}`);
+        const avatarWrap = document.getElementById('mobileDropChildAvatarWrap');
+        if (avatarWrap) {
+            if (child.img) {
+                avatarWrap.innerHTML = `<img src="${child.img}" alt="${child.first_name}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                const initials = ((child.first_name || 'C')[0] + (child.last_name || '')[0]).toUpperCase();
+                avatarWrap.innerHTML = initials;
+            }
         }
         if (document.getElementById('mobileDropChildAge') && child.age) {
             document.getElementById('mobileDropChildAge').innerText = `${child.age} yrs`;
         }
 
+        const isPM = (child.shift || 'Morning').toLowerCase().includes('afternoon');
+        if (document.getElementById('mobileDropClassShift')) {
+            document.getElementById('mobileDropClassShift').innerText = isPM
+                ? 'Afternoon (1:00 PM – 3:30 PM)'
+                : 'Morning (8:00 AM – 10:30 AM)';
+        }
+
         if (todayAtt && todayAtt.status.toLowerCase() === 'present') {
             if (document.getElementById('mobileDropTime')) {
-                document.getElementById('mobileDropTime').innerText = todayAtt.dropoff_time || '07:45 AM';
+                document.getElementById('mobileDropTime').innerText = todayAtt.dropoff_time || (isPM ? '01:00 PM' : '08:00 AM');
+                document.getElementById('mobileDropTime').style.color = '#091e42';
             }
             if (document.getElementById('mobileDropStatusBadge')) {
+                document.getElementById('mobileDropStatusBadge').style.background = '#dcfce7';
+                document.getElementById('mobileDropStatusBadge').style.color = '#15803d';
                 document.getElementById('mobileDropStatusBadge').innerHTML = '<span style="width:6px; height:6px; border-radius:50%; background:#16a34a;"></span> Checked In';
+            }
+        } else {
+            if (document.getElementById('mobileDropTime')) {
+                document.getElementById('mobileDropTime').innerText = '--:--';
+                document.getElementById('mobileDropTime').style.color = '#64748b';
+            }
+            if (document.getElementById('mobileDropStatusBadge')) {
+                document.getElementById('mobileDropStatusBadge').style.background = '#f1f5f9';
+                document.getElementById('mobileDropStatusBadge').style.color = '#64748b';
+                document.getElementById('mobileDropStatusBadge').innerHTML = '<i class="fa-regular fa-clock" style="font-size:0.75rem;"></i> Awaiting Check-In';
             }
         }
 
@@ -340,29 +378,10 @@
             const attList = (data.attendance || []).slice(0, 5);
             if (attList.length === 0) {
                 logsContainer.innerHTML = `
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f1f5f9;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="width:32px; height:32px; border-radius:50%; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:700; font-size:0.84rem; color:#091e42;">Morning Check-In</div>
-                            <div style="font-size:0.72rem; color:#64748b;">Today, 07:45 AM • Verified</div>
-                        </div>
-                    </div>
-                    <span style="font-size:0.72rem; font-weight:700; color:#16a34a; background:#dcfce7; padding:2px 8px; border-radius:10px;">Recorded</span>
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="width:32px; height:32px; border-radius:50%; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:700; font-size:0.84rem; color:#091e42;">Afternoon Pick-Up</div>
-                            <div style="font-size:0.72rem; color:#64748b;">Yesterday, 11:30 AM • Verified</div>
-                        </div>
-                    </div>
-                    <span style="font-size:0.72rem; font-weight:700; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:10px;">Completed</span>
+                <div style="text-align: center; padding: 25px 15px; color: #64748b;">
+                    <i class="fa-regular fa-calendar-xmark" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 8px; display: block;"></i>
+                    <div style="font-weight: 700; font-size: 0.88rem; color: #091e42;">No Recent Check-In Records</div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Logs will appear here once your child is checked in or picked up at the center.</div>
                 </div>`;
             } else {
                 let logHtml = '';

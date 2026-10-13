@@ -502,6 +502,11 @@
             <p>10-Pillar Smart Monitoring, Risk Scoring Engine, Development Readiness Index (DRI), & Automated Early-Warnings</p>
         </div>
         <div class="analytics-actions">
+            <!-- School Year Cohort Selector -->
+            <select class="shift-filter-select" id="analyticsSySelect" onchange="onSchoolYearFilterChange()" style="font-weight: 700; border: 1px solid #3b82f6; background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a);">
+                <option value="">Current Active School Year</option>
+            </select>
+
             <select class="shift-filter-select" id="shiftClassFilter" onchange="onShiftFilterChange()">
                 <option value="ALL">All Shifts (AM & PM)</option>
                 <option value="Morning">Morning Shift (AM)</option>
@@ -513,6 +518,26 @@
             <button class="btn-analytics btn-analytics-primary" onclick="switchToTab('tab-ai-insights')">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI Insights
             </button>
+        </div>
+    </div>
+
+    <!-- Connected Zero-Enrollment State Banner -->
+    <div id="analyticsEmptyCohortBanner" style="display: none; background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <div>
+                <h4 style="margin: 0; font-size: 0.98rem; font-weight: 800; color: var(--text-primary, #0f172a);" id="emptyBannerHeadline">No Enrolled Pupils Yet In Current Active School Year</h4>
+                <p style="margin: 4px 0 0 0; font-size: 0.86rem; color: var(--text-secondary, #64748b); line-height: 1.4;" id="emptyBannerText">
+                    All 10 analytics pillars and AI insights are connected live to database records. As soon as parents register and students are enrolled, all live metrics will automatically calculate. You can also view historical records using the School Year selector above.
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'teacher_children' %}" class="btn-analytics btn-analytics-primary" style="text-decoration: none; padding: 8px 16px; font-size: 0.85rem;">
+                <i class="fa-solid fa-user-plus"></i> Go to Children / Enroll
+            </a>
         </div>
     </div>
 
@@ -1205,16 +1230,62 @@
     let eccdDomainsBarChart = null;
     let periodProgressionChart = null;
 
-    document.addEventListener('DOMContentLoaded', function () {
-        loadGeneralAnalytics();
+    document.addEventListener('DOMContentLoaded', async function () {
+        await initSchoolYears();
+        await loadGeneralAnalytics();
     });
 
-    async function loadGeneralAnalytics() {
+    async function initSchoolYears() {
         try {
-            const response = await fetch('/api/general-analytics/');
+            const res = await fetch('/api/school-years/');
+            if (res.ok) {
+                const sys = await res.json();
+                const sel = document.getElementById('analyticsSySelect');
+                if (sel && sys.length > 0) {
+                    sel.innerHTML = '';
+                    sys.forEach(sy => {
+                        const opt = document.createElement('option');
+                        opt.value = sy.id;
+                        opt.textContent = `${sy.name} ${sy.is_active ? '(Active Current)' : '(Past Batch)'}`;
+                        if (sy.is_active) opt.selected = true;
+                        sel.appendChild(opt);
+                    });
+                    const allOpt = document.createElement('option');
+                    allOpt.value = 'ALL';
+                    allOpt.textContent = 'All School Years (Combined)';
+                    sel.appendChild(allOpt);
+                }
+            }
+        } catch(e) { console.error('Error fetching school years:', e); }
+    }
+
+    function onSchoolYearFilterChange() {
+        const syId = document.getElementById('analyticsSySelect').value;
+        loadGeneralAnalytics(syId);
+    }
+
+    async function loadGeneralAnalytics(syId = null) {
+        try {
+            if (!syId) {
+                const sel = document.getElementById('analyticsSySelect');
+                syId = sel ? sel.value : null;
+            }
+            const url = syId ? `/api/general-analytics/?school_year=${syId}` : '/api/general-analytics/';
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to fetch analytics');
             const data = await response.json();
             globalAnalyticsData = data;
+            
+            const banner = document.getElementById('analyticsEmptyCohortBanner');
+            if (banner) {
+                if (!data.total_children || data.total_children === 0) {
+                    banner.style.display = 'flex';
+                    const syName = data.school_year?.name || 'Active Year';
+                    document.getElementById('emptyBannerHeadline').innerText = `No Enrolled Pupils Yet in School Year ${syName}`;
+                } else {
+                    banner.style.display = 'none';
+                }
+            }
             
             renderExecutiveKpis(data);
             initOverviewCharts(data);
@@ -1232,38 +1303,73 @@
 
     // 1. Executive KPIs
     function renderExecutiveKpis(data) {
+        const total = data.total_children || 0;
+        if (total === 0) {
+            document.getElementById('kpiDriValue').innerText = '0%';
+            document.getElementById('kpiDriTier').innerHTML = '<i class="fa-solid fa-users-slash"></i> No Active Cohort';
+            document.getElementById('kpiDriTier').className = 'pill-badge neutral';
+            document.getElementById('kpiDriProj').innerText = '0%';
+            
+            document.getElementById('kpiAttValue').innerText = '0%';
+            document.getElementById('kpiAmAtt').innerText = '0%';
+            document.getElementById('kpiPmAtt').innerText = '0%';
+
+            document.getElementById('kpiNutValue').innerText = '0%';
+            document.getElementById('kpiBmiNormalCount').innerText = '0';
+            document.getElementById('kpiBmiAlertCount').innerText = '0 Underweight';
+
+            document.getElementById('kpiTaskValue').innerText = '0%';
+            document.getElementById('kpiEccdAvg').innerText = '0%';
+
+            document.getElementById('kpiRiskCount').innerText = '0';
+            document.getElementById('kpiHighRiskBadge').innerText = '0 High Risk';
+            document.getElementById('kpiWarningCountText').innerText = '0 warnings active';
+
+            document.getElementById('boxMorningCount').innerText = '0 Kids';
+            document.getElementById('boxMorningAtt').innerText = '0%';
+            document.getElementById('boxAfternoonCount').innerText = '0 Kids';
+            document.getElementById('boxAfternoonAtt').innerText = '0%';
+            document.getElementById('shiftComparisonDiagnosis').innerText = 
+                'No enrolled students in the active school year cohort yet. Once pupils are enrolled and class shifts are assigned, live attendance tracking and AI diagnostics will display here.';
+
+            document.getElementById('countPresent').innerText = 0;
+            document.getElementById('countAbsent').innerText = 0;
+            document.getElementById('countLate').innerText = 0;
+            return;
+        }
+
         const summary = data.summary || {};
         const att = data.attendance || {};
         const nut = data.nutrition || {};
         const lrn = data.learning || {};
 
-        document.getElementById('kpiDriValue').innerText = (summary.class_dri || 85) + '%';
-        document.getElementById('kpiDriProj').innerText = (data.predictive_trends?.projected_class_dri || 88) + '%';
+        document.getElementById('kpiDriValue').innerText = (summary.class_dri ?? 0) + '%';
+        document.getElementById('kpiDriProj').innerText = (data.predictive_trends?.projected_class_dri ?? 0) + '%';
         
-        document.getElementById('kpiAttValue').innerText = (att.overall_rate || 90) + '%';
-        document.getElementById('kpiAmAtt').innerText = (att.morning_rate || 92) + '%';
-        document.getElementById('kpiPmAtt').innerText = (att.afternoon_rate || 86) + '%';
+        document.getElementById('kpiAttValue').innerText = (att.overall_rate ?? 0) + '%';
+        document.getElementById('kpiAmAtt').innerText = (att.morning_rate ?? 0) + '%';
+        document.getElementById('kpiPmAtt').innerText = (att.afternoon_rate ?? 0) + '%';
 
-        document.getElementById('kpiNutValue').innerText = (summary.nutrition_health_rate || 88) + '%';
-        document.getElementById('kpiBmiNormalCount').innerText = (nut.bmi_breakdown?.normal || 0);
-        document.getElementById('kpiBmiAlertCount').innerText = (nut.bmi_breakdown?.underweight || 0) + ' Underweight';
+        document.getElementById('kpiNutValue').innerText = (summary.nutrition_health_rate ?? 0) + '%';
+        document.getElementById('kpiBmiNormalCount').innerText = (nut.bmi_breakdown?.normal ?? 0);
+        document.getElementById('kpiBmiAlertCount').innerText = (nut.bmi_breakdown?.underweight ?? 0) + ' Underweight';
 
-        document.getElementById('kpiTaskValue').innerText = (lrn.task_completion_rate || 85) + '%';
-        document.getElementById('kpiEccdAvg').innerText = (lrn.highest_domain?.score_pct || 90) + '%';
+        document.getElementById('kpiTaskValue').innerText = (lrn.task_completion_rate ?? 0) + '%';
+        document.getElementById('kpiEccdAvg').innerText = (lrn.highest_domain?.score_pct ?? 0) + '%';
 
-        document.getElementById('kpiRiskCount').innerText = (summary.high_risk_count || 0) + (summary.moderate_risk_count || 0);
-        document.getElementById('kpiHighRiskBadge').innerText = (summary.high_risk_count || 0) + ' High Risk';
-        document.getElementById('kpiWarningCountText').innerText = (summary.active_warnings_count || 0) + ' warnings active';
+        document.getElementById('kpiRiskCount').innerText = (summary.high_risk_count ?? 0) + (summary.moderate_risk_count ?? 0);
+        document.getElementById('kpiHighRiskBadge').innerText = (summary.high_risk_count ?? 0) + ' High Risk';
+        document.getElementById('kpiWarningCountText').innerText = (summary.active_warnings_count ?? 0) + ' warnings active';
 
         // Shift boxes in Overview
-        document.getElementById('boxMorningCount').innerText = (data.morning_count || 0) + ' Kids';
-        document.getElementById('boxMorningAtt').innerText = (att.morning_rate || 92) + '%';
-        document.getElementById('boxAfternoonCount').innerText = (data.afternoon_count || 0) + ' Kids';
-        document.getElementById('boxAfternoonAtt').innerText = (att.afternoon_rate || 86) + '%';
+        document.getElementById('boxMorningCount').innerText = (data.morning_count ?? 0) + ' Kids';
+        document.getElementById('boxMorningAtt').innerText = (att.morning_rate ?? 0) + '%';
+        document.getElementById('boxAfternoonCount').innerText = (data.afternoon_count ?? 0) + ' Kids';
+        document.getElementById('boxAfternoonAtt').innerText = (att.afternoon_rate ?? 0) + '%';
 
-        const shiftDiff = Math.abs((att.morning_rate || 92) - (att.afternoon_rate || 86)).toFixed(1);
+        const shiftDiff = Math.abs((att.morning_rate || 0) - (att.afternoon_rate || 0)).toFixed(1);
         document.getElementById('shiftComparisonDiagnosis').innerText = 
-            `Morning Shift is demonstrating a +${shiftDiff}% attendance variance compared to Afternoon Shift. Consistent with typical toddler mid-day nap cycles and tricycle transport patterns.`;
+            `Morning Shift is demonstrating a +${shiftDiff}% attendance variance compared to Afternoon Shift.`;
 
         // Attendance Counts
         document.getElementById('countPresent').innerText = att.present_count || 0;
@@ -1273,6 +1379,50 @@
 
     // 2. Overview Charts
     function initOverviewCharts(data) {
+        if (!data.total_children || data.total_children === 0) {
+            const ctxTrend = document.getElementById('attendanceTrendChart');
+            if (ctxTrend) {
+                if (attendanceTrendChart) attendanceTrendChart.destroy();
+                attendanceTrendChart = new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                        datasets: [
+                            { label: 'Morning Shift (AM)', data: [0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#3b82f6', borderWidth: 2 },
+                            { label: 'Afternoon Shift (PM)', data: [0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#8b5cf6', borderWidth: 2, borderDash: [5, 5] },
+                            { label: 'Overall Class Rate', data: [0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#10b981', borderWidth: 2 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'No attendance records yet (0 active pupils)', font: { family: 'Montserrat', size: 12 } }
+                        },
+                        scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+                    }
+                });
+            }
+            const ctxDonut = document.getElementById('attendanceStatusDonut');
+            if (ctxDonut) {
+                if (attendanceStatusDonut) attendanceStatusDonut.destroy();
+                attendanceStatusDonut = new Chart(ctxDonut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['No Records'],
+                        datasets: [{ data: [1], backgroundColor: ['#e2e8f0'] }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+            return;
+        }
+
         const att = data.attendance || {};
         const weekly = att.weekly_trend || [];
         
@@ -1337,7 +1487,7 @@
                 data: {
                     labels: ['Present', 'Absent', 'Late'],
                     datasets: [{
-                        data: [att.present_count || 10, att.absent_count || 2, att.late_count || 1],
+                        data: [att.present_count || 0, att.absent_count || 0, att.late_count || 0],
                         backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
                     }]
                 },
@@ -1382,6 +1532,10 @@
 
     function renderRiskTableRows(students) {
         const tbody = document.getElementById('riskScoringTableBody');
+        if (!students || students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
+            return;
+        }
         tbody.innerHTML = students.map(s => `
             <tr>
                 <td><strong>${s.name}</strong></td>
@@ -1425,6 +1579,7 @@
 
     // 4. DRI & Predictive Trends
     function initDriCharts(data) {
+        const total = data.total_children || 0;
         const dri = data.dri || {};
         const trends = data.predictive_trends || {};
         
@@ -1435,8 +1590,8 @@
         document.getElementById('trendImprovingCount').innerText = trends.improving_count || 0;
         document.getElementById('trendStableCount').innerText = trends.stable_count || 0;
         document.getElementById('trendDecliningCount').innerText = trends.declining_count || 0;
-        document.getElementById('projectedClassDriText').innerText = (trends.projected_class_dri || 85) + '%';
-        document.getElementById('projectedDriBar').style.width = (trends.projected_class_dri || 85) + '%';
+        document.getElementById('projectedClassDriText').innerText = (trends.projected_class_dri ?? 0) + '%';
+        document.getElementById('projectedDriBar').style.width = (trends.projected_class_dri ?? 0) + '%';
 
         const ctxDri = document.getElementById('driDistributionChart');
         if (ctxDri) {
@@ -1444,10 +1599,10 @@
             driDistributionChart = new Chart(ctxDri, {
                 type: 'pie',
                 data: {
-                    labels: ['School Ready (≥80%)', 'Developing (65–79%)', 'Needs Support (<65%)'],
+                    labels: total === 0 ? ['No Active Cohort'] : ['School Ready (≥80%)', 'Developing (65–79%)', 'Needs Support (<65%)'],
                     datasets: [{
-                        data: [dri.school_ready_count || 8, dri.developing_count || 4, dri.support_needed_count || 1],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        data: total === 0 ? [1] : [dri.school_ready_count || 0, dri.developing_count || 0, dri.support_needed_count || 0],
+                        backgroundColor: total === 0 ? ['#cbd5e1'] : ['#10b981', '#f59e0b', '#ef4444']
                     }]
                 },
                 options: {
@@ -1462,25 +1617,30 @@
 
         // Student DRI Table
         const tbody = document.getElementById('driStudentTableBody');
-        tbody.innerHTML = (dri.students || []).map(s => `
-            <tr>
-                <td><strong>${s.name}</strong></td>
-                <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
-                <td><strong>${s.dri_score}%</strong></td>
-                <td><span class="pill-badge ${s.readiness_badge}">${s.readiness_tier}</span></td>
-                <td>
-                    <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
-                        ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend_delta}
-                    </span>
-                </td>
-                <td><strong style="color: #10b981;">${s.projected_dri}%</strong></td>
-                <td>${s.recommendations?.[0]?.type || 'Standard Curriculum'}</td>
-            </tr>
-        `).join('');
+        if (!dri.students || dri.students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
+        } else {
+            tbody.innerHTML = dri.students.map(s => `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
+                    <td><strong>${s.dri_score}%</strong></td>
+                    <td><span class="pill-badge ${s.readiness_badge}">${s.readiness_tier}</span></td>
+                    <td>
+                        <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
+                            ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend_delta}
+                        </span>
+                    </td>
+                    <td><strong style="color: #10b981;">${s.projected_dri}%</strong></td>
+                    <td>${s.recommendations?.[0]?.type || 'Standard Curriculum'}</td>
+                </tr>
+            `).join('');
+        }
     }
 
     // 5. Health & Nutrition Charts
     function initNutritionCharts(data) {
+        const total = data.total_children || 0;
         const nut = data.nutrition || {};
         const feed = nut.feeding_breakdown || {};
         const bmi = nut.bmi_breakdown || {};
@@ -1491,10 +1651,10 @@
             feedingParticipationChart = new Chart(ctxFeed, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Finished Snack', 'Some Left', 'Not Eaten'],
+                    labels: total === 0 ? ['No Records'] : ['Finished Snack', 'Some Left', 'Not Eaten'],
                     datasets: [{
-                        data: [feed.finished_count || 8, feed.some_left_count || 2, feed.not_eaten_count || 1],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        data: total === 0 ? [1] : [feed.finished_count || 0, feed.some_left_count || 0, feed.not_eaten_count || 0],
+                        backgroundColor: total === 0 ? ['#cbd5e1'] : ['#10b981', '#f59e0b', '#ef4444']
                     }]
                 },
                 options: {
@@ -1514,7 +1674,7 @@
                     labels: ['Normal Weight', 'Underweight / Wasted', 'Overweight'],
                     datasets: [{
                         label: 'Children Count',
-                        data: [bmi.normal || 10, bmi.underweight || 2, bmi.overweight || 1],
+                        data: [bmi.normal || 0, bmi.underweight || 0, bmi.overweight || 0],
                         backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
                     }]
                 },
@@ -1529,19 +1689,23 @@
         // Health and Allergy Registry Table
         const students = data.risk_scoring?.ranked_students || [];
         const healthTbody = document.getElementById('healthAllergyTableBody');
-        healthTbody.innerHTML = students.map(s => `
-            <tr>
-                <td><strong>${s.name}</strong></td>
-                <td><span class="pill-badge neutral">${s.shift}</span></td>
-                <td>${s.nutrition.allergies !== 'None' ? `<span class="pill-badge danger">${s.nutrition.allergies}</span>` : 'None'}</td>
-                <td>${s.nutrition.health_conditions !== 'None' ? `<span class="pill-badge warning">${s.nutrition.health_conditions}</span>` : 'None'}</td>
-                <td>${s.nutrition.rate}% Intake</td>
-                <td style="font-size: 0.82rem; color: #475569;">
-                    ${s.nutrition.has_allergy ? 'Check daily snack ingredients. ' : ''}
-                    ${s.nutrition.bmi_status !== 'Normal' ? 'Refer to Barangay Health Station supplementary feeding.' : 'Routine balanced daycare meal.'}
-                </td>
-            </tr>
-        `).join('');
+        if (!students || students.length === 0) {
+            healthTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
+        } else {
+            healthTbody.innerHTML = students.map(s => `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="pill-badge neutral">${s.shift}</span></td>
+                    <td>${s.nutrition.allergies !== 'None' ? `<span class="pill-badge danger">${s.nutrition.allergies}</span>` : 'None'}</td>
+                    <td>${s.nutrition.health_conditions !== 'None' ? `<span class="pill-badge warning">${s.nutrition.health_conditions}</span>` : 'None'}</td>
+                    <td>${s.nutrition.rate}% Intake</td>
+                    <td style="font-size: 0.82rem; color: #475569;">
+                        ${s.nutrition.has_allergy ? 'Check daily snack ingredients. ' : ''}
+                        ${s.nutrition.bmi_status !== 'Normal' ? 'Refer to Barangay Health Station supplementary feeding.' : 'Routine balanced daycare meal.'}
+                    </td>
+                </tr>
+            `).join('');
+        }
 
         // Behavior counts
         const beh = data.behavior?.participation_breakdown || {};
@@ -1552,12 +1716,18 @@
 
     // 6. ECCD 7 Domains & Periods
     function initEccdCharts(data) {
+        const total = data.total_children || 0;
         const lrn = data.learning || {};
         const domains = lrn.domain_breakdown || [];
         const periods = lrn.period_progression || [];
 
-        document.getElementById('highestDomainTitle').innerText = `${lrn.highest_domain?.name || 'Expressive Language'} (${lrn.highest_domain?.score_pct || 94}%)`;
-        document.getElementById('lowestDomainTitle').innerText = `${lrn.lowest_domain?.name || 'Cognitive'} (${lrn.lowest_domain?.score_pct || 70}%)`;
+        if (total === 0) {
+            document.getElementById('highestDomainTitle').innerText = 'None (0%)';
+            document.getElementById('lowestDomainTitle').innerText = 'None (0%)';
+        } else {
+            document.getElementById('highestDomainTitle').innerText = `${lrn.highest_domain?.name || 'Expressive Language'} (${lrn.highest_domain?.score_pct ?? 0}%)`;
+            document.getElementById('lowestDomainTitle').innerText = `${lrn.lowest_domain?.name || 'Cognitive'} (${lrn.lowest_domain?.score_pct ?? 0}%)`;
+        }
 
         const ctxEccd = document.getElementById('eccdDomainsBarChart');
         if (ctxEccd) {
@@ -1565,10 +1735,10 @@
             eccdDomainsBarChart = new Chart(ctxEccd, {
                 type: 'bar',
                 data: {
-                    labels: domains.map(d => d.name),
+                    labels: domains.length ? domains.map(d => d.name) : ['Gross Motor', 'Fine Motor', 'Self-Help', 'Receptive Lang', 'Expressive Lang', 'Cognitive', 'Socio-Emotional'],
                     datasets: [{
                         label: 'Mastery Rate (%)',
-                        data: domains.map(d => d.score_pct),
+                        data: domains.length ? domains.map(d => d.score_pct) : [0, 0, 0, 0, 0, 0, 0],
                         backgroundColor: domains.map(d => d.score_pct >= 80 ? '#10b981' : (d.score_pct >= 70 ? '#3b82f6' : '#ef4444'))
                     }]
                 },
@@ -1576,7 +1746,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
-                    scales: { x: { min: 40, max: 100, ticks: { callback: v => v + '%' } } },
+                    scales: { x: { min: 0, max: 100, ticks: { callback: v => v + '%' } } },
                     plugins: { legend: { display: false } }
                 }
             });
@@ -1588,10 +1758,10 @@
             periodProgressionChart = new Chart(ctxPeriods, {
                 type: 'line',
                 data: {
-                    labels: periods.map(p => p.short_name),
+                    labels: periods.length ? periods.map(p => p.short_name) : ['Q1 Assessment', 'Mid-Year', 'Post-Assessment'],
                     datasets: [{
                         label: 'Class Average Mastery (%)',
-                        data: periods.map(p => p.average_score),
+                        data: periods.length ? periods.map(p => p.average_score) : [0, 0, 0],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 3,
@@ -1602,7 +1772,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { min: 60, max: 100, ticks: { callback: v => v + '%' } } }
+                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
                 }
             });
         }
@@ -1612,6 +1782,10 @@
     function renderInterventionsTable(data) {
         const interventions = data.interventions || [];
         const tbody = document.getElementById('interventionsTableBody');
+        if (!interventions || interventions.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-clipboard-check"></i> No active intervention plans required (0 enrolled pupils).</td></tr>`;
+            return;
+        }
         tbody.innerHTML = interventions.map((item, idx) => `
             <tr>
                 <td><strong>${item.child_name}</strong></td>
@@ -1642,6 +1816,10 @@
         });
 
         const tbody = document.getElementById('interventionsTableBody');
+        if (!filtered || filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-clipboard-check"></i> No intervention plans match the selected criteria.</td></tr>`;
+            return;
+        }
         tbody.innerHTML = filtered.map(item => `
             <tr>
                 <td><strong>${item.child_name}</strong></td>
@@ -1709,13 +1887,14 @@
         chatBody.scrollTop = chatBody.scrollHeight;
 
         try {
+            const syId = document.getElementById('analyticsSySelect')?.value || null;
             const resp = await fetch('/api/ai-insights/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ question: question })
+                body: JSON.stringify({ question: question, school_year: syId })
             });
             const resData = await resp.json();
             
@@ -1782,19 +1961,19 @@
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; text-align: center;">
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">Class DRI Score</span>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;">${summary.class_dri}%</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;">${summary.class_dri ?? 0}%</div>
                     </div>
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">Attendance Rate</span>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #2563eb;">${att.overall_rate}%</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #2563eb;">${att.overall_rate ?? 0}%</div>
                     </div>
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">ECCD Mastery</span>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #7c3aed;">${lrn.highest_domain?.score_pct || 90}%</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #7c3aed;">${lrn.highest_domain?.score_pct ?? 0}%</div>
                     </div>
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">At-Risk Students</span>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">${summary.high_risk_count + summary.moderate_risk_count}</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">${(summary.high_risk_count || 0) + (summary.moderate_risk_count || 0)}</div>
                     </div>
                 </div>
 

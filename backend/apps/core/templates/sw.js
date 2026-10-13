@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bmv3-cache-v3';
+const CACHE_NAME = 'bmv3-cache-v4';
 const ASSETS_TO_CACHE = [
   '/offline/',
   '/static/core/image/bmv3_logo.png',
@@ -37,12 +37,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Network First, fallback to cache strategy for HTML views/API calls
-  if (event.request.mode === 'navigate' || url.pathname.startsWith('/api/') || url.pathname.includes('/parent/') || url.pathname.includes('/teacher/') || url.pathname.includes('/dashboard/')) {
+  // Network First, fallback to cache strategy for HTML views / navigations
+  if (event.request.mode === 'navigate' || url.pathname.includes('/parent/') || url.pathname.includes('/teacher/') || url.pathname.includes('/dashboard/')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Clone the response and save it to cache if successful
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -55,10 +54,31 @@ self.addEventListener('fetch', (event) => {
           // Offline fallback
           return caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) return cachedResponse;
-            // If page is HTML view, fallback to cached offline page
-            if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/offline/');
-            }
+            // Fallback to offline page for document navigations
+            return caches.match('/offline/');
+          });
+        })
+    );
+  } else if (url.pathname.startsWith('/api/')) {
+    // API endpoints: Network First, never return HTML offline fallback
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) return cachedResponse;
+            return new Response(JSON.stringify({ error: 'Network offline', offline: true }), {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' }
+            });
           });
         })
     );

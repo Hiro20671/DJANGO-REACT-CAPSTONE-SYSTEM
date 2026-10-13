@@ -335,15 +335,17 @@ input:checked + .slider:before { transform: translateX(26px); }
     </div>
 
     <!-- Child Information Card -->
-    <div style="background: #fff; border-radius: 18px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px;">
+    <div id="mobileChildCardContainer" style="background: #fff; border-radius: 18px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px;">
         <div style="margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
             <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Child Information</h4>
         </div>
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
-            <img id="mobileChildAvatar" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #e0f2fe;">
+            <div id="mobileChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
             <div>
-                <div id="mobileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Sky Dylan Villanueva</div>
-                <div id="mobileChildSub" style="font-size: 0.78rem; color: #64748b;">3 yrs old • Enrolled Student</div>
+                <div id="mobileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Enrolled Child</div>
+                <div id="mobileChildSub" style="font-size: 0.78rem; color: #64748b;">Enrolled Student</div>
             </div>
         </div>
         <button onclick="window.location.href='/parent/children/';" style="width: 100%; padding: 11px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: 700; font-size: 0.85rem; color: #091e42; cursor: pointer;">
@@ -359,6 +361,16 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <span style="font-weight: 700; font-size: 0.9rem; color: #091e42;">Change Password</span>
+            </div>
+            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.85rem;"></i>
+        </button>
+
+        <button onclick="switchSetting('translator'); document.getElementById('panel-translator').scrollIntoView({behavior:'smooth'});" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; cursor: pointer; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 0.9rem; color: #091e42;">Language Translator</span>
             </div>
             <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.85rem;"></i>
         </button>
@@ -392,12 +404,13 @@ input:checked + .slider:before { transform: translateX(26px); }
 
 <div class="settings-container">
     <div class="settings-sidebar">
-        <div class="settings-menu-item active" onclick="switchSetting('account')"><i class="fa-solid fa-user" style="margin-right:8px;"></i> Account</div>
-        <div class="settings-menu-item" onclick="switchSetting('maproute')"><i class="fa-solid fa-route" style="margin-right:8px;"></i> Route to BMV3 Center</div>
-        <div class="settings-menu-item" onclick="switchSetting('school')"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;"></i> Historical Archives</div>
-        <div class="settings-menu-item" onclick="switchSetting('notifications')"><i class="fa-solid fa-bell" style="margin-right:8px;"></i> Notifications</div>
-        <div class="settings-menu-item" onclick="switchSetting('appearance')"><i class="fa-solid fa-palette" style="margin-right:8px;"></i> Appearance</div>
-        <div class="settings-menu-item" onclick="switchSetting('privacy')"><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i> Privacy & Security</div>
+        <div class="settings-menu-item active" data-menu="account" onclick="switchSetting('account', this)"><i class="fa-solid fa-user" style="margin-right:8px;"></i> Account</div>
+        <div class="settings-menu-item" data-menu="translator" onclick="switchSetting('translator', this)"><i class="fa-solid fa-language" style="margin-right:8px;"></i> Language Translator</div>
+        <div class="settings-menu-item" data-menu="maproute" onclick="switchSetting('maproute', this)"><i class="fa-solid fa-route" style="margin-right:8px;"></i> Route to BMV3 Center</div>
+        <div class="settings-menu-item" data-menu="school" onclick="switchSetting('school', this)"><i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;"></i> Historical Archives</div>
+        <div class="settings-menu-item" data-menu="notifications" onclick="switchSetting('notifications', this)"><i class="fa-solid fa-bell" style="margin-right:8px;"></i> Notifications</div>
+        <div class="settings-menu-item" data-menu="appearance" onclick="switchSetting('appearance', this)"><i class="fa-solid fa-palette" style="margin-right:8px;"></i> Appearance</div>
+        <div class="settings-menu-item" data-menu="privacy" onclick="switchSetting('privacy', this)"><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i> Privacy & Security</div>
     </div>
 
 
@@ -410,9 +423,9 @@ input:checked + .slider:before { transform: translateX(26px); }
             </div>
             
             <div class="sub-tabs">
-                <div class="sub-tab active" id="tab-profile" onclick="switchSub('profile')">Edit Profile</div>
-                <div class="sub-tab" id="tab-child" onclick="switchSub('child')">Child Profile</div>
-                <div class="sub-tab" id="tab-password" onclick="switchSub('password')">Change Password</div>
+                <div class="sub-tab active" id="tab-profile" onclick="switchSub('profile', this)">Edit Profile</div>
+                <div class="sub-tab" id="tab-child" onclick="switchSub('child', this)">Child Profile</div>
+                <div class="sub-tab" id="tab-password" onclick="switchSub('password', this)">Change Password</div>
             </div>
 
             <!-- Profile Sub -->
@@ -602,6 +615,28 @@ input:checked + .slider:before { transform: translateX(26px); }
             </div>
         </div>
 
+        <!-- Archived Enrolled Pupils Modal -->
+        <div id="archivePupilsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
+            <div style="background:#fff; border-radius:16px; max-width:600px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.25); border:1px solid #e2e8f0; padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:14px; margin-bottom:16px;">
+                    <div>
+                        <h3 id="archiveModalTitle" style="margin:0; font-size:1.15rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#0284c7;"></i>
+                            <span>Archived Enrolled Pupils</span>
+                        </h3>
+                        <p id="archiveModalSubtitle" style="margin:4px 0 0 0; font-size:0.82rem; color:#64748b;">Past pupils registered under your account</p>
+                    </div>
+                    <button type="button" onclick="closeArchivePupilsModal()" style="background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:1.1rem; color:#64748b; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+                </div>
+                <div id="archiveModalContent">
+                    <!-- Populated dynamically via JS -->
+                </div>
+                <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+                    <button type="button" onclick="closeArchivePupilsModal()" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 3. NOTIFICATIONS -->
         <div class="settings-panel" id="panel-notifications">
             <div class="panel-header">
@@ -652,6 +687,121 @@ input:checked + .slider:before { transform: translateX(26px); }
                     <span>Require a code from an authenticator app on login</span>
                 </div>
                 <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <!-- LANGUAGE TRANSLATOR PANEL -->
+        <div class="settings-panel" id="panel-translator">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-language" style="color: #2563eb; margin-right: 8px;"></i> Language & Wika</h3>
+                <p>Piliin ang wika ng buong portal (English / Tagalog) o magsalin ng mga mensahe</p>
+            </div>
+
+            <!-- SYSTEM-WIDE INTERFACE LANGUAGE SELECTOR -->
+            <div style="background: var(--bg-card, #ffffff); border: 2px solid #3b82f6; border-radius: 14px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 16px rgba(59,130,246,0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div>
+                        <h4 style="margin: 0 0 6px 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary, #0f172a); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-earth-asia" style="color: #2563eb;"></i>
+                            <span>Wika ng Buong Sistema (System Interface Language)</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary, #64748b); line-height: 1.4;">
+                            Piliin kung nais mong makita ang buong portal (lahat ng buton, talaan, at impormasyon) sa wikang <strong>Tagalog</strong> o <strong>Ingles</strong>.
+                        </p>
+                    </div>
+                    <span style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                        Parent Portal Wika
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;" class="resp-grid-2">
+                    <div id="langOptionCardEn" onclick="window.setSystemLanguage('en')" style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                        <input type="radio" id="systemLangRadioEn" name="sysLangRadioParent" value="en" style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563eb;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-primary, #0f172a);">🇺🇸 English</div>
+                            <div style="font-size: 0.76rem; color: var(--text-secondary, #64748b);">Display all menus & options in English</div>
+                        </div>
+                    </div>
+
+                    <div id="langOptionCardTl" onclick="window.setSystemLanguage('tl')" style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                        <input type="radio" id="systemLangRadioTl" name="sysLangRadioParent" value="tl" style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563eb;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-primary, #0f172a);">🇵🇭 Tagalog / Filipino</div>
+                            <div style="font-size: 0.76rem; color: var(--text-secondary, #64748b);">Ipakita ang lahat ng menu at teksto sa Tagalog</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" onclick="window.setSystemLanguage('tl')" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Gamitin ang Tagalog</span>
+                    </button>
+                    <button type="button" onclick="window.setSystemLanguage('en')" style="background: transparent; border: 1px solid #cbd5e1; color: #475569; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                        Use English
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCRATCHPAD TEXT TRANSLATOR -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 25px; margin-bottom: 25px;">
+                <h4 style="margin: 0 0 14px 0; font-size: 1rem; font-weight: 700; color: #334155;">
+                    <i class="fa-solid fa-language" style="color: #64748b; margin-right: 6px;"></i>
+                    Quick Text & Inquiry Translator
+                </h4>
+                <!-- Language Selectors & Swap Control -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #475569; min-width: 60px;">Source:</label>
+                        <select id="parentTranslatorSourceLang" class="form-control" style="font-weight: 700; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%;">
+                            <option value="en">English (English)</option>
+                            <option value="tl">Tagalog (Filipino)</option>
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="swapParentTranslatorLanguages()" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s;">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i> Swap
+                    </button>
+
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #475569; min-width: 60px;">Target:</label>
+                        <select id="parentTranslatorTargetLang" class="form-control" style="font-weight: 700; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%;">
+                            <option value="tl">Tagalog (Filipino)</option>
+                            <option value="en">English (English)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Input Text Area -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 700; font-size: 0.85rem; color: #334155; margin-bottom: 6px;">
+                        Original Text
+                    </label>
+                    <textarea id="parentTranslatorInputText" placeholder="Enter text to translate (e.g. Please complete your child's ECCD booklet before the assessment)..." style="width: 100%; height: 110px; padding: 12px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 0.95rem; line-height: 1.5; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+
+                <!-- Action Buttons: Clear & Translate -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" onclick="clearParentTranslatorInput()" style="background: transparent; border: 1px solid #cbd5e1; color: #64748b; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-eraser"></i> Clear Text
+                    </button>
+                    <button type="button" id="btnParentTranslate" onclick="executeParentTranslation()" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);">
+                        <i class="fa-solid fa-language"></i> Translate Text
+                    </button>
+                </div>
+
+                <!-- Output Text Area -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-weight: 700; font-size: 0.85rem; color: #334155;">
+                            Translated Output
+                        </label>
+                        <button type="button" onclick="copyParentTranslationResult()" style="background: transparent; border: none; color: #2563eb; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-copy"></i> Copy Translation
+                        </button>
+                    </div>
+                    <textarea id="parentTranslatorOutputText" readonly placeholder="Translated result will appear here..." style="width: 100%; height: 110px; padding: 12px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-family: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.5; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
             </div>
         </div>
     </div>
@@ -1384,8 +1534,14 @@ input:checked + .slider:before { transform: translateX(26px); }
                     if (document.getElementById('mobileChildName')) {
                         document.getElementById('mobileChildName').innerText = `${data.child_first_name} ${data.child_last_name || ''}`;
                     }
-                    if (document.getElementById('mobileChildAvatar')) {
-                        document.getElementById('mobileChildAvatar').src = `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${data.child_first_name}`;
+                    const mobCWrap = document.getElementById('mobileChildAvatarWrap');
+                    if (mobCWrap) {
+                        if (data.child_img) {
+                            mobCWrap.innerHTML = `<img src="${data.child_img}" alt="${data.child_first_name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        } else {
+                            const initials = ((data.child_first_name || 'C')[0] + (data.child_last_name || '')[0]).toUpperCase();
+                            mobCWrap.innerHTML = initials;
+                        }
                     }
                     
                     if (data.guardian_type) {
@@ -1394,6 +1550,9 @@ input:checked + .slider:before { transform: translateX(26px); }
                 } else {
                     document.getElementById('childEditForm').style.display = 'none';
                     document.getElementById('noChildMsg').style.display = 'block';
+                    if (document.getElementById('mobileChildCardContainer')) {
+                        document.getElementById('mobileChildCardContainer').style.display = 'none';
+                    }
                 }
             })
             .catch(err => console.error("Error loading profile", err));
@@ -1458,20 +1617,40 @@ input:checked + .slider:before { transform: translateX(26px); }
     }
 
     // STANDARD SETTINGS UI
-    function switchSetting(menu) {
+    function switchSetting(menu, el) {
         document.querySelectorAll('.settings-menu-item').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.settings-panel').forEach(e => e.classList.remove('active'));
         
-        event.currentTarget.classList.add('active');
-        document.getElementById('panel-' + menu).classList.add('active');
+        const targetPanel = document.getElementById('panel-' + menu);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        } else {
+            console.warn('Panel not found: panel-' + menu);
+        }
+
+        if (el && el.classList) {
+            el.classList.add('active');
+        } else {
+            const item = document.querySelector(`.settings-menu-item[data-menu="${menu}"]`);
+            if (item) item.classList.add('active');
+        }
     }
 
-    function switchSub(tab) {
+    function switchSub(tab, el) {
         document.querySelectorAll('.sub-tab').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.sub-panel').forEach(e => e.classList.remove('active'));
         
-        event.currentTarget.classList.add('active');
-        document.getElementById('sub-' + tab).classList.add('active');
+        const targetSub = document.getElementById('sub-' + tab);
+        if (targetSub) {
+            targetSub.classList.add('active');
+        }
+
+        if (el && el.classList) {
+            el.classList.add('active');
+        } else {
+            const item = document.getElementById('tab-' + tab);
+            if (item) item.classList.add('active');
+        }
     }
 
     function showToast(message, type) {
@@ -1486,6 +1665,96 @@ input:checked + .slider:before { transform: translateX(26px); }
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // PARENT TRANSLATOR LOGIC
+    function swapParentTranslatorLanguages() {
+        const s = document.getElementById('parentTranslatorSourceLang');
+        const t = document.getElementById('parentTranslatorTargetLang');
+        const temp = s.value;
+        s.value = t.value;
+        t.value = temp;
+        const inEl = document.getElementById('parentTranslatorInputText');
+        const outEl = document.getElementById('parentTranslatorOutputText');
+        if (outEl.value) {
+            inEl.value = outEl.value;
+            outEl.value = '';
+        }
+    }
+
+    function clearParentTranslatorInput() {
+        document.getElementById('parentTranslatorInputText').value = '';
+        document.getElementById('parentTranslatorOutputText').value = '';
+    }
+
+    async function executeParentTranslation() {
+        const text = document.getElementById('parentTranslatorInputText').value.trim();
+        const sLang = document.getElementById('parentTranslatorSourceLang').value;
+        const tLang = document.getElementById('parentTranslatorTargetLang').value;
+        const btn = document.getElementById('btnParentTranslate');
+
+        if (!text) {
+            alert('Please enter text to translate.');
+            return;
+        }
+
+        const originalBtnHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Translating...';
+        btn.disabled = true;
+
+        try {
+            const resp = await fetch('/api/translate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    text: text,
+                    source_lang: sLang,
+                    target_lang: tLang
+                })
+            });
+
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Translation failed.');
+
+            document.getElementById('parentTranslatorOutputText').value = data.translated_text || '';
+        } catch(err) {
+            console.error(err);
+            alert(err.message || 'Translation failed. Please try again.');
+        } finally {
+            btn.innerHTML = originalBtnHtml;
+            btn.disabled = false;
+        }
+    }
+
+    function copyParentTranslationResult() {
+        const val = document.getElementById('parentTranslatorOutputText').value;
+        if (!val) {
+            alert('No translation available to copy.');
+            return;
+        }
+        navigator.clipboard.writeText(val).then(() => {
+            showToast("Translated text copied to clipboard!", "success");
+        }).catch(() => {
+            alert("Translation: " + val);
+        });
     }
 
     function saveProfile() { 
@@ -1724,20 +1993,22 @@ input:checked + .slider:before { transform: translateX(26px); }
             let historical = archives.filter(a => !a.is_active);
             
             if (historical.length === 0) {
-                cont.innerHTML = `<div style="text-align:center; padding: 20px; color: #888;">No historical archives found.</div>`;
+                cont.innerHTML = `<div style="text-align:center; padding: 25px; color: #888;">No historical school years archived yet.</div>`;
                 return;
             }
             
             let html = '';
             historical.forEach((arc) => {
                 html += `
-                <div class="archive-box">
+                <div class="archive-box" style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:12px; background:#fff;">
                     <div>
-                        <div class="year-title">${arc.name}</div>
-                        <div class="year-stats">Status: Archived</div>
+                        <div class="year-title" style="font-weight:800; font-size:1.05rem; color:#0f172a;">${arc.name}</div>
+                        <div class="year-stats" style="font-size:0.82rem; color:#64748b; margin-top:2px;">Status: <span style="background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:10px; font-weight:700;">Archived</span></div>
                     </div>
                     <div>
-                        <button class="btn-primary" style="background:white; color:#4a90e2; border:1px solid #4a90e2;" onclick="viewArchive(${arc.id}, '${arc.name}')">View Time Travel Dashboard</button>
+                        <button type="button" style="background:#091e42; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:8px;" onclick="openArchivePupilsModal(${arc.id}, '${arc.name}')">
+                            <i class="fa-solid fa-users"></i> View Enrolled Pupils
+                        </button>
                     </div>
                 </div>`;
             });
@@ -1745,14 +2016,133 @@ input:checked + .slider:before { transform: translateX(26px); }
         });
     }
 
-    function viewArchive(id, name) {
-        sessionStorage.setItem('bmv3_archive_year_id', id);
-        sessionStorage.setItem('bmv3_archive_year_name', name);
-        window.location.href = "{% url 'parent_dashboard' %}";
+    let allArchivePupils = [];
+
+    async function openArchivePupilsModal(yearId, yearName) {
+        const modal = document.getElementById('archivePupilsModal');
+        const titleEl = document.getElementById('archiveModalTitle');
+        const subEl = document.getElementById('archiveModalSubtitle');
+        const contentEl = document.getElementById('archiveModalContent');
+        if (!modal || !contentEl) return;
+
+        titleEl.innerHTML = `<i class="fa-solid fa-clock-rotate-left" style="color:#0284c7;"></i> Enrolled Pupils (${yearName})`;
+        subEl.innerText = `Official pupil roster for Academic Year ${yearName}`;
+        contentEl.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem; color:#0284c7;"></i><p style="margin-top:10px; font-size:0.88rem;">Loading archived records...</p></div>`;
+        modal.style.display = 'flex';
+
+        try {
+            const res = await fetch(`/api/children/?school_year=${yearId}&all_students=true`);
+            const children = await res.json();
+            allArchivePupils = Array.isArray(children) ? children : [];
+
+            if (allArchivePupils.length === 0) {
+                contentEl.innerHTML = `
+                    <div style="text-align:center; padding:35px 20px; color:#64748b; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1;">
+                        <i class="fa-solid fa-folder-open" style="font-size:2.2rem; color:#cbd5e1; margin-bottom:10px; display:block;"></i>
+                        <strong style="color:#0f172a; font-size:0.95rem;">No Pupils Enrolled in This Batch</strong>
+                        <p style="font-size:0.82rem; margin:6px 0 0 0; color:#64748b;">No pupils were found for Academic Year ${yearName}.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            subEl.innerText = `Total Cohort: ${allArchivePupils.length} Enrolled Pupils in Academic Year ${yearName}`;
+            renderArchivePupilList(allArchivePupils);
+        } catch (e) {
+            contentEl.innerHTML = `<div style="text-align:center; padding:25px; color:#dc2626;">Failed to load pupils for this school year.</div>`;
+        }
     }
 
-    function closeArchiveModal() {
-        // Obsolete
+    function renderArchivePupilList(pupils) {
+        const contentEl = document.getElementById('archiveModalContent');
+        if (!contentEl) return;
+
+        let searchHtml = `
+            <div style="margin-bottom:14px; position:relative;">
+                <input type="text" id="archivePupilSearch" placeholder="Search pupil by name or shift..." oninput="filterArchivePupils()" style="width:100%; padding:9px 12px 9px 36px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem; font-family:inherit; box-sizing:border-box; outline:none;">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:0.85rem;"></i>
+            </div>
+            <div id="archivePupilListItems" style="display:flex; flex-direction:column; gap:10px; max-height:55vh; overflow-y:auto; padding-right:4px;">
+        `;
+
+        let listHtml = '';
+        pupils.forEach(c => {
+            const init = ((c.first_name || 'C')[0] + (c.last_name || '')[0]).toUpperCase();
+            const isPM = (c.shift || 'Morning').toLowerCase().includes('afternoon');
+            const shiftBadge = isPM 
+                ? '<span style="background:#ffedd5; color:#c2410c; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">Afternoon PM</span>'
+                : '<span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">Morning AM</span>';
+            const avatar = c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : init;
+
+            listHtml += `
+            <div class="archive-pupil-row" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; overflow:hidden; border:2px solid #bae6fd; flex-shrink:0;">
+                        ${avatar}
+                    </div>
+                    <div>
+                        <strong style="font-size:0.92rem; color:#0f172a; display:block;">${c.last_name}, ${c.first_name}</strong>
+                        <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">
+                            <span>Age: ${c.age || 4} yrs</span> &bull; <span>Status: <strong style="color:#16a34a;">${c.enrollment_status || 'Enrolled'}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    ${shiftBadge}
+                </div>
+            </div>`;
+        });
+
+        contentEl.innerHTML = searchHtml + listHtml + '</div>';
+    }
+
+    function filterArchivePupils() {
+        const query = (document.getElementById('archivePupilSearch')?.value || '').toLowerCase().trim();
+        const filtered = allArchivePupils.filter(c => {
+            const fullName = `${c.first_name} ${c.last_name} ${c.last_name}, ${c.first_name}`.toLowerCase();
+            return fullName.includes(query) || (c.shift && c.shift.toLowerCase().includes(query));
+        });
+        const listItemsContainer = document.getElementById('archivePupilListItems');
+        if (!listItemsContainer) return;
+
+        if (filtered.length === 0) {
+            listItemsContainer.innerHTML = `<div style="text-align:center; padding:25px; color:#888; font-size:0.85rem;">No pupils matching "${query}"</div>`;
+            return;
+        }
+
+        let listHtml = '';
+        filtered.forEach(c => {
+            const init = ((c.first_name || 'C')[0] + (c.last_name || '')[0]).toUpperCase();
+            const isPM = (c.shift || 'Morning').toLowerCase().includes('afternoon');
+            const shiftBadge = isPM 
+                ? '<span style="background:#ffedd5; color:#c2410c; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">Afternoon PM</span>'
+                : '<span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">Morning AM</span>';
+            const avatar = c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : init;
+
+            listHtml += `
+            <div class="archive-pupil-row" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; overflow:hidden; border:2px solid #bae6fd; flex-shrink:0;">
+                        ${avatar}
+                    </div>
+                    <div>
+                        <strong style="font-size:0.92rem; color:#0f172a; display:block;">${c.last_name}, ${c.first_name}</strong>
+                        <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">
+                            <span>Age: ${c.age || 4} yrs</span> &bull; <span>Status: <strong style="color:#16a34a;">${c.enrollment_status || 'Enrolled'}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    ${shiftBadge}
+                </div>
+            </div>`;
+        });
+        listItemsContainer.innerHTML = listHtml;
+    }
+
+    function closeArchivePupilsModal() {
+        const modal = document.getElementById('archivePupilsModal');
+        if (modal) modal.style.display = 'none';
     }
 
     // Map & Route Settings Logic

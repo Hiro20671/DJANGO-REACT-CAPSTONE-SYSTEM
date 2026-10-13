@@ -75,17 +75,31 @@
 @media (max-width: 768px) {
     .page-header { display: none !important; }
     .tabs { display: none !important; }
-    #content-dashboard > div:first-child { display: none !important; }
-    #domainCardsContainer { display: none !important; }
+    #content-dashboard { display: none !important; }
     .mobile-milestones-layout {
         display: block;
         margin-bottom: 25px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
     .assess-header { flex-direction: column !important; align-items: flex-start !important; gap: 15px !important; }
     .assess-header div { width: 100% !important; }
     .assess-header button { width: 100% !important; }
-    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; }
-    .assess-table { min-width: 650px; }
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        box-sizing: border-box !important;
+    }
+    .assess-table {
+        width: 100% !important;
+        min-width: 520px;
+    }
 }
 
 .mob-filter-pills {
@@ -146,7 +160,9 @@
     <!-- Active Child Card -->
     <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <img id="mobMileChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div id="mobMileChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
             <div>
                 <div id="mobMileChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
@@ -497,6 +513,12 @@ function switchTab(tabId) {
     document.getElementById('tab-' + tabId).classList.add('active');
     document.getElementById('content-' + tabId).classList.add('active');
 
+    const isMobile = window.innerWidth <= 768;
+    const mobLayout = document.querySelector('.mobile-milestones-layout');
+    if (mobLayout && isMobile) {
+        mobLayout.style.display = (tabId === 'dashboard') ? 'block' : 'none';
+    }
+
     if (tabId === 'assessment') {
         document.getElementById('tab-assessment').style.display = 'block';
         document.getElementById('tab-scoring-details').style.display = 'none';
@@ -543,8 +565,14 @@ async function fetchSystemData() {
         if (document.getElementById('mobMileChildName')) {
             document.getElementById('mobMileChildName').innerText = `${childData.first_name} ${childData.last_name}`;
         }
-        if (document.getElementById('mobMileChildImg')) {
-            document.getElementById('mobMileChildImg').src = childData.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${childData.first_name}`);
+        const mobMileAvatarWrap = document.getElementById('mobMileChildAvatarWrap');
+        if (mobMileAvatarWrap) {
+            if (childData.img) {
+                mobMileAvatarWrap.innerHTML = `<img src="${childData.img}" alt="${childData.first_name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            } else {
+                const initials = ((childData.first_name || 'C')[0] + (childData.last_name || '')[0]).toUpperCase();
+                mobMileAvatarWrap.innerHTML = initials;
+            }
         }
         if (document.getElementById('mobMileChildAge') && childData.age) {
             document.getElementById('mobMileChildAge').innerText = `${childData.age} yrs`;

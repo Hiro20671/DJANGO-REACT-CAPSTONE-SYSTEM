@@ -72,6 +72,21 @@
                 </label>
             </div>
 
+            <!-- Target Scope & Test Email -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;" class="resp-grid-2">
+                <div>
+                    <label style="font-size: 0.82rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Target Cohort Scope</label>
+                    <select id="blastTargetScope" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.86rem; background: var(--bg-card); color: var(--text-primary);">
+                        <option value="all">All Registered Parents & Guardians (All Batches)</option>
+                        <option value="active">Active Current School Year Cohort</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.82rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Send Test Copy to Email (Optional)</label>
+                    <input type="email" id="blastTestEmail" value="{{ request.user.email|default:'jeremybryanvillanueva@gmail.com' }}" placeholder="Enter email to receive test copy" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.86rem; background: var(--bg-card); color: var(--text-primary); box-sizing: border-box;">
+                </div>
+            </div>
+
             <!-- Message Body -->
             <div class="form-group" style="margin-bottom: 16px;">
                 <label for="blastMessage" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Message Content</label>
@@ -186,14 +201,19 @@
         e.preventDefault();
         const btn = document.getElementById('btnSendTextblast');
         btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Broadcasting...`;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Broadcasting via Brevo Relay...`;
+
+        const testEmail = document.getElementById('blastTestEmail') ? document.getElementById('blastTestEmail').value.trim() : '';
+        const scope = document.getElementById('blastTargetScope') ? document.getElementById('blastTargetScope').value : 'all';
 
         const payload = {
             title: document.getElementById('blastTitle').value,
             category: document.getElementById('blastCategory').value,
             send_email: document.getElementById('chkSendEmail').checked,
             send_sms: document.getElementById('chkSendSMS').checked,
-            message: document.getElementById('blastMessage').value
+            message: document.getElementById('blastMessage').value,
+            test_email: testEmail,
+            send_copy_to_sender: Boolean(testEmail)
         };
 
         try {
@@ -208,8 +228,21 @@
 
             if (res.ok) {
                 const data = await res.json();
-                alert(`Broadcast dispatched successfully!\n\n- Emails Delivered: ${data.emails_sent}\n- SMS Messages Sent: ${data.sms_sent}`);
-                document.getElementById('textblastForm').reset();
+                let summaryMsg = `Broadcast dispatched successfully!\n\n` +
+                    `- Brevo Emails Delivered: ${data.emails_sent}\n` +
+                    `- SMS Messages Sent: ${data.sms_sent}\n` +
+                    `- Total Recipient Inboxes: ${data.recipients ? data.recipients.length : data.emails_sent}`;
+                
+                if (data.recipients && data.recipients.length > 0) {
+                    summaryMsg += `\n- Inboxes: ${data.recipients.slice(0, 3).join(', ')}${data.recipients.length > 3 ? '...' : ''}`;
+                }
+                if (data.email_errors && data.email_errors.length > 0) {
+                    summaryMsg += `\n\nNotice:\n${data.email_errors.join('\n')}`;
+                }
+
+                alert(summaryMsg);
+                document.getElementById('blastTitle').value = '';
+                document.getElementById('blastMessage').value = '';
                 updateSmsCharCounter();
                 loadTextblastHistory();
             } else {

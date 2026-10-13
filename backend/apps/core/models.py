@@ -29,6 +29,7 @@ class UserProfile(models.Model):
     home_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     home_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     home_address_text = models.TextField(blank=True, default='')
+    is_account_restricted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {'Teacher' if self.is_teacher else 'Parent'}"
@@ -80,6 +81,8 @@ class Child(models.Model):
     school_year = models.ForeignKey(SchoolYear, on_delete=models.SET_NULL, null=True, blank=True, related_name='enrolled_children')
     enrollment_status = models.CharField(max_length=20, default='Pending')
     teacher_feedback = models.TextField(null=True, blank=True)
+    withdrawal_date = models.DateField(null=True, blank=True)
+    withdrawal_reason = models.TextField(null=True, blank=True)
     
     # New fields to replace localStorage data
     dob = models.DateField(null=True, blank=True)
@@ -287,6 +290,7 @@ class ECCDBookletRecord(models.Model):
     eye_vision = models.JSONField(default=dict, blank=True)
     growth_chart_data = models.JSONField(default=dict, blank=True)
     behavior_records = models.JSONField(default=list, blank=True)
+    audit_history = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -320,6 +324,18 @@ class BMIRecord(models.Model):
         ('1st', '1st Quarter'),
         ('2nd', '2nd Quarter'),
         ('3rd', '3rd Quarter'),
+        ('Jan', 'January'),
+        ('Feb', 'February'),
+        ('Mar', 'March'),
+        ('Apr', 'April'),
+        ('May', 'May'),
+        ('Jun', 'June'),
+        ('Jul', 'July'),
+        ('Aug', 'August'),
+        ('Sep', 'September'),
+        ('Oct', 'October'),
+        ('Nov', 'November'),
+        ('Dec', 'December'),
     ]
     STATUS_CHOICES = [
         ('Draft', 'Draft'),
@@ -327,7 +343,7 @@ class BMIRecord(models.Model):
     ]
     child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='bmi_records')
     school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='bmi_records', null=True, blank=True)
-    quarter = models.CharField(max_length=10, choices=QUARTER_CHOICES)
+    quarter = models.CharField(max_length=20, choices=QUARTER_CHOICES)
     weight = models.FloatField()
     height = models.FloatField()
     import datetime

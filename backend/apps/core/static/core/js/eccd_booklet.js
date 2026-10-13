@@ -365,11 +365,107 @@ window.loadChildBooklet = async function(childId) {
         renderPage18Table();
         renderPage19Graph();
         renderPage20Graph();
-        renderGrowthChartSvg();
+        // In teacher portal, default parent forms to view-only mode
+        if (!window.location.pathname.includes('/parent/')) {
+            window.setTeacherBookletInputsEditable(false);
+        }
 
     } catch (err) {
         console.error("Error loading booklet:", err);
     }
+};
+
+// --- Teacher Booklet Edit Mode & Parent Warning Functions ---
+window.isTeacherBookletEditMode = false;
+
+window.setTeacherBookletInputsEditable = function(editable) {
+    if (window.location.pathname.includes('/parent/')) return;
+    
+    window.isTeacherBookletEditMode = editable;
+    const parentSections = ['content-cover', 'content-mchat', 'content-health', 'content-intake'];
+    parentSections.forEach(secId => {
+        const sec = document.getElementById(secId);
+        if (!sec) return;
+        sec.querySelectorAll('input, select, textarea').forEach(el => {
+            el.disabled = !editable;
+        });
+    });
+
+    const editBtn = document.getElementById('btnToggleTeacherBookletEdit');
+    const statusNotice = document.getElementById('teacherBookletStatusNotice');
+    const modeBadge = document.getElementById('teacherBookletModeBadge');
+
+    if (editBtn) {
+        if (editable) {
+            editBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Lock & Cancel Edit';
+            editBtn.style.background = '#64748b';
+            editBtn.title = "Cancel edit mode and restore read-only view";
+        } else {
+            editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Answers';
+            editBtn.style.background = '#f59e0b';
+            editBtn.title = "Click to unlock and correct parent responses";
+        }
+    }
+
+    if (statusNotice && modeBadge) {
+        statusNotice.style.display = 'flex';
+        const spanEl = statusNotice.querySelector('span');
+        if (editable) {
+            statusNotice.style.background = '#fffbeb';
+            statusNotice.style.borderColor = '#fef3c7';
+            statusNotice.style.color = '#b45309';
+            if (spanEl) spanEl.innerHTML = '<strong>Teacher Edit Mode Enabled:</strong> You can now modify parent entries. Click <strong>Save Changes</strong> above to apply corrections.';
+            modeBadge.innerText = 'Edit Mode Active';
+            modeBadge.style.background = '#fef3c7';
+            modeBadge.style.color = '#92400e';
+        } else {
+            statusNotice.style.background = '#f0fdf4';
+            statusNotice.style.borderColor = '#bbf7d0';
+            statusNotice.style.color = '#166534';
+            if (spanEl) spanEl.innerHTML = '<strong>Viewing Parent Responses:</strong> Forms are displayed in read-only mode. Click <strong>Edit Answers</strong> above if you need to correct any parent entries.';
+            modeBadge.innerText = 'Read-Only Mode';
+            modeBadge.style.background = '#dcfce7';
+            modeBadge.style.color = '#15803d';
+        }
+    }
+};
+
+window.toggleTeacherBookletEdit = function() {
+    window.setTeacherBookletInputsEditable(!window.isTeacherBookletEditMode);
+};
+
+window.sendBookletParentWarning = function() {
+    const childId = document.getElementById('childSelect') ? document.getElementById('childSelect').value : null;
+    if (!childId) {
+        alert("Please select a student first.");
+        return;
+    }
+    const student = (typeof childrenList !== 'undefined') ? childrenList.find(c => c.id == childId) : null;
+    const studentName = student ? `${student.first_name} ${student.last_name}` : 'the pupil';
+    
+    const confirmMsg = `Send official notification and warning reminder to ${studentName}'s parents to complete the ECCD Booklet forms?`;
+    if (!confirm(confirmMsg)) return;
+
+    let reportsDB = JSON.parse(localStorage.getItem('bmv3_reports')) || {};
+    if (!reportsDB[childId]) reportsDB[childId] = [];
+
+    const noticeDate = new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+    reportsDB[childId].unshift({
+        title: "URGENT: Please Complete ECCD Booklet (Child's Record 2)",
+        date: noticeDate,
+        body: `Dear Parent,\n\nThis is an official advisory from the Daycare Center Teacher. Please fill out and complete the required ECCD Booklet sections (Sociodemographics, M-CHAT-R Screening, Health & Growth History, and Intake Consent Form) for ${studentName}.\n\nThese forms are required by DepEd to evaluate your child's developmental profile. You can complete them anytime via the ECCD Booklet tab on your parent portal.\n\nThank you,\nBMV3 Child Development Center`
+    });
+    localStorage.setItem('bmv3_reports', JSON.stringify(reportsDB));
+
+    let reportHistory = JSON.parse(localStorage.getItem('bmv3_report_history')) || [];
+    reportHistory.unshift({
+        title: `ECCD Booklet Completion Notice sent to Parent of ${studentName}`,
+        info: `Official advisory sent to parent inbox reminding them to submit booklet forms.`,
+        date: new Date().toLocaleString()
+    });
+    localStorage.setItem('bmv3_report_history', JSON.stringify(reportHistory));
+
+    alert(`Notification sent successfully! An urgent completion notice has been delivered to ${studentName}'s parents.`);
 };
 
 /**
@@ -891,25 +987,28 @@ window.renderPage18Table = function() {
     if (document.getElementById('p18_age_3rd')) document.getElementById('p18_age_3rd').innerText = r3.chronological_age || (r3.child_age ? `${r3.child_age}y` : '--');
 
     const domains = [
-        'Gross Motor',
-        'Fine Motor',
-        'Self-Help',
-        'Receptive Language',
-        'Expressive Language',
-        'Cognitive',
-        'Social-Emotional'
+        { key: 'Gross Motor', label: 'Gross Motor', sub: 'Malalaking Kalamnan (Pagtakbo, pagtalon, pagbalanse)' },
+        { key: 'Fine Motor', label: 'Fine Motor', sub: 'Maliliit na Kalamnan (Paghawak ng lapis, paggupit, pagguhit)' },
+        { key: 'Self-Help', label: 'Self-Help', sub: 'Pangangalaga sa Sarili (Pagkain, pagbihis, palikuran)' },
+        { key: 'Receptive Language', label: 'Receptive Language', sub: 'Pag-unawa ng Wika (Pakikinig at pagsunod sa tagubilin)' },
+        { key: 'Expressive Language', label: 'Expressive Language', sub: 'Pagpapahayag ng Wika (Pagsasalita at damdamin)' },
+        { key: 'Cognitive', label: 'Cognitive', sub: 'Pangkaisipan (Pag-iisip, pagbilang, kulay at hugis)' },
+        { key: 'Social-Emotional', label: 'Social-Emotional', sub: 'Sosyo-Emosyonal (Pakikipagkaibigan at emosyon)' }
     ];
 
     tbody.innerHTML = '';
 
     domains.forEach(d => {
-        const d1 = (r1.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.toLowerCase())) || {};
-        const d2 = (r2.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.toLowerCase())) || {};
-        const d3 = (r3.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.toLowerCase())) || {};
+        const d1 = (r1.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.key.toLowerCase())) || {};
+        const d2 = (r2.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.key.toLowerCase())) || {};
+        const d3 = (r3.domain_scores || []).find(x => x.domain_name.toLowerCase().includes(d.key.toLowerCase())) || {};
 
         tbody.innerHTML += `
             <tr style="border-bottom:1px solid #cbd5e1;">
-                <td style="padding:10px 14px; font-weight:700; color:#1e293b; background:#f8fafc; border-right:1px solid #cbd5e1;">${d}</td>
+                <td style="padding:10px 14px; font-weight:700; color:#1e293b; background:#f8fafc; border-right:1px solid #cbd5e1;">
+                    <div style="font-weight:800; font-size:0.9rem; color:#0f172a;">${d.label}</div>
+                    <div style="font-size:0.73rem; color:#64748b; font-weight:600; margin-top:2px;">${d.sub}</div>
+                </td>
                 <td align="center" style="padding:8px; border-right:1px solid #cbd5e1; font-weight:600;">${d1.raw_score !== undefined ? d1.raw_score : '--'}</td>
                 <td align="center" style="padding:8px; border-right:2px solid #cbd5e1; font-weight:800; color:#0369a1; background:#f0f9ff;">${d1.scaled_score !== undefined ? d1.scaled_score : '--'}</td>
                 <td align="center" style="padding:8px; border-right:1px solid #cbd5e1; font-weight:600;">${d2.raw_score !== undefined ? d2.raw_score : '--'}</td>
@@ -1203,3 +1302,60 @@ window.renderGrowthChartSvg = function() {
 window.printCompleteBooklet = function() {
     window.print();
 };
+
+/**
+ * Display Audit History Modal for ECCD Booklet modifications
+ */
+window.showBookletAuditModal = function() {
+    const data = window.currentBookletData;
+    const history = (data && Array.isArray(data.audit_history)) ? data.audit_history : [];
+
+    let modal = document.getElementById('bookletAuditModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'bookletAuditModal';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; font-family:"Montserrat", sans-serif;';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background:white; border-radius:14px; width:550px; max-width:92%; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+            <div style="padding:18px 22px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;">
+                <h4 style="margin:0; font-size:1.1rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color:#2563eb;"></i> ECCD Booklet Audit Trail
+                </h4>
+                <button onclick="document.getElementById('bookletAuditModal').style.display='none'" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <div style="padding:22px; overflow-y:auto; flex-grow:1;">
+                ${history.length === 0 ? `
+                    <div style="text-align:center; padding:30px; color:#94a3b8;">
+                        <i class="fa-regular fa-clock" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
+                        No recorded revisions yet. All changes will be logged here.
+                    </div>
+                ` : `
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        ${history.slice().reverse().map(h => `
+                            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; background:#ffffff;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <strong style="color:#0f172a; font-size:0.92rem;">
+                                        <i class="fa-solid ${h.role === 'Teacher' ? 'fa-chalkboard-user' : 'fa-user'}"></i> 
+                                        ${h.user} (${h.role})
+                                    </strong>
+                                    <span style="font-size:0.75rem; color:#64748b; font-weight:600;">${h.timestamp}</span>
+                                </div>
+                                <div style="font-size:0.8rem; color:#475569;">
+                                    Updated: ${Array.isArray(h.updated_fields) ? h.updated_fields.join(', ') : 'Booklet sections'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            </div>
+            <div style="padding:14px 22px; border-top:1px solid #e2e8f0; text-align:right; background:#f8fafc;">
+                <button onclick="document.getElementById('bookletAuditModal').style.display='none'" style="background:#0f172a; color:white; border:none; padding:8px 18px; border-radius:6px; font-weight:700; cursor:pointer;">Close</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+};
+

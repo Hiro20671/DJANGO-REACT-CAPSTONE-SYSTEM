@@ -17,7 +17,8 @@ from .api_views import (
     PublicLandingDataAPIView, AnnouncementViewSet, EnrollmentInfoViewSet,
     ProgramHighlightViewSet, PublicReminderViewSet, TeacherStudentMapAPIView,
     CenterSettingsAPIView, TextblastSendAPIView, TextblastHistoryAPIView,
-    GeneralAnalyticsAPIView, AIInsightsAPIView
+    GeneralAnalyticsAPIView, AIInsightsAPIView,
+    WithdrawChildAPIView, ReEnrollChildAPIView, TranslateAPIView
 )
 
 
@@ -70,6 +71,7 @@ urlpatterns = [
     path('parent/dropoff-pickup/', views.parent_dropoff_pickup, name='parent_dropoff_pickup'),
     path('parent/attendance/', views.parent_attendance, name='parent_attendance'),
     path('parent/milestones/', views.parent_milestones, name='parent_milestones'),
+    path('parent/eccd-booklet/', views.parent_eccd_booklet, name='parent_eccd_booklet'),
     path('parent/engagement/', views.parent_engagement, name='parent_engagement'),
     path('parent/nutrition/', views.parent_nutrition, name='parent_nutrition'),
     path('parent/children/', views.parent_children, name='parent_children'),
@@ -97,11 +99,14 @@ urlpatterns = [
 
 
     path('api/children/<int:child_id>/update_profile/', UpdateChildProfileAPIView.as_view(), name='api_child_update_profile'),
+    path('api/children/<int:child_id>/withdraw/', WithdrawChildAPIView.as_view(), name='api_child_withdraw'),
+    path('api/children/<int:child_id>/re-enroll/', ReEnrollChildAPIView.as_view(), name='api_child_re_enroll'),
+    path('api/translate/', TranslateAPIView.as_view(), name='api_translate'),
 
     path('api/nutrition-analytics/', NutritionAnalyticsAPIView.as_view(), name='api_nutrition_analytics'),
     path('api/general-analytics/', GeneralAnalyticsAPIView.as_view(), name='api_general_analytics'),
-    path('api/ai-insights/', AIInsightsAPIView.as_view(), name='api_ai_insights'),
     path('api/generate_parent_account/', GenerateParentAccountAPIView.as_view(), name='api_generate_parent_account'),
+    path('api/children/<int:child_id>/generate-parent-account/', GenerateParentAccountAPIView.as_view(), name='api_child_generate_parent_account'),
     path('api/force-password-change/', ForcePasswordChangeAPIView.as_view(), name='api_force_password_change'),
     path('api/request-password-change/', RequestPasswordChangeAPIView.as_view(), name='api_request_password_change'),
     path('api/verify-password-change/', VerifyPasswordChangeAPIView.as_view(), name='api_verify_password_change'),

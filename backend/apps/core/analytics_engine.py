@@ -43,22 +43,82 @@ def get_full_analytics_data(school_year_id=None):
         children = list(Child.objects.filter(enrollment_status='Enrolled').order_by('last_name', 'first_name'))
 
     total_children = len(children)
+    sy_info = {
+        'id': target_year.id if target_year else (None if str(school_year_id).upper() == 'ALL' else (active_year.id if active_year else None)),
+        'name': target_year.name if target_year else ('All School Years' if str(school_year_id).upper() == 'ALL' else (active_year.name if active_year else 'Current Active Year')),
+        'is_active': target_year.is_active if target_year else (active_year.is_active if active_year else False)
+    }
     
     if total_children == 0:
+        year_name = sy_info['name']
         return {
             'total_children': 0,
-            'summary': {},
-            'attendance': {},
-            'nutrition': {},
-            'learning': {},
-            'behavior': {},
-            'risk_scoring': {},
-            'dri': {},
-            'predictive_trends': {},
+            'morning_count': 0,
+            'afternoon_count': 0,
+            'school_year': sy_info,
+            'summary': {
+                'class_dri': 0,
+                'class_risk': 0,
+                'attendance_rate': 0,
+                'nutrition_health_rate': 0,
+                'task_completion_rate': 0,
+                'high_risk_count': 0,
+                'moderate_risk_count': 0,
+                'low_risk_count': 0,
+                'active_warnings_count': 0,
+                'pending_interventions_count': 0
+            },
+            'attendance': {
+                'overall_rate': 0,
+                'morning_rate': 0,
+                'afternoon_rate': 0,
+                'total_records': 0,
+                'present_count': 0,
+                'absent_count': 0,
+                'late_count': 0,
+                'weekly_trend': []
+            },
+            'nutrition': {
+                'health_index': 0,
+                'nutrition_health_rate': 0,
+                'feeding_breakdown': {'finished_count': 0, 'some_left_count': 0, 'not_eaten_count': 0, 'finished_pct': 0, 'some_left_pct': 0, 'not_eaten_pct': 0},
+                'bmi_breakdown': {'normal': 0, 'underweight': 0, 'overweight': 0}
+            },
+            'learning': {
+                'task_completion_rate': 0,
+                'highest_domain': {'name': 'None', 'score_pct': 0},
+                'lowest_domain': {'name': 'None', 'score_pct': 0},
+                'domain_breakdown': [],
+                'period_progression': []
+            },
+            'behavior': {
+                'participation_breakdown': {'cooperative': 0, 'active_participative': 0, 'needs_guidance': 0}
+            },
+            'risk_scoring': {'high_count': 0, 'moderate_count': 0, 'low_count': 0, 'high_risk': [], 'moderate_risk': [], 'low_risk': [], 'ranked_students': []},
+            'dri': {
+                'class_average': 0,
+                'class_dri': 0,
+                'school_ready_count': 0,
+                'developing_count': 0,
+                'support_needed_count': 0,
+                'students': []
+            },
+            'predictive_trends': {
+                'projected_class_dri': 0,
+                'improving_count': 0,
+                'stable_count': 0,
+                'declining_count': 0
+            },
             'early_warnings': [],
             'interventions': [],
             'student_dossiers': [],
-            'ai_diagnosis': {}
+            'ai_diagnosis': {
+                'generated_at': 'Live Sync',
+                'headline': f'No Enrolled Pupils In {year_name}',
+                'executive_summary': f'School Year {year_name} currently has 0 enrolled students in the active database. Once pupils are enrolled and class shifts are assigned by the teacher, all 10 analytics pillars, DRI readiness scores, and early warnings will dynamically calculate from live pupil records.',
+                'strengths': [f'System database is primed and operational for {year_name}', 'Pupil enrollment and booklet modules ready for registration'],
+                'vulnerabilities': [f'Active student cohort for {year_name} is currently empty (0 enrolled pupils)']
+            }
         }
 
     # -------------------------------------------------------------
@@ -76,17 +136,17 @@ def get_full_analytics_data(school_year_id=None):
     abs_count = sum(1 for r in att_records if (r.status or '').lower() == 'absent')
     late_count = sum(1 for r in att_records if (r.status or '').lower() == 'late')
     
-    overall_att_rate = round((pres_count / total_att_records * 100), 1) if total_att_records > 0 else 92.0
+    overall_att_rate = round((pres_count / total_att_records * 100), 1) if total_att_records > 0 else 0.0
 
     # Morning shift attendance
     m_records = [r for r in att_records if (r.session or '').lower() == 'morning']
     m_pres = sum(1 for r in m_records if (r.status or '').lower() == 'present')
-    m_att_rate = round((m_pres / len(m_records) * 100), 1) if len(m_records) > 0 else 94.0
+    m_att_rate = round((m_pres / len(m_records) * 100), 1) if len(m_records) > 0 else 0.0
 
     # Afternoon shift attendance
     a_records = [r for r in att_records if (r.session or '').lower() == 'afternoon']
     a_pres = sum(1 for r in a_records if (r.status or '').lower() == 'present')
-    a_att_rate = round((a_pres / len(a_records) * 100), 1) if len(a_records) > 0 else 88.5
+    a_att_rate = round((a_pres / len(a_records) * 100), 1) if len(a_records) > 0 else 0.0
 
     # 8-Week Trend simulation / calculation
     weekly_trend = []
@@ -97,9 +157,12 @@ def get_full_analytics_data(school_year_id=None):
     for i in range(8):
         week_num = i + 1
         off = weekly_offsets[i]
-        w_m = min(100.0, max(65.0, round(base_m_rate + off, 1)))
-        w_a = min(100.0, max(60.0, round(base_a_rate + (off * 1.2), 1)))
-        w_all = round((w_m * 0.6 + w_a * 0.4), 1)
+        if total_att_records > 0:
+            w_m = min(100.0, max(0.0, round(base_m_rate + off, 1)))
+            w_a = min(100.0, max(0.0, round(base_a_rate + (off * 1.2), 1)))
+            w_all = round((w_m * 0.6 + w_a * 0.4), 1)
+        else:
+            w_m, w_a, w_all = 0.0, 0.0, 0.0
         weekly_trend.append({
             'week': f"Wk {week_num}",
             'label': f"Week {week_num}",
@@ -116,7 +179,7 @@ def get_full_analytics_data(school_year_id=None):
         c_pres = sum(1 for r in c_recs if (r.status or '').lower() == 'present')
         c_abs = sum(1 for r in c_recs if (r.status or '').lower() == 'absent')
         c_late = sum(1 for r in c_recs if (r.status or '').lower() == 'late')
-        c_rate = round((c_pres / c_tot * 100), 1) if c_tot > 0 else (92.0 if c.shift == 'Morning' else 86.0)
+        c_rate = round((c_pres / c_tot * 100), 1) if c_tot > 0 else 0.0
         child_att_stats[c.id] = {
             'total': c_tot,
             'present': c_pres,
@@ -135,14 +198,15 @@ def get_full_analytics_data(school_year_id=None):
     nut_none = sum(1 for r in nut_records if r.snack_status == 'Not Eaten')
 
     if nut_tot == 0:
-        # Default baseline if no feeding logged yet
-        nut_fin, nut_some, nut_none = 8, 2, 1
-        nut_tot = 11
-
-    nut_fin_pct = round((nut_fin / nut_tot * 100), 1)
-    nut_some_pct = round((nut_some / nut_tot * 100), 1)
-    nut_none_pct = round((nut_none / nut_tot * 100), 1)
-    nut_health_index = round(((nut_fin * 1.0 + nut_some * 0.5) / nut_tot * 100), 1)
+        nut_fin_pct = 0.0
+        nut_some_pct = 0.0
+        nut_none_pct = 0.0
+        nut_health_index = 0.0
+    else:
+        nut_fin_pct = round((nut_fin / nut_tot * 100), 1)
+        nut_some_pct = round((nut_some / nut_tot * 100), 1)
+        nut_none_pct = round((nut_none / nut_tot * 100), 1)
+        nut_health_index = round(((nut_fin * 1.0 + nut_some * 0.5) / nut_tot * 100), 1)
 
     # BMI Status
     bmi_records = list(BMIRecord.objects.filter(child__in=children))
@@ -181,7 +245,7 @@ def get_full_analytics_data(school_year_id=None):
         c_some = sum(1 for r in c_nuts if r.snack_status == 'Some Left')
         c_none = sum(1 for r in c_nuts if r.snack_status == 'Not Eaten')
         c_tot_nut = len(c_nuts)
-        c_nut_rate = round(((c_fin * 1.0 + c_some * 0.5) / c_tot_nut * 100), 1) if c_tot_nut > 0 else 88.0
+        c_nut_rate = round(((c_fin * 1.0 + c_some * 0.5) / c_tot_nut * 100), 1) if c_tot_nut > 0 else 0.0
 
         has_allergy = bool(c.allergies and c.allergies.strip().lower() not in ['none', 'no', 'n/a', ''])
         has_health_cond = bool(c.health_conditions and c.health_conditions.strip().lower() not in ['none', 'no', 'n/a', ''])
@@ -204,7 +268,7 @@ def get_full_analytics_data(school_year_id=None):
     act_completions = list(StudentActivityCompletion.objects.filter(child__in=children))
     act_tot = len(act_completions)
     act_done = sum(1 for a in act_completions if a.completed)
-    act_completion_rate = round((act_done / act_tot * 100), 1) if act_tot > 0 else 86.5
+    act_completion_rate = round((act_done / act_tot * 100), 1) if act_tot > 0 else 0.0
 
     # ECCD Domains Analysis
     domains = list(ECCDDomain.objects.all().order_by('id'))
@@ -215,7 +279,7 @@ def get_full_analytics_data(school_year_id=None):
         d_scores = [s for s in scores if s.milestone.domain_id == d.id]
         d_tot = len(d_scores)
         d_yes = sum(1 for s in d_scores if s.teacher_score == 1)
-        d_rate = round((d_yes / d_tot * 100), 1) if d_tot > 0 else 75.0
+        d_rate = round((d_yes / d_tot * 100), 1) if d_tot > 0 else 0.0
         domain_breakdown.append({
             'id': d.id,
             'name': d.name,
@@ -226,8 +290,8 @@ def get_full_analytics_data(school_year_id=None):
 
     # Sort to find strongest and lowest domains
     sorted_domains = sorted(domain_breakdown, key=lambda x: x['score_pct'])
-    lowest_domain = sorted_domains[0] if sorted_domains else {'name': 'Cognitive', 'score_pct': 70.0}
-    highest_domain = sorted_domains[-1] if sorted_domains else {'name': 'Expressive Language', 'score_pct': 94.0}
+    lowest_domain = sorted_domains[0] if sorted_domains else {'name': 'None', 'score_pct': 0.0}
+    highest_domain = sorted_domains[-1] if sorted_domains else {'name': 'None', 'score_pct': 0.0}
 
     # Assessment Periods Progression (1st vs 2nd vs 3rd Assessment)
     assessments = list(ECCDAssessment.objects.all())
@@ -237,7 +301,7 @@ def get_full_analytics_data(school_year_id=None):
         p_scores = [s for s in scores if s.assessment_id in p_ass_ids]
         p_tot = len(p_scores)
         p_yes = sum(1 for s in p_scores if s.teacher_score == 1)
-        p_rate = round((p_yes / p_tot * 100), 1) if p_tot > 0 else (78.0 if p_label == '1st' else (84.0 if p_label == '2nd' else 89.0))
+        p_rate = round((p_yes / p_tot * 100), 1) if p_tot > 0 else 0.0
         period_stats.append({
             'period': f"{p_label} Assessment",
             'short_name': f"{p_label} Period",
@@ -251,24 +315,24 @@ def get_full_analytics_data(school_year_id=None):
         c_acts = [a for a in act_completions if a.child_id == c.id]
         c_act_tot = len(c_acts)
         c_act_done = sum(1 for a in c_acts if a.completed)
-        c_act_rate = round((c_act_done / c_act_tot * 100), 1) if c_act_tot > 0 else 85.0
+        c_act_rate = round((c_act_done / c_act_tot * 100), 1) if c_act_tot > 0 else 0.0
 
         c_scores = [s for s in scores if s.assessment.child_id == c.id]
         c_sc_tot = len(c_scores)
         c_sc_yes = sum(1 for s in c_scores if s.teacher_score == 1)
-        c_eccd_rate = round((c_sc_yes / c_sc_tot * 100), 1) if c_sc_tot > 0 else 80.0
+        c_eccd_rate = round((c_sc_yes / c_sc_tot * 100), 1) if c_sc_tot > 0 else 0.0
 
         # Social-Emotional specific rate
         c_soc_scores = [s for s in c_scores if 'social' in s.milestone.domain.name.lower()]
         c_soc_tot = len(c_soc_scores)
         c_soc_yes = sum(1 for s in c_soc_scores if s.teacher_score == 1)
-        c_soc_rate = round((c_soc_yes / c_soc_tot * 100), 1) if c_soc_tot > 0 else 72.0
+        c_soc_rate = round((c_soc_yes / c_soc_tot * 100), 1) if c_soc_tot > 0 else 0.0
 
         # Cognitive specific rate
         c_cog_scores = [s for s in c_scores if 'cognitive' in s.milestone.domain.name.lower()]
         c_cog_tot = len(c_cog_scores)
         c_cog_yes = sum(1 for s in c_cog_scores if s.teacher_score == 1)
-        c_cog_rate = round((c_cog_yes / c_cog_tot * 100), 1) if c_cog_tot > 0 else 74.0
+        c_cog_rate = round((c_cog_yes / c_cog_tot * 100), 1) if c_cog_tot > 0 else 0.0
 
         child_learn_stats[c.id] = {
             'task_rate': c_act_rate,
@@ -619,7 +683,8 @@ def get_full_analytics_data(school_year_id=None):
         },
         'early_warnings': early_warnings,
         'interventions': interventions,
-        'ai_diagnosis': ai_diagnosis
+        'ai_diagnosis': ai_diagnosis,
+        'school_year': sy_info
     }
 
 
@@ -687,6 +752,20 @@ def answer_ai_query(question, analytics_data):
     Intelligent Data-Grounded Q&A Engine answering teacher inquiries in Filipino or English.
     """
     q = (question or "").lower().strip()
+    total = analytics_data.get('total_children', 0)
+    sy_name = analytics_data.get('school_year', {}).get('name', 'Kasalukuyang Taon')
+    if total == 0:
+        return (
+            f"### ℹ️ Walang Naka-enroll na Mag-aaral ({sy_name})\n\n"
+            f"Sa School Year **{sy_name}**, **wala pang naka-enroll na mag-aaral (0 pupils)** sa database.\n\n"
+            f"- **Class DRI Score:** `0%` (Neutral Empty Cohort)\n"
+            f"- **Attendance Rate:** `0%` (0 AM / 0 PM)\n"
+            f"- **ECCD Milestones:** Walang talaan ng ebalwasyon\n"
+            f"- **At-Risk Flags:** `0 active flags`\n\n"
+            f"💡 **Pabatid:** Kapag nakapagpatala na ang mga magulang at na-enroll na ang kanilang mga anak sa pamamagitan ng **Children** feature, awtomatikong magkakalkula ang lahat ng 10 AI analytics pillars, risk assessments, at early warnings mula sa tunay na talaan sa database.\n\n"
+            f"Maaari ka ring pumili ng ibang School Year (halimbawa: **2024-2025**) sa dropdown upang suriin ang nakaraang talaan ng 60 mag-aaral."
+        )
+
     summary = analytics_data.get('summary', {})
     att = analytics_data.get('attendance', {})
     lrn = analytics_data.get('learning', {})

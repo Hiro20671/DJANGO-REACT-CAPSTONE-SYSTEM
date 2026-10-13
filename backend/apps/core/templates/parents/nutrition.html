@@ -98,8 +98,11 @@
 
 @media (max-width: 768px) {
     .mobile-nutrition-layout {
-        display: block;
+        display: block !important;
         padding: 16px 16px 85px 16px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
     .desktop-nutrition-layout {
         display: none !important;
@@ -253,11 +256,13 @@
     <!-- Active Child Card -->
     <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <img id="mobNutChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+            <div id="mobNutChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                <i class="fa-solid fa-child-reaching"></i>
+            </div>
             <div>
                 <div id="mobNutChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
-                    <span id="mobNutChildAge" style="font-size: 0.78rem; color: #64748b;">4 yrs old • Student</span>
+                    <span id="mobNutChildAge" style="font-size: 0.78rem; color: #64748b;">-- yrs old • Student</span>
                     <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
                     <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Active</span>
                     <span id="mobNutChildShiftBadge"></span>
@@ -267,55 +272,25 @@
         <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
     </div>
 
-    <!-- Today's Meals Card -->
+    <!-- Today's Meal & Snack Card -->
     <div class="mob-nut-card">
         <div class="mob-nut-card-title">
             <i class="fa-solid fa-utensils" style="color: #0284c7;"></i>
-            <span>Today's Meals</span>
+            <span>Today's Meal & Snack Log</span>
         </div>
 
         <div class="mob-meal-item">
             <div class="mob-meal-left">
-                <div class="mob-meal-icon" style="background: #fef3c7; color: #d97706;">
-                    <i class="fa-solid fa-bowl-rice"></i>
-                </div>
-                <div>
-                    <div class="mob-meal-type">Breakfast</div>
-                    <div class="mob-meal-name">Oatmeal with berries</div>
-                </div>
-            </div>
-            <div class="mob-meal-badge mob-badge-finished">
-                <i class="fa-solid fa-circle-check"></i> Finished
-            </div>
-        </div>
-
-        <div class="mob-meal-item">
-            <div class="mob-meal-left">
-                <div class="mob-meal-icon" style="background: #dbeafe; color: #2563eb;">
-                    <i class="fa-solid fa-plate-wheat"></i>
-                </div>
-                <div>
-                    <div class="mob-meal-type">Lunch</div>
-                    <div class="mob-meal-name">Grilled chicken & rice</div>
-                </div>
-            </div>
-            <div class="mob-meal-badge mob-badge-finished">
-                <i class="fa-solid fa-circle-check"></i> Finished
-            </div>
-        </div>
-
-        <div class="mob-meal-item">
-            <div class="mob-meal-left">
-                <div class="mob-meal-icon" style="background: #e0e7ff; color: #4f46e5;">
+                <div class="mob-meal-icon" style="background: #e0f2fe; color: #0284c7;">
                     <i class="fa-solid fa-apple-whole"></i>
                 </div>
                 <div>
-                    <div class="mob-meal-type">Afternoon Snack</div>
-                    <div class="mob-meal-name" id="mobSnackFoodName">Apple slices & crackers</div>
+                    <div class="mob-meal-type">Classroom Snack</div>
+                    <div class="mob-meal-name" id="mobSnackFoodName">Classroom Daily Snack</div>
                 </div>
             </div>
-            <div id="mobSnackBadge" class="mob-meal-badge mob-badge-finished">
-                <i class="fa-solid fa-circle-check"></i> Finished
+            <div id="mobSnackBadge" class="mob-meal-badge mob-badge-scheduled">
+                <i class="fa-regular fa-clock"></i> Scheduled
             </div>
         </div>
     </div>
@@ -331,8 +306,8 @@
             <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
                 <i class="fa-solid fa-comment-dots" style="color: #0284c7;"></i> Teacher's Note
             </div>
-            <div id="mobNutTeacherNote" style="font-size: 0.85rem; color: #334155; line-height: 1.45; font-style: italic;">
-                "Ate well today, drank 3 cups of water."
+            <div id="mobNutTeacherNote" style="font-size: 0.85rem; color: #64748b; line-height: 1.45; font-style: italic;">
+                No teacher notes recorded for today yet.
             </div>
         </div>
 
@@ -340,8 +315,8 @@
             <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #64748b; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
                 <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Allergies & Dietary Restrictions
             </div>
-            <div id="mobNutAllergies" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #b91c1c; background: #fee2e2; padding: 4px 10px; border-radius: 8px;">
-                Peanuts (Strict)
+            <div id="mobNutAllergies" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #15803d; background: #dcfce7; padding: 4px 10px; border-radius: 8px;">
+                None reported
             </div>
         </div>
     </div>
@@ -412,10 +387,10 @@
         </div>
         
         <div class="nutrition-history-grid" style="display: grid; gap: 25px; min-height: 0;">
-            <!-- Left Side: BMI Quarterly History -->
+            <!-- Left Side: BMI Monthly History -->
             <div class="bmi-quarterly-history" style="border-right: 1px solid #eee; padding-right: 20px; display: flex; flex-direction: column;">
                 <h4 style="margin: 0 0 15px 0; color: #043263; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-weight-scale"></i> Quarterly Growth / BMI
+                    <i class="fa-solid fa-weight-scale"></i> Monthly Growth & BMI Progression
                 </h4>
                 <div id="modal-bmi-container" style="flex-grow:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px; max-height: 400px; padding-right: 5px;">
                     <!-- Populated dynamically -->
@@ -425,7 +400,7 @@
             <!-- Right Side: Meal Evaluation Logs -->
             <div style="display: flex; flex-direction: column;">
                 <h4 style="margin: 0 0 15px 0; color: #043263; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-utensils"></i> Snack Intake History
+                    <i class="fa-solid fa-utensils"></i> Feeding Program History
                 </h4>
                 <div style="flex-grow:1; overflow-y:auto; max-height: 400px;">
                     <table class="assess-table" style="width: 100%; border-collapse: collapse; margin: 0; font-size: 0.85rem;">
@@ -486,6 +461,10 @@
 
         // Mobile Screen 10 Synchronization
         const mobSnackBadge = document.getElementById('mobSnackBadge');
+        const mobSnackFoodName = document.getElementById('mobSnackFoodName');
+        if (mobSnackFoodName) {
+            mobSnackFoodName.innerText = (record && record.food_served) ? record.food_served : 'Classroom Daily Snack';
+        }
         if (mobSnackBadge) {
             if (status === 'Finished') {
                 mobSnackBadge.className = 'mob-meal-badge mob-badge-finished';
@@ -497,8 +476,8 @@
                 mobSnackBadge.className = 'mob-meal-badge mob-badge-none';
                 mobSnackBadge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not Eaten';
             } else {
-                mobSnackBadge.className = 'mob-meal-badge mob-badge-finished';
-                mobSnackBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Finished';
+                mobSnackBadge.className = 'mob-meal-badge mob-badge-scheduled';
+                mobSnackBadge.innerHTML = '<i class="fa-regular fa-clock"></i> Scheduled';
             }
         }
 
@@ -507,7 +486,7 @@
             if (record && record.teacher_notes && record.teacher_notes.trim()) {
                 mobTeacherNote.innerText = `"${record.teacher_notes}"`;
             } else {
-                mobTeacherNote.innerText = `"Ate well today, drank 3 cups of water."`;
+                mobTeacherNote.innerText = "No teacher notes recorded for today yet.";
             }
         }
 
@@ -532,6 +511,28 @@
         container.innerHTML = html;
     }
 
+    const MONTH_LABELS = {
+        'Aug': 'August (Baseline)',
+        'Sep': 'September',
+        'Oct': 'October',
+        'Nov': 'November',
+        'Dec': 'December',
+        'Jan': 'January',
+        'Feb': 'February',
+        'Mar': 'March',
+        'Apr': 'April',
+        'May': 'May (Year-End)',
+        '1st': '1st Quarter (Baseline)',
+        '2nd': '2nd Quarter (Interim)',
+        '3rd': '3rd Quarter (Final)'
+    };
+
+    const MONTH_ORDER = {
+        'Aug': 1, 'Sep': 2, 'Oct': 3, 'Nov': 4, 'Dec': 5, 
+        'Jan': 6, 'Feb': 7, 'Mar': 8, 'Apr': 9, 'May': 10,
+        '1st': 1, '2nd': 5, '3rd': 9
+    };
+
     function openNutritionHistoryModal() {
         if (!childData) return;
         
@@ -540,14 +541,51 @@
         const container = document.getElementById('modal-bmi-container');
         
         if (bmiRecords.length === 0) {
-            container.innerHTML = `<p style="font-size:0.85rem; color:#888; font-style:italic;">No quarterly BMI records have been registered by the teacher yet.</p>`;
+            container.innerHTML = `<p style="font-size:0.85rem; color:#888; font-style:italic;">No monthly BMI records have been registered by the teacher yet.</p>`;
         } else {
             const sortedBmis = [...bmiRecords].sort((x, y) => {
-                const quarters = {'1st': 1, '2nd': 2, '3rd': 3};
-                return quarters[x.quarter] - quarters[y.quarter];
+                const ordA = MONTH_ORDER[x.quarter] || new Date(x.measurement_date).getTime();
+                const ordB = MONTH_ORDER[y.quarter] || new Date(y.measurement_date).getTime();
+                return ordA - ordB;
             });
             
             let cardsHtml = '';
+
+            // Insightful Feedback for Parents if >= 2 records exist
+            if (sortedBmis.length >= 2) {
+                const prevRec = sortedBmis[sortedBmis.length - 2];
+                const currRec = sortedBmis[sortedBmis.length - 1];
+
+                const prevHM = prevRec.height / 100;
+                const prevBMI = parseFloat((prevRec.weight / (prevHM * prevHM)).toFixed(1));
+                const currHM = currRec.height / 100;
+                const currBMI = parseFloat((currRec.weight / (currHM * currHM)).toFixed(1));
+
+                const deltaWeight = (currRec.weight - prevRec.weight).toFixed(1);
+                const deltaHeight = (currRec.height - prevRec.height).toFixed(1);
+
+                let adviceText = '';
+                if (currBMI < 14) {
+                    adviceText = `Child gained ${deltaWeight > 0 ? '+' : ''}${deltaWeight} kg and grew +${deltaHeight} cm. Continued supplementary meals at home (eggs, milk, legumes) are encouraged.`;
+                } else if (prevBMI < 14 && currBMI >= 14) {
+                    adviceText = `🌟 Wonderful progress! Child gained healthy weight (+${deltaWeight} kg) and is now in the <strong>Normal BMI bracket</strong>! Keep up the healthy feeding habits.`;
+                } else if (deltaWeight < 0) {
+                    adviceText = `⚠️ Slight weight drop (-${Math.abs(deltaWeight)} kg). Please ensure adequate calorie intake and restful sleep schedules at home.`;
+                } else {
+                    adviceText = `✅ Excellent growth velocity! Child's height increased by +${deltaHeight} cm with ideal weight progression (+${deltaWeight} kg).`;
+                }
+
+                cardsHtml += `
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:8px; padding:12px; margin-bottom:10px;">
+                    <div style="font-weight:800; font-size:0.85rem; color:#1e40af; margin-bottom:4px;">
+                        <i class="fa-solid fa-lightbulb"></i> Monthly Growth Insight
+                    </div>
+                    <div style="font-size:0.8rem; color:#334155; line-height:1.4;">
+                        ${adviceText}
+                    </div>
+                </div>`;
+            }
+
             sortedBmis.forEach(rec => {
                 const hM = rec.height / 100;
                 const bmiVal = (rec.weight / (hM * hM)).toFixed(1);
@@ -555,25 +593,25 @@
                 if (bmiVal < 14) cat = "Underweight";
                 else if (bmiVal < 18) cat = "Normal weight";
                 
-                let qTitle = "1st Quarter (Baseline)";
-                if (rec.quarter === '2nd') qTitle = "2nd Quarter (Interim)";
-                else if (rec.quarter === '3rd') qTitle = "3rd Quarter (Final)";
+                const qTitle = MONTH_LABELS[rec.quarter] || `${rec.quarter} Check`;
                 
-                let bmiColor = bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#0f766e' : '#b91c1c');
+                let bmiColor = bmiVal < 14 ? '#b45309' : (bmiVal < 18 ? '#059669' : '#dc2626');
                 let badgeBg = bmiVal < 14 ? '#fef3c7' : (bmiVal < 18 ? '#d1fae5' : '#fee2e2');
                 
                 const isDraft = rec.status === 'Draft';
                 const draftBadge = isDraft ? `<span style="font-size:0.7rem; font-weight:700; background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:4px;">Ongoing / Draft</span>` : `<span style="font-size:0.7rem; font-weight:700; background:#d1fae5; color:#065f46; padding:2px 6px; border-radius:4px;">Finalized</span>`;
                 
                 cardsHtml += `
-                <div style="background:${isDraft ? '#fffdf5' : '#f8fafc'}; border:1px solid ${isDraft ? '#fbeeb8' : '#e2e8f0'}; border-radius:10px; padding:15px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <div style="background:${isDraft ? '#fffdf5' : '#f8fafc'}; border:1px solid ${isDraft ? '#fbeeb8' : '#e2e8f0'}; border-radius:10px; padding:14px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <div style="font-weight:800; font-size:0.9rem; color:#043263;">${qTitle}</div>
                         ${draftBadge}
                     </div>
                     <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;"><i class="fa-regular fa-calendar"></i> Measured: ${new Date(rec.measurement_date).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</div>
-                    <div style="font-size:0.85rem; color:#334155; margin-bottom:4px;">Weight: <strong>${rec.weight} kg</strong></div>
-                    <div style="font-size:0.85rem; color:#334155; margin-bottom:8px;">Height: <strong>${rec.height} cm</strong></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.85rem; color:#334155; margin-bottom:8px;">
+                        <div>Weight: <strong>${rec.weight} kg</strong></div>
+                        <div>Height: <strong>${rec.height} cm</strong></div>
+                    </div>
                     <div style="font-size:0.85rem; font-weight:700; color:${bmiColor}; background:${badgeBg}; padding:4px 8px; border-radius:6px; display:inline-block;">
                         BMI: ${bmiVal} (${cat})
                     </div>
@@ -651,9 +689,14 @@
                 if (mobNutChildAge) {
                     mobNutChildAge.innerText = `${childData.age || 4} yrs old • ${childData.gender || 'Student'}`;
                 }
-                const mobNutChildImg = document.getElementById('mobNutChildImg');
-                if (mobNutChildImg) {
-                    mobNutChildImg.src = childData.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${childData.first_name}`);
+                const mobNutAvatarWrap = document.getElementById('mobNutChildAvatarWrap');
+                if (mobNutAvatarWrap) {
+                    if (childData.img) {
+                        mobNutAvatarWrap.innerHTML = `<img src="${childData.img}" alt="${childData.first_name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    } else {
+                        const initials = ((childData.first_name || 'C')[0] + (childData.last_name || '')[0]).toUpperCase();
+                        mobNutAvatarWrap.innerHTML = initials;
+                    }
                 }
                 
                 // Mobile Allergies Binding

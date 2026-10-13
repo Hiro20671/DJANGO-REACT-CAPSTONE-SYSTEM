@@ -226,18 +226,25 @@
 }
 
 /* Screen 7 Mobile Attendance Layout */
+.desktop-attendance-layout {
+    display: block;
+}
 .mobile-attendance-layout {
     display: none;
 }
 
 @media (max-width: 768px) {
+    .desktop-attendance-layout { display: none !important; }
     .p-header { display: none !important; }
     .stats-row { display: none !important; }
     .cal-card { display: none !important; }
     .history-card { display: none !important; }
     .mobile-attendance-layout {
-        display: block;
+        display: block !important;
         margin-bottom: 25px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
@@ -355,7 +362,9 @@
         <!-- Active Child Card -->
         <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img id="mobAttChildImg" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=child" alt="Child Avatar">
+                <div id="mobAttChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
+                    <i class="fa-solid fa-child-reaching"></i>
+                </div>
                 <div>
                     <div id="mobAttChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
                     <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
@@ -441,6 +450,7 @@
     </div>
     
     <!-- HEADER (Desktop) -->
+    <div class="desktop-attendance-layout">
     <div class="p-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
         <div>
             <h1>Attendance</h1>
@@ -512,7 +522,7 @@
             <!-- Populated by JS -->
         </div>
     </div>
-
+</div>
 </div>
 
 <script>
@@ -576,8 +586,14 @@
         if (document.getElementById('mobAttChildName')) {
             document.getElementById('mobAttChildName').innerText = `${child.first_name} ${child.last_name}`;
         }
-        if (document.getElementById('mobAttChildImg')) {
-            document.getElementById('mobAttChildImg').src = child.img || (`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${child.first_name}`);
+        const mobAttAvatarWrap = document.getElementById('mobAttChildAvatarWrap');
+        if (mobAttAvatarWrap) {
+            if (child.img) {
+                mobAttAvatarWrap.innerHTML = `<img src="${child.img}" alt="${child.first_name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            } else {
+                const initials = ((child.first_name || 'C')[0] + (child.last_name || '')[0]).toUpperCase();
+                mobAttAvatarWrap.innerHTML = initials;
+            }
         }
         if (document.getElementById('mobAttChildAge') && child.age) {
             document.getElementById('mobAttChildAge').innerText = `${child.age} yrs`;

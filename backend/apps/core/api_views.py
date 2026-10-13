@@ -18,38 +18,82 @@ from django.contrib.auth.models import User
 @permission_classes([IsAuthenticated])
 def generate_parent_account(request):
     profile = getattr(request.user, 'userprofile', None)
-    if not profile or not profile.is_teacher:
-        return Response({'detail': 'Not authorized'}, status=403)
+    if not (request.user.is_superuser or (profile and profile.is_teacher)):
+        return Response({'detail': 'Teacher permission required.'}, status=403)
         
-    email = request.data.get('email')
-    
-    if not email:
-        return Response({'detail': 'Email is required'}, status=400)
-        
-    if User.objects.filter(email=email).exists():
-        return Response({'detail': 'Email already in use'}, status=400)
-        
-    # Generate temporary credentials
-    username = email.split('@')[0] + str(random.randint(100, 999))
-    password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-    
-    user = User.objects.create_user(username=username, email=email, password=password)
-    user_profile = UserProfile.objects.create(user=user, is_teacher=False)
-    
-    # Check if a child_id was provided to link
     child_id = request.data.get('child_id')
+    child = None
     if child_id:
         try:
             child = Child.objects.get(id=child_id)
-            child.parents.add(user_profile)
         except Child.DoesNotExist:
-            pass # Or handle error if necessary
-    
+            return Response({'detail': 'Child record not found.'}, status=404)
+
+        # Check whether the child already has an associated parent account
+        existing_parent = child.parents.filter(user__isnull=False).first()
+        if existing_parent and existing_parent.user:
+            return Response({
+                'already_exists': True,
+                'username': existing_parent.user.username,
+                'email': existing_parent.user.email,
+                'first_login': existing_parent.first_login,
+                'message': f"A parent account already exists for {child.first_name} {child.last_name} with username: '{existing_parent.user.username}'."
+            }, status=200)
+
+    email = request.data.get('email')
+    if not email and child:
+        email = child.mother_email or child.father_email or child.other_guardian_email or child.email
+
+    if not email and child:
+        # Generate clean institutional placeholder email for child's guardian
+        clean_first = "".join(filter(str.isalnum, child.first_name.lower()))
+        email = f"parent_{clean_first}{child.id}@bmv3.local"
+    elif not email:
+        return Response({'detail': 'Email or child ID is required to generate parent account.'}, status=400)
+        
+    # Check if a user with this email already exists
+    if User.objects.filter(email=email).exists():
+        existing_user = User.objects.filter(email=email).first()
+        existing_profile, _ = UserProfile.objects.get_or_create(user=existing_user, defaults={'is_teacher': False})
+        if child and not child.parents.filter(id=existing_profile.id).exists():
+            child.parents.add(existing_profile)
+        return Response({
+            'already_exists': True,
+            'username': existing_user.username,
+            'email': existing_user.email,
+            'message': f"Account with email '{email}' already exists (Username: {existing_user.username}) and has been connected to the pupil."
+        }, status=200)
+
+    # Generate unique username and secure temporary password
+    prefix = "".join(filter(str.isalnum, email.split('@')[0].lower()))[:8] or "parent"
+    username = f"{prefix}_{random.randint(100, 999)}"
+    while User.objects.filter(username=username).exists():
+        username = f"{prefix}_{random.randint(1000, 9999)}"
+
+    # Temporary password matching security requirements: letters, digits, special character
+    letters = ''.join(random.choices(string.ascii_letters, k=5))
+    digits = ''.join(random.choices(string.digits, k=3))
+    password = f"Bmv3!{letters}{digits}"
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    user_profile = UserProfile.objects.create(user=user, is_teacher=False, first_login=True)
+
+    if child:
+        child.parents.add(user_profile)
+
+    # Optional email notification
     from django.core.mail import send_mail
-    
+    email_dispatched = False
     try:
-        subject = "BMV3 Childcare - Temporary Parent Account"
-        message = f"Hello,\n\nA temporary parent account has been created for you.\n\nUsername: {username}\nPassword: {password}\n\nPlease log in and change your password.\n\nThank you!"
+        subject = "BMV3 Child Development Center - Parent Login Account"
+        message = (
+            f"Hello,\n\n"
+            f"Your parent account for BMV3 Child Development Center has been provisioned.\n\n"
+            f"Username: {username}\n"
+            f"Temporary Password: {password}\n\n"
+            f"Please log in and update your temporary password on first login.\n\n"
+            f"BMV3 Child Development Center"
+        )
         send_mail(
             subject,
             message,
@@ -57,17 +101,29 @@ def generate_parent_account(request):
             [email],
             fail_silently=True
         )
+        email_dispatched = True
     except Exception as e:
-        print(f"Failed to send email: {e}")
-        
+        print(f"Failed to send credentials email: {e}")
+
     return Response({
-        'message': 'Parent account generated successfully and credentials sent to email'
+        'success': True,
+        'username': username,
+        'temporary_password': password,
+        'email': email,
+        'email_sent': email_dispatched,
+        'first_login': True,
+        'child_name': f"{child.first_name} {child.last_name}" if child else None,
+        'message': f"Parent account '{username}' successfully generated! Please provide these temporary credentials to the parent."
     })
 
 class TeacherDashboardStatsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        profile = getattr(request.user, 'userprofile', None)
+        if not profile or not profile.is_teacher:
+            return Response({'detail': 'Teacher permission required.'}, status=403)
+            
         active_year = SchoolYear.objects.filter(is_active=True).first()
         school_year_id = request.query_params.get('school_year')
         
@@ -137,7 +193,9 @@ class ParentDashboardStatsAPIView(APIView):
             else:
                 active_year = SchoolYear.objects.filter(is_active=True).first()
                 if active_year:
-                    qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
+                    active_qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
+                    if active_qs.exists():
+                        qs = active_qs
                 
             total = qs.count()
             data = {
@@ -194,6 +252,14 @@ class ChildViewSet(viewsets.ModelViewSet):
                     qs = qs.filter(Q(school_year=active_year) | Q(enrollment_status='Pending'))
             return qs
         else:
+            all_students = self.request.query_params.get('all_students') == 'true' or self.request.query_params.get('scope') == 'all'
+            if all_students and school_year_id:
+                # Parents viewing historical archive directory of all pupils for that school year
+                qs = Child.objects.filter(school_year_id=school_year_id).exclude(enrollment_status__in=['Pending', 'Rejected']).order_by('last_name', 'first_name')
+                if shift_param and shift_param.strip() and shift_param.upper() != 'ALL':
+                    qs = qs.filter(shift__iexact=shift_param.strip())
+                return qs
+
             from django.db.models import Q
             parent_email = (self.request.user.email or '').strip()
             parent_q = Q(parents=profile)
@@ -210,7 +276,9 @@ class ChildViewSet(viewsets.ModelViewSet):
             else:
                 active_year = SchoolYear.objects.filter(is_active=True).first()
                 if active_year:
-                    qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
+                    active_qs = qs.filter(Q(school_year=active_year) | Q(school_year__isnull=True) | Q(enrollment_status='Pending'))
+                    if active_qs.exists():
+                        qs = active_qs
             return qs
 
 class AttendanceRecordViewSet(viewsets.ModelViewSet):
@@ -336,41 +404,10 @@ class BMIRecordViewSet(viewsets.ModelViewSet):
     serializer_class = BMIRecordSerializer
 
     def perform_create(self, serializer):
-        child = serializer.validated_data.get('child')
-        quarter = serializer.validated_data.get('quarter')
         active_year = SchoolYear.objects.filter(is_active=True).first()
-        
-        # Check locking logic
-        from rest_framework.exceptions import ValidationError
-        if quarter == '2nd':
-            first_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
-            if not first_q or first_q.status != 'Finalized':
-                raise ValidationError("Cannot create 2nd Quarter record because 1st Quarter is not finalized.")
-        elif quarter == '3rd':
-            second_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='2nd').first()
-            if not second_q or second_q.status != 'Finalized':
-                raise ValidationError("Cannot create 3rd Quarter record because 2nd Quarter is not finalized.")
-                
         serializer.save(school_year=active_year)
 
     def perform_update(self, serializer):
-        instance = serializer.instance
-        quarter = serializer.validated_data.get('quarter', instance.quarter)
-        child = instance.child
-        active_year = instance.school_year
-        
-        # Check locking logic
-        from rest_framework.exceptions import ValidationError
-        # Only enforce locking if they are moving forward or changing values
-        if quarter == '2nd':
-            first_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='1st').first()
-            if not first_q or first_q.status != 'Finalized':
-                raise ValidationError("Cannot update 2nd Quarter record because 1st Quarter is not finalized.")
-        elif quarter == '3rd':
-            second_q = BMIRecord.objects.filter(child=child, school_year=active_year, quarter='2nd').first()
-            if not second_q or second_q.status != 'Finalized':
-                raise ValidationError("Cannot update 3rd Quarter record because 2nd Quarter is not finalized.")
-                
         serializer.save()
 
     def get_queryset(self):
@@ -432,7 +469,7 @@ class BMIRecordViewSet(viewsets.ModelViewSet):
                     
             default_weight = prev_record.weight if prev_record else 15.0
             default_height = prev_record.height if prev_record else 100.0
-            default_date = getattr(active_year, f'eccd_{quarter}_start') or date.today()
+            default_date = getattr(active_year, f'eccd_{quarter}_start', None) or date.today()
             
             record, created = BMIRecord.objects.get_or_create(
                 child=child,
@@ -1133,25 +1170,56 @@ class ForcePasswordChangeAPIView(APIView):
     
     def post(self, request):
         user = request.user
-        profile = user.userprofile
+        profile = getattr(user, 'userprofile', None)
         
-        if not profile.first_login:
-            return Response({'error': 'Not your first login.'}, status=400)
+        if not profile or not profile.first_login:
+            return Response({'error': 'Password change requirement has already been satisfied or is not applicable.'}, status=400)
             
+        current_password = request.data.get('current_password')
         new_password = request.data.get('new_password')
-        if not new_password or len(new_password) < 8:
+        confirm_password = request.data.get('confirm_password') or request.data.get('confirmPassword')
+        
+        # 1. Validate current password (if supplied)
+        if current_password:
+            if not user.check_password(current_password):
+                return Response({'error': 'Current temporary password is incorrect.'}, status=400)
+        
+        # 2. Check new password presence
+        if not new_password:
+            return Response({'error': 'New password is required.'}, status=400)
+            
+        # 3. Check confirmation match
+        if confirm_password is not None and new_password != confirm_password:
+            return Response({'error': 'New password and confirmation do not match.'}, status=400)
+            
+        # 4. Check minimum length
+        if len(new_password) < 8:
             return Response({'error': 'Password must be at least 8 characters long.'}, status=400)
             
+        # 5. Validate using Django password validators
+        from django.contrib.auth.password_validation import validate_password
+        from django.core.exceptions import ValidationError
+        try:
+            validate_password(new_password, user=user)
+        except ValidationError as e:
+            return Response({'error': ' '.join(e.messages)}, status=400)
+            
+        # 6. Set new hashed password
         user.set_password(new_password)
         user.save()
         
+        # 7. Mark requirement completed
         profile.first_login = False
         profile.save()
         
+        # 8. Maintain authenticated session
         from django.contrib.auth import update_session_auth_hash
         update_session_auth_hash(request, user)
         
-        return Response({'success': True, 'message': 'Password updated successfully.'})
+        return Response({
+            'success': True,
+            'message': 'Password updated successfully. Welcome to your Parent Dashboard!'
+        })
 
 class UpdateUsernameAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1200,7 +1268,6 @@ class RequestPasswordChangeAPIView(APIView):
         except Exception as e:
             print(f"FAILED TO SEND EMAIL. OTP IS: {otp_code}. Error: {e}")
             
-        from django.conf import settings
         if settings.DEBUG or not email_sent:
             return Response({
                 'success': True, 
@@ -1468,93 +1535,170 @@ import string
 class GenerateParentAccountAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def post(self, request):
-        child_id = request.data.get('child_id')
+    def post(self, request, child_id=None):
+        profile = getattr(request.user, 'userprofile', None)
+        if not (request.user.is_superuser or (profile and profile.is_teacher)):
+            return Response({'error': 'Teacher permission required.'}, status=403)
+
+        child_id = child_id or request.data.get('child_id')
+        child = None
+        if child_id:
+            try:
+                child = Child.objects.get(id=child_id)
+            except Child.DoesNotExist:
+                return Response({'error': 'Child record not found.'}, status=404)
+
         parent_name = request.data.get('parent_name', '').strip()
         email = request.data.get('email', '').strip()
-        
-        if not parent_name or not email:
-            return Response({'error': 'Parent Name and Email are required.'}, status=400)
-            
-        # Generate random username and password
-        username_base = parent_name.split()[0].lower() + str(random.randint(100, 999))
-        username = username_base
-        while User.objects.filter(username=username).exists():
-            username = username_base + str(random.randint(10, 99))
-            
-        password_chars = string.ascii_letters + string.digits
-        password = ''.join(random.choice(password_chars) for _ in range(8))
-        
+
+        if child and not parent_name:
+            parent_name = (
+                f"{child.mother_first_name} {child.mother_last_name}".strip() if child.mother_first_name else
+                (f"{child.father_first_name} {child.father_last_name}".strip() if child.father_first_name else
+                (f"{child.other_guardian_first_name} {child.other_guardian_last_name}".strip() if child.other_guardian_first_name else
+                f"Guardian of {child.first_name}"))
+            )
+
+        if not parent_name:
+            parent_name = "Parent"
+
+        # Generate secure temporary password
+        letters = ''.join(random.choices(string.ascii_letters, k=5))
+        digits = ''.join(random.choices(string.digits, k=3))
+        password = f"Bmv3!{letters}{digits}"
+
+        # CRITICAL SAFETY RULE: NEVER EVER MATCH OR MODIFY A TEACHER, STAFF, OR SUPERUSER ACCOUNT!
+        existing_user = None
+        if child:
+            existing_parent_profile = child.parents.filter(
+                user__isnull=False,
+                is_teacher=False,
+                user__is_staff=False,
+                user__is_superuser=False
+            ).first()
+            if existing_parent_profile and existing_parent_profile.user:
+                existing_user = existing_parent_profile.user
+
+        if not existing_user and email and '@' in email and not email.endswith('.local'):
+            # Only consider genuine parent accounts (never teachers, staff, or superusers)
+            from django.db.models import Q
+            candidate = User.objects.filter(
+                email=email,
+                is_staff=False,
+                is_superuser=False
+            ).exclude(
+                userprofile__is_teacher=True
+            ).first()
+            if candidate:
+                existing_user = candidate
+
         try:
-            # Create user
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = parent_name.split()[0]
-            if len(parent_name.split()) > 1:
-                user.last_name = " ".join(parent_name.split()[1:])
-            user.save()
-            
-            # Create profile (first_login is True by default now)
-            profile = UserProfile.objects.create(user=user, is_teacher=False, first_login=True)
-            
-            # Link to child if provided
-            if child_id:
-                try:
-                    child = Child.objects.get(id=child_id)
-                    child.parents.add(profile)
-                except Child.DoesNotExist:
-                    pass
-            
-            # Send email
-            from django.core.mail import EmailMultiAlternatives
-            from django.utils.html import strip_tags
-            
-            subject = "Welcome to BMV3 Child Care - Your Account Details"
-            html_content = f"""
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                <h2 style="color: #4a90e2; text-align: center;">Welcome to BMV3 Child Care!</h2>
-                <p>Hello <strong>{parent_name}</strong>,</p>
-                <p>A parent account has been created for you. You can use this account to track your child's attendance, milestones, nutrition, and more.</p>
-                
-                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <h3 style="margin-top: 0; color: #333;">Your Temporary Credentials:</h3>
-                    <p style="margin: 5px 0;"><strong>Username:</strong> <span style="color: #d9534f; font-size: 1.1rem;">{username}</span></p>
-                    <p style="margin: 5px 0;"><strong>Password:</strong> <span style="color: #d9534f; font-size: 1.1rem;">{password}</span></p>
-                </div>
-                
-                <p style="color: #e74a3b; font-weight: bold;">IMPORTANT: For your security, you will be required to change this temporary password immediately upon your first login.</p>
-                
-                <p style="margin-top: 30px;">Best Regards,<br>The BMV3 Administration Team</p>
-            </div>
-            """
-            text_content = strip_tags(html_content)
-            
-            from django.conf import settings
+            if existing_user:
+                user = existing_user
+                user.set_password(password)
+                if email and '@' in email:
+                    user.email = email
+                user.save()
+
+                p_profile, _ = UserProfile.objects.get_or_create(user=user, defaults={'is_teacher': False})
+                p_profile.is_teacher = False
+                p_profile.first_login = True
+                p_profile.save()
+
+                if child and not child.parents.filter(id=p_profile.id).exists():
+                    child.parents.add(p_profile)
+
+                username = user.username
+                account_is_new = False
+            else:
+                # Generate unique parent username (avoid using teacher/admin names)
+                clean_prefix = "".join(filter(str.isalnum, parent_name.split()[0].lower())) if parent_name else "parent"
+                if not clean_prefix or clean_prefix in ['admin', 'teacher', 'staff', 'root']:
+                    clean_prefix = "parent"
+                username = f"{clean_prefix}_{random.randint(100, 999)}"
+                while User.objects.filter(username=username).exists():
+                    username = f"{clean_prefix}_{random.randint(1000, 9999)}"
+
+                user_email = email if (email and '@' in email) else f"{username}@bmv3.local"
+
+                user = User.objects.create_user(username=username, email=user_email, password=password)
+                user.is_staff = False
+                user.is_superuser = False
+                name_parts = parent_name.split() if parent_name else ['Parent']
+                user.first_name = name_parts[0]
+                if len(name_parts) > 1:
+                    user.last_name = " ".join(name_parts[1:])
+                user.save()
+
+                p_profile = UserProfile.objects.create(user=user, is_teacher=False, first_login=True)
+                if child:
+                    child.parents.add(p_profile)
+
+                account_is_new = True
+
+            # Send credentials via Brevo SMTP relay ONLY if a real deliverable email is provided
+            has_real_email = bool(email and '@' in email and not email.endswith('.local') and not email.endswith('.test'))
             email_sent = False
-            is_console_backend = (getattr(settings, 'EMAIL_BACKEND', '') == 'django.core.mail.backends.console.EmailBackend')
-            
-            try:
-                msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [email])
-                msg.attach_alternative(html_content, "text/html")
-                msg.send(fail_silently=False)
-                # If we are using the console backend, no real email is sent to the parent,
-                # so we treat email_sent as False so that credentials show on-screen.
-                if not is_console_backend:
+            email_error = None
+
+            if has_real_email:
+                from django.core.mail import EmailMultiAlternatives
+                from django.utils.html import strip_tags
+
+                subject = "Welcome to BMV3 Child Care - Your Account Details"
+                from_email = f"BMV3 Child Development Center <{settings.DEFAULT_FROM_EMAIL}>"
+                html_content = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #1e40af; margin: 0 0 6px 0;">BMV3 Child Development Center</h2>
+                        <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Parent Portal Access & Login Credentials</p>
+                    </div>
+                    <p style="color: #334155; font-size: 1rem;">Hello <strong>{parent_name}</strong>,</p>
+                    <p style="color: #475569; font-size: 0.95rem; line-height: 1.5;">Your parent account has been created. You can now log into the BMV3 Parent Portal to monitor attendance, milestones, daily activities, announcements, and nutrition.</p>
+                    
+                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 18px; border-radius: 10px; margin: 20px 0;">
+                        <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1.05rem;">Your Login Credentials:</h3>
+                        <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Portal URL:</strong> <a href="http://127.0.0.1:8000/login/" style="color: #2563eb;">http://127.0.0.1:8000/login/</a></p>
+                        <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Username:</strong> <span style="font-weight: 800; color: #1e40af; font-size: 1.15rem; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">{username}</span></p>
+                        <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Temporary Password:</strong> <span style="font-weight: 800; color: #dc2626; font-size: 1.15rem; background: #fee2e2; padding: 2px 8px; border-radius: 6px;">{password}</span></p>
+                    </div>
+                    
+                    <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 14px; border-radius: 4px; margin-bottom: 20px;">
+                        <p style="color: #991b1b; font-weight: 700; margin: 0; font-size: 0.88rem;">
+                            IMPORTANT: For your security, you will be prompted to set your personal permanent password immediately upon first login.
+                        </p>
+                    </div>
+                    
+                    <p style="margin-top: 24px; color: #64748b; font-size: 0.88rem;">Best Regards,<br><strong>BMV3 Administration & Teaching Staff</strong><br>Barangay Market View, Lucena City</p>
+                </div>
+                """
+                text_content = strip_tags(html_content)
+                try:
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [email])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send(fail_silently=False)
                     email_sent = True
-            except Exception as e:
-                print(f"Failed to send email to {email}: {e}")
-                email_sent = False
-                
-            res_data = {
+                except Exception as e:
+                    email_sent = False
+                    email_error = str(e)
+                    print(f"Failed to dispatch Brevo email to {email}: {e}")
+
+            return Response({
                 'success': True,
-                'message': 'Account generated successfully.'
-            }
-            if settings.DEBUG or not email_sent or is_console_backend:
-                res_data['dev_credentials'] = {
-                    'username': username,
-                    'password': password
-                }
-            return Response(res_data)
-            
+                'account_created': True,
+                'already_exists': not account_is_new,
+                'username': username,
+                'temporary_password': password,
+                'parent_name': parent_name,
+                'email': email if has_real_email else '',
+                'has_email': has_real_email,
+                'email_sent': email_sent,
+                'email_error': email_error,
+                'first_login': True,
+                'child_name': f"{child.first_name} {child.last_name}" if child else None,
+                'message': f"Parent account successfully created for '{username}'!"
+            })
+
         except Exception as e:
             return Response({'error': str(e)}, status=500)
 
@@ -1627,6 +1771,16 @@ class ECCDBookletRecordViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get', 'post'], url_path='by-child/(?P<child_id>[^/.]+)')
     def by_child(self, request, child_id=None):
+        return self._handle_by_child(request, child_id)
+
+    @action(detail=False, methods=['get', 'post'], url_path='by-child')
+    def by_child_query(self, request):
+        child_id = request.data.get('child_id') or request.query_params.get('child_id') or request.query_params.get('child')
+        return self._handle_by_child(request, child_id)
+
+    def _handle_by_child(self, request, child_id):
+        if not child_id:
+            return Response({'error': 'child_id is required.'}, status=400)
         from django.shortcuts import get_object_or_404
         child = get_object_or_404(Child, pk=child_id)
         if not request.user.is_authenticated:
@@ -1667,14 +1821,37 @@ class ECCDBookletRecordViewSet(viewsets.ModelViewSet):
             booklet.save()
 
         if request.method == 'POST':
+            from django.utils import timezone
             data = request.data
-            for field in ['sociodemographic', 'examiner_notes', 'mchat_r', 'intake_form', 'consent_form', 'health_record', 'eye_vision', 'growth_chart_data', 'behavior_records']:
+            is_teacher = request.user.is_superuser or (profile and profile.is_teacher)
+            updated_fields = []
+            
+            allowed_fields = ['sociodemographic', 'mchat_r', 'intake_form', 'consent_form', 'health_record', 'eye_vision', 'growth_chart_data', 'behavior_records']
+            if is_teacher:
+                allowed_fields.append('examiner_notes')
+
+            for field in allowed_fields:
                 if field in data:
                     setattr(booklet, field, data[field])
-            booklet.save()
-            return Response({'success': True, 'data': ECCDBookletRecordSerializer(booklet).data})
+                    updated_fields.append(field)
 
-        return Response(ECCDBookletRecordSerializer(booklet).data)
+            # Record audit trail
+            audit_entry = {
+                'user': request.user.username,
+                'role': 'Teacher' if is_teacher else 'Parent',
+                'timestamp': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'updated_fields': updated_fields
+            }
+            if not isinstance(booklet.audit_history, list):
+                booklet.audit_history = []
+            booklet.audit_history.append(audit_entry)
+            booklet.save()
+
+            serializer = ECCDBookletRecordSerializer(booklet, context={'request': request})
+            return Response({'success': True, 'data': serializer.data})
+
+        serializer = ECCDBookletRecordSerializer(booklet, context={'request': request})
+        return Response(serializer.data)
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -2005,63 +2182,103 @@ class TextblastSendAPIView(APIView):
         category = request.data.get('category', 'General Announcement')
         send_email = request.data.get('send_email', True)
         send_sms = request.data.get('send_sms', True)
+        test_email = (request.data.get('test_email') or request.data.get('test_recipient') or '').strip()
+        school_year_id = request.data.get('school_year_id') or request.data.get('school_year')
 
         if not title or not message:
             return Response({'detail': 'Title and message are required for textblast.'}, status=400)
 
-        active_year = SchoolYear.objects.filter(is_active=True).first()
-        if active_year:
-            active_children = Child.objects.filter(school_year=active_year)
+        # 1. Resolve children based on SY selection or active SY
+        if school_year_id:
+            active_children = Child.objects.filter(school_year_id=school_year_id)
         else:
+            active_year = SchoolYear.objects.filter(is_active=True).first()
+            if active_year:
+                active_children = Child.objects.filter(school_year=active_year)
+            else:
+                active_children = Child.objects.none()
+
+        # If current SY has 0 enrolled children, fall back to all enrolled children across SYs
+        if not active_children.exists():
             active_children = Child.objects.all()
 
         email_set = set()
         phone_set = set()
 
         for child in active_children:
-            if child.mother_email and '@' in child.mother_email: email_set.add(child.mother_email)
-            if child.father_email and '@' in child.father_email: email_set.add(child.father_email)
-            if child.other_guardian_email and '@' in child.other_guardian_email: email_set.add(child.other_guardian_email)
+            if child.mother_email and '@' in child.mother_email: email_set.add(child.mother_email.strip())
+            if child.father_email and '@' in child.father_email: email_set.add(child.father_email.strip())
+            if child.other_guardian_email and '@' in child.other_guardian_email: email_set.add(child.other_guardian_email.strip())
 
-            if child.mother_phone and child.mother_phone != 'No Info': phone_set.add(child.mother_phone)
-            if child.father_phone and child.father_phone != 'No Info': phone_set.add(child.father_phone)
-            if child.other_guardian_phone and child.other_guardian_phone != 'No Info': phone_set.add(child.other_guardian_phone)
+            if child.mother_phone and child.mother_phone != 'No Info': phone_set.add(child.mother_phone.strip())
+            if child.father_phone and child.father_phone != 'No Info': phone_set.add(child.father_phone.strip())
+            if child.other_guardian_phone and child.other_guardian_phone != 'No Info': phone_set.add(child.other_guardian_phone.strip())
 
             for p_user in child.parents.all():
-                if p_user.user and p_user.user.email:
-                    email_set.add(p_user.user.email)
+                if p_user.user and p_user.user.email and '@' in p_user.user.email:
+                    email_set.add(p_user.user.email.strip())
 
-
-
+        # Fallback to parent profiles if still empty
         if not email_set and not phone_set:
             parents = UserProfile.objects.filter(is_teacher=False)
             for p in parents:
-                if p.user and p.user.email: email_set.add(p.user.email)
+                if p.user and p.user.email and '@' in p.user.email:
+                    email_set.add(p.user.email.strip())
 
-        email_list = list(email_set)
+        # Filter out .local and fake demo domains for real SMTP delivery
+        deliverable_emails = {
+            e for e in email_set
+            if not e.lower().endswith('.local') and not e.lower().endswith('.test') and 'demo.bmv3' not in e.lower()
+        }
+
+        # Include test recipient if provided
+        if test_email and '@' in test_email:
+            deliverable_emails.add(test_email)
+
+        # Include sender's email or DEFAULT_FROM_EMAIL if requested or if no real parent emails found
+        if request.data.get('send_copy_to_sender') or (not deliverable_emails and getattr(request.user, 'email', None)):
+            if request.user.email and '@' in request.user.email and not request.user.email.endswith('.local'):
+                deliverable_emails.add(request.user.email.strip())
+            elif settings.DEFAULT_FROM_EMAIL and '@' in settings.DEFAULT_FROM_EMAIL:
+                deliverable_emails.add(settings.DEFAULT_FROM_EMAIL)
+
+        email_list = list(deliverable_emails)
         phone_list = list(phone_set)
-
 
         emails_sent = 0
         sms_sent = 0
+        email_errors = []
 
         # 1. EMAIL DISPATCH (Brevo SMTP Relay)
         if send_email and email_list:
+            from django.core.mail import EmailMultiAlternatives
             subject = f"[{category.upper()}] {title}"
-            body = f"Dear Parent/Guardian,\n\n{message}\n\nBest regards,\nBarangay Market View 3 Child Development Center"
-            for email in email_list:
+            from_email = f"BMV3 Child Development Center <{settings.DEFAULT_FROM_EMAIL}>"
+            html_body = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                <div style="border-bottom: 2px solid #1e40af; padding-bottom: 12px; margin-bottom: 16px;">
+                    <span style="background: #1e40af; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">{category}</span>
+                    <h2 style="color: #0f172a; margin: 10px 0 4px 0; font-size: 1.3rem;">{title}</h2>
+                    <div style="color: #64748b; font-size: 0.82rem;">Barangay Market View 3 Child Development Center</div>
+                </div>
+                <p style="color: #334155; font-size: 0.95rem; line-height: 1.6; white-space: pre-line;">{message}</p>
+                <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid #f1f5f9; color: #94a3b8; font-size: 0.8rem;">
+                    This is an official advisory from BMV3 Child Development Center sent to registered parents & guardians via Brevo Relay.
+                </div>
+            </div>
+            """
+            text_body = f"[{category.upper()}] {title}\n\n{message}\n\nBarangay Market View 3 Child Development Center"
+
+            for target in email_list:
                 try:
-                    sent = send_mail(
-                        subject=subject,
-                        message=body,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[email],
-                        fail_silently=True
-                    )
+                    msg = EmailMultiAlternatives(subject, text_body, from_email, [target])
+                    msg.attach_alternative(html_body, "text/html")
+                    msg.send(fail_silently=False)
                     emails_sent += 1
                 except Exception as e:
-                    print(f"Email dispatch note for {email}: {e}")
-
+                    err_msg = f"{target}: {str(e)}"
+                    email_errors.append(err_msg)
+                    print(f"Brevo textblast error for {target}: {e}")
 
         # 2. SMS DISPATCH (Semaphore SMS Gateway API with Live Defense Simulator fallback)
         if send_sms and phone_list:
@@ -2091,7 +2308,6 @@ class TextblastSendAPIView(APIView):
                     print(f"[SMS TEXTBLAST SIMULATOR] Sent SMS to {phone}: {sms_body}")
                     sms_sent += 1
 
-
         try:
             PublicReminder.objects.create(
                 title=title,
@@ -2119,6 +2335,9 @@ class TextblastSendAPIView(APIView):
             'emails_sent': emails_sent,
             'sms_sent': sms_sent,
             'total_parents_reached': max(emails_sent, sms_sent),
+            'recipients_count': len(email_list),
+            'recipients': email_list,
+            'email_errors': email_errors,
             'log_id': log_entry.id
         })
 
@@ -2155,6 +2374,187 @@ class AIInsightsAPIView(APIView):
             'status': 'success',
             'question': question,
             'answer': answer
+        })
+
+
+class WithdrawChildAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, child_id):
+        profile = getattr(request.user, 'userprofile', None)
+        if not (request.user.is_superuser or (profile and profile.is_teacher)):
+            return Response({'detail': 'Teacher permission required.'}, status=403)
+            
+        child = get_object_or_404(Child, pk=child_id)
+        withdrawal_date = request.data.get('withdrawal_date') or timezone.now().date()
+        withdrawal_reason = request.data.get('withdrawal_reason', '').strip()
+        
+        child.enrollment_status = 'Withdrawn'
+        child.withdrawal_date = withdrawal_date
+        child.withdrawal_reason = withdrawal_reason
+        child.save()
+        
+        # Check parent accounts
+        # For each parent: check if they have any other actively enrolled children
+        restricted_parents = []
+        for parent_prof in child.parents.all():
+            other_active = parent_prof.children.filter(enrollment_status='Enrolled').exclude(id=child.id).exists()
+            if not other_active:
+                parent_prof.is_account_restricted = True
+                parent_prof.save()
+                if parent_prof.user:
+                    parent_prof.user.is_active = False
+                    parent_prof.user.save()
+                restricted_parents.append(parent_prof.user.username if parent_prof.user else 'Unknown')
+                
+        return Response({
+            'success': True,
+            'message': f"Student {child.first_name} {child.last_name} has been marked as Withdrawn.",
+            'withdrawal_date': str(child.withdrawal_date),
+            'restricted_parents': restricted_parents
+        })
+
+
+class ReEnrollChildAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, child_id):
+        profile = getattr(request.user, 'userprofile', None)
+        if not (request.user.is_superuser or (profile and profile.is_teacher)):
+            return Response({'detail': 'Teacher permission required.'}, status=403)
+
+        child = get_object_or_404(Child, pk=child_id)
+        child.enrollment_status = 'Enrolled'
+        child.withdrawal_date = None
+        child.withdrawal_reason = None
+        child.save()
+
+        # Reactivate parent account if deactivated
+        reactivated_parents = []
+        for parent_prof in child.parents.all():
+            parent_prof.is_account_restricted = False
+            parent_prof.save()
+            if parent_prof.user:
+                parent_prof.user.is_active = True
+                parent_prof.user.save()
+                reactivated_parents.append(parent_prof.user.username)
+
+        return Response({
+            'success': True,
+            'message': f"Student {child.first_name} {child.last_name} has been successfully re-enrolled.",
+            'reactivated_parents': reactivated_parents
+        })
+
+
+class TranslateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        text = (request.data.get('text') or '').strip()
+        source_lang = (request.data.get('source_lang') or 'en').lower().strip()
+        target_lang = (request.data.get('target_lang') or 'tl').lower().strip()
+
+        if not text:
+            return Response({'error': 'Please enter text to translate.'}, status=400)
+
+        if source_lang == target_lang:
+            return Response({
+                'translated_text': text,
+                'source_lang': source_lang,
+                'target_lang': target_lang
+            })
+
+        # Curated domain dictionary for Daycare / ECCD / School communication
+        COMMON_PHRASES = {
+            "en": {
+                "please complete your child's eccd booklet before the assessment.": "Pakikumpleto ang ECCD booklet ng inyong anak bago ang pagtatasa.",
+                "please complete your child's eccd booklet before the assessment": "Pakikumpleto ang ECCD booklet ng inyong anak bago ang pagtatasa.",
+                "please complete your child's booklet.": "Pakikumpleto ang booklet ng inyong anak.",
+                "please bring your child to daycare on time.": "Pakidala po ang inyong anak sa daycare sa tamang oras.",
+                "attendance has been recorded for today.": "Naitala na ang pagdalo para sa araw na ito.",
+                "student has been marked present.": "Ang mag-aaral ay namarkahan bilang naroroon.",
+                "student has been marked absent.": "Ang mag-aaral ay namarkahan bilang liban.",
+                "good morning parents and guardians!": "Magandang araw sa mga magulang at tagapag-alaga!",
+                "please pick up your child by 10:30 am.": "Pakisundo po ang inyong anak bago mag-10:30 ng umaga.",
+                "please pick up your child by 3:30 pm.": "Pakisundo po ang inyong anak bago mag-3:30 ng hapon.",
+                "there will be no classes tomorrow.": "Walang pasok bukas.",
+                "developmental assessment is scheduled next week.": "Nakatakda ang pagtatasa ng pag-unlad sa susunod na linggo.",
+                "welcome to bmv3 child development center.": "Maligayang pagdating sa BMV3 Child Development Center.",
+                "parent-teacher meeting": "Pagpupulong ng mga magulang at guro",
+                "morning shift": "Pang-umagang sesyon",
+                "afternoon shift": "Pang-hapong sesyon"
+            },
+            "tl": {
+                "pakikumpleto ang eccd booklet ng inyong anak bago ang pagtatasa.": "Please complete your child's ECCD booklet before the assessment.",
+                "pakikumpleto ang eccd booklet ng inyong anak bago ang pagtatasa": "Please complete your child's ECCD booklet before the assessment.",
+                "maligayang pagdating sa bmv3 child development center.": "Welcome to BMV3 Child Development Center.",
+                "walang pasok bukas.": "There will be no classes tomorrow.",
+                "magandang araw sa mga magulang at tagapag-alaga!": "Good morning parents and guardians!"
+            }
+        }
+
+        # Check curated phrases
+        norm_key = text.lower().strip()
+        if source_lang in COMMON_PHRASES and norm_key in COMMON_PHRASES[source_lang]:
+            return Response({
+                'translated_text': COMMON_PHRASES[source_lang][norm_key],
+                'source_lang': source_lang,
+                'target_lang': target_lang,
+                'engine': 'curated'
+            })
+
+        # Try online translation via MyMemory API with 3.5-second timeout
+        translated_result = None
+        try:
+            import urllib.request
+            import urllib.parse
+            import json
+
+            s_pair = 'en' if source_lang.startswith('en') else 'tl'
+            t_pair = 'tl' if target_lang.startswith('tl') or target_lang.startswith('fil') else 'en'
+            
+            encoded_text = urllib.parse.quote(text)
+            url = f"https://api.mymemory.translated.net/get?q={encoded_text}&langpair={s_pair}|{t_pair}"
+            req = urllib.request.Request(url, headers={'User-Agent': 'BMV3-Translation-Client/1.0'})
+            with urllib.request.urlopen(req, timeout=3.5) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                if data.get('responseStatus') == 200:
+                    cand = data.get('responseData', {}).get('translatedText')
+                    if cand and not cand.startswith('MYMEMORY WARNING'):
+                        translated_result = cand
+        except Exception:
+            pass
+
+        # Fallback word substitution heuristic if network was unavailable
+        if not translated_result:
+            WORD_MAP_EN_TL = {
+                "please": "paki", "complete": "kumpleto", "child": "anak", "children": "mga bata",
+                "booklet": "booklet", "before": "bago", "assessment": "pagtatasa", "today": "ngayong araw",
+                "tomorrow": "bukas", "teacher": "guro", "parent": "magulang", "parents": "mga magulang",
+                "guardian": "tagapag-alaga", "school": "paaralan", "center": "sentro",
+                "attendance": "pagdalo", "present": "naroroon", "absent": "liban", "late": "huli",
+                "morning": "umaga", "afternoon": "hapon", "class": "klase", "classes": "mga klase",
+                "healthy": "malusog", "nutrition": "nutrisyon", "snack": "meryenda", "water": "tubig",
+                "welcome": "maligayang pagdating", "thank you": "salamat", "good": "mabuti", "day": "araw"
+            }
+            WORD_MAP_TL_EN = {v: k for k, v in WORD_MAP_EN_TL.items()}
+
+            words = text.split()
+            translated_words = []
+            dict_map = WORD_MAP_EN_TL if source_lang == 'en' else WORD_MAP_TL_EN
+            for w in words:
+                clean_w = w.lower().strip(".,!?:;")
+                punct = w[len(clean_w):] if len(w) > len(clean_w) else ''
+                trans = dict_map.get(clean_w, clean_w)
+                if w and w[0].isupper():
+                    trans = trans.capitalize()
+                translated_words.append(trans + punct)
+            translated_result = " ".join(translated_words)
+
+        return Response({
+            'translated_text': translated_result,
+            'source_lang': source_lang,
+            'target_lang': target_lang
         })
 
 
