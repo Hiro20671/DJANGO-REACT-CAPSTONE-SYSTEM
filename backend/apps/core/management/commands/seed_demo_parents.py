@@ -17,11 +17,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("=" * 70))
 
         # Check if historical children exist; if not, seed them first
-        hist_sy = SchoolYear.objects.filter(name="2024-2025").first()
+        hist_sy = SchoolYear.objects.filter(name="2025-2026").first()
         child_count = Child.objects.filter(school_year=hist_sy).count() if hist_sy else 0
 
         if child_count < 50:
-            self.stdout.write(self.style.WARNING("Historical pupils not found. Seeding 2024-2025 historical dataset first..."))
+            self.stdout.write(self.style.WARNING("Historical pupils not found. Seeding 2025-2026 historical dataset first..."))
             seed_historical_school_year()
 
         reset_pw = options.get('reset_passwords', False)

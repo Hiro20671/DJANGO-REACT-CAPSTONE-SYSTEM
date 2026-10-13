@@ -1601,43 +1601,14 @@ def generate_temp_password(account_num):
 
 def get_or_create_school_years():
     """
-    Ensures both the completed historical school year (2024-2025)
-    and the current active school year (2025-2026) are configured.
+    Ensures both the completed historical school year (2025-2026)
+    and the current active school year (2026-2027) are configured.
     """
-    # 1. Historical Year (2024-2025, Completed & Archived)
+    # 1. Historical Year (2025-2026, Completed & Archived)
     hist_sy, created_hist = SchoolYear.objects.get_or_create(
-        name="2024-2025",
-        defaults={
-            "is_active": False,
-            "start_date": datetime.date(2024, 8, 26),
-            "end_date": datetime.date(2025, 5, 30),
-            "eccd_1st_start": datetime.date(2024, 9, 2),
-            "eccd_1st_end": datetime.date(2024, 9, 27),
-            "eccd_2nd_start": datetime.date(2025, 1, 6),
-            "eccd_2nd_end": datetime.date(2025, 1, 31),
-            "eccd_3rd_start": datetime.date(2025, 5, 5),
-            "eccd_3rd_end": datetime.date(2025, 5, 30),
-            "is_deleted": False,
-        }
-    )
-    if not created_hist:
-        hist_sy.is_active = False
-        hist_sy.start_date = datetime.date(2024, 8, 26)
-        hist_sy.end_date = datetime.date(2025, 5, 30)
-        hist_sy.eccd_1st_start = datetime.date(2024, 9, 2)
-        hist_sy.eccd_1st_end = datetime.date(2024, 9, 27)
-        hist_sy.eccd_2nd_start = datetime.date(2025, 1, 6)
-        hist_sy.eccd_2nd_end = datetime.date(2025, 1, 31)
-        hist_sy.eccd_3rd_start = datetime.date(2025, 5, 5)
-        hist_sy.eccd_3rd_end = datetime.date(2025, 5, 30)
-        hist_sy.is_deleted = False
-        hist_sy.save()
-
-    # 2. Current Active Year (2025-2026)
-    active_sy, created_act = SchoolYear.objects.get_or_create(
         name="2025-2026",
         defaults={
-            "is_active": True,
+            "is_active": False,
             "start_date": datetime.date(2025, 8, 25),
             "end_date": datetime.date(2026, 5, 29),
             "eccd_1st_start": datetime.date(2025, 9, 1),
@@ -1649,9 +1620,41 @@ def get_or_create_school_years():
             "is_deleted": False,
         }
     )
+    if not created_hist:
+        hist_sy.is_active = False
+        hist_sy.start_date = datetime.date(2025, 8, 25)
+        hist_sy.end_date = datetime.date(2026, 5, 29)
+        hist_sy.eccd_1st_start = datetime.date(2025, 9, 1)
+        hist_sy.eccd_1st_end = datetime.date(2025, 9, 26)
+        hist_sy.eccd_2nd_start = datetime.date(2026, 1, 5)
+        hist_sy.eccd_2nd_end = datetime.date(2026, 1, 30)
+        hist_sy.eccd_3rd_start = datetime.date(2026, 5, 4)
+        hist_sy.eccd_3rd_end = datetime.date(2026, 5, 29)
+        hist_sy.is_deleted = False
+        hist_sy.save()
+
+    # 2. Current Active Year (2026-2027)
+    active_sy, created_act = SchoolYear.objects.get_or_create(
+        name="2026-2027",
+        defaults={
+            "is_active": True,
+            "start_date": datetime.date(2026, 8, 24),
+            "end_date": datetime.date(2027, 5, 28),
+            "eccd_1st_start": datetime.date(2026, 9, 1),
+            "eccd_1st_end": datetime.date(2026, 9, 25),
+            "eccd_2nd_start": datetime.date(2027, 1, 4),
+            "eccd_2nd_end": datetime.date(2027, 1, 29),
+            "eccd_3rd_start": datetime.date(2027, 5, 3),
+            "eccd_3rd_end": datetime.date(2027, 5, 28),
+            "is_deleted": False,
+        }
+    )
     if not created_act and not active_sy.is_active:
         active_sy.is_active = True
         active_sy.save()
+
+    # Ensure only 2026-2027 is active
+    SchoolYear.objects.exclude(id=active_sy.id).update(is_active=False)
 
     return hist_sy, active_sy
 
@@ -1662,6 +1665,7 @@ def reset_demonstration_database():
     Safely purges only demonstration student and parent records.
     Preserves:
     - Teacher and Admin accounts (is_teacher=True or is_staff=True or is_superuser=True)
+    - jeremy_960 parent account (current active parent of Sky Dylan)
     - Database schema & migrations
     - ECCD Domains and Milestones
     - CenterSettings
@@ -1670,9 +1674,11 @@ def reset_demonstration_database():
     teacher_users = User.objects.filter(userprofile__is_teacher=True)
     staff_users = User.objects.filter(is_staff=True)
     super_users = User.objects.filter(is_superuser=True)
+    jeremy_user = User.objects.filter(username="jeremy_960")
     protected_user_ids = set(teacher_users.values_list('id', flat=True)) | \
                          set(staff_users.values_list('id', flat=True)) | \
-                         set(super_users.values_list('id', flat=True))
+                         set(super_users.values_list('id', flat=True)) | \
+                         set(jeremy_user.values_list('id', flat=True))
 
     demo_parent_users = User.objects.exclude(id__in=protected_user_ids)
     demo_parent_count = demo_parent_users.count()
@@ -1688,8 +1694,8 @@ def reset_demonstration_database():
     # Cascade delete demo parent accounts (cascades to UserProfile)
     demo_parent_users.delete()
 
-    # Clean up any leftover test school years that are not 2024-2025 or 2025-2026
-    SchoolYear.objects.filter(name__in=["1st BAtch", "2nd Batch"]).delete()
+    # Clean up any leftover test school years that are not 2025-2026 or 2026-2027
+    SchoolYear.objects.filter(name__in=["1st BAtch", "2nd Batch", "2024-2025"]).delete()
 
     return {
         "deleted_children": child_count,
@@ -1700,10 +1706,10 @@ def reset_demonstration_database():
 @transaction.atomic
 def seed_historical_school_year(progress_callback=None):
     """
-    Creates and populates the historical school year 2024-2025 with:
+    Creates and populates the historical school year 2025-2026 with:
     - 60 unique children (30 Morning Shift, 30 Afternoon Shift)
     - Complete guardian details for every child
-    - Historical attendance spanning Sep 2024 - Apr 2025
+    - Historical attendance spanning Sep 2025 - Apr 2026
     - Nutrition & BMI records across 3 quarters
     - Finalized ECCD evaluations & milestone scores across 7 domains
     - Historical behavior/engagement and activity records
@@ -1724,14 +1730,14 @@ def seed_historical_school_year(progress_callback=None):
     # Pre-fetch ECCD milestones
     milestones = list(ECCDMilestone.objects.all().order_by('domain__order', 'order_number'))
 
-    # Representative historical attendance dates (20 school days)
+    # Representative historical attendance dates (20 school days in 2025-2026)
     attendance_dates = [
-        datetime.date(2024, 9, 2),  datetime.date(2024, 9, 9),  datetime.date(2024, 9, 16), datetime.date(2024, 9, 23),
-        datetime.date(2024, 10, 7), datetime.date(2024, 10, 14), datetime.date(2024, 10, 21), datetime.date(2024, 10, 28),
-        datetime.date(2024, 11, 4), datetime.date(2024, 11, 11), datetime.date(2024, 11, 18), datetime.date(2024, 11, 25),
-        datetime.date(2024, 12, 2), datetime.date(2024, 12, 9),  datetime.date(2024, 12, 16),
-        datetime.date(2025, 1, 13), datetime.date(2025, 1, 20), datetime.date(2025, 2, 10),
-        datetime.date(2025, 3, 10), datetime.date(2025, 4, 7),
+        datetime.date(2025, 9, 1),  datetime.date(2025, 9, 8),  datetime.date(2025, 9, 15), datetime.date(2025, 9, 22),
+        datetime.date(2025, 10, 6), datetime.date(2025, 10, 13), datetime.date(2025, 10, 20), datetime.date(2025, 10, 27),
+        datetime.date(2025, 11, 3), datetime.date(2025, 11, 10), datetime.date(2025, 11, 17), datetime.date(2025, 11, 24),
+        datetime.date(2025, 12, 1), datetime.date(2025, 12, 8),  datetime.date(2025, 12, 15),
+        datetime.date(2026, 1, 12), datetime.date(2026, 1, 19), datetime.date(2026, 2, 9),
+        datetime.date(2026, 3, 9), datetime.date(2026, 4, 6),
     ]
 
     absence_reasons = [
@@ -1756,14 +1762,14 @@ def seed_historical_school_year(progress_callback=None):
     morning_count = 0
     afternoon_count = 0
 
-    # 1. Create 6 Historical Activities
+    # 1. Create 6 Historical Activities for 2025-2026
     activities_data = [
-        ("Buwan ng Wika Cultural Day", "Filipino cultural songs, traditional games, and costume presentation.", datetime.date(2024, 8, 30)),
-        ("National Children's Month Art Fair", "Finger-painting and sensory art exhibit highlighting children's rights.", datetime.date(2024, 10, 25)),
-        ("Handwashing & Health Hygiene Workshop", "Demonstration of proper handwashing steps and dental care.", datetime.date(2024, 11, 15)),
-        ("BMV3 Daycare Christmas Program", "Holiday caroling, gift-giving, and festive dance presentations.", datetime.date(2024, 12, 19)),
-        ("Community Helpers Day", "Interactive roleplaying as doctors, firemen, and teachers with barangay guests.", datetime.date(2025, 2, 21)),
-        ("Moving-Up Ceremony & Recognition", "Recognition of achievements and moving-up ceremony for daycare graduates.", datetime.date(2025, 5, 28)),
+        ("Buwan ng Wika Cultural Day", "Filipino cultural songs, traditional games, and costume presentation.", datetime.date(2025, 8, 29)),
+        ("National Children's Month Art Fair", "Finger-painting and sensory art exhibit highlighting children's rights.", datetime.date(2025, 10, 24)),
+        ("Handwashing & Health Hygiene Workshop", "Demonstration of proper handwashing steps and dental care.", datetime.date(2025, 11, 14)),
+        ("BMV3 Daycare Christmas Program", "Holiday caroling, gift-giving, and festive dance presentations.", datetime.date(2025, 12, 18)),
+        ("Community Helpers Day", "Interactive roleplaying as doctors, firemen, and teachers with barangay guests.", datetime.date(2026, 2, 20)),
+        ("Moving-Up Ceremony & Recognition", "Recognition of achievements and moving-up ceremony for daycare graduates.", datetime.date(2026, 5, 27)),
     ]
     activities = []
     for name, desc, act_date in activities_data:
@@ -1777,7 +1783,7 @@ def seed_historical_school_year(progress_callback=None):
     # 2. Populate 60 Children and their associated historical records
     for idx, p in enumerate(CHILDREN_PROFILES, 1):
         dob_date = datetime.datetime.strptime(p["dob"], "%Y-%m-%d").date()
-        doe_date = datetime.date(2024, 8, random.choice([15, 16, 19, 20, 21, 22]))
+        doe_date = datetime.date(2025, 8, random.choice([18, 19, 20, 21, 22]))
 
         child, created = Child.objects.get_or_create(
             first_name=p["first_name"],
@@ -1817,6 +1823,9 @@ def seed_historical_school_year(progress_callback=None):
             }
         )
 
+        # Clear any parent links on historical archived pupils so parent demo accounts remain empty
+        child.parents.clear()
+
         if p["shift"] == "Morning":
             morning_count += 1
         else:
@@ -1850,7 +1859,6 @@ def seed_historical_school_year(progress_callback=None):
         # Attendance Records (20 days)
         dropoff_str = "07:45 AM" if p["shift"] == "Morning" else "12:45 PM"
         for d in attendance_dates:
-            # Deterministic pseudo-random variation per child and date
             roll = (idx * 7 + d.day * 13) % 100
             if roll < 84:
                 status = "Present"
@@ -1898,10 +1906,10 @@ def seed_historical_school_year(progress_callback=None):
 
         # Engagement / Behavior Records (4 entries)
         behavior_entries = [
-            (datetime.date(2024, 9, 20), "Positive", "Very cooperative during storytelling and group dance."),
-            (datetime.date(2024, 11, 8), "Attentive", "Focused well during number identification games."),
-            (datetime.date(2025, 1, 24), "Cooperative", "Helped tidy up toys and showed kindness to peers."),
-            (datetime.date(2025, 3, 21), "Active", "Demonstrated high energy and cheerful participation in free play."),
+            (datetime.date(2025, 9, 19), "Positive", "Very cooperative during storytelling and group dance."),
+            (datetime.date(2025, 11, 7), "Attentive", "Focused well during number identification games."),
+            (datetime.date(2026, 1, 23), "Cooperative", "Helped tidy up toys and showed kindness to peers."),
+            (datetime.date(2026, 3, 20), "Active", "Demonstrated high energy and cheerful participation in free play."),
         ]
         for b_date, b_status, b_notes in behavior_entries:
             EngagementRecord.objects.get_or_create(
@@ -1918,9 +1926,9 @@ def seed_historical_school_year(progress_callback=None):
         base_w = p["weight"]
         base_h = p["height"]
         bmi_data = [
-            ("1st", base_w, base_h, datetime.date(2024, 9, 10)),
-            ("2nd", round(base_w + 0.6, 1), round(base_h + 1.8, 1), datetime.date(2025, 1, 14)),
-            ("3rd", round(base_w + 1.2, 1), round(base_h + 3.6, 1), datetime.date(2025, 5, 12)),
+            ("1st", base_w, base_h, datetime.date(2025, 9, 9)),
+            ("2nd", round(base_w + 0.6, 1), round(base_h + 1.8, 1), datetime.date(2026, 1, 13)),
+            ("3rd", round(base_w + 1.2, 1), round(base_h + 3.6, 1), datetime.date(2026, 5, 11)),
         ]
         for q_label, q_w, q_h, q_date in bmi_data:
             BMIRecord.objects.get_or_create(
@@ -1937,9 +1945,9 @@ def seed_historical_school_year(progress_callback=None):
 
         # ECCD Assessments for 1st, 2nd, and 3rd Periods
         eccd_periods = [
-            ("1st", datetime.date(2024, 9, 18), "Baseline assessment. Showing good adaptation to daycare routine.", "Friendly and eager to participate.", "Needs guidance with small motor tasks like scissors.", "Continue regular fine motor activities."),
-            ("2nd", datetime.date(2025, 1, 20), "Mid-year assessment. Marked progress observed in language and self-help.", "Communicates needs clearly and shares toys willingly.", "Improving counting confidence.", "Reinforce number concepts at home."),
-            ("3rd", datetime.date(2025, 5, 19), "Final year evaluation. Child is well-prepared for kindergarten transition.", "Consistently demonstrates self-reliance, social harmony, and cognitive curiosity.", "None. Readiness milestones successfully met.", "Maintain reading and storytelling habits."),
+            ("1st", datetime.date(2025, 9, 17), "Baseline assessment. Showing good adaptation to daycare routine.", "Friendly and eager to participate.", "Needs guidance with small motor tasks like scissors.", "Continue regular fine motor activities."),
+            ("2nd", datetime.date(2026, 1, 19), "Mid-year assessment. Marked progress observed in language and self-help.", "Communicates needs clearly and shares toys willingly.", "Improving counting confidence.", "Reinforce number concepts at home."),
+            ("3rd", datetime.date(2026, 5, 18), "Final year evaluation. Child is well-prepared for kindergarten transition.", "Consistently demonstrates self-reliance, social harmony, and cognitive curiosity.", "None. Readiness milestones successfully met.", "Maintain reading and storytelling habits."),
         ]
 
         for p_label, a_date, rem, stren, conc, f_up in eccd_periods:
@@ -1958,8 +1966,6 @@ def seed_historical_school_year(progress_callback=None):
                 }
             )
 
-            # Generate milestone scores across domains
-            # Progression logic: 1st evaluation -> mostly 1s and 0s; 2nd -> mostly 1s and 2s; 3rd -> mostly 2s
             scores_to_create = []
             for m in milestones:
                 m_hash = (idx * 31 + m.id * 17) % 100
@@ -1980,7 +1986,6 @@ def seed_historical_school_year(progress_callback=None):
                     )
                 )
 
-            # Bulk create or ignore existing
             ECCDMilestoneScore.objects.bulk_create(scores_to_create, ignore_conflicts=True)
 
         if progress_callback:
@@ -1997,41 +2002,33 @@ def seed_historical_school_year(progress_callback=None):
 @transaction.atomic
 def seed_demo_parent_accounts(reset_passwords=False):
     """
-    Provisions exactly 60 demo parent accounts: parent001 to parent060.
-    - Creates User with username parent001..parent060
-    - Assigns unique, individual temporary passwords (e.g. Bmv3Demo#p001..Bmv3Demo#p060)
-    - Associates UserProfile with is_teacher=False and first_login=True
-    - Links each parent profile to their assigned fictional child
-    - Exports bmv3_demo_parent_credentials.csv
-    - Never sends external emails during creation
-    - Idempotent and safe to run multiple times
+    Provisions exactly 80 built-in demonstration parent accounts (parent001 to parent080)
+    with NO enrolled children and mandatory first-login password change.
+    These accounts are purely blank and ready for new enrollments in the current school year (2026-2027).
     """
-    hist_sy = SchoolYear.objects.filter(name="2024-2025").first()
-    if not hist_sy:
-        hist_sy, _ = get_or_create_school_years()
-
     csv_rows = []
     created_count = 0
     updated_count = 0
 
     base_dir = Path(__file__).resolve().parent.parent.parent.parent
-    csv_path = base_dir / "bmv3_demo_parent_credentials.csv"
+    csv_paths = [
+        base_dir / "bmv3_80_demo_parent_credentials.csv",
+        base_dir / "bmv3_demo_parent_credentials.csv",
+    ]
 
-    for p in CHILDREN_PROFILES:
-        acc_num = p["account_num"]
-        username = p["username"]
-        temp_password = generate_temp_password(acc_num)
-        email = p["mother_email"]
-        parent_name = f"{p['mother_first_name']} {p['mother_last_name']}"
-        child_name = f"{p['first_name']} {p['last_name']}"
-        shift = p["shift"]
+    for i in range(1, 81):
+        acc_num = f"{i:03d}"
+        username = f"parent{acc_num}"
+        temp_password = f"Bmv3!Parent{acc_num}#"
+        email = f"parent{acc_num}@demo.bmv3.local"
+        parent_name = f"Parent Demo{acc_num}"
 
         user, user_created = User.objects.get_or_create(
             username=username,
             defaults={
                 "email": email,
-                "first_name": p["mother_first_name"],
-                "last_name": p["mother_last_name"],
+                "first_name": "Parent",
+                "last_name": f"Demo{acc_num}",
                 "is_staff": False,
                 "is_superuser": False,
             }
@@ -2040,8 +2037,8 @@ def seed_demo_parent_accounts(reset_passwords=False):
         if user_created or reset_passwords:
             user.set_password(temp_password)
             user.email = email
-            user.first_name = p["mother_first_name"]
-            user.last_name = p["mother_last_name"]
+            user.first_name = "Parent"
+            user.last_name = f"Demo{acc_num}"
             user.save()
 
         profile, prof_created = UserProfile.objects.get_or_create(
@@ -2049,7 +2046,8 @@ def seed_demo_parent_accounts(reset_passwords=False):
             defaults={
                 "is_teacher": False,
                 "first_login": True,
-                "home_address_text": f"{p['street']}, {p['purok']}, {p['barangay']}, {p['city_municipality']}",
+                "is_account_restricted": False,
+                "home_address_text": f"Lucena City Demonstration Zone {acc_num}",
             }
         )
 
@@ -2057,15 +2055,8 @@ def seed_demo_parent_accounts(reset_passwords=False):
             profile.first_login = True
             profile.save()
 
-        # Link child to parent profile
-        child = Child.objects.filter(
-            first_name=p["first_name"],
-            last_name=p["last_name"],
-            school_year=hist_sy
-        ).first()
-
-        if child and profile not in child.parents.all():
-            child.parents.add(profile)
+        # Ensure NO children are attached - pure empty parent accounts ready for enrollment
+        profile.children.clear()
 
         if user_created:
             created_count += 1
@@ -2073,30 +2064,34 @@ def seed_demo_parent_accounts(reset_passwords=False):
             updated_count += 1
 
         csv_rows.append({
-            "Account": acc_num,
+            "Account": i,
             "Username": username,
             "Temporary Password": temp_password,
             "Parent / Guardian Name": parent_name,
-            "Assigned Pupil": child_name,
-            "Shift": shift,
+            "Assigned Pupil": "None (Ready for Enrollment)",
+            "Shift": "Unassigned",
             "First Login Password Change": "Required" if profile.first_login else "Completed",
         })
 
-    # Write credentials to restricted CSV file
-    with open(csv_path, mode="w", newline="", encoding="utf-8") as f:
-        fieldnames = [
-            "Account", "Username", "Temporary Password",
-            "Parent / Guardian Name", "Assigned Pupil",
-            "Shift", "First Login Password Change"
-        ]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(csv_rows)
+    for cp in csv_paths:
+        try:
+            with open(cp, mode="w", newline="", encoding="utf-8") as f:
+                fieldnames = [
+                    "Account", "Username", "Temporary Password",
+                    "Parent / Guardian Name", "Assigned Pupil",
+                    "Shift", "First Login Password Change"
+                ]
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(csv_rows)
+        except Exception:
+            pass
 
     return {
         "total_accounts": len(csv_rows),
         "created_count": created_count,
         "updated_count": updated_count,
-        "csv_path": str(csv_path),
+        "csv_path": str(csv_paths[0]),
         "accounts": csv_rows,
     }
+

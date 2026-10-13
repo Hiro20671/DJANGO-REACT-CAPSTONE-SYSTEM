@@ -88,7 +88,7 @@
 
                 // 2. Inject Persistent Warning Banner & Read-Only Locks
                 document.addEventListener('DOMContentLoaded', () => {
-                    const formattedYear = (archiveName && archiveName.toLowerCase().startsWith('school year')) ? archiveName : `School Year ${archiveName || '2024-2025'}`;
+                    const formattedYear = (archiveName && archiveName.toLowerCase().startsWith('school year')) ? archiveName : `School Year ${archiveName || '2025-2026'}`;
                     let banner = document.createElement('div');
                     banner.id = 'archivedSchoolYearBanner';
                     banner.style.cssText = 'background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #dc2626 100%); color: #ffffff; padding: 14px 24px; font-family: "Montserrat", sans-serif; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99999; box-shadow: 0 4px 14px rgba(153, 27, 27, 0.35); border-bottom: 2px solid #7f1d1d; flex-wrap: wrap; gap: 12px;';
