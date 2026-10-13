@@ -6,6 +6,12 @@
   window.CURRENT_USER_USERNAME = "{{ request.user.username }}";
   window.CURRENT_USER_NAME = "{{ request.user.first_name }} {{ request.user.last_name }}".trim() || "{{ request.user.username }}";
 </script>
-<div id="react-parent-dashboard-root"></div>
+<div id="react-parent-dashboard-root">
+  <div style="text-align: center; padding: 60px 20px; color: #64748b; font-family: sans-serif;">
+    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #2563eb; margin-bottom: 16px;"></i>
+    <h3 style="color: #1e3a8a; margin: 0 0 8px 0;">Loading Parent Portal...</h3>
+    <p style="margin: 0; font-size: 0.95rem;">Preparing child records and enrollment options...</p>
+  </div>
+</div>
 {% vite_asset 'src/main.jsx' %}
 {% endblock %}

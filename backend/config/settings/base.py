@@ -115,6 +115,7 @@ DJANGO_VITE = {
     "default": {
         "dev_mode": False,
         "dev_server_port": 5173,
+        "static_url_prefix": "react",
         "manifest_path": str(BASE_DIR / "apps" / "core" / "static" / "react" / ".vite" / "manifest.json")
     }
 }
