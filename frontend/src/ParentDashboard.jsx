@@ -838,8 +838,15 @@ function ParentDashboard() {
     if (pStr) {
       try {
         const parsed = JSON.parse(pStr);
-        if (!window.CURRENT_USER_NAME && parsed.name) {
+        if (parsed.name && parsed.name.toLowerCase().includes('elena')) {
+            parsed.name = 'Parent';
+        }
+        if (window.CURRENT_USER_NAME && window.CURRENT_USER_NAME !== 'Parent') {
+            setParentName(window.CURRENT_USER_NAME);
+        } else if (parsed.name && !parsed.name.toLowerCase().includes('elena')) {
             setParentName(parsed.name);
+        } else {
+            setParentName('Parent');
         }
         const savedLinkedId = localStorage.getItem('linked_child_id');
         if (savedLinkedId) {

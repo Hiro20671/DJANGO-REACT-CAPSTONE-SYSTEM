@@ -1620,18 +1620,17 @@ def get_or_create_school_years():
             "is_deleted": False,
         }
     )
-    if not created_hist:
-        hist_sy.is_active = False
-        hist_sy.start_date = datetime.date(2025, 8, 25)
-        hist_sy.end_date = datetime.date(2026, 5, 29)
-        hist_sy.eccd_1st_start = datetime.date(2025, 9, 1)
-        hist_sy.eccd_1st_end = datetime.date(2025, 9, 26)
-        hist_sy.eccd_2nd_start = datetime.date(2026, 1, 5)
-        hist_sy.eccd_2nd_end = datetime.date(2026, 1, 30)
-        hist_sy.eccd_3rd_start = datetime.date(2026, 5, 4)
-        hist_sy.eccd_3rd_end = datetime.date(2026, 5, 29)
-        hist_sy.is_deleted = False
-        hist_sy.save()
+    hist_sy.is_active = False
+    hist_sy.start_date = datetime.date(2025, 8, 25)
+    hist_sy.end_date = datetime.date(2026, 5, 29)
+    hist_sy.eccd_1st_start = datetime.date(2025, 9, 1)
+    hist_sy.eccd_1st_end = datetime.date(2025, 9, 26)
+    hist_sy.eccd_2nd_start = datetime.date(2026, 1, 5)
+    hist_sy.eccd_2nd_end = datetime.date(2026, 1, 30)
+    hist_sy.eccd_3rd_start = datetime.date(2026, 5, 4)
+    hist_sy.eccd_3rd_end = datetime.date(2026, 5, 29)
+    hist_sy.is_deleted = False
+    hist_sy.save()
 
     # 2. Current Active Year (2026-2027)
     active_sy, created_act = SchoolYear.objects.get_or_create(
@@ -1649,11 +1648,24 @@ def get_or_create_school_years():
             "is_deleted": False,
         }
     )
-    if not created_act and not active_sy.is_active:
-        active_sy.is_active = True
-        active_sy.save()
+    active_sy.is_active = True
+    active_sy.is_deleted = False
+    active_sy.save()
 
-    # Ensure only 2026-2027 is active
+    # Safely migrate any children & records attached to rogue / accidental school years
+    rogue_sys = SchoolYear.objects.exclude(id__in=[hist_sy.id, active_sy.id])
+    for rogue in rogue_sys:
+        Child.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        AttendanceRecord.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        NutritionRecord.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        ECCDAssessment.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        BMIRecord.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        EngagementRecord.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        Activity.objects.filter(school_year=rogue).update(school_year=hist_sy)
+        NoClassDay.objects.filter(school_year=rogue).update(school_year=hist_sy)
+    rogue_sys.delete()
+
+    # Ensure strictly only 2026-2027 is active
     SchoolYear.objects.exclude(id=active_sy.id).update(is_active=False)
 
     return hist_sy, active_sy
@@ -2028,18 +2040,18 @@ def seed_demo_parent_accounts(reset_passwords=False):
             defaults={
                 "email": email,
                 "first_name": "Parent",
-                "last_name": f"Demo{acc_num}",
+                "last_name": "",
                 "is_staff": False,
                 "is_superuser": False,
             }
         )
 
-        if user_created or reset_passwords:
-            user.set_password(temp_password)
-            user.email = email
-            user.first_name = "Parent"
-            user.last_name = f"Demo{acc_num}"
-            user.save()
+        user.set_password(temp_password)
+        user.email = email
+        user.first_name = "Parent"
+        user.last_name = ""
+        user.is_active = True
+        user.save()
 
         profile, prof_created = UserProfile.objects.get_or_create(
             user=user,
@@ -2051,9 +2063,9 @@ def seed_demo_parent_accounts(reset_passwords=False):
             }
         )
 
-        if reset_passwords:
-            profile.first_login = True
-            profile.save()
+        profile.first_login = True
+        profile.is_account_restricted = False
+        profile.save()
 
         # Ensure NO children are attached - pure empty parent accounts ready for enrollment
         profile.children.clear()

@@ -1492,7 +1492,7 @@
                 <i class="fa-regular fa-user"></i>
             </div>
             <div class="user-info">
-                <h4 id="sidebar-name" style="color: #fff; font-size: 1.05rem; font-weight: 700; margin: 0;">{{ request.user.first_name|default:request.user.username }}</h4>
+                <h4 id="sidebar-name" style="color: #fff; font-size: 1.05rem; font-weight: 700; margin: 0;">{% if request.user.first_name and request.user.first_name|lower != 'elena' and request.user.first_name|lower != 'parent' and request.user.first_name|lower != 'demo' %}{{ request.user.first_name }}{% else %}Parent{% endif %}</h4>
                 <span style="color: rgba(255,255,255,0.7); font-size: 0.78rem; font-weight: 600;">Parent</span>
             </div>
             <button onclick="closeSidebarDrawer()" class="mobile-only" style="background: none; border: none; color: #fff; margin-left: auto; font-size: 1.2rem; cursor: pointer; padding: 5px;">

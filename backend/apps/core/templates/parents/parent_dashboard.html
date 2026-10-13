@@ -4,7 +4,7 @@
 {% block content %}
 <script>
   window.CURRENT_USER_USERNAME = "{{ request.user.username }}";
-  window.CURRENT_USER_NAME = "{{ request.user.first_name }} {{ request.user.last_name }}".trim() || "{{ request.user.username }}";
+  window.CURRENT_USER_NAME = "{% if request.user.first_name and request.user.first_name|lower != 'elena' and request.user.first_name|lower != 'parent' and request.user.first_name|lower != 'demo' %}{{ request.user.first_name }} {{ request.user.last_name|default:'' }}{% else %}Parent{% endif %}".trim();
 </script>
 <div id="react-parent-dashboard-root">
   <div style="text-align: center; padding: 60px 20px; color: #64748b; font-family: sans-serif;">

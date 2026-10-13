@@ -222,6 +222,16 @@ class ChildViewSet(viewsets.ModelViewSet):
         if profile:
             if not profile.is_teacher:
                 child = serializer.save(enrollment_status='Pending', school_year=active_year)
+                # If parent user doesn't have a personal name yet, set it from the child's guardian details
+                user = self.request.user
+                if not user.first_name or user.first_name in ('Parent', 'parent', 'Elena', 'elena'):
+                    guardian_fname = child.mother_first_name or child.father_first_name or child.other_guardian_first_name
+                    guardian_lname = child.mother_last_name or child.father_last_name or child.other_guardian_last_name
+                    if guardian_fname and guardian_fname != 'No Info':
+                        user.first_name = guardian_fname
+                        if guardian_lname and guardian_lname != 'No Info':
+                            user.last_name = guardian_lname
+                        user.save()
             else:
                 child = serializer.save(school_year=active_year)
             child.parents.add(profile)
@@ -1272,6 +1282,14 @@ def link_guardian_profile(request):
         
         # Link the user profile to the child
         child.parents.add(profile)
+
+        # Update user first_name and last_name so their personal name appears across the system
+        if first_name and first_name != 'No Info':
+            user = request.user
+            user.first_name = first_name
+            if last_name and last_name != 'No Info':
+                user.last_name = last_name
+            user.save()
         
         # Handle profile picture upload
         profile_pic = request.FILES.get('profile_pic')
@@ -1300,6 +1318,24 @@ class ForcePasswordChangeAPIView(APIView):
         new_password = request.data.get('new_password')
         confirm_password = request.data.get('confirm_password') or request.data.get('confirmPassword')
         
+        # 0. Validate and update new username if provided
+        new_username = (request.data.get('new_username') or '').strip()
+        if new_username and new_username != user.username:
+            from django.contrib.auth.models import User
+            if User.objects.filter(username__iexact=new_username).exclude(id=user.id).exists():
+                return Response({'error': f"The username '{new_username}' is already taken. Please choose another username."}, status=400)
+            import re
+            if not re.match(r'^[a-zA-Z0-9_.-]+$', new_username):
+                return Response({'error': 'Username can only contain letters, numbers, underscores, dots, and hyphens.'}, status=400)
+            if len(new_username) < 3:
+                return Response({'error': 'Username must be at least 3 characters long.'}, status=400)
+            user.username = new_username
+
+        # Clear any accidental demo names so it shows 'Parent' until they enroll their child
+        if user.first_name in ('Elena', 'elena', 'Demo'):
+            user.first_name = 'Parent'
+            user.last_name = ''
+
         # 1. Validate current password (if supplied)
         if current_password:
             if not user.check_password(current_password):
@@ -1339,7 +1375,7 @@ class ForcePasswordChangeAPIView(APIView):
         
         return Response({
             'success': True,
-            'message': 'Password updated successfully. Welcome to your Parent Dashboard!'
+            'message': f"Account credentials updated successfully! Your username is now '{user.username}'."
         })
 
 class UpdateUsernameAPIView(APIView):
