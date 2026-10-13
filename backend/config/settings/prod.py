@@ -36,15 +36,16 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('AIVEN_DATABASE_URL')
 
 if DATABASE_URL:
+    is_postgres = 'postgres' in DATABASE_URL.lower()
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=is_postgres
         )
     }
     # Ensure SSL settings for PostgreSQL if using psycopg2
-    if 'postgresql' in DATABASES['default'].get('ENGINE', ''):
+    if is_postgres and 'postgresql' in DATABASES['default'].get('ENGINE', ''):
         DATABASES['default'].setdefault('OPTIONS', {})['sslmode'] = os.environ.get('DB_SSLMODE', 'require')
 elif os.environ.get('DB_HOST') and os.environ.get('DB_NAME'):
     # In case user enters individual fields instead of URI

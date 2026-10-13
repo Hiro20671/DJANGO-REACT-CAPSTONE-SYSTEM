@@ -137,7 +137,11 @@ if BREVO_API_KEY:
     # Use django-anymail for Brevo HTTP API (uses port 443 HTTPS, works on PythonAnywhere Free & Paid)
     if 'anymail' not in INSTALLED_APPS:
         INSTALLED_APPS.append('anymail')
-    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
+    try:
+        import anymail.backends.brevo  # noqa: F401
+        EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
+    except ImportError:
+        EMAIL_BACKEND = 'anymail.backends.sendinblue.EmailBackend'
     ANYMAIL = {
         'BREVO_API_KEY': BREVO_API_KEY,
         'SENDINBLUE_API_KEY': BREVO_API_KEY,

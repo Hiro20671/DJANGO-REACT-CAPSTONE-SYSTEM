@@ -1645,6 +1645,7 @@ class GenerateParentAccountAPIView(APIView):
                 from django.core.mail import EmailMultiAlternatives
                 from django.utils.html import strip_tags
 
+                login_url = request.build_absolute_uri('/login/') if hasattr(request, 'build_absolute_uri') else 'https://jeremy2004.pythonanywhere.com/login/'
                 subject = "Welcome to BMV3 Child Care - Your Account Details"
                 from_email = f"BMV3 Child Development Center <{settings.DEFAULT_FROM_EMAIL}>"
                 html_content = f"""
@@ -1658,7 +1659,7 @@ class GenerateParentAccountAPIView(APIView):
                     
                     <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 18px; border-radius: 10px; margin: 20px 0;">
                         <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1.05rem;">Your Login Credentials:</h3>
-                        <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Portal URL:</strong> <a href="http://127.0.0.1:8000/login/" style="color: #2563eb;">http://127.0.0.1:8000/login/</a></p>
+                        <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Portal URL:</strong> <a href="{login_url}" style="color: #2563eb;">{login_url}</a></p>
                         <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Username:</strong> <span style="font-weight: 800; color: #1e40af; font-size: 1.15rem; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">{username}</span></p>
                         <p style="margin: 6px 0; font-size: 0.95rem;"><strong>Temporary Password:</strong> <span style="font-weight: 800; color: #dc2626; font-size: 1.15rem; background: #fee2e2; padding: 2px 8px; border-radius: 6px;">{password}</span></p>
                     </div>
