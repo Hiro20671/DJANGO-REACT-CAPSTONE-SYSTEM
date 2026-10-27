@@ -309,6 +309,259 @@
             transform: translateY(-2px);
         }
 
+        /* Hero Install Button */
+        @keyframes pulse-install-glow {
+            0%, 100% {
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45), 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 26px rgba(16, 185, 129, 0.75), 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+        }
+
+        .btn-install-hero {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 800;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            animation: pulse-install-glow 3s infinite;
+        }
+
+        .btn-install-hero:hover {
+            background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-install-hero:active {
+            transform: translateY(0);
+        }
+
+        /* PWA Top Notification Bar */
+        .pwa-top-bar {
+            background: linear-gradient(90deg, #063970 0%, #1e40af 100%);
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1001;
+        }
+
+        .pwa-top-bar-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-top-bar-badge {
+            background: #10b981;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .pwa-top-bar-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pwa-top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-top-install {
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .btn-top-install:hover {
+            background: #059669;
+        }
+
+        .btn-top-dismiss {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.75);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-top-dismiss:hover {
+            color: #ffffff;
+        }
+
+        /* PWA Instructions Modal */
+        .pwa-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            animation: pwaFadeIn 0.2s ease-out;
+        }
+
+        .pwa-modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: pwaScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .pwa-modal-header {
+            background: linear-gradient(135deg, #091e42 0%, #1e40af 100%);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pwa-modal-close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #ffffff;
+            font-size: 1.4rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: 0.2s;
+        }
+
+        .pwa-modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .pwa-modal-body {
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .pwa-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .pwa-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #091e42;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.82rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .pwa-step-text {
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #334155;
+        }
+
+        .pwa-modal-footer {
+            padding: 12px 20px 18px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-pwa-got-it {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-pwa-got-it:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        @keyframes pwaFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pwaScaleUp {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         /* Hero Status Alert Box */
         .hero-status-card {
             background: rgba(255, 255, 255, 0.98);
@@ -911,7 +1164,7 @@
                 flex-direction: column;
                 gap: 10px;
             }
-            .hero-actions a {
+            .hero-actions a, .hero-actions button {
                 width: 100%;
                 justify-content: center;
                 box-sizing: border-box;
@@ -939,6 +1192,22 @@
 
 <body>
 
+    <!-- PWA Top Install Notification Bar -->
+    <div id="pwa-top-bar" class="pwa-top-bar" style="display: flex;">
+        <div class="pwa-top-bar-content">
+            <span class="pwa-top-bar-badge"><i class="fa-solid fa-mobile-screen"></i> Mobile App</span>
+            <span class="pwa-top-bar-text">Install BMV3 App on your phone for fast access & stay signed in!</span>
+        </div>
+        <div class="pwa-top-bar-actions">
+            <button type="button" class="btn-top-install" onclick="handlePWAInstallClick()">
+                <i class="fa-solid fa-download"></i> Install App
+            </button>
+            <button type="button" class="btn-top-dismiss" onclick="dismissPWATopBar()" aria-label="Dismiss">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Header / Navbar -->
     <header class="header">
         <div class="nav-container">
@@ -964,6 +1233,11 @@
                 <li><a href="#reminders">Reminders</a></li>
                 <li><a href="#highlights">Highlights</a></li>
                 <li><a href="#about">About</a></li>
+                <li class="nav-install-item">
+                    <a href="javascript:void(0)" onclick="handlePWAInstallClick()" style="color: #34d399; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Install App
+                    </a>
+                </li>
                 <li>
                     {% if request.user.is_authenticated %}
                         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -1008,6 +1282,9 @@
                 </p>
 
                 <div class="hero-actions">
+                    <button type="button" class="btn-install-hero" onclick="handlePWAInstallClick()" id="btnInstallHero">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Install Mobile App
+                    </button>
                     <a href="#announcements" class="btn-primary-hero">
                         <i class="fa-solid fa-bullhorn"></i> View Announcements
                     </a>
@@ -1574,30 +1851,179 @@
         }
 
         // PWA Install Prompt handling
-        let deferredPrompt;
+        let deferredPrompt = null;
         const pwaBanner = document.getElementById('pwa-install-banner');
         const pwaInstallBtn = document.getElementById('pwaInstallBtn');
         const pwaCloseBtn = document.getElementById('pwaCloseBtn');
 
+        function isPWAStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true ||
+                   document.referrer.includes('android-app://');
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (localStorage.getItem('pwa_install_dismissed') !== 'true') {
-                if (pwaBanner) pwaBanner.style.display = 'flex';
+            console.log('beforeinstallprompt captured');
+            if (pwaBanner && !isPWAStandalone() && localStorage.getItem('pwa_install_dismissed') !== 'true') {
+                pwaBanner.style.display = 'flex';
+            }
+        });
+
+        function handlePWAInstallClick() {
+            if (isPWAStandalone()) {
+                alert('BMV3 App is already installed and running on your device!');
+                return;
+            }
+
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        if (pwaBanner) pwaBanner.style.display = 'none';
+                        const topBar = document.getElementById('pwa-top-bar');
+                        if (topBar) topBar.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+                return;
+            }
+
+            openPWAInstructionsModal();
+        }
+
+        function openPWAInstructionsModal() {
+            const modal = document.getElementById('pwaInstructionsModal');
+            if (!modal) return;
+
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isMessenger = /FBAN|FBAV|Messenger|Instagram|Line/i.test(ua);
+            const isIOS = /iPhone|iPad|iPod/i.test(ua) && !window.MSStream;
+
+            const messengerNotice = document.getElementById('pwaMessengerNotice');
+            const stepsContainer = document.getElementById('pwaStepsContainer');
+
+            if (isMessenger) {
+                if (messengerNotice) messengerNotice.style.display = 'block';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            <strong>Tap the 3 dots (•••)</strong> at the very top-right corner of Messenger.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Select <strong>"Open in Chrome"</strong> (or "Open in default browser" / "Open in Safari").
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Once opened in Chrome, tap <strong>"Install Mobile App"</strong> or choose <strong>"Install App"</strong> from the menu!
+                        </div>
+                    </div>
+                `;
+            } else if (isIOS) {
+                if (messengerNotice) messengerNotice.style.display = 'none';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            Tap the <strong>Share button</strong> (<i class="fa-solid fa-arrow-up-from-bracket" style="color:#0284c7;"></i>) at the bottom toolbar of Safari.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Scroll down and tap <strong>"Add to Home Screen"</strong> (<i class="fa-regular fa-square-plus" style="color:#10b981;"></i>).
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Tap <strong>"Add"</strong> at the top right. The BMV3 app icon will appear on your phone's home screen!
+                        </div>
+                    </div>
+                `;
+            } else {
+                if (messengerNotice) messengerNotice.style.display = 'none';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            Tap the <strong>3 dots (⋮)</strong> menu in your browser (usually top-right).
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Tap <strong>"Install"</strong> to confirm. BMV3 will now open like a native mobile app!
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closePWAInstructionsModal() {
+            const modal = document.getElementById('pwaInstructionsModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function dismissPWATopBar() {
+            const topBar = document.getElementById('pwa-top-bar');
+            if (topBar) topBar.style.display = 'none';
+            sessionStorage.setItem('pwa_top_bar_dismissed', 'true');
+        }
+
+        function copyPWASiteLink() {
+            const input = document.getElementById('pwaSiteLinkInput');
+            if (input) {
+                input.select();
+                input.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(input.value).then(() => {
+                    const copyBtn = document.getElementById('pwaCopyBtn');
+                    if (copyBtn) {
+                        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                        copyBtn.style.background = '#10b981';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+                            copyBtn.style.background = '#091e42';
+                        }, 2500);
+                    }
+                }).catch(() => {
+                    alert('Link: ' + input.value);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isPWAStandalone()) {
+                const topBar = document.getElementById('pwa-top-bar');
+                if (topBar) topBar.style.display = 'none';
+                if (pwaBanner) pwaBanner.style.display = 'none';
+                const heroBtn = document.getElementById('btnInstallHero');
+                if (heroBtn) heroBtn.style.display = 'none';
+            } else {
+                if (sessionStorage.getItem('pwa_top_bar_dismissed') === 'true') {
+                    const topBar = document.getElementById('pwa-top-bar');
+                    if (topBar) topBar.style.display = 'none';
+                }
             }
         });
 
         if (pwaInstallBtn) {
-            pwaInstallBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        if (pwaBanner) pwaBanner.style.display = 'none';
-                    }
-                    deferredPrompt = null;
-                }
-            });
+            pwaInstallBtn.addEventListener('click', handlePWAInstallClick);
         }
 
         if (pwaCloseBtn) {
@@ -1608,7 +2034,56 @@
         }
     </script>
 
-    <!-- PWA Install Banner -->
+    <!-- PWA Instructions Modal -->
+    <div id="pwaInstructionsModal" class="pwa-modal-overlay" style="display: none;">
+        <div class="pwa-modal-card">
+            <div class="pwa-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3" style="width: 36px; height: 36px; border-radius: 8px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff;">Install BMV3 App</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #93c5fd;">Child Care Management System</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePWAInstructionsModal()" class="pwa-modal-close-btn">&times;</button>
+            </div>
+
+            <div class="pwa-modal-body">
+                <!-- Messenger Banner if detected -->
+                <div id="pwaMessengerNotice" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #1e40af; font-weight: 800; font-size: 0.85rem; margin-bottom: 4px;">
+                        <i class="fa-brands fa-facebook-messenger" style="font-size: 1.1rem; color: #0084ff;"></i>
+                        Messenger In-App Browser Detected
+                    </div>
+                    <p style="margin: 0; font-size: 0.8rem; color: #1e3a8a; line-height: 1.4;">
+                        Facebook Messenger does not allow apps to be installed directly inside its chat window. Follow these simple steps:
+                    </p>
+                </div>
+
+                <!-- Step-by-Step Instructions -->
+                <div id="pwaStepsContainer">
+                    <!-- Injected dynamically based on browser/device -->
+                </div>
+
+                <!-- Link Copy Helper -->
+                <div style="margin-top: 18px; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Or copy website link and paste into Chrome / Safari:</div>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <input id="pwaSiteLinkInput" type="text" readonly value="{{ request.build_absolute_uri }}" style="flex: 1; min-width: 0; font-size: 0.78rem; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff; color: #334155;">
+                        <button type="button" onclick="copyPWASiteLink()" id="pwaCopyBtn" style="background: #091e42; color: #ffffff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pwa-modal-footer">
+                <button type="button" onclick="closePWAInstructionsModal()" class="btn-pwa-got-it">Got it, thanks!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner (Bottom Floating Card) -->
     <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 16px; left: 16px; right: 16px; max-width: 480px; margin: 0 auto; background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: white; padding: 12px 16px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 10001; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid rgba(255,255,255,0.2);">
         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
             <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3 Logo" style="width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;">

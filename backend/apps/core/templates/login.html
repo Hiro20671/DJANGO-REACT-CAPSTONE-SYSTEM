@@ -371,6 +371,132 @@
             .form-wrapper {
                 max-width: 100%;
             }
+        /* PWA Instructions Modal */
+        .pwa-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            animation: pwaFadeIn 0.2s ease-out;
+        }
+
+        .pwa-modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: pwaScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .pwa-modal-header {
+            background: linear-gradient(135deg, #091e42 0%, #1e40af 100%);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pwa-modal-close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #ffffff;
+            font-size: 1.4rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: 0.2s;
+        }
+
+        .pwa-modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .pwa-modal-body {
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .pwa-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .pwa-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #091e42;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.82rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .pwa-step-text {
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #334155;
+        }
+
+        .pwa-modal-footer {
+            padding: 12px 20px 18px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-pwa-got-it {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-pwa-got-it:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        @keyframes pwaFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pwaScaleUp {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
         }
 
     </style>
@@ -461,6 +587,13 @@
                     No account yet? <span style="font-weight: 700; color: #333;">Contact your teacher for an account.</span>
                 </div>
 
+                <div id="login-install-app-container" style="margin-top: 20px; text-align: center;">
+                    <button type="button" onclick="handlePWAInstallClick()" id="btnLoginInstallApp" style="width: 100%; padding: 12px 18px; background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(9, 30, 66, 0.2); transition: all 0.2s ease;">
+                        <i class="fa-solid fa-mobile-screen-button" style="color: #60a5fa;"></i> Install BMV3 Mobile App
+                    </button>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 6px;">Add to your phone for 1-tap access & stay logged in</div>
+                </div>
+
 
             </div>
 
@@ -490,6 +623,205 @@
                     .catch(err => console.error('PWA Service Worker registration failed.', err));
             });
         }
+
+        // PWA Install Handling
+        let deferredPrompt = null;
+        function isPWAStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true ||
+                   document.referrer.includes('android-app://');
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function handlePWAInstallClick() {
+            if (isPWAStandalone()) {
+                alert('BMV3 App is already installed and running on your device!');
+                return;
+            }
+
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        const btn = document.getElementById('login-install-app-container');
+                        if (btn) btn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+                return;
+            }
+
+            openPWAInstructionsModal();
+        }
+
+        function openPWAInstructionsModal() {
+            const modal = document.getElementById('pwaInstructionsModal');
+            if (!modal) return;
+
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isMessenger = /FBAN|FBAV|Messenger|Instagram|Line/i.test(ua);
+            const isIOS = /iPhone|iPad|iPod/i.test(ua) && !window.MSStream;
+
+            const messengerNotice = document.getElementById('pwaMessengerNotice');
+            const stepsContainer = document.getElementById('pwaStepsContainer');
+
+            if (isMessenger) {
+                if (messengerNotice) messengerNotice.style.display = 'block';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            <strong>Tap the 3 dots (•••)</strong> at the very top-right corner of Messenger.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Select <strong>"Open in Chrome"</strong> (or "Open in default browser" / "Open in Safari").
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Once opened in Chrome, tap <strong>"Install Mobile App"</strong> or choose <strong>"Install App"</strong> from the menu!
+                        </div>
+                    </div>
+                `;
+            } else if (isIOS) {
+                if (messengerNotice) messengerNotice.style.display = 'none';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            Tap the <strong>Share button</strong> (<i class="fa-solid fa-arrow-up-from-bracket" style="color:#0284c7;"></i>) at the bottom toolbar of Safari.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Scroll down and tap <strong>"Add to Home Screen"</strong> (<i class="fa-regular fa-square-plus" style="color:#10b981;"></i>).
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Tap <strong>"Add"</strong> at the top right. The BMV3 app icon will appear on your phone's home screen!
+                        </div>
+                    </div>
+                `;
+            } else {
+                if (messengerNotice) messengerNotice.style.display = 'none';
+                stepsContainer.innerHTML = `
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">1</div>
+                        <div class="pwa-step-text">
+                            Tap the <strong>3 dots (⋮)</strong> menu in your browser (usually top-right).
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">2</div>
+                        <div class="pwa-step-text">
+                            Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+                        </div>
+                    </div>
+                    <div class="pwa-step-item">
+                        <div class="pwa-step-num">3</div>
+                        <div class="pwa-step-text">
+                            Tap <strong>"Install"</strong> to confirm. BMV3 will now open like a native mobile app!
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closePWAInstructionsModal() {
+            const modal = document.getElementById('pwaInstructionsModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function copyPWASiteLink() {
+            const input = document.getElementById('pwaSiteLinkInput');
+            if (input) {
+                input.select();
+                input.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(input.value).then(() => {
+                    const copyBtn = document.getElementById('pwaCopyBtn');
+                    if (copyBtn) {
+                        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                        copyBtn.style.background = '#10b981';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+                            copyBtn.style.background = '#091e42';
+                        }, 2500);
+                    }
+                }).catch(() => {
+                    alert('Link: ' + input.value);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isPWAStandalone()) {
+                const btnContainer = document.getElementById('login-install-app-container');
+                if (btnContainer) btnContainer.style.display = 'none';
+            }
+        });
+    </script>
+
+    <!-- PWA Instructions Modal -->
+    <div id="pwaInstructionsModal" class="pwa-modal-overlay" style="display: none;">
+        <div class="pwa-modal-card">
+            <div class="pwa-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="{% static 'core/image/bmv3_logo.png' %}" alt="BMV3" style="width: 36px; height: 36px; border-radius: 8px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff;">Install BMV3 App</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #93c5fd;">Child Care Management System</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePWAInstructionsModal()" class="pwa-modal-close-btn">&times;</button>
+            </div>
+
+            <div class="pwa-modal-body">
+                <!-- Messenger Banner if detected -->
+                <div id="pwaMessengerNotice" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #1e40af; font-weight: 800; font-size: 0.85rem; margin-bottom: 4px;">
+                        <i class="fa-brands fa-facebook-messenger" style="font-size: 1.1rem; color: #0084ff;"></i>
+                        Messenger In-App Browser Detected
+                    </div>
+                    <p style="margin: 0; font-size: 0.8rem; color: #1e3a8a; line-height: 1.4;">
+                        Facebook Messenger does not allow apps to be installed directly inside its chat window. Follow these simple steps:
+                    </p>
+                </div>
+
+                <!-- Step-by-Step Instructions -->
+                <div id="pwaStepsContainer">
+                    <!-- Injected dynamically based on browser/device -->
+                </div>
+
+                <!-- Link Copy Helper -->
+                <div style="margin-top: 18px; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Or copy website link and paste into Chrome / Safari:</div>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <input id="pwaSiteLinkInput" type="text" readonly value="{{ request.build_absolute_uri }}" style="flex: 1; min-width: 0; font-size: 0.78rem; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff; color: #334155;">
+                        <button type="button" onclick="copyPWASiteLink()" id="pwaCopyBtn" style="background: #091e42; color: #ffffff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pwa-modal-footer">
+                <button type="button" onclick="closePWAInstructionsModal()" class="btn-pwa-got-it">Got it, thanks!</button>
+            </div>
+        </div>
+    </div>
     </script>
     <script src="{% static 'core/js/three.min.js' %}"></script>
     <script src="{% static 'core/js/login_3d_bg.js' %}?v=1.0.0"></script>

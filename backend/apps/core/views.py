@@ -8,12 +8,8 @@ from .decorators import teacher_required, parent_required
 
 @never_cache
 def public_home(request):
-    if request.user.is_authenticated and request.GET.get('landing') != 'true':
-        profile = getattr(request.user, 'userprofile', None)
-        if profile and profile.is_teacher:
-            return redirect("teacher_dashboard")
-        return redirect("parent_dashboard")
     return render(request, "public_home.html")
+
 
 @never_cache
 def logout_view(request):
