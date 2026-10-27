@@ -5,30 +5,40 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BMV3 CDC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>Login - BMV3 CCMS</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#090d16">
+    <meta name="theme-color" content="#091e42">
     <link rel="apple-touch-icon" href="{% static 'core/image/bmv3_logo.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
+
     <link rel="stylesheet" href="{% static 'core/css/animations.css' %}?v=2.0.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="{% static 'core/js/animations.js' %}?v=2.0.0"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            position: relative;
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             background-color: #f7f9fa;
             color: #333;
         }
+
 
         .split-container {
             display: flex;
@@ -311,16 +321,26 @@
         }
 
         @media (max-width: 900px) {
+            body {
+                height: auto !important;
+                min-height: 100vh !important;
+            }
+
             .split-container {
                 flex-direction: column;
+                min-height: 100vh;
             }
 
             .left-panel {
-                padding: 3rem 2rem;
+                padding: 2.5rem 1.5rem;
+            }
+
+            .left-panel h1 {
+                font-size: 2.2rem !important;
             }
 
             .right-panel {
-                padding: 3rem 2rem;
+                padding: 2.5rem 1.5rem;
             }
 
             .back-to-home-btn {
@@ -333,10 +353,26 @@
 
             .footer-text {
                 position: relative;
-                margin-top: 3rem;
+                margin-top: 2rem;
                 bottom: 0;
             }
         }
+
+        @media (max-width: 480px) {
+            .left-panel {
+                padding: 2rem 1.2rem;
+            }
+            .left-panel h1 {
+                font-size: 1.8rem !important;
+            }
+            .right-panel {
+                padding: 2rem 1.2rem;
+            }
+            .form-wrapper {
+                max-width: 100%;
+            }
+        }
+
     </style>
 
     <div class="split-container">

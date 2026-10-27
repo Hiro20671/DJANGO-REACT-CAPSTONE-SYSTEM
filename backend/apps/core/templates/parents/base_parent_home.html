@@ -4,15 +4,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>Parent Portal - BMV3 Child Care Management System</title>
     <link rel="icon" type="image/png" href="{% static 'core/image/bmv3_logo.png' %}">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#090d16">
+    <meta name="theme-color" content="#091e42">
     <link rel="apple-touch-icon" href="{% static 'core/image/bmv3_logo.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BMV3 CCMS">
+
 
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -82,11 +84,19 @@
             scroll-behavior: smooth;
         }
 
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden !important;
+            position: relative;
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
             color: #333;
             background-color: #f8f9fa;
         }
+
 
         /* Navbar */
         nav {
@@ -586,25 +596,125 @@
 
         @media (max-width: 768px) {
             nav {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 5%;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 12px 16px !important;
+                gap: 10px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .nav-left {
+                gap: 8px !important;
+                min-width: 0 !important;
+                max-width: calc(100% - 150px) !important;
+            }
+
+            .nav-logo img {
+                height: 40px !important;
+            }
+
+            .nav-title h1 {
+                font-size: 1.15rem !important;
+                margin: 0 !important;
+            }
+
+            .nav-title span {
+                font-size: 0.58rem !important;
+                display: block !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .welcome-text {
+                display: none !important;
             }
 
             .nav-right {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
+                gap: 8px !important;
+                flex-shrink: 0 !important;
+            }
+
+            .btn-dashboard {
+                padding: 6px 12px !important;
+                font-size: 0.78rem !important;
+            }
+
+            .burger-menu {
+                display: flex !important;
+                padding: 5px !important;
+                margin-left: 2px !important;
+            }
+
+            .hero {
+                padding: 30px 16px !important;
+                min-height: auto !important;
+            }
+
+            .hero-content {
+                flex-direction: column !important;
+                gap: 25px !important;
+                text-align: center !important;
             }
 
             .hero-text h2 {
-                font-size: 2.2rem;
+                font-size: 1.8rem !important;
+                line-height: 1.2 !important;
+                margin-bottom: 12px !important;
+            }
+
+            .hero-text p {
+                font-size: 0.9rem !important;
+                margin-bottom: 20px !important;
+            }
+
+            .hero-buttons {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 10px !important;
+            }
+
+            .hero-slider-container {
+                max-width: 100% !important;
+                height: 260px !important;
+            }
+
+            .section-container {
+                padding: 35px 16px !important;
+            }
+
+            .section-title {
+                font-size: 1.6rem !important;
+            }
+
+            .section-subtitle {
+                font-size: 0.9rem !important;
+                margin-bottom: 30px !important;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+
+            .beneficiary-card {
+                padding: 20px 16px !important;
             }
 
             footer {
-                flex-direction: column;
+                padding: 35px 16px 20px 16px !important;
+                flex-direction: column !important;
+                gap: 25px !important;
+                text-align: center !important;
+            }
+
+            .footer-links, .footer-contact {
+                min-width: 100% !important;
             }
         }
+
 
         /* --- Dark Mode Styles --- */
         html.dark-mode body {

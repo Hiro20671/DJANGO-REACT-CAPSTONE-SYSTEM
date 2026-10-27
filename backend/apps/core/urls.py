@@ -82,9 +82,10 @@ urlpatterns = [
     path('settings/', views.teacher_settings, name='teacher_settings'),
     path('activities/', views.teacher_activities, name='teacher_activities'),
     
-    # API Endpoints
-    path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw_js'),
-    path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest_json'),
+    # PWA Endpoints
+    path('sw.js', views.service_worker_view, name='sw_js'),
+    path('manifest.json', views.manifest_view, name='manifest_json'),
+
     path('api/public/landing-data/', PublicLandingDataAPIView.as_view(), name='api_public_landing_data'),
     path('api/parent/history/', ParentHistoryAPIView.as_view(), name='api_parent_history'),
     path('api/parents/', ParentListAPIView.as_view(), name='api_parents'),

@@ -8,19 +8,34 @@ from .decorators import teacher_required, parent_required
 
 @never_cache
 def public_home(request):
+    if request.user.is_authenticated and request.GET.get('landing') != 'true':
+        profile = getattr(request.user, 'userprofile', None)
+        if profile and profile.is_teacher:
+            return redirect("teacher_dashboard")
+        return redirect("parent_dashboard")
     return render(request, "public_home.html")
 
 @never_cache
 def logout_view(request):
     logout(request)
-    return redirect("public_home")
+    request.session.flush()
+    response = redirect("public_home")
+    response.delete_cookie('sessionid')
+    return response
 
 
 @never_cache
 def login_view(request):
+    if request.user.is_authenticated:
+        profile = getattr(request.user, 'userprofile', None)
+        if profile and profile.is_teacher:
+            return redirect("teacher_dashboard")
+        return redirect("parent_dashboard")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
 
         
         from django.contrib.auth.models import User
@@ -85,6 +100,8 @@ def login_view(request):
                 return render(request, "login.html")
 
             login(request, user)
+            request.session.set_expiry(315360000)  # 10 years persistent device session
+
             
             if profile.is_teacher:
                 return redirect("teacher_dashboard")
@@ -203,6 +220,19 @@ def teacher_settings(request):
 
 def offline_view(request):
     return render(request, 'offline.html')
+
+@never_cache
+def service_worker_view(request):
+    response = render(request, 'sw.js', content_type='application/javascript')
+    response['Service-Worker-Allowed'] = '/'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+def manifest_view(request):
+    response = render(request, 'manifest.json', content_type='application/manifest+json')
+    response['Cache-Control'] = 'public, max-age=86400'
+    return response
+
 
 @login_required
 @teacher_required

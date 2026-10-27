@@ -157,8 +157,11 @@ else:
         EMAIL_USE_TLS = True
 
 
-# Session settings for permanent device session caching
+# Session settings for permanent device session caching (PWA persistent login)
 LOGIN_URL = 'login'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 315360000  # 10 years in seconds (persists across device reboots until manual logout)
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+

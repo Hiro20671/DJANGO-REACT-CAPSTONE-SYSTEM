@@ -1,4 +1,5 @@
-const CACHE_NAME = 'bmv3-cache-v4';
+const CACHE_NAME = 'bmv3-cache-v5';
+
 const ASSETS_TO_CACHE = [
   '/offline/',
   '/static/core/image/bmv3_logo.png',
