@@ -131,8 +131,9 @@
 .cell-red { background-color: #dd6a6a; color: white; }
 .cell-noclass { background-color: #5e5e5e; color: #aaa; }
 
-.status-pill-green { background-color: #1cc88a; }
-.status-pill-red { background-color: #e74a3b; }
+.status-pill-green { background-color: #10b981; }
+.status-pill-orange { background-color: #f97316; }
+.status-pill-red { background-color: #ef4444; }
 
     .legend-item {
         display: flex;
@@ -621,10 +622,13 @@
           
           let isNoClass = (currentDayOfWeek === 0 || currentDayOfWeek === 6 || noClassDB[dateKey]);
           
-          if (!isNoClass) {
-            totalSchoolDaysInMonth++;
-          } else {
+          if (isNoClass) {
             cellClass = 'cell-noclass';
+          } else {
+            // Regular classes run Mon-Thu. Friday counts if an event attendance record exists.
+            if ((currentDayOfWeek >= 1 && currentDayOfWeek <= 4) || attDB[dateKey]) {
+              totalSchoolDaysInMonth++;
+            }
           }
           
           if (attDB[dateKey]) {
@@ -674,7 +678,8 @@
           const status = attDB[dt];
           if (status) {
             const formattedDate = new Date(dt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            const pillClass = status === 'absent' ? 'status-pill-red' : 'status-pill-green';
+            const sLower = String(status || '').toLowerCase();
+            const pillClass = sLower === 'absent' ? 'status-pill-red' : (sLower === 'late' ? 'status-pill-orange' : 'status-pill-green');
             const recordObj = attData.find(a => a.date === dt);
             const timeText = recordObj && recordObj.dropoff_time ? recordObj.dropoff_time : (status === 'absent' ? '--:--' : '08:00 AM Dropped Off');
             const guardianText = recordObj && recordObj.authorized_guardian ? `Confirmed by ${recordObj.authorized_guardian}` : (status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`);
@@ -766,8 +771,10 @@
             const dow = new Date(yr, mo, day).getDay();
             const isWeekend = (dow === 0 || dow === 6);
             const isNoClass = isWeekend || (noClassMap && noClassMap[dtKey]);
+            const isRegularClassDay = (dow >= 1 && dow <= 4 && !isNoClass);
+            const isEventFriday = (dow === 5 && attDbMap && attDbMap[dtKey]);
 
-            if (!isNoClass) mTotalSchool++;
+            if (isRegularClassDay || isEventFriday) mTotalSchool++;
 
             let dotClass = 'dot-none';
             if (attDbMap && attDbMap[dtKey]) {
@@ -783,8 +790,8 @@
                     dotClass = 'dot-absent';
                     mAbs++;
                 }
-            } else if (!isNoClass) {
-                // If past school day with no record
+            } else if (isRegularClassDay) {
+                // If past regular Mon-Thu school day with no record
                 const dayDate = new Date(yr, mo, day);
                 if (dayDate < today) {
                     dotClass = 'dot-absent';

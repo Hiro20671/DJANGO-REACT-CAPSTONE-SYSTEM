@@ -363,7 +363,7 @@ class BMIRecord(models.Model):
         super().save(*args, **kwargs)
         
         # Update current weight/height on the Child model
-        latest_record = BMIRecord.objects.filter(child=self.child, school_year=self.school_year).order_by('quarter').last()
+        latest_record = BMIRecord.objects.filter(child=self.child, school_year=self.school_year).order_by('measurement_date', 'id').last()
         if latest_record:
             Child.objects.filter(pk=self.child.pk).update(weight=latest_record.weight, height=latest_record.height)
 

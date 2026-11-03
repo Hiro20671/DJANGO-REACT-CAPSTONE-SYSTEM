@@ -190,7 +190,8 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                         <div>
                             <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Month Check:</label>
                             <select id="bmiEntryMonth" style="padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; font-family:inherit; font-size:0.9rem; width:100%; font-weight:600;" onchange="onBmiMonthSelectChange()">
-                                <option value="Aug">August (Baseline)</option>
+                                <option value="Jul">July (Baseline)</option>
+                                <option value="Aug">August</option>
                                 <option value="Sep">September</option>
                                 <option value="Oct">October</option>
                                 <option value="Nov">November</option>
@@ -198,8 +199,8 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                                 <option value="Jan">January</option>
                                 <option value="Feb">February</option>
                                 <option value="Mar">March</option>
-                                <option value="Apr">April</option>
-                                <option value="May">May (Year-End)</option>
+                                <option value="Apr">April (Year-End)</option>
+                                <option value="May">May</option>
                                 <option value="1st">1st Quarter (Archived)</option>
                                 <option value="2nd">2nd Quarter (Archived)</option>
                                 <option value="3rd">3rd Quarter (Archived)</option>
@@ -476,7 +477,8 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
     }
 
     const MONTH_LABELS = {
-        'Aug': 'August (Baseline)',
+        'Jul': 'July (Baseline)',
+        'Aug': 'August',
         'Sep': 'September',
         'Oct': 'October',
         'Nov': 'November',
@@ -484,16 +486,16 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         'Jan': 'January',
         'Feb': 'February',
         'Mar': 'March',
-        'Apr': 'April',
-        'May': 'May (Year-End)',
-        '1st': '1st Quarter (Baseline)',
-        '2nd': '2nd Quarter (Interim)',
-        '3rd': '3rd Quarter (Final)'
+        'Apr': 'April (Year-End)',
+        'May': 'May',
+        '1st': '1st Quarter (Archived)',
+        '2nd': '2nd Quarter (Archived)',
+        '3rd': '3rd Quarter (Archived)'
     };
 
     const MONTH_ORDER = {
-        'Aug': 1, 'Sep': 2, 'Oct': 3, 'Nov': 4, 'Dec': 5, 
-        'Jan': 6, 'Feb': 7, 'Mar': 8, 'Apr': 9, 'May': 10,
+        'Jul': 1, 'Aug': 2, 'Sep': 3, 'Oct': 4, 'Nov': 5, 'Dec': 6, 
+        'Jan': 7, 'Feb': 8, 'Mar': 9, 'Apr': 10, 'May': 11,
         '1st': 1, '2nd': 5, '3rd': 9
     };
 

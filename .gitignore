@@ -54,6 +54,8 @@ Thumbs.db
 
 # Databases
 *.sqlite3
+*.sqlite3.*
+*.bak
 
 # Local media/uploads
 backend/media/

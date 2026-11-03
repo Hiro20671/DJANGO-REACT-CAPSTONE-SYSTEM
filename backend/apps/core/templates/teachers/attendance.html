@@ -39,19 +39,22 @@
 .attendance-stats { text-align: right; margin-right: 20px; }
 .attendance-stats .days { font-size: 0.9rem; font-weight: 700; color: #333; }
 .attendance-stats .rate { font-size: 0.75rem; color: #777; }
-.status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: white; }
-.status-badge.excellent { background-color: #1cc88a; }
-.status-badge.warning { background-color: #f6c23e; }
-.status-badge.poor { background-color: #e74a3b; }
+.status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: white; display: inline-flex; align-items: center; justify-content: center; }
+.status-badge.present, .status-badge.status-present, .status-badge.excellent { background-color: #10b981 !important; color: white !important; } /* Green */
+.status-badge.late, .status-badge.status-late, .status-badge.warning { background-color: #f97316 !important; color: white !important; } /* Orange */
+.status-badge.absent, .status-badge.status-absent, .status-badge.poor { background-color: #ef4444 !important; color: white !important; } /* Red */
 
 /* Toggle Buttons */
 .attendance-action-area { display: flex; align-items: center; gap: 15px; }
-.attendance-toggles { display: flex; gap: 5px; }
-.btn-toggle { border: 1px solid #ccc; background-color: #f8f9fa; color: #555; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-.btn-toggle:hover { background-color: #eee; }
-.btn-toggle.present.active { background-color: #1cc88a; border-color: #1cc88a; color: white; }
-.btn-toggle.late.active { background-color: #f6c23e; border-color: #f6c23e; color: white; }
-.btn-toggle.absent.active { background-color: #e74a3b; border-color: #e74a3b; color: white; }
+.attendance-toggles { display: flex; gap: 6px; }
+.btn-toggle { border: 1px solid #cbd5e1; background-color: #f8fafc; color: #475569; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-toggle:hover { background-color: #f1f5f9; }
+.btn-toggle.present:hover { border-color: #10b981; color: #10b981; }
+.btn-toggle.late:hover { border-color: #f97316; color: #f97316; }
+.btn-toggle.absent:hover { border-color: #ef4444; color: #ef4444; }
+.btn-toggle.present.active { background-color: #10b981 !important; border-color: #10b981 !important; color: white !important; }
+.btn-toggle.late.active { background-color: #f97316 !important; border-color: #f97316 !important; color: white !important; }
+.btn-toggle.absent.active { background-color: #ef4444 !important; border-color: #ef4444 !important; color: white !important; }
 .btn-confirm { background-color: #4a90e2; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
 .btn-confirm:hover { background-color: #357abd; }
 
@@ -62,22 +65,25 @@
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
 
 /* Calendar Styles */
-.cal-card { background-color: #043263; border-radius: 12px; padding: 30px; display: flex; align-items: flex-start; gap: 60px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); width: 100%; margin-bottom: 30px; }
-.cal-left-col { flex-grow: 1; display: flex; flex-direction: column; }
+.cal-card { background-color: #043263; border-radius: 12px; padding: 30px; display: flex; align-items: flex-start; gap: 35px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); width: 100%; margin-bottom: 30px; }
+.cal-left-col { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; }
 .cal-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; color: white; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; width: 100%; }
 .cal-day-label { text-align: center; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: white; margin-bottom: 10px; }
-.cal-cell { width: 100%; aspect-ratio: 1 / 1; max-height: 80px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.2rem; color: #111; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-.cal-cell:hover:not(.cell-grey) { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.cal-cell { width: 100%; aspect-ratio: 1 / 1; max-height: 85px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.25rem; color: #111; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+.cal-cell:hover:not(.cell-grey) { transform: scale(1.08); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 .cell-white { background-color: #fff; }
 .cell-green { background-color: #70e086; color: #111; }
 .cell-red { background-color: #dd6a6a; color: white; }
 .cell-grey { background-color: #5e5e5e; color: transparent; }
 .cell-noclass { background-color: #5e5e5e; color: white; }
-.legend-box { display: flex; flex-direction: column; gap: 30px; flex-shrink: 0; min-width: 150px; margin-top: 60px; }
-.legend-item { display: flex; align-items: center; gap: 15px; }
-.legend-color { width: 32px; height: 32px; border-radius: 6px; }
-.legend-text { font-size: 1.1rem; font-weight: 700; color: white; }
+.cell-selected { outline: 3px solid #38bdf8 !important; outline-offset: 2px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.7) !important; }
+.cell-friday { position: relative; }
+.cell-friday::after { content: ''; position: absolute; bottom: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; }
+.legend-box { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; width: 165px; margin-top: 50px; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-color { width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; }
+.legend-text { font-size: 0.88rem; font-weight: 600; color: white; white-space: nowrap; }
 
 /* Modals */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
@@ -166,9 +172,23 @@
         </div>
     </div>
     <div class="legend-box">
-        <div class="legend-item"><div class="legend-color" style="background-color: #70e086;"></div><div class="legend-text">Class Day</div></div>
-        <div class="legend-item"><div class="legend-color" style="background-color: #5e5e5e;"></div><div class="legend-text">No class</div></div>
-        <p style="color:#ccc; font-size:0.8rem; margin-top:20px;">Click any day to mark it as 'No Class'. This will send an email to all parents.</p>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #70e086;"></div>
+            <div class="legend-text">Class Day</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ffffff; border: 1px solid #cbd5e1; position: relative;">
+                <span style="position: absolute; bottom: 2px; right: 2px; width: 4px; height: 4px; border-radius: 50%; background: #38bdf8;"></span>
+            </div>
+            <div class="legend-text">Open / Event</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #5e5e5e;"></div>
+            <div class="legend-text">No Class</div>
+        </div>
+        <p style="color:#94a3b8; font-size:0.75rem; margin-top:12px; line-height: 1.4;">
+            Click any day to select it for attendance below. Classes: Mon–Thu.
+        </p>
     </div>
 </div>
 
@@ -184,13 +204,19 @@
 </div>
 
 <!-- NEW SECTION: Daily Attendance Checklist -->
-<div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;">
+<div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;" id="checklist-section-anchor">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px;">
         <div>
             <div class="section-title" style="color: #4a90e2; margin:0;">Daily Attendance Checklist</div>
-            <div class="section-subtitle" style="margin:5px 0 0 0; display:flex; align-items:center; gap:8px;">
+            <div class="section-subtitle" style="margin:5px 0 0 0; display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
                 <span>Class Date:</span>
                 <input type="date" id="attendanceDate" class="date-picker">
+                <button type="button" onclick="quickMarkAllPresent()" style="background:#10b981; color:#fff; border:none; padding:7px 13px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Mark all attending pupils in this shift as present">
+                    <i class="fa-solid fa-check-double"></i> Mark Shift Present
+                </button>
+                <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Declare this date as No Class and notify parents">
+                    <i class="fa-solid fa-ban"></i> Declare 'No Class'
+                </button>
             </div>
         </div>
         
@@ -426,8 +452,9 @@
                 const s = a.session || 'Morning';
                 if(!mockDatabase[a.date]) mockDatabase[a.date] = {};
                 if(!mockDatabase[a.date][a.child]) mockDatabase[a.date][a.child] = {};
-                mockDatabase[a.date][a.child][s] = a;
-                mockDatabase[a.date][a.child]['_latest'] = a;
+                const normRec = Object.assign({}, a, { status: (a.status || '').toLowerCase() });
+                mockDatabase[a.date][a.child][s] = normRec;
+                mockDatabase[a.date][a.child]['_latest'] = normRec;
             });
 
             renderCalendar();
@@ -524,6 +551,36 @@
         content.innerHTML = html;
     }
 
+    function selectCalendarDate(dateKey) {
+        if (!dateKey) return;
+        const parts = dateKey.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayOfWeek = dt.getDay();
+
+        // Update date picker
+        const datePicker = document.getElementById('attendanceDate');
+        if (datePicker) {
+            datePicker.value = dateKey;
+        }
+
+        // Highlight selected cell on calendar
+        document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('cell-selected'));
+        const targetCell = document.querySelector(`.cal-cell[data-date="${dateKey}"]`);
+        if (targetCell) {
+            targetCell.classList.add('cell-selected');
+        }
+
+        // Render checklist for this date
+        renderChecklistForDate(dateKey);
+
+        // Smooth scroll to checklist section
+        const anchor = document.getElementById('checklist-section-anchor');
+        if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    window.selectCalendarDate = selectCalendarDate;
+
     function renderCalendar() {
         const currentYear = calYear;
         const currentMonth = calMonth;
@@ -533,6 +590,7 @@
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const firstDay = new Date(currentYear, currentMonth, 1).getDay();
         const grid = document.getElementById('calendar-grid');
+        const selectedDateVal = datePicker ? datePicker.value : '';
         
         // Keep header labels
         let htmlContent = '';
@@ -552,12 +610,31 @@
             let isNoClass = (currentDayOfWeek === 0 || currentDayOfWeek === 6 || noClassDB[dateKey]);
             if (isNoClass) {
                 cellClass = 'cell-noclass';
-                if (noClassDB[dateKey]) titleAttr = `title="No Class: ${noClassDB[dateKey]}"`;
+                if (noClassDB[dateKey]) {
+                    titleAttr = `title="No Class: ${noClassDB[dateKey]} - Click to inspect"`;
+                } else {
+                    titleAttr = `title="Weekend (Non-Class Day)"`;
+                }
             } else if (window.mockDatabase && window.mockDatabase[dateKey]) {
-                cellClass = 'cell-green'; // Default color for days with some attendance
+                cellClass = 'cell-green';
+                if (currentDayOfWeek === 5) {
+                    titleAttr = `title="Friday Event Attendance Logged - Click to view/edit"`;
+                } else {
+                    titleAttr = `title="Class Day (Attendance Logged) - Click to view/edit"`;
+                }
+            } else if (currentDayOfWeek === 5) {
+                // Friday with no attendance logged yet: Open for events!
+                cellClass = 'cell-white cell-friday';
+                titleAttr = `title="Friday (Event / Non-Regular Class Day - Click to select & record event attendance)"`;
+            } else {
+                titleAttr = `title="Regular Class Day (Mon–Thu) - Click to view/record attendance"`;
             }
             
-            htmlContent += `<div class="cal-cell ${cellClass}" ${titleAttr} onclick="promptNoClass('${dateKey}')">${day}</div>`;
+            if (dateKey === selectedDateVal) {
+                cellClass += ' cell-selected';
+            }
+            
+            htmlContent += `<div class="cal-cell ${cellClass}" data-date="${dateKey}" ${titleAttr} onclick="selectCalendarDate('${dateKey}')">${day}</div>`;
         }
         
         const totalCells = firstDay + daysInMonth;
@@ -578,6 +655,7 @@
     }
 
     function promptNoClass(dateKey) {
+        if (!dateKey) dateKey = document.getElementById('attendanceDate').value;
         if (noClassDB[dateKey]) {
             alert("This day is already marked as No Class: " + noClassDB[dateKey]);
             return;
@@ -625,6 +703,89 @@
         }
     }
 
+    async function cancelNoClass(dateKey) {
+        if (!confirm(`Are you sure you want to remove the 'No Class' status for ${dateKey}? This will re-enable regular attendance recording.`)) {
+            return;
+        }
+        try {
+            const res = await fetch('/api/no-class-days/');
+            const ncList = await res.json();
+            const record = Array.isArray(ncList) ? ncList.find(nc => nc.date === dateKey) : null;
+            if (record && record.id) {
+                await fetch(`/api/no-class-days/${record.id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+            }
+            alert(`No Class status removed for ${dateKey}.`);
+            fetchData();
+        } catch (e) {
+            console.error('Error removing No Class day', e);
+            alert('Failed to remove No Class status.');
+        }
+    }
+    window.cancelNoClass = cancelNoClass;
+
+    async function quickMarkAllPresent() {
+        const date = datePicker.value;
+        let filteredStudents = studentsMaster;
+        if (currentChecklistShift !== 'All') {
+            filteredStudents = studentsMaster.filter(st => (st.shift || 'Morning') === currentChecklistShift);
+        }
+        if (filteredStudents.length === 0) {
+            alert("No students to mark in the current shift filter.");
+            return;
+        }
+
+        const parts = date.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const dayOfWeek = dt.getDay();
+        const isFriday = (dayOfWeek === 5);
+        const dayLabel = isFriday ? 'Friday Event' : 'Class Day';
+
+        const unrecorded = filteredStudents.filter(st => {
+            const sess = currentChecklistShift === 'All' ? (st.shift || 'Morning') : currentChecklistShift;
+            return !(window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id] && window.mockDatabase[date][st.id][sess]);
+        });
+
+        const targetList = unrecorded.length > 0 ? unrecorded : filteredStudents;
+        const msg = unrecorded.length === 0
+            ? `All ${filteredStudents.length} student(s) in ${currentChecklistShift === 'All' ? 'All Shifts' : currentChecklistShift + ' Shift'} already have attendance logged for ${date}. Re-confirm everyone as PRESENT?`
+            : `Mark ${unrecorded.length} student(s) as PRESENT for ${dayLabel} on ${date} (${currentChecklistShift === 'All' ? 'All Shifts' : currentChecklistShift + ' Shift'})?`;
+
+        if (!confirm(msg)) {
+            return;
+        }
+
+        try {
+            for (const st of targetList) {
+                const sess = currentChecklistShift === 'All' ? (st.shift || 'Morning') : currentChecklistShift;
+                await fetch('/api/attendance/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        child: st.id,
+                        date: date,
+                        session: sess,
+                        status: 'present',
+                        absence_reason: ''
+                    })
+                });
+            }
+            alert(`Successfully recorded attendance for ${targetList.length} pupils on ${date}.`);
+            fetchData();
+        } catch (e) {
+            console.error('Error in quickMarkAllPresent', e);
+            fetchData();
+        }
+    }
+    window.quickMarkAllPresent = quickMarkAllPresent;
+
     function renderChecklistForDate(date) {
         const container = document.getElementById('daily-checklist-container');
         container.innerHTML = '';
@@ -637,6 +798,15 @@
 
         if (isWeekend || noClassReason) {
             const reasonText = noClassReason ? `Reason: ${noClassReason}` : "Weekend";
+            let removeBtnHtml = '';
+            if (noClassReason) {
+                removeBtnHtml = `
+                <div style="margin-top:15px;">
+                    <button type="button" onclick="cancelNoClass('${date}')" style="background:#dc2626; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
+                        <i class="fa-solid fa-trash-can"></i> Remove 'No Class' Status & Enable Attendance
+                    </button>
+                </div>`;
+            }
             container.innerHTML = `
             <div style="text-align:center; padding:40px; background:#fff; border-radius:12px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
                 <div style="width: 60px; height: 60px; border-radius: 50%; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 15px;">
@@ -644,8 +814,38 @@
                 </div>
                 <h3 style="margin: 0 0 10px 0; font-family: 'Montserrat', sans-serif; font-weight: 800; color: #1e293b;">No Class Day</h3>
                 <p style="margin: 0; color: #64748b; font-weight: 500; font-size: 0.95rem;">${reasonText}</p>
+                ${removeBtnHtml}
             </div>`;
             return;
+        }
+
+        // Friday Event Banner
+        let fridayBannerHtml = '';
+        if (dayOfWeek === 5) {
+            const hasExisting = window.mockDatabase && window.mockDatabase[date];
+            const eventStatusText = hasExisting 
+                ? 'Attendance is currently logged for this Friday event.' 
+                : 'No attendance logged yet. Use this checklist to record attendance for today\'s Friday event.';
+            fridayBannerHtml = `
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 38px; height: 38px; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-calendar-star"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 800; color: #1e3a8a; font-size: 0.95rem; font-family: 'Montserrat', sans-serif;">
+                            Friday Event / Special Activity Session
+                        </div>
+                        <div style="color: #1e40af; font-size: 0.82rem; margin-top: 2px;">
+                            Daycare regular schedule is <strong>Monday to Thursday</strong>. This Friday is accessible for center events, cultural activities, and special sessions. ${eventStatusText}
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="quickMarkAllPresent()" style="background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-check-double"></i> Mark Attending Present
+                </button>
+            </div>`;
+            container.innerHTML = fridayBannerHtml;
         }
 
         // Filter students by currentChecklistShift
@@ -681,16 +881,23 @@
             let toggleHtml = '';
 
             if (status) {
-                let bn = status === 'present' ? 'Excellent' : (status==='late'?'Warning':'Poor');
-                let bc = status === 'present' ? 'excellent' : (status==='late'?'warning':'poor');
-                let t = status.charAt(0).toUpperCase() + status.slice(1);
+                const sLower = String(status).trim().toLowerCase();
+                let bc = 'present';
+                let t = 'Present';
+                if (sLower === 'late') {
+                    bc = 'late';
+                    t = 'Late';
+                } else if (sLower === 'absent') {
+                    bc = 'absent';
+                    t = 'Absent';
+                }
                 badgeHtml = `
                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
                     <span class="status-badge ${bc}">${t}</span>
                     <span style="font-size:0.72rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession}</span>
                 </div>`;
-                if (status === 'absent' && recordObj.absence_reason) {
-                    badgeHtml += `<div style="font-size:0.75rem; color:#d9534f; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
+                if (sLower === 'absent' && recordObj.absence_reason) {
+                    badgeHtml += `<div style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
                 }
             } else {
                 toggleHtml = `
@@ -816,6 +1023,11 @@
 
     datePicker.addEventListener('change', function() {
         renderChecklistForDate(this.value);
+        document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('cell-selected'));
+        const targetCell = document.querySelector(`.cal-cell[data-date="${this.value}"]`);
+        if (targetCell) {
+            targetCell.classList.add('cell-selected');
+        }
     });
 
     function selectAttendance(studentId, status) {
