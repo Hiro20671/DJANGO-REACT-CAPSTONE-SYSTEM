@@ -296,12 +296,47 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceRecordSerializer
 
     def create(self, request, *args, **kwargs):
+        from rest_framework import status as http_status
+        data = request.data
+        active_year = SchoolYear.objects.filter(is_active=True).first()
+
+        # Support batch attendance creation/updating
+        records_data = None
+        if isinstance(data, list):
+            records_data = data
+        elif isinstance(data, dict) and 'records' in data and isinstance(data['records'], list):
+            records_data = data['records']
+
+        if records_data is not None:
+            updated_count = 0
+            for item in records_data:
+                c_id = item.get('child')
+                d = item.get('date')
+                s = item.get('session') or 'Morning'
+                st = item.get('status')
+                r = item.get('absence_reason', '')
+                if c_id and d and st:
+                    AttendanceRecord.objects.update_or_create(
+                        child_id=c_id,
+                        date=d,
+                        session=s,
+                        defaults={
+                            'status': st,
+                            'absence_reason': r,
+                            'school_year': active_year
+                        }
+                    )
+                    updated_count += 1
+            return Response({
+                'count': updated_count,
+                'message': f'Successfully updated {updated_count} attendance records'
+            }, status=http_status.HTTP_200_OK)
+
         child_id = request.data.get('child')
         date = request.data.get('date')
         session = request.data.get('session') or 'Morning'
         status_val = request.data.get('status')
         absence_reason = request.data.get('absence_reason', '')
-        active_year = SchoolYear.objects.filter(is_active=True).first()
 
         record, created = AttendanceRecord.objects.update_or_create(
             child_id=child_id,
@@ -314,7 +349,6 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
             }
         )
         serializer = self.get_serializer(record)
-        from rest_framework import status as http_status
         return Response(serializer.data, status=http_status.HTTP_201_CREATED if created else http_status.HTTP_200_OK)
 
     def get_queryset(self):

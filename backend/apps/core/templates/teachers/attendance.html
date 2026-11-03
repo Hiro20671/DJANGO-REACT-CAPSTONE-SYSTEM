@@ -57,6 +57,14 @@
 .btn-toggle.absent.active { background-color: #ef4444 !important; border-color: #ef4444 !important; color: white !important; }
 .btn-confirm { background-color: #4a90e2; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
 .btn-confirm:hover { background-color: #357abd; }
+.list-item.staged-present { border-left: 5px solid #10b981 !important; background-color: #f0fdf4 !important; }
+.list-item.staged-late { border-left: 5px solid #f97316 !important; background-color: #fff7ed !important; }
+.list-item.staged-absent { border-left: 5px solid #ef4444 !important; background-color: #fef2f2 !important; }
+.batch-bar-active {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.18) !important;
+}
 
 
 
@@ -211,7 +219,7 @@
             <div class="section-subtitle" style="margin:5px 0 0 0; display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
                 <span>Class Date:</span>
                 <input type="date" id="attendanceDate" class="date-picker">
-                <button type="button" onclick="quickMarkAllPresent()" style="background:#10b981; color:#fff; border:none; padding:7px 13px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Mark all attending pupils in this shift as present">
+                <button type="button" onclick="stageAllShiftPresent()" style="background:#10b981; color:#fff; border:none; padding:7px 13px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Stage all unrecorded pupils in this shift as present">
                     <i class="fa-solid fa-check-double"></i> Mark Shift Present
                 </button>
                 <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Declare this date as No Class and notify parents">
@@ -236,6 +244,31 @@
     
     <div id="shift-count-badge" style="font-size:0.82rem; color:#475569; margin-bottom:15px; padding:6px 12px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; display:inline-block;">
         Loading students...
+    </div>
+
+    <!-- BATCH ATTENDANCE CONFIRMATION ACTION BAR (Hybrid Workflow) -->
+    <div id="batch-confirm-bar" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; transition: all 0.25s ease; position: sticky; top: 12px; z-index: 100;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: #063970; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                <i class="fa-solid fa-clipboard-user"></i>
+            </div>
+            <div>
+                <div style="font-weight: 800; color: #1e293b; font-size: 0.95rem; font-family: 'Montserrat', sans-serif;">
+                    Attendance Confirmation: <span id="batch-status-text" style="color: #64748b; font-weight: 700;">Ready to mark attendance</span>
+                </div>
+                <div id="batch-breakdown-text" style="color: #64748b; font-size: 0.82rem; margin-top: 2px;">
+                    Mark each child individually below. Confirm them one-by-one or click <strong>'Confirm All Attendance'</strong> to save all at once.
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button type="button" id="btn-batch-clear" onclick="clearAllStaged()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: none; align-items: center; gap: 6px; transition: all 0.2s;">
+                <i class="fa-solid fa-rotate-left"></i> Reset Selections
+            </button>
+            <button type="button" id="btn-batch-confirm" onclick="confirmAllAttendance()" disabled style="background: #94a3b8; color: #ffffff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 800; font-size: 0.88rem; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s;">
+                <i class="fa-solid fa-floppy-disk"></i> <span id="btn-batch-label">Confirm All Attendance (0 marked)</span>
+            </button>
+        </div>
     </div>
     
     <div class="student-list" id="daily-checklist-container">
@@ -891,26 +924,31 @@
                     bc = 'absent';
                     t = 'Absent';
                 }
-                badgeHtml = `
+                actionAreaHtml = `
                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                    <span class="status-badge ${bc}">${t}</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="status-badge ${bc}">${t}</span>
+                        <button type="button" class="btn-toggle" onclick="reopenStudentAttendance('${st.id}', '${sLower}')" title="Change attendance status" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 4px; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; display:inline-flex; align-items:center; gap:3px;">
+                            <i class="fa-solid fa-pen"></i> Change
+                        </button>
+                    </div>
                     <span style="font-size:0.72rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession}</span>
+                    ${sLower === 'absent' && recordObj.absence_reason ? `<div style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-top:2px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>` : ''}
                 </div>`;
-                if (sLower === 'absent' && recordObj.absence_reason) {
-                    badgeHtml += `<div style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-top:5px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
-                }
             } else {
-                toggleHtml = `
-                <div class="attendance-action-area" id="action-area-${st.id}" style="flex-direction:column; align-items:flex-start;">
+                actionAreaHtml = `
+                <div class="attendance-action-area" id="action-area-${st.id}" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <div class="attendance-toggles">
-                        <button class="btn-toggle present" onclick="selectAttendance('${st.id}', 'present')">Present</button>
-                        <button class="btn-toggle absent" onclick="selectAttendance('${st.id}', 'absent')">Absent</button>
-                        <button class="btn-toggle late" onclick="selectAttendance('${st.id}', 'late')">Late</button>
+                        <button type="button" class="btn-toggle present" id="btn-toggle-present-${st.id}" onclick="selectAttendance('${st.id}', 'present')">Present</button>
+                        <button type="button" class="btn-toggle absent" id="btn-toggle-absent-${st.id}" onclick="selectAttendance('${st.id}', 'absent')">Absent</button>
+                        <button type="button" class="btn-toggle late" id="btn-toggle-late-${st.id}" onclick="selectAttendance('${st.id}', 'late')">Late</button>
                     </div>
-                    <div id="reason-area-${st.id}" style="display:none; margin-top:5px; width:100%;">
-                        <input type="text" id="reason-input-${st.id}" placeholder="Reason for absence" style="padding: 5px; width: 100%; border-radius:4px; border:1px solid #ccc; font-size: 0.8rem;">
+                    <div id="reason-area-${st.id}" style="display:none; width: 170px;">
+                        <input type="text" id="reason-input-${st.id}" oninput="updateAbsenceReason('${st.id}', this.value)" placeholder="Reason for absence" style="padding: 5px 8px; width: 100%; border-radius:4px; border:1px solid #cbd5e1; font-size: 0.8rem;">
                     </div>
-                    <button class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; margin-top:5px;" onclick="confirmAttendance('${st.id}')">Confirm (${targetSession})</button>
+                    <button type="button" class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; padding: 6px 12px; font-size: 0.78rem; background-color: #2563eb;" onclick="confirmAttendance('${st.id}')">
+                        <i class="fa-solid fa-check"></i> Confirm
+                    </button>
                 </div>
                 `;
             }
@@ -920,20 +958,22 @@
                 : `<span class="pill" onclick="toggleStudentShift(${st.id}, '${studentShift}')" title="Click to switch class shift" style="background:#e0f2fe; color:#0369a1; cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-sun"></i> Morning Shift ✎</span>`;
 
             container.innerHTML += `
-            <div class="list-item">
+            <div class="list-item" id="student-card-${st.id}">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <div class="item-name">${st.first_name} ${st.last_name}</div>
                         ${shiftBadge}
                     </div>
-                    <div class="item-sub">${st.age} years old &bull; Taking: <strong>${targetSession} Attendance</strong></div>
+                    <div class="item-sub">${st.age} years old &bull; Session: <strong>${targetSession}</strong></div>
                 </div>
-                ${toggleHtml}
-                <div class="attendance-result">${badgeHtml}</div>
+                <div id="attendance-cell-${st.id}">
+                    ${actionAreaHtml}
+                </div>
             </div>`;
         });
         tempSelections = {};
+        updateBatchActionBar();
     }
 
     function renderOverview() {
@@ -1030,28 +1070,208 @@
         }
     });
 
+    function updateBatchActionBar() {
+        const bar = document.getElementById('batch-confirm-bar');
+        const statusText = document.getElementById('batch-status-text');
+        const breakdownText = document.getElementById('batch-breakdown-text');
+        const confirmBtn = document.getElementById('btn-batch-confirm');
+        const clearBtn = document.getElementById('btn-batch-clear');
+        const label = document.getElementById('btn-batch-label');
+
+        if (!bar || !confirmBtn) return;
+
+        const stagedIds = Object.keys(tempSelections);
+        const count = stagedIds.length;
+
+        if (count === 0) {
+            bar.classList.remove('batch-bar-active');
+            bar.style.borderColor = '#cbd5e1';
+            bar.style.background = '#f8fafc';
+            statusText.innerText = 'Ready to mark attendance';
+            statusText.style.color = '#64748b';
+            breakdownText.innerHTML = `Mark each child individually below. Confirm them one-by-one or click <strong>'Confirm All Attendance'</strong> to save all at once.`;
+            confirmBtn.disabled = true;
+            confirmBtn.style.background = '#94a3b8';
+            confirmBtn.style.cursor = 'not-allowed';
+            if (label) label.innerText = `Confirm All Attendance (0 marked)`;
+            if (clearBtn) clearBtn.style.display = 'none';
+            return;
+        }
+
+        let pCount = 0, lCount = 0, aCount = 0;
+        stagedIds.forEach(id => {
+            const item = tempSelections[id];
+            const st = (typeof item === 'object' && item !== null ? item.status : item || '').toLowerCase();
+            if (st === 'present') pCount++;
+            else if (st === 'late') lCount++;
+            else if (st === 'absent') aCount++;
+        });
+
+        bar.classList.add('batch-bar-active');
+        bar.style.borderColor = '#10b981';
+        bar.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+        statusText.innerText = `${count} pupil${count > 1 ? 's' : ''} marked ready to confirm`;
+        statusText.style.color = '#047857';
+
+        let breakdownParts = [];
+        if (pCount > 0) breakdownParts.push(`<span style="color:#10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${pCount} Present</span>`);
+        if (lCount > 0) breakdownParts.push(`<span style="color:#f97316; font-weight:700;"><i class="fa-solid fa-clock"></i> ${lCount} Late</span>`);
+        if (aCount > 0) breakdownParts.push(`<span style="color:#ef4444; font-weight:700;"><i class="fa-solid fa-circle-xmark"></i> ${aCount} Absent</span>`);
+
+        breakdownText.innerHTML = breakdownParts.join(' &bull; ') + ` &mdash; Ready to batch save, or confirm individually below.`;
+
+        confirmBtn.disabled = false;
+        confirmBtn.style.background = '#059669';
+        confirmBtn.style.cursor = 'pointer';
+        if (label) label.innerText = `Confirm All Attendance (${count} marked)`;
+        if (clearBtn) clearBtn.style.display = 'inline-flex';
+    }
+    window.updateBatchActionBar = updateBatchActionBar;
+
     function selectAttendance(studentId, status) {
+        studentId = String(studentId);
         const row = document.getElementById('action-area-' + studentId);
-        row.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
-        row.querySelector('.btn-toggle.' + status).classList.add('active');
+        const listItem = document.getElementById('student-card-' + studentId);
         
-        tempSelections[studentId] = status;
-        document.getElementById('confirm-btn-' + studentId).style.display = 'block';
-        
-        const reasonArea = document.getElementById('reason-area-' + studentId);
-        if (status === 'absent') {
-            reasonArea.style.display = 'block';
-        } else {
-            reasonArea.style.display = 'none';
+        if (row) {
+            row.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+            const activeBtn = row.querySelector('.btn-toggle.' + status);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const reasonArea = document.getElementById('reason-area-' + studentId);
+            if (reasonArea) {
+                if (status === 'absent') {
+                    reasonArea.style.display = 'block';
+                } else {
+                    reasonArea.style.display = 'none';
+                }
+            }
+            
+            const confirmBtn = document.getElementById('confirm-btn-' + studentId);
+            if (confirmBtn) {
+                confirmBtn.style.display = 'inline-block';
+            }
+        }
+
+        if (listItem) {
+            listItem.classList.remove('staged-present', 'staged-late', 'staged-absent');
+            listItem.classList.add('staged-' + status);
+        }
+
+        const reasonInput = document.getElementById('reason-input-' + studentId);
+        const existingReason = reasonInput ? reasonInput.value : '';
+
+        tempSelections[studentId] = {
+            status: status,
+            reason: status === 'absent' ? existingReason : ''
+        };
+
+        updateBatchActionBar();
+    }
+    window.selectAttendance = selectAttendance;
+
+    function updateAbsenceReason(studentId, reason) {
+        studentId = String(studentId);
+        if (tempSelections[studentId]) {
+            if (typeof tempSelections[studentId] === 'string') {
+                tempSelections[studentId] = { status: tempSelections[studentId], reason: reason };
+            } else {
+                tempSelections[studentId].reason = reason;
+            }
         }
     }
+    window.updateAbsenceReason = updateAbsenceReason;
+
+    function clearAllStaged() {
+        Object.keys(tempSelections).forEach(studentId => {
+            const row = document.getElementById('action-area-' + studentId);
+            const listItem = document.getElementById('student-card-' + studentId);
+            if (row) {
+                row.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
+                const reasonArea = document.getElementById('reason-area-' + studentId);
+                const reasonInput = document.getElementById('reason-input-' + studentId);
+                if (reasonArea) reasonArea.style.display = 'none';
+                if (reasonInput) reasonInput.value = '';
+                const confirmBtn = document.getElementById('confirm-btn-' + studentId);
+                if (confirmBtn) confirmBtn.style.display = 'none';
+            }
+            if (listItem) {
+                listItem.classList.remove('staged-present', 'staged-late', 'staged-absent');
+            }
+        });
+        tempSelections = {};
+        updateBatchActionBar();
+    }
+    window.clearAllStaged = clearAllStaged;
+
+    function stageAllShiftPresent() {
+        const date = datePicker.value;
+        let filteredStudents = studentsMaster;
+        if (currentChecklistShift !== 'All') {
+            filteredStudents = studentsMaster.filter(st => (st.shift || 'Morning') === currentChecklistShift);
+        }
+        if (filteredStudents.length === 0) {
+            alert("No students to mark in the current shift filter.");
+            return;
+        }
+
+        let stagedCount = 0;
+        filteredStudents.forEach(st => {
+            const sid = String(st.id);
+            const actionArea = document.getElementById('action-area-' + sid);
+            if (actionArea) {
+                selectAttendance(sid, 'present');
+                stagedCount++;
+            }
+        });
+
+        if (stagedCount === 0) {
+            alert("All students in this shift are already recorded and confirmed. Click 'Change' on any student if you need to edit their attendance.");
+        }
+    }
+    window.stageAllShiftPresent = stageAllShiftPresent;
+
+    function reopenStudentAttendance(studentId, currentStatus) {
+        studentId = String(studentId);
+        const studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
+        const sessionToRecord = currentChecklistShift === 'All' ? (studentObj?.shift || 'Morning') : currentChecklistShift;
+        const container = document.getElementById('attendance-cell-' + studentId);
+        if (!container) return;
+
+        container.innerHTML = `
+        <div class="attendance-action-area" id="action-area-${studentId}" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div class="attendance-toggles">
+                <button type="button" class="btn-toggle present ${currentStatus === 'present' ? 'active' : ''}" id="btn-toggle-present-${studentId}" onclick="selectAttendance('${studentId}', 'present')">Present</button>
+                <button type="button" class="btn-toggle absent ${currentStatus === 'absent' ? 'active' : ''}" id="btn-toggle-absent-${studentId}" onclick="selectAttendance('${studentId}', 'absent')">Absent</button>
+                <button type="button" class="btn-toggle late ${currentStatus === 'late' ? 'active' : ''}" id="btn-toggle-late-${studentId}" onclick="selectAttendance('${studentId}', 'late')">Late</button>
+            </div>
+            <div id="reason-area-${studentId}" style="display:${currentStatus === 'absent' ? 'block' : 'none'}; width:170px;">
+                <input type="text" id="reason-input-${studentId}" oninput="updateAbsenceReason('${studentId}', this.value)" placeholder="Reason for absence" style="padding: 5px 8px; width: 100%; border-radius:4px; border:1px solid #cbd5e1; font-size: 0.8rem;">
+            </div>
+            <button type="button" class="btn-confirm" id="confirm-btn-${studentId}" style="display:inline-block; padding: 6px 12px; font-size: 0.78rem; background-color: #2563eb;" onclick="confirmAttendance('${studentId}')">
+                <i class="fa-solid fa-check"></i> Confirm
+            </button>
+        </div>`;
+
+        selectAttendance(studentId, currentStatus || 'present');
+    }
+    window.reopenStudentAttendance = reopenStudentAttendance;
 
     async function confirmAttendance(studentId) {
+        studentId = String(studentId);
         const date = datePicker.value;
-        const status = tempSelections[studentId];
-        let reason = "";
-        if (status === 'absent') {
-            reason = document.getElementById('reason-input-' + studentId).value;
+        const item = tempSelections[studentId];
+        const status = (typeof item === 'object' && item !== null) ? item.status : (item || 'present');
+        let reason = (typeof item === 'object' && item !== null) ? (item.reason || '') : '';
+        const reasonInput = document.getElementById('reason-input-' + studentId);
+        if (reasonInput && status === 'absent' && reasonInput.value) {
+            reason = reasonInput.value;
+        }
+
+        const btn = document.getElementById('confirm-btn-' + studentId);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
         }
         
         const studentObj = studentsMaster.find(st => st.id === parseInt(studentId));
@@ -1075,7 +1295,7 @@
                 body: JSON.stringify(payload)
             });
 
-            // Synchronize with the parent's chat store bmv3_chat_messages
+            // Synchronize with parent chat store bmv3_chat_messages
             if (status === 'absent') {
                 let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
                 let chatKey = studentObj ? getStudentChatKey(studentObj) : studentId;
@@ -1098,11 +1318,115 @@
                 localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
             }
 
-            fetchData(); // Reload data
+            delete tempSelections[studentId];
+            updateBatchActionBar();
+            fetchData();
         } catch(e) {
             console.error('Error saving attendance', e);
+            alert("Error saving attendance for pupil.");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> Confirm`;
+            }
         }
     }
+    window.confirmAttendance = confirmAttendance;
+
+    async function confirmAllAttendance() {
+        const date = datePicker.value;
+        const stagedIds = Object.keys(tempSelections);
+        if (stagedIds.length === 0) {
+            alert("Please mark at least one student's attendance first.");
+            return;
+        }
+
+        const confirmBtn = document.getElementById('btn-batch-confirm');
+        const originalHtml = confirmBtn ? confirmBtn.innerHTML : '';
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.style.opacity = '0.75';
+            confirmBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving ${stagedIds.length} records...`;
+        }
+
+        const payloadList = [];
+        let chatDB = JSON.parse(localStorage.getItem('bmv3_chat_messages')) || {};
+        let now = new Date();
+        let dateStrFormatted = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+        stagedIds.forEach(sid => {
+            const item = tempSelections[sid];
+            const status = (typeof item === 'object' && item !== null) ? item.status : (item || 'present');
+            let reason = (typeof item === 'object' && item !== null) ? (item.reason || '') : '';
+            const reasonInput = document.getElementById('reason-input-' + sid);
+            if (reasonInput && status === 'absent' && reasonInput.value) {
+                reason = reasonInput.value;
+            }
+
+            const studentObj = studentsMaster.find(st => st.id === parseInt(sid));
+            const sessionToRecord = currentChecklistShift === 'All' ? (studentObj?.shift || 'Morning') : currentChecklistShift;
+            
+            payloadList.push({
+                child: parseInt(sid),
+                date: date,
+                session: sessionToRecord,
+                status: status,
+                absence_reason: reason || ''
+            });
+
+            if (status === 'absent') {
+                let chatKey = studentObj ? getStudentChatKey(studentObj) : sid;
+                if (!chatDB[chatKey]) chatDB[chatKey] = [];
+                let childName = studentObj ? `${studentObj.first_name} ${studentObj.last_name}` : "Child";
+                let reasonText = reason ? `: "${reason}"` : "";
+                chatDB[chatKey].push({
+                    type: 'system-absent',
+                    text: `[ATTENDANCE RECORD] ${childName} marked ABSENT for ${sessionToRecord} Shift on ${dateStrFormatted}. Reason logged${reasonText}`,
+                    timestamp: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    date: now.toLocaleDateString()
+                });
+            }
+        });
+
+        localStorage.setItem('bmv3_chat_messages', JSON.stringify(chatDB));
+
+        try {
+            const res = await fetch('/api/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ records: payloadList })
+            });
+
+            if (!res.ok) {
+                // Fallback to individual POST requests if batch endpoint not ready
+                for (const payload of payloadList) {
+                    await fetch('/api/attendance/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
+            }
+
+            tempSelections = {};
+            await fetchData();
+            alert(`Successfully confirmed attendance for ${payloadList.length} pupils!`);
+        } catch (e) {
+            console.error('Error in confirmAllAttendance', e);
+            alert("Error saving batch attendance. Please try again.");
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.innerHTML = originalHtml;
+            }
+        }
+    }
+    window.confirmAllAttendance = confirmAllAttendance;
 
     function switchTab(tabName) {
         document.getElementById('tab-all').classList.remove('active');
