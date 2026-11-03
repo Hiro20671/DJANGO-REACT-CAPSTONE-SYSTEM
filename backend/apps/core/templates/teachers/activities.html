@@ -400,12 +400,18 @@
             <h2>Daily Learning & Snacks Activities</h2>
             <p>Track student participation, log daily lessons, and record snacks checklist updates.</p>
         </div>
-        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             <div>
                 <label for="activity-date" style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; opacity: 0.9;">Select Date</label>
                 <input type="date" id="activityDate" onchange="loadDateData()" style="padding: 10px 15px; border-radius: 10px; border: none; font-weight: 600; color: var(--primary); outline: none; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
             </div>
-            <button onclick="openCreateModal()" id="btnAddActivity" style="background: #fff; color: var(--primary); border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px;">
+            <button onclick="openActivityHistoryModal()" style="background: rgba(255,255,255,0.2); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); padding: 11px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: var(--transition); margin-top: 20px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Activity History
+            </button>
+            <button onclick="printWeeklyActivitiesReport()" style="background: #10b981; color: #fff; border: none; padding: 11px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 20px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-print"></i> Print Weekly Report
+            </button>
+            <button onclick="openCreateModal()" id="btnAddActivity" style="background: #fff; color: var(--primary); border: none; padding: 11px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px; display:inline-flex; align-items:center; gap:6px;">
                 <i class="fa-solid fa-plus"></i> Add Activity
             </button>
         </div>
@@ -515,6 +521,27 @@
                 <button type="submit" style="padding: 12px 24px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 10px rgba(6, 57, 112, 0.25);">Create Task</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Activity History Browser Modal -->
+<div class="modal-backdrop" id="activityHistoryModal">
+    <div class="modal-content" style="max-width: 680px; width: 95%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+            <div>
+                <h3 style="margin: 0; color: var(--primary); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Activity History Archive
+                </h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748b;">Browse past school days to inspect lessons, snacks, and student participation.</p>
+            </div>
+            <button onclick="closeActivityHistoryModal()" style="background: none; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer;">&times;</button>
+        </div>
+        <div id="activityHistoryList" style="max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+            <div style="text-align: center; padding: 30px; color: #94a3b8;">Loading historical activities...</div>
+        </div>
+        <div style="margin-top: 15px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+            <button onclick="closeActivityHistoryModal()" style="padding: 9px 20px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-weight: 700; cursor: pointer;">Close</button>
+        </div>
     </div>
 </div>
 
@@ -928,6 +955,203 @@
             console.error(e);
         }
     }
+
+    async function openActivityHistoryModal() {
+        const modal = document.getElementById('activityHistoryModal');
+        modal.style.display = 'flex';
+        const listContainer = document.getElementById('activityHistoryList');
+        listContainer.innerHTML = '<div style="text-align: center; padding: 30px; color: #94a3b8;"><i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Loading past activity dates...</div>';
+
+        try {
+            const resp = await fetch('/api/activities/');
+            const allActs = await resp.json();
+            if (!Array.isArray(allActs) || allActs.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; padding: 30px; color: #94a3b8;">No recorded activities found.</div>';
+                return;
+            }
+
+            const dateMap = {};
+            allActs.forEach(act => {
+                if (!dateMap[act.date]) {
+                    dateMap[act.date] = [];
+                }
+                dateMap[act.date].push(act);
+            });
+
+            const sortedDates = Object.keys(dateMap).sort((a, b) => new Date(b) - new Date(a));
+            let html = '';
+
+            sortedDates.forEach(dStr => {
+                const actsForDay = dateMap[dStr];
+                const dt = new Date(dStr + 'T00:00:00');
+                const dayName = dt.toLocaleDateString('en-US', { weekday: 'short' });
+                const fullDateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const isSelected = (dStr === document.getElementById('activityDate').value);
+
+                html += `
+                <div style="background: ${isSelected ? '#eff6ff' : '#fff'}; border: 1.5px solid ${isSelected ? '#3b82f6' : '#e2e8f0'}; border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: var(--transition);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; border-radius: 8px; background: #063970; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem;">
+                            <span>${dayName.toUpperCase()}</span>
+                            <span style="font-size: 0.95rem; line-height: 1;">${dt.getDate()}</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 750; color: #1e293b; font-size: 0.95rem;">${fullDateStr}</div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+                                ${actsForDay.map(a => `<span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${a.name}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="selectHistoryDate('${dStr}')" style="background: ${isSelected ? '#2563eb' : '#f8fafc'}; color: ${isSelected ? '#fff' : '#063970'}; border: 1px solid ${isSelected ? '#2563eb' : '#cbd5e1'}; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+                        ${isSelected ? 'Currently Viewing' : 'View Checklist &rarr;'}
+                    </button>
+                </div>`;
+            });
+
+            listContainer.innerHTML = html;
+        } catch (e) {
+            console.error('Error fetching activity history', e);
+            listContainer.innerHTML = '<div style="text-align: center; padding: 30px; color: #ef4444;">Failed to load activity history.</div>';
+        }
+    }
+    window.openActivityHistoryModal = openActivityHistoryModal;
+
+    function closeActivityHistoryModal() {
+        document.getElementById('activityHistoryModal').style.display = 'none';
+    }
+    window.closeActivityHistoryModal = closeActivityHistoryModal;
+
+    function selectHistoryDate(dStr) {
+        document.getElementById('activityDate').value = dStr;
+        closeActivityHistoryModal();
+        loadDateData();
+    }
+    window.selectHistoryDate = selectHistoryDate;
+
+    // PRINT WEEKLY ACTIVITIES REPORT
+    async function printWeeklyActivitiesReport() {
+        const curDate = new Date((document.getElementById('activityDate').value || new Date().toISOString().split('T')[0]) + 'T00:00:00');
+        const dayOfWeek = curDate.getDay();
+        const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monDate = new Date(curDate);
+        monDate.setDate(curDate.getDate() + diffToMon);
+
+        const weekDays = [];
+        for (let i = 0; i < 5; i++) {
+            const d = new Date(monDate);
+            d.setDate(monDate.getDate() + i);
+            weekDays.push(d.toISOString().split('T')[0]);
+        }
+
+        const weekData = {};
+        for (const dateStr of weekDays) {
+            try {
+                const actRes = await fetch(`/api/activities/?date=${dateStr}`);
+                const acts = await actRes.json();
+                const compRes = await fetch(`/api/activity-completions/?date=${dateStr}`);
+                const comps = await compRes.json();
+                weekData[dateStr] = { acts, comps };
+            } catch(e) {
+                weekData[dateStr] = { acts: [], comps: [] };
+            }
+        }
+
+        const weekDayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        let daysHtml = '';
+
+        weekDays.forEach((dStr, idx) => {
+            const dObj = new Date(dStr + 'T00:00:00');
+            const formatted = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const dayName = weekDayNames[idx];
+            const data = weekData[dStr] || { acts: [], comps: [] };
+
+            let actsHtml = '';
+            if (data.acts.length === 0) {
+                actsHtml = `<tr><td colspan="4" style="text-align:center; padding:8px; color:#94a3b8; font-style:italic;">No formal scheduled activity (Rest day / Independent play)</td></tr>`;
+            } else {
+                data.acts.forEach((act, actIdx) => {
+                    const compCount = data.comps.filter(c => c.activity === act.id && c.completed).length;
+                    const totalStudents = children.length || 81;
+                    const pct = totalStudents > 0 ? Math.round((compCount / totalStudents) * 100) : 0;
+
+                    actsHtml += `
+                    <tr>
+                        <td style="padding:6px 8px; border:1px solid #cbd5e1; font-weight:700;">${act.name}</td>
+                        <td style="padding:6px 8px; border:1px solid #cbd5e1; font-size:8.5pt; color:#475569;">${act.description || '-'}</td>
+                        <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${compCount} / ${totalStudents}</td>
+                        <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1; font-weight:800; color:#063970;">${pct}%</td>
+                    </tr>`;
+                });
+            }
+
+            daysHtml += `
+            <div style="margin-top:14px; margin-bottom:8px;">
+                <div style="background:#063970; color:#fff; padding:6px 10px; font-weight:bold; font-size:9.5pt; display:flex; justify-content:space-between;">
+                    <span>${dayName.toUpperCase()} &bull; ${formatted}</span>
+                    <span style="font-size:8.5pt; opacity:0.9;">Total Tasks: ${data.acts.length}</span>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:8.5pt;">
+                    <thead>
+                        <tr style="background:#f1f5f9; color:#334155;">
+                            <th style="width:30%; text-align:left; padding:5px 8px; border:1px solid #cbd5e1;">Activity / Lesson / Snack</th>
+                            <th style="width:40%; text-align:left; padding:5px 8px; border:1px solid #cbd5e1;">Details & Notes</th>
+                            <th style="width:15%; text-align:center; padding:5px 8px; border:1px solid #cbd5e1;">Completed Pupils</th>
+                            <th style="width:15%; text-align:center; padding:5px 8px; border:1px solid #cbd5e1;">Participation %</th>
+                        </tr>
+                    </thead>
+                    <tbody>${actsHtml}</tbody>
+                </table>
+            </div>`;
+        });
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Weekly Learning & Snacks Activity Report - ${weekDays[0]} to ${weekDays[4]}</title>
+            <style>
+                @page { size: portrait; margin: 12mm; }
+                body { font-family: 'Arial', sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 10pt; line-height: 1.35; }
+                .report-header { text-align: center; border-bottom: 2px solid #063970; padding-bottom: 8px; margin-bottom: 12px; }
+                .report-header h4 { margin: 0; font-size: 9.5pt; color: #475569; text-transform: uppercase; }
+                .report-header h2 { margin: 3px 0; font-size: 15pt; color: #063970; font-weight: 800; }
+                .report-header h3 { margin: 2px 0; font-size: 11pt; color: #0f172a; }
+                .sig-grid { display: flex; justify-content: space-between; margin-top: 35px; padding: 0 40px; }
+                .sig-box { width: 260px; text-align: center; border-top: 1.5px solid #334155; padding-top: 6px; font-size: 9pt; }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h4>Republic of the Philippines &bull; City of Pasig &bull; Barangay Maybunga</h4>
+                <h2>BMV3 CHILD CARE MANAGEMENT SYSTEM</h2>
+                <h3>WEEKLY LEARNING & SUPPLEMENTARY FEEDING ACTIVITY REPORT</h3>
+                <div style="font-size:9pt; color:#475569; margin-top:3px;">
+                    Week of <strong>${weekDays[0]}</strong> to <strong>${weekDays[4]}</strong> &bull; Active Cohort: <strong>${children.length || 81} Enrolled Pupils</strong>
+                </div>
+            </div>
+
+            ${daysHtml}
+
+            <div class="sig-grid">
+                <div class="sig-box">
+                    <strong>Daycare Teacher / Child Development Worker</strong><br>
+                    <span>Conducted & Certified</span>
+                </div>
+                <div class="sig-box">
+                    <strong>Barangay Child Development Coordinator</strong><br>
+                    <span>Reviewed & Noted</span>
+                </div>
+            </div>
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+        `);
+        printWin.document.close();
+    }
+    window.printWeeklyActivitiesReport = printWeeklyActivitiesReport;
 
     // Utility for CSRF
     function getCookie(name) {

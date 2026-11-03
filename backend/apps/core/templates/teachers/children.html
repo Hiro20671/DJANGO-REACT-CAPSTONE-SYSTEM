@@ -410,6 +410,10 @@
             <p>Manage student profiles, assign class shifts (Morning AM / Afternoon PM), and review enrollment applications</p>
         </div>
         <div class="children-header-actions">
+            <button type="button" class="btn-child" onclick="printEnrolledMasterlist()" style="background:#063970; color:#fff; border:none; padding:9px 16px; border-radius:8px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(6,57,112,0.2);" title="Print official masterlist roster of all currently enrolled pupils">
+                <i class="fa-solid fa-print"></i>
+                <span>Print Enrolled Masterlist</span>
+            </button>
             <button type="button" class="btn-child btn-child-primary" onclick="openGenerateParentAccountModal()" title="Generate Parent Login Account & Send Credentials via Brevo">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Generate Parent Account</span>
@@ -1151,5 +1155,147 @@
         }
         return cookieValue;
     }
+
+    function printEnrolledMasterlist() {
+        if (!masterChildrenList || masterChildrenList.length === 0) {
+            alert('No student records loaded to print.');
+            return;
+        }
+
+        const enrolled = masterChildrenList.filter(c => c.enrollment_status === 'Enrolled' || (!c.enrollment_status && c.enrollment_status !== 'Withdrawn' && c.enrollment_status !== 'Pending'));
+        
+        const morningList = enrolled.filter(c => (c.shift || 'Morning') === 'Morning');
+        const afternoonList = enrolled.filter(c => c.shift === 'Afternoon');
+
+        function buildRosterRows(list) {
+            return list.map((c, idx) => {
+                const guardianName = c.mother_first_name ? `${c.mother_first_name} ${c.mother_last_name || ''}` : (c.father_first_name ? `${c.father_first_name} ${c.father_last_name || ''}` : 'Guardian on file');
+                const contact = c.mother_phone || c.father_phone || c.phone || 'N/A';
+                const addr = c.address || 'Barangay Maybunga, Pasig City';
+                const dobFormatted = c.dob ? new Date(c.dob).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+                return `
+                <tr>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1;">${idx + 1}</td>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 8.5pt;">${c.lrn || '#' + c.id}</td>
+                    <td style="padding: 5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #1e293b;">${c.last_name}, ${c.first_name} ${c.middle_initial || ''}</td>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1;">${c.gender || 'N/A'}</td>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1;">${dobFormatted}</td>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1;">${c.age || 4} yrs</td>
+                    <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">${guardianName}</td>
+                    <td style="text-align: center; padding: 5px; border: 1px solid #cbd5e1; font-size: 8pt;">${contact}</td>
+                    <td style="padding: 5px 8px; border: 1px solid #cbd5e1; font-size: 8pt; color: #475569;">${addr}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        const mRows = buildRosterRows(morningList);
+        const aRows = buildRosterRows(afternoonList);
+        const totalCount = morningList.length + afternoonList.length;
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Official Enrolled Pupil Masterlist - School Year 2026-2027</title>
+            <style>
+                @page { size: landscape; margin: 12mm; }
+                body { font-family: 'Arial', sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 9.5pt; line-height: 1.35; }
+                .report-header { text-align: center; border-bottom: 2px solid #063970; padding-bottom: 8px; margin-bottom: 12px; }
+                .report-header h4 { margin: 0; font-size: 8.5pt; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; }
+                .report-header h2 { margin: 3px 0; font-size: 14pt; color: #063970; font-weight: 800; }
+                .report-header h3 { margin: 2px 0; font-size: 11pt; color: #0f172a; }
+                .summary-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 16px; margin-bottom: 12px; font-size: 9pt; }
+                .section-header { background: #063970; color: white; padding: 5px 10px; font-weight: bold; font-size: 9.5pt; margin-top: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 8pt; }
+                th { background: #f1f5f9; color: #334155; font-weight: 700; padding: 5px 6px; border: 1px solid #cbd5e1; }
+                .sig-grid { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 40px; font-size: 9pt; }
+                .sig-box { width: 260px; text-align: center; border-top: 1.5px solid #334155; padding-top: 6px; }
+                @media print {
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h4>Republic of the Philippines &bull; City of Pasig &bull; Barangay Maybunga</h4>
+                <h2>BMV3 CHILD CARE MANAGEMENT SYSTEM</h2>
+                <h3>OFFICIAL ENROLLED PUPIL MASTERLIST & SHIFT ROSTER</h3>
+                <div style="font-size: 9pt; color: #475569; margin-top: 3px;">
+                    Academic School Year: <strong>2026-2027</strong> &bull; Date Printed: <strong>${new Date().toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})}</strong>
+                </div>
+            </div>
+
+            <div class="summary-banner">
+                <div><strong>Morning Shift (AM):</strong><br><span style="font-size: 12pt; font-weight: 800; color: #063970;">${morningList.length} Pupils</span></div>
+                <div><strong>Afternoon Shift (PM):</strong><br><span style="font-size: 12pt; font-weight: 800; color: #0f766e;">${afternoonList.length} Pupils</span></div>
+                <div><strong>Grand Total Enrolled:</strong><br><span style="font-size: 12pt; font-weight: 800; color: #15803d;">${totalCount} Pupils</span></div>
+            </div>
+
+            <!-- Morning Shift Class -->
+            <div class="section-header">
+                <span>Morning Shift Class Roster (AM Session)</span>
+                <span>Total: ${morningList.length} Pupils</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 4%; text-align: center;">#</th>
+                        <th style="width: 10%; text-align: center;">LRN / ID</th>
+                        <th style="width: 22%; text-align: left;">Pupil Full Name</th>
+                        <th style="width: 6%; text-align: center;">Sex</th>
+                        <th style="width: 10%; text-align: center;">Birthday</th>
+                        <th style="width: 6%; text-align: center;">Age</th>
+                        <th style="width: 18%; text-align: left;">Parent / Guardian</th>
+                        <th style="width: 10%; text-align: center;">Contact</th>
+                        <th style="width: 14%; text-align: left;">Complete Address</th>
+                    </tr>
+                </thead>
+                <tbody>${mRows}</tbody>
+            </table>
+
+            <!-- Afternoon Shift Class -->
+            <div class="section-header" style="background: #0f766e;">
+                <span>Afternoon Shift Class Roster (PM Session)</span>
+                <span>Total: ${afternoonList.length} Pupils</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 4%; text-align: center;">#</th>
+                        <th style="width: 10%; text-align: center;">LRN / ID</th>
+                        <th style="width: 22%; text-align: left;">Pupil Full Name</th>
+                        <th style="width: 6%; text-align: center;">Sex</th>
+                        <th style="width: 10%; text-align: center;">Birthday</th>
+                        <th style="width: 6%; text-align: center;">Age</th>
+                        <th style="width: 18%; text-align: left;">Parent / Guardian</th>
+                        <th style="width: 10%; text-align: center;">Contact</th>
+                        <th style="width: 14%; text-align: left;">Complete Address</th>
+                    </tr>
+                </thead>
+                <tbody>${aRows}</tbody>
+            </table>
+
+            <div class="sig-grid">
+                <div class="sig-box">
+                    <strong>Daycare Teacher / Child Development Worker</strong><br>
+                    <span>Prepared & Certified True and Correct</span>
+                </div>
+                <div class="sig-box">
+                    <strong>Barangay Child Development Coordinator</strong><br>
+                    <span>Approved & Noted</span>
+                </div>
+            </div>
+
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+        `);
+        printWin.document.close();
+    }
+    window.printEnrolledMasterlist = printEnrolledMasterlist;
 </script>
 {% endblock %}

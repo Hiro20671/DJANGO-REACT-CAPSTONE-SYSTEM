@@ -106,6 +106,7 @@ urlpatterns = [
 
     path('api/nutrition-analytics/', NutritionAnalyticsAPIView.as_view(), name='api_nutrition_analytics'),
     path('api/general-analytics/', GeneralAnalyticsAPIView.as_view(), name='api_general_analytics'),
+    path('api/ai-insights/', AIInsightsAPIView.as_view(), name='api_ai_insights'),
     path('api/generate_parent_account/', GenerateParentAccountAPIView.as_view(), name='api_generate_parent_account'),
     path('api/children/<int:child_id>/generate-parent-account/', GenerateParentAccountAPIView.as_view(), name='api_child_generate_parent_account'),
     path('api/force-password-change/', ForcePasswordChangeAPIView.as_view(), name='api_force_password_change'),

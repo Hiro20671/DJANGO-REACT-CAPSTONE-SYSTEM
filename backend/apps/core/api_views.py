@@ -351,6 +351,36 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(record)
         return Response(serializer.data, status=http_status.HTTP_201_CREATED if created else http_status.HTTP_200_OK)
 
+    @action(detail=False, methods=['delete', 'post'])
+    def clear(self, request):
+        profile = getattr(request.user, 'userprofile', None)
+        if not (request.user.is_superuser or (profile and profile.is_teacher)):
+            return Response({'detail': 'Teacher permission required.'}, status=403)
+
+        date_val = request.data.get('date') or request.query_params.get('date')
+        if not date_val:
+            return Response({'detail': 'Date parameter is required.'}, status=400)
+
+        child_id = request.data.get('child_id') or request.query_params.get('child_id') or request.data.get('child') or request.query_params.get('child')
+        session_val = request.data.get('session') or request.query_params.get('session')
+        shift_val = request.data.get('shift') or request.query_params.get('shift')
+
+        qs = AttendanceRecord.objects.filter(date=date_val)
+        if child_id:
+            qs = qs.filter(child_id=child_id)
+        if session_val and session_val != 'All':
+            qs = qs.filter(session__iexact=session_val)
+        if shift_val and shift_val != 'All':
+            qs = qs.filter(child__shift__iexact=shift_val)
+
+        deleted_count, _ = qs.delete()
+        return Response({
+            'success': True,
+            'deleted_count': deleted_count,
+            'message': f'Successfully removed {deleted_count} attendance record(s) for {date_val}.'
+        }, status=200)
+
+
     def get_queryset(self):
         profile = getattr(self.request.user, 'userprofile', None)
         if not profile:

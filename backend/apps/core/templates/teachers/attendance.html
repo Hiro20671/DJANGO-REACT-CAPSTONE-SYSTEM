@@ -126,10 +126,21 @@
 }
 </style>
 
-<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
     <div>
         <h2>Attendance Monitoring</h2>
         <p>Track attendance patterns and identify trends</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <button type="button" onclick="printDailyAttendanceReport()" style="background:#063970; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(6,57,112,0.15);">
+            <i class="fa-solid fa-print"></i> Print Daily Report
+        </button>
+        <button type="button" onclick="printWeeklyAttendanceReport()" style="background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(5,150,105,0.15);">
+            <i class="fa-solid fa-calendar-week"></i> Print Weekly Report
+        </button>
+        <button type="button" onclick="printMonthlyAttendanceReport()" style="background:#4338ca; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 4px rgba(67,56,202,0.15);">
+            <i class="fa-solid fa-calendar-days"></i> Print Monthly Report
+        </button>
     </div>
 </div>
 
@@ -224,6 +235,9 @@
                 </button>
                 <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Declare this date as No Class and notify parents">
                     <i class="fa-solid fa-ban"></i> Declare 'No Class'
+                </button>
+                <button type="button" onclick="clearCurrentDateAttendance()" style="background:#ffffff; color:#b91c1c; border:1.5px solid #f87171; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Reset or remove saved attendance if entered on the wrong date">
+                    <i class="fa-solid fa-rotate-left"></i> Undo / Clear Date Attendance
                 </button>
             </div>
         </div>
@@ -931,6 +945,9 @@
                         <button type="button" class="btn-toggle" onclick="reopenStudentAttendance('${st.id}', '${sLower}')" title="Change attendance status" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 4px; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; display:inline-flex; align-items:center; gap:3px;">
                             <i class="fa-solid fa-pen"></i> Change
                         </button>
+                        <button type="button" class="btn-toggle" onclick="deleteStudentAttendance('${st.id}')" title="Remove / undo saved attendance" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 4px; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; display:inline-flex; align-items:center; gap:3px;">
+                            <i class="fa-solid fa-trash-can"></i> Remove
+                        </button>
                     </div>
                     <span style="font-size:0.72rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession}</span>
                     ${sLower === 'absent' && recordObj.absence_reason ? `<div style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-top:2px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>` : ''}
@@ -1528,6 +1545,549 @@
         document.getElementById('hist-absent-count').innerText = aCount;
         document.getElementById('hist-table-body').innerHTML = tableHtml;
     };
+
+    async function deleteStudentAttendance(studentId) {
+        const date = datePicker.value;
+        const student = studentsMaster.find(s => s.id == studentId);
+        const name = student ? `${student.first_name} ${student.last_name}` : 'Student';
+        if (!confirm(`Are you sure you want to remove the saved attendance record for ${name} on ${date}?\n\nThis will reset the student back to unrecorded status.`)) {
+            return;
+        }
+        try {
+            const resp = await fetch('/api/attendance/clear/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    date: date,
+                    child_id: studentId
+                })
+            });
+            const res = await resp.json();
+            if (resp.ok) {
+                if (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][studentId]) {
+                    delete window.mockDatabase[date][studentId];
+                }
+                alert(`Attendance record removed for ${name}.`);
+                await fetchData();
+            } else {
+                alert(res.detail || 'Failed to remove attendance record.');
+            }
+        } catch(e) {
+            console.error('Error removing attendance', e);
+            alert('Failed to remove attendance record.');
+        }
+    }
+    window.deleteStudentAttendance = deleteStudentAttendance;
+
+    async function clearCurrentDateAttendance() {
+        const date = datePicker.value;
+        const shiftLabel = currentChecklistShift === 'All' ? 'All Shifts' : `${currentChecklistShift} Shift`;
+        
+        if (!confirm(`ATTENDANCE WRONG DATE RESET:\n\nAre you sure you want to remove ALL saved attendance records for ${date} (${shiftLabel})?\n\nUse this button if attendance was accidentally marked on the wrong date. All students in this shift will be reset to unrecorded.`)) {
+            return;
+        }
+
+        try {
+            const resp = await fetch('/api/attendance/clear/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    date: date,
+                    shift: currentChecklistShift === 'All' ? null : currentChecklistShift
+                })
+            });
+            const res = await resp.json();
+            if (resp.ok) {
+                if (window.mockDatabase && window.mockDatabase[date]) {
+                    if (currentChecklistShift === 'All') {
+                        delete window.mockDatabase[date];
+                    } else {
+                        Object.keys(window.mockDatabase[date]).forEach(cid => {
+                            delete window.mockDatabase[date][cid][currentChecklistShift];
+                        });
+                    }
+                }
+                alert(`Successfully cleared ${res.deleted_count || 0} attendance records for ${date}.`);
+                await fetchData();
+            } else {
+                alert(res.detail || 'Failed to clear attendance for this date.');
+            }
+        } catch(e) {
+            console.error('Error clearing attendance for date', e);
+            alert('Failed to clear attendance for this date.');
+        }
+    }
+    window.clearCurrentDateAttendance = clearCurrentDateAttendance;
+
+    // PRINT REPORT 1: DAILY ATTENDANCE REPORT
+    function printDailyAttendanceReport() {
+        const date = datePicker.value || new Date().toISOString().split('T')[0];
+        const dateObj = new Date(date + 'T00:00:00');
+        const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        const morningStudents = studentsMaster.filter(s => (s.shift || 'Morning') === 'Morning');
+        const afternoonStudents = studentsMaster.filter(s => s.shift === 'Afternoon');
+
+        function getStudentDayStats(st, shift) {
+            let record = null;
+            if (window.mockDatabase && window.mockDatabase[date] && window.mockDatabase[date][st.id]) {
+                record = window.mockDatabase[date][st.id][shift] || window.mockDatabase[date][st.id]['_latest'];
+            }
+            return record;
+        }
+
+        function buildShiftRows(list, shift) {
+            let p = 0, a = 0, l = 0, u = 0;
+            let rowsHtml = '';
+            list.forEach((st, idx) => {
+                const rec = getStudentDayStats(st, shift);
+                let statusLabel = 'Unrecorded';
+                let statusClass = 'color:#64748b; font-weight:600;';
+                let reason = '-';
+                if (rec) {
+                    const stLower = String(rec.status).toLowerCase();
+                    if (stLower === 'present') {
+                        p++;
+                        statusLabel = 'PRESENT';
+                        statusClass = 'color:#15803d; font-weight:800;';
+                    } else if (stLower === 'late') {
+                        l++;
+                        statusLabel = 'LATE';
+                        statusClass = 'color:#b45309; font-weight:800;';
+                    } else if (stLower === 'absent') {
+                        a++;
+                        statusLabel = 'ABSENT';
+                        statusClass = 'color:#b91c1c; font-weight:800;';
+                        reason = rec.absence_reason || 'Unexcused';
+                    }
+                } else {
+                    u++;
+                }
+
+                rowsHtml += `
+                <tr>
+                    <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1;">${idx + 1}</td>
+                    <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700;">${st.last_name}, ${st.first_name}</td>
+                    <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1;">${st.age || 4}</td>
+                    <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1; ${statusClass}">${statusLabel}</td>
+                    <td style="text-align:center; padding:6px 8px; border:1px solid #cbd5e1; font-size:0.8rem; color:#475569;">${rec ? (rec.session || shift) : '-'}</td>
+                    <td style="padding:6px 10px; border:1px solid #cbd5e1; font-size:0.8rem; color:#475569;">${reason}</td>
+                </tr>`;
+            });
+            const total = list.length;
+            const rate = total > 0 ? Math.round((p / total) * 100) : 0;
+            return { rowsHtml, p, a, l, u, total, rate };
+        }
+
+        const mRes = buildShiftRows(morningStudents, 'Morning');
+        const aRes = buildShiftRows(afternoonStudents, 'Afternoon');
+        const overallTotal = mRes.total + aRes.total;
+        const overallPresent = mRes.p + aRes.p;
+        const overallRate = overallTotal > 0 ? Math.round((overallPresent / overallTotal) * 100) : 0;
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Daily Attendance Report - ${date}</title>
+            <style>
+                @page { size: portrait; margin: 12mm; }
+                body { font-family: 'Arial', sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 11pt; line-height: 1.35; }
+                .report-header { text-align: center; border-bottom: 2px solid #063970; padding-bottom: 10px; margin-bottom: 14px; }
+                .report-header h4 { margin: 0; font-size: 10pt; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+                .report-header h2 { margin: 4px 0; font-size: 15pt; color: #063970; font-weight: 800; }
+                .report-header h3 { margin: 2px 0; font-size: 12pt; color: #0f172a; }
+                .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 9.5pt; }
+                .meta-item strong { display: block; color: #64748b; font-size: 8pt; text-transform: uppercase; }
+                .section-header { background: #063970; color: white; padding: 6px 12px; font-size: 10.5pt; font-weight: bold; border-radius: 4px 4px 0 0; margin-top: 14px; display: flex; justify-content: space-between; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; }
+                th { background: #f1f5f9; color: #334155; font-weight: 700; padding: 6px 8px; border: 1px solid #cbd5e1; text-align: left; }
+                .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; font-size: 9.5pt; }
+                .sig-box { text-align: center; border-top: 1.5px solid #334155; padding-top: 6px; }
+                @media print {
+                    .no-print { display: none !important; }
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h4>Republic of the Philippines &bull; City of Pasig &bull; Barangay Maybunga</h4>
+                <h2>BMV3 CHILD CARE MANAGEMENT SYSTEM</h2>
+                <h3>OFFICIAL DAILY ATTENDANCE REGISTER</h3>
+            </div>
+            
+            <div class="meta-grid">
+                <div class="meta-item"><strong>Date:</strong> ${formattedDate}</div>
+                <div class="meta-item"><strong>School Year:</strong> 2026-2027</div>
+                <div class="meta-item"><strong>Enrolled Pupils:</strong> ${overallTotal} Total (${mRes.total} AM / ${aRes.total} PM)</div>
+                <div class="meta-item"><strong>Overall Attendance:</strong> ${overallRate}% (${overallPresent} Present)</div>
+            </div>
+
+            <!-- Morning Shift Table -->
+            <div class="section-header">
+                <span>Morning Shift Class (AM)</span>
+                <span>Present: ${mRes.p} &bull; Absent: ${mRes.a} &bull; Late: ${mRes.l} &bull; Rate: ${mRes.rate}%</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%; text-align:center;">#</th>
+                        <th style="width:35%;">Pupil Full Name</th>
+                        <th style="width:8%; text-align:center;">Age</th>
+                        <th style="width:16%; text-align:center;">Daily Status</th>
+                        <th style="width:14%; text-align:center;">Session</th>
+                        <th style="width:22%;">Remarks / Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${mRes.rowsHtml}
+                </tbody>
+            </table>
+
+            <!-- Afternoon Shift Table -->
+            <div class="section-header" style="background:#0f766e;">
+                <span>Afternoon Shift Class (PM)</span>
+                <span>Present: ${aRes.p} &bull; Absent: ${aRes.a} &bull; Late: ${aRes.l} &bull; Rate: ${aRes.rate}%</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%; text-align:center;">#</th>
+                        <th style="width:35%;">Pupil Full Name</th>
+                        <th style="width:8%; text-align:center;">Age</th>
+                        <th style="width:16%; text-align:center;">Daily Status</th>
+                        <th style="width:14%; text-align:center;">Session</th>
+                        <th style="width:22%;">Remarks / Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${aRes.rowsHtml}
+                </tbody>
+            </table>
+
+            <div class="sig-grid">
+                <div>
+                    <div style="height:40px;"></div>
+                    <div class="sig-box">
+                        <strong>Daycare Teacher / Child Development Worker</strong><br>
+                        <span>Prepared & Certified True and Correct</span>
+                    </div>
+                </div>
+                <div>
+                    <div style="height:40px;"></div>
+                    <div class="sig-box">
+                        <strong>Barangay Child Development Focal Person</strong><br>
+                        <span>Noted & Approved</span>
+                    </div>
+                </div>
+            </div>
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+        `);
+        printWin.document.close();
+    }
+    window.printDailyAttendanceReport = printDailyAttendanceReport;
+
+    // PRINT REPORT 2: WEEKLY ATTENDANCE MATRIX REPORT
+    function printWeeklyAttendanceReport() {
+        const curDate = new Date((datePicker.value || new Date().toISOString().split('T')[0]) + 'T00:00:00');
+        const dayOfWeek = curDate.getDay();
+        const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monDate = new Date(curDate);
+        monDate.setDate(curDate.getDate() + diffToMon);
+
+        const weekDays = [];
+        for (let i = 0; i < 5; i++) {
+            const d = new Date(monDate);
+            d.setDate(monDate.getDate() + i);
+            weekDays.push(d.toISOString().split('T')[0]);
+        }
+
+        function buildWeeklyRows(list, shift) {
+            let rowsHtml = '';
+            list.forEach((st, idx) => {
+                let pCnt = 0, aCnt = 0, lCnt = 0;
+                let dayCells = '';
+                weekDays.forEach((wDate, dIdx) => {
+                    let rec = null;
+                    if (window.mockDatabase && window.mockDatabase[wDate] && window.mockDatabase[wDate][st.id]) {
+                        rec = window.mockDatabase[wDate][st.id][shift] || window.mockDatabase[wDate][st.id]['_latest'];
+                    }
+                    if (rec) {
+                        const stL = String(rec.status).toLowerCase();
+                        if (stL === 'present') {
+                            pCnt++;
+                            dayCells += `<td style="text-align:center; padding:4px; border:1px solid #cbd5e1; color:#15803d; font-weight:800;">✓</td>`;
+                        } else if (stL === 'late') {
+                            lCnt++;
+                            dayCells += `<td style="text-align:center; padding:4px; border:1px solid #cbd5e1; color:#b45309; font-weight:800;">L</td>`;
+                        } else if (stL === 'absent') {
+                            aCnt++;
+                            dayCells += `<td style="text-align:center; padding:4px; border:1px solid #cbd5e1; color:#b91c1c; font-weight:800;">✗</td>`;
+                        }
+                    } else {
+                        if (dIdx === 4) {
+                            dayCells += `<td style="text-align:center; padding:4px; border:1px solid #cbd5e1; color:#94a3b8; font-size:8pt;">-</td>`;
+                        } else {
+                            dayCells += `<td style="text-align:center; padding:4px; border:1px solid #cbd5e1; color:#cbd5e1;">-</td>`;
+                        }
+                    }
+                });
+                const totalSchoolDays = 4;
+                const rate = Math.round((pCnt / totalSchoolDays) * 100);
+
+                rowsHtml += `
+                <tr>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1;">${idx + 1}</td>
+                    <td style="padding:5px 8px; border:1px solid #cbd5e1; font-weight:600;">${st.last_name}, ${st.first_name}</td>
+                    ${dayCells}
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${pCnt}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#b91c1c;">${aCnt}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:800; color:#063970;">${rate}%</td>
+                </tr>`;
+            });
+            return rowsHtml;
+        }
+
+        const morningStudents = studentsMaster.filter(s => (s.shift || 'Morning') === 'Morning');
+        const afternoonStudents = studentsMaster.filter(s => s.shift === 'Afternoon');
+        const mWeeklyHtml = buildWeeklyRows(morningStudents, 'Morning');
+        const aWeeklyHtml = buildWeeklyRows(afternoonStudents, 'Afternoon');
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Weekly Attendance Report - ${weekDays[0]} to ${weekDays[4]}</title>
+            <style>
+                @page { size: landscape; margin: 12mm; }
+                body { font-family: 'Arial', sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 10pt; line-height: 1.35; }
+                .report-header { text-align: center; border-bottom: 2px solid #063970; padding-bottom: 8px; margin-bottom: 12px; }
+                .report-header h4 { margin: 0; font-size: 9.5pt; color: #475569; text-transform: uppercase; }
+                .report-header h2 { margin: 3px 0; font-size: 15pt; color: #063970; font-weight: 800; }
+                .report-header h3 { margin: 2px 0; font-size: 11pt; color: #0f172a; }
+                .section-header { background: #063970; color: white; padding: 5px 10px; font-size: 10pt; font-weight: bold; margin-top: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+                th { background: #f1f5f9; color: #334155; font-weight: 700; padding: 5px 6px; border: 1px solid #cbd5e1; }
+                .sig-grid { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 40px; }
+                .sig-box { width: 280px; text-align: center; border-top: 1.5px solid #334155; padding-top: 6px; font-size: 9pt; }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h4>Republic of the Philippines &bull; City of Pasig &bull; Barangay Maybunga</h4>
+                <h2>BMV3 CHILD CARE MANAGEMENT SYSTEM</h2>
+                <h3>WEEKLY ATTENDANCE CONSOLIDATION REGISTER (MON–THU / FRI)</h3>
+                <div style="font-size:9pt; color:#475569; margin-top:3px;">
+                    Inclusive Dates: <strong>${weekDays[0]}</strong> to <strong>${weekDays[4]}</strong> &bull; School Year 2026-2027 &bull; Regular Schedule: Monday to Thursday
+                </div>
+            </div>
+
+            <div class="section-header">Morning Shift Pupils (${morningStudents.length} Enrolled)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:4%; text-align:center;">#</th>
+                        <th style="width:30%; text-align:left;">Pupil Full Name</th>
+                        <th style="width:9%; text-align:center;">Mon (${weekDays[0].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Tue (${weekDays[1].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Wed (${weekDays[2].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Thu (${weekDays[3].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Fri (${weekDays[4].slice(5)})</th>
+                        <th style="width:7%; text-align:center;">Pres</th>
+                        <th style="width:7%; text-align:center;">Abs</th>
+                        <th style="width:8%; text-align:center;">Rate</th>
+                    </tr>
+                </thead>
+                <tbody>${mWeeklyHtml}</tbody>
+            </table>
+
+            <div class="section-header" style="background:#0f766e;">Afternoon Shift Pupils (${afternoonStudents.length} Enrolled)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:4%; text-align:center;">#</th>
+                        <th style="width:30%; text-align:left;">Pupil Full Name</th>
+                        <th style="width:9%; text-align:center;">Mon (${weekDays[0].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Tue (${weekDays[1].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Wed (${weekDays[2].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Thu (${weekDays[3].slice(5)})</th>
+                        <th style="width:9%; text-align:center;">Fri (${weekDays[4].slice(5)})</th>
+                        <th style="width:7%; text-align:center;">Pres</th>
+                        <th style="width:7%; text-align:center;">Abs</th>
+                        <th style="width:8%; text-align:center;">Rate</th>
+                    </tr>
+                </thead>
+                <tbody>${aWeeklyHtml}</tbody>
+            </table>
+
+            <div class="sig-grid">
+                <div class="sig-box">
+                    <strong>Daycare Teacher / Child Development Worker</strong><br>
+                    <span>Prepared & Certified</span>
+                </div>
+                <div class="sig-box">
+                    <strong>Barangay Child Development Coordinator</strong><br>
+                    <span>Noted & Approved</span>
+                </div>
+            </div>
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+        `);
+        printWin.document.close();
+    }
+    window.printWeeklyAttendanceReport = printWeeklyAttendanceReport;
+
+    // PRINT REPORT 3: MONTHLY ATTENDANCE REPORT
+    function printMonthlyAttendanceReport() {
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const selectedMonthIndex = calMonth;
+        const selectedYear = calYear;
+        const monthName = monthNames[selectedMonthIndex];
+
+        const monthDates = Object.keys(window.mockDatabase || {}).filter(d => {
+            const p = d.split('-');
+            return parseInt(p[0], 10) === selectedYear && parseInt(p[1], 10) === (selectedMonthIndex + 1);
+        });
+        const totalClassDays = monthDates.length || 20;
+
+        function buildMonthlyRows(list, shift) {
+            let rowsHtml = '';
+            list.forEach((st, idx) => {
+                let pCnt = 0, aCnt = 0, lCnt = 0;
+                monthDates.forEach(d => {
+                    const rec = window.mockDatabase[d][st.id] ? (window.mockDatabase[d][st.id][shift] || window.mockDatabase[d][st.id]['_latest']) : null;
+                    if (rec) {
+                        const stL = String(rec.status).toLowerCase();
+                        if (stL === 'present') pCnt++;
+                        else if (stL === 'late') lCnt++;
+                        else if (stL === 'absent') aCnt++;
+                    }
+                });
+                const rate = totalClassDays > 0 ? Math.round((pCnt / totalClassDays) * 100) : 0;
+
+                let statusBadge = '<span style="color:#15803d; font-weight:bold;">Excellent</span>';
+                if (rate < 80) statusBadge = '<span style="color:#b91c1c; font-weight:bold;">At-Risk (&lt;80%)</span>';
+                else if (rate < 90) statusBadge = '<span style="color:#b45309; font-weight:bold;">Satisfactory</span>';
+
+                rowsHtml += `
+                <tr>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1;">${idx + 1}</td>
+                    <td style="padding:5px 8px; border:1px solid #cbd5e1; font-weight:600;">${st.last_name}, ${st.first_name}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1;">${st.age || 4}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${pCnt}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#b91c1c;">${aCnt}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:700; color:#b45309;">${lCnt}</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1; font-weight:800; color:#063970;">${rate}%</td>
+                    <td style="text-align:center; padding:5px; border:1px solid #cbd5e1;">${statusBadge}</td>
+                </tr>`;
+            });
+            return rowsHtml;
+        }
+
+        const morningStudents = studentsMaster.filter(s => (s.shift || 'Morning') === 'Morning');
+        const afternoonStudents = studentsMaster.filter(s => s.shift === 'Afternoon');
+        const mHtml = buildMonthlyRows(morningStudents, 'Morning');
+        const aHtml = buildMonthlyRows(afternoonStudents, 'Afternoon');
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Monthly Attendance Summary - ${monthName} ${selectedYear}</title>
+            <style>
+                @page { size: portrait; margin: 12mm; }
+                body { font-family: 'Arial', sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 10pt; line-height: 1.35; }
+                .report-header { text-align: center; border-bottom: 2px solid #063970; padding-bottom: 8px; margin-bottom: 12px; }
+                .report-header h4 { margin: 0; font-size: 9.5pt; color: #475569; text-transform: uppercase; }
+                .report-header h2 { margin: 3px 0; font-size: 15pt; color: #063970; font-weight: 800; }
+                .report-header h3 { margin: 2px 0; font-size: 11pt; color: #0f172a; }
+                .section-header { background: #063970; color: white; padding: 5px 10px; font-size: 10pt; font-weight: bold; margin-top: 12px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+                th { background: #f1f5f9; color: #334155; font-weight: 700; padding: 5px 6px; border: 1px solid #cbd5e1; }
+                .sig-grid { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 40px; }
+                .sig-box { width: 280px; text-align: center; border-top: 1.5px solid #334155; padding-top: 6px; font-size: 9pt; }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <h4>Republic of the Philippines &bull; City of Pasig &bull; Barangay Maybunga</h4>
+                <h2>BMV3 CHILD CARE MANAGEMENT SYSTEM</h2>
+                <h3>OFFICIAL MONTHLY ATTENDANCE REGISTER & CONSOLIDATION</h3>
+                <div style="font-size:9pt; color:#475569; margin-top:3px;">
+                    Month of <strong>${monthName} ${selectedYear}</strong> &bull; Total School Days Logged: <strong>${totalClassDays} days</strong> &bull; School Year 2026-2027
+                </div>
+            </div>
+
+            <div class="section-header">Morning Shift Cohort (${morningStudents.length} Pupils)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%; text-align:center;">#</th>
+                        <th style="width:36%; text-align:left;">Pupil Full Name</th>
+                        <th style="width:8%; text-align:center;">Age</th>
+                        <th style="width:10%; text-align:center;">Present</th>
+                        <th style="width:10%; text-align:center;">Absent</th>
+                        <th style="width:10%; text-align:center;">Late</th>
+                        <th style="width:11%; text-align:center;">Rate</th>
+                        <th style="width:10%; text-align:center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>${mHtml}</tbody>
+            </table>
+
+            <div class="section-header" style="background:#0f766e;">Afternoon Shift Cohort (${afternoonStudents.length} Pupils)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%; text-align:center;">#</th>
+                        <th style="width:36%; text-align:left;">Pupil Full Name</th>
+                        <th style="width:8%; text-align:center;">Age</th>
+                        <th style="width:10%; text-align:center;">Present</th>
+                        <th style="width:10%; text-align:center;">Absent</th>
+                        <th style="width:10%; text-align:center;">Late</th>
+                        <th style="width:11%; text-align:center;">Rate</th>
+                        <th style="width:10%; text-align:center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>${aHtml}</tbody>
+            </table>
+
+            <div class="sig-grid">
+                <div class="sig-box">
+                    <strong>Daycare Teacher / Child Development Worker</strong><br>
+                    <span>Certified True and Correct</span>
+                </div>
+                <div class="sig-box">
+                    <strong>Barangay Child Development Coordinator</strong><br>
+                    <span>Noted & Accepted</span>
+                </div>
+            </div>
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+        `);
+        printWin.document.close();
+    }
+    window.printMonthlyAttendanceReport = printMonthlyAttendanceReport;
 
     // Init
     fetchData();
