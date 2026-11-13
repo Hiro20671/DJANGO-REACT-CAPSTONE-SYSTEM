@@ -1766,7 +1766,7 @@
                     brevoStatus.style.background = '#ecfdf5';
                     brevoStatus.style.border = '1px solid #a7f3d0';
                     brevoStatus.style.color = '#065f46';
-                    brevoStatus.innerHTML = `<i class="fa-solid fa-paper-plane" style="color:#059669; font-size:1.1rem;"></i> <span><strong>Credentials Sent via Email!</strong> Sent to <strong>${data.email || email}</strong> via Brevo Relay.</span>`;
+                    brevoStatus.innerHTML = `<i class="fa-solid fa-paper-plane" style="color:#059669; font-size:1.1rem; flex-shrink:0;"></i> <div><strong>Credentials Sent via Email!</strong> Sent to <strong>${data.email || email}</strong> via Brevo Relay.<br><span style="color:#047857; font-size:0.75rem;">Tip: If not in your Primary inbox, please check your <strong>Spam / Junk</strong> folder.</span></div>`;
                 } else if (!data.has_email || !email) {
                     brevoStatus.style.background = '#eff6ff';
                     brevoStatus.style.border = '1px solid #bfdbfe';

@@ -10,9 +10,51 @@ from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneR
 
 from django.core.mail import send_mail
 from django.conf import settings
+import re
 import random
 import string
 from django.contrib.auth.models import User
+
+def generate_parent_username(parent_name, exclude_user_id=None):
+    """
+    Generate a clean, natural username based on the parent's full name.
+    Example:
+      'Josephine Villanueva' -> 'josephine_villanueva'
+      'Maria Clara Santos' -> 'maria_clara_santos'
+      'Josephine' -> 'josephine'
+    If taken by another user, appends numeric suffix (_1, _2, etc.).
+    """
+    if not parent_name or not str(parent_name).strip():
+        base = "parent"
+    else:
+        cleaned = re.sub(r'[^a-zA-Z0-9\s_]', '', str(parent_name)).strip().lower()
+        parts = cleaned.split()
+        if not parts:
+            base = "parent"
+        else:
+            base = "_".join(parts)
+            if base in ['admin', 'administrator', 'teacher', 'staff', 'root', 'superuser']:
+                base = f"parent_{base}"
+
+    base = base[:35].rstrip('_')
+    if not base:
+        base = "parent"
+
+    candidate = base
+    counter = 1
+
+    q = User.objects.filter(username=candidate)
+    if exclude_user_id:
+        q = q.exclude(id=exclude_user_id)
+
+    while q.exists():
+        candidate = f"{base}_{counter}"
+        counter += 1
+        q = User.objects.filter(username=candidate)
+        if exclude_user_id:
+            q = q.exclude(id=exclude_user_id)
+
+    return candidate
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1819,6 +1861,15 @@ class GenerateParentAccountAPIView(APIView):
                 user.set_password(password)
                 if email and '@' in email:
                     user.email = email
+
+                # Update username, first name, and last name to match the parent's actual name
+                if parent_name and parent_name.strip() and parent_name.strip().lower() != 'parent':
+                    new_username = generate_parent_username(parent_name, exclude_user_id=user.id)
+                    user.username = new_username
+                    name_parts = parent_name.strip().split()
+                    user.first_name = name_parts[0]
+                    if len(name_parts) > 1:
+                        user.last_name = " ".join(name_parts[1:])
                 user.save()
 
                 p_profile, _ = UserProfile.objects.get_or_create(user=user, defaults={'is_teacher': False})
@@ -1832,20 +1883,14 @@ class GenerateParentAccountAPIView(APIView):
                 username = user.username
                 account_is_new = False
             else:
-                # Generate unique parent username (avoid using teacher/admin names)
-                clean_prefix = "".join(filter(str.isalnum, parent_name.split()[0].lower())) if parent_name else "parent"
-                if not clean_prefix or clean_prefix in ['admin', 'teacher', 'staff', 'root']:
-                    clean_prefix = "parent"
-                username = f"{clean_prefix}_{random.randint(100, 999)}"
-                while User.objects.filter(username=username).exists():
-                    username = f"{clean_prefix}_{random.randint(1000, 9999)}"
-
+                # Generate natural parent username based on full name
+                username = generate_parent_username(parent_name)
                 user_email = email if (email and '@' in email) else f"{username}@bmv3.local"
 
                 user = User.objects.create_user(username=username, email=user_email, password=password)
                 user.is_staff = False
                 user.is_superuser = False
-                name_parts = parent_name.split() if parent_name else ['Parent']
+                name_parts = parent_name.strip().split() if parent_name else ['Parent']
                 user.first_name = name_parts[0]
                 if len(name_parts) > 1:
                     user.last_name = " ".join(name_parts[1:])
@@ -1896,7 +1941,11 @@ class GenerateParentAccountAPIView(APIView):
                 """
                 text_content = strip_tags(html_content)
                 try:
-                    msg = EmailMultiAlternatives(subject, text_content, from_email, [email])
+                    headers = {
+                        'Reply-To': settings.DEFAULT_FROM_EMAIL,
+                        'X-Mailer': 'BMV3 Child Care Platform'
+                    }
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [email], headers=headers)
                     msg.attach_alternative(html_content, "text/html")
                     msg.send(fail_silently=False)
                     email_sent = True
