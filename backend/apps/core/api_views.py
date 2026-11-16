@@ -2542,7 +2542,11 @@ class TextblastSendAPIView(APIView):
 
             for target in email_list:
                 try:
-                    msg = EmailMultiAlternatives(subject, text_body, from_email, [target])
+                    headers = {
+                        'Reply-To': settings.DEFAULT_FROM_EMAIL,
+                        'X-Mailer': 'BMV3 Child Care Platform'
+                    }
+                    msg = EmailMultiAlternatives(subject, text_body, from_email, [target], headers=headers)
                     msg.attach_alternative(html_body, "text/html")
                     msg.send(fail_silently=False)
                     emails_sent += 1
