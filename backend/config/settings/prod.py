@@ -18,11 +18,16 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1')
 # PythonAnywhere host format matches `yourusername.pythonanywhere.com` or custom domains
 ALLOWED_HOSTS = ['*']
 
-# CSRF trusted origins for PythonAnywhere & custom domains
+# CSRF trusted origins for Render, PythonAnywhere & custom domains
 CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://*.onrender.com',
     'https://*.pythonanywhere.com',
     'http://*.pythonanywhere.com',
+    'https://*.vercel.app',
 ]
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    CSRF_TRUSTED_ORIGINS.append(f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}")
 if os.environ.get('CUSTOM_DOMAIN'):
     CSRF_TRUSTED_ORIGINS.append(f"https://{os.environ.get('CUSTOM_DOMAIN')}")
     CSRF_TRUSTED_ORIGINS.append(f"http://{os.environ.get('CUSTOM_DOMAIN')}")

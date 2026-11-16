@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: bmv3-childcare-system
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "cd backend && gunicorn config.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DEFAULT_FROM_EMAIL
+        value: jeremybryanvillanueva@gmail.com
