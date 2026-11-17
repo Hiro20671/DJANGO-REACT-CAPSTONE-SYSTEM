@@ -651,7 +651,33 @@
         }
 
         /* Adjust main layout when bottom nav is active */
+        /* Sidebar Backdrop Overlay */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(9, 30, 66, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+        .mobile-sidebar-close {
+            display: none;
+        }
+
         @media (max-width: 768px) {
+            .mobile-sidebar-close {
+                display: inline-flex !important;
+            }
             html, body {
                 width: 100% !important;
                 max-width: 100vw !important;
@@ -1361,15 +1387,23 @@
         </div>
     </div>
 
+    <!-- Sidebar Backdrop Overlay for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebarDrawer()"></div>
+
     <nav class="sidebar" id="mainSidebar">
-        <div class="sidebar-header">
-            <div class="user-avatar" id="sidebar-avatar">
-                <i class="fa-regular fa-user"></i>
+        <div class="sidebar-header" style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div class="user-avatar" id="sidebar-avatar">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <h4 id="sidebar-name">{{ request.user.first_name|default:"Teacher User" }}</h4>
+                    <span>Teacher</span>
+                </div>
             </div>
-            <div class="user-info">
-                <h4 id="sidebar-name">{{ request.user.first_name|default:"Teacher User" }}</h4>
-                <span>Teacher</span>
-            </div>
+            <button type="button" class="mobile-sidebar-close" onclick="closeSidebarDrawer()" aria-label="Close menu" style="display: none; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1.15rem; cursor: pointer; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
         <div class="sidebar-menu">
@@ -1443,7 +1477,17 @@
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
         <div class="top-nav-right" style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200;">
-            <!-- Real-Time Notification Bell for Teacher -->
+            <!-- System Language Switcher (EN / TL) - Placed on the LEFT of mobile header -->
+            <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+                <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
+                    🇺🇸 EN
+                </button>
+                <button type="button" id="sysLangBtnTl" onclick="window.setSystemLanguage('tl')" style="border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Ilipat ang sistema sa Tagalog / Filipino">
+                    🇵🇭 TL
+                </button>
+            </div>
+
+            <!-- Real-Time Notification Bell for Teacher - Placed on the RIGHT only -->
             <div style="position: relative;" id="teacherNotifWrapper">
                 <button type="button" id="teacherNotifBellBtn" onclick="toggleTeacherNotifDropdown(event)" style="position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s;" title="Real-Time Notifications">
                     <i class="fa-solid fa-bell"></i>
@@ -1470,19 +1514,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- System Language Switcher (EN / TL) -->
-            <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
-                <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
-                    🇺🇸 EN
-                </button>
-                <button type="button" id="sysLangBtnTl" onclick="window.setSystemLanguage('tl')" style="border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Ilipat ang sistema sa Tagalog / Filipino">
-                    🇵🇭 TL
-                </button>
-            </div>
-
-            <!-- Mobile Toggle -->
-            <button class="mobile-sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
         </div>
 
         <!-- Inline Feature Hub Switcher Cards when inside a grouped module -->
@@ -1901,43 +1932,63 @@
         };
     </script>
 
-    <!-- Dropdown Toggle Script -->
+    <!-- Drawer & Navigation Script -->
     <script>
         const burgerToggle = document.getElementById('burgerToggle');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const mainSidebar = document.querySelector('.sidebar');
+        const mainSidebar = document.getElementById('mainSidebar') || document.querySelector('.sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+
+        function openSidebarDrawer() {
+            if (mainSidebar) mainSidebar.classList.add('active');
+            if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarDrawer() {
+            if (mainSidebar) mainSidebar.classList.remove('active');
+            if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function toggleSidebarDrawer() {
+            if (mainSidebar && mainSidebar.classList.contains('active')) {
+                closeSidebarDrawer();
+            } else {
+                openSidebarDrawer();
+            }
+        }
+        window.closeSidebarDrawer = closeSidebarDrawer;
+        window.openSidebarDrawer = openSidebarDrawer;
+        window.toggleSidebarDrawer = toggleSidebarDrawer;
 
         if (burgerToggle) {
             burgerToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdownMenu.classList.toggle('active');
+                if (dropdownMenu) dropdownMenu.classList.toggle('active');
             });
         }
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                mainSidebar.classList.toggle('active');
-            });
-        }
-
-        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
         if (mobileMoreBtn) {
             mobileMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                mainSidebar.classList.toggle('active');
+                toggleSidebarDrawer();
             });
         }
 
-        // Close dropdown when clicking outside
+        // Close dropdown or sidebar drawer when clicking outside
         document.addEventListener('click', (e) => {
             if (dropdownMenu && burgerToggle && !dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
             }
-            const isClickInsideMore = mobileMoreBtn && mobileMoreBtn.contains(e.target);
-            if (mainSidebar && !mainSidebar.contains(e.target) && !isClickInsideMore && window.innerWidth <= 768) {
-                mainSidebar.classList.remove('active');
+            if (mainSidebar && mainSidebar.classList.contains('active')) {
+                const isClickInsideSidebar = mainSidebar.contains(e.target);
+                const isClickInsideMore = mobileMoreBtn && mobileMoreBtn.contains(e.target);
+                if (!isClickInsideSidebar && !isClickInsideMore) {
+                    closeSidebarDrawer();
+                }
             }
         });
 
@@ -1997,15 +2048,6 @@
                     pwaBanner.style.display = 'none';
                 }
                 localStorage.setItem('pwa_install_dismissed', 'true');
-            });
-        }
-
-        // Handle Mobile Bottom Nav "More" Button
-        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
-        if (mobileMoreBtn && mainSidebar) {
-            mobileMoreBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                mainSidebar.classList.toggle('active');
             });
         }
     </script>

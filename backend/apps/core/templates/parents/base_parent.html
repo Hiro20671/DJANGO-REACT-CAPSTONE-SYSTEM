@@ -253,29 +253,36 @@
         .sidebar-menu {
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            padding: 8px 0;
             flex-grow: 1;
-            overflow-y: auto;
+            overflow-y: hidden;
         }
 
         .menu-label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: rgba(255, 255, 255, 0.6);
-            margin: 0 0 10px 30px;
-            font-weight: 600;
+            margin: 0 0 6px 20px;
+            font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .menu-item {
-            padding: 12px 30px;
+            padding: 9px 18px;
             text-decoration: none;
-            color: #fff;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+            font-size: 0.86rem;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            background: none;
+            border: none;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
         }
 
         .menu-item i {
@@ -1540,82 +1547,61 @@
             </button>
         </div>
 
-        <div class="sidebar-menu" style="padding: 15px 0;">
+        <div class="sidebar-menu" style="padding: 10px 0;">
+            <p class="menu-label">MENU</p>
             <a href="{% url 'home' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_dashboard' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_dashboard' %}active{% endif %}">
                 <i class="fa-solid fa-border-all"></i>
                 <span>Dashboard</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
-            <a href="{% url 'parent_dropoff_pickup' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}active{% endif %}">
-                <i class="fa-solid fa-car"></i>
-                <span>Drop-Off/Pick-Up</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_attendance' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_attendance' %}active{% endif %}">
-                <i class="fa-regular fa-calendar-check"></i>
-                <span>Attendance</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_eccd_booklet' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' %}active{% endif %}">
+
+            <!-- COMBINED HUB 1: Attendance & Gate Access (2 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('parent_attendance_gate')"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_attendance' or request.resolver_match.url_name == 'parent_dropoff_pickup' %}active{% endif %}">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span style="flex:1;">Attendance & Gate</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
+            <!-- COMBINED HUB 2: ECCD Booklet, Daily Activities & Nutrition (3 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('parent_care_learning')"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' or request.resolver_match.url_name == 'parent_activities' or request.resolver_match.url_name == 'parent_nutrition' %}active{% endif %}">
                 <i class="fa-solid fa-book-open-reader"></i>
-                <span>ECCD Booklet</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_activities' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_activities' %}active{% endif %}">
-                <i class="fa-solid fa-list-check"></i>
-                <span>Daily Activities</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_engagement' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_engagement' and not request.GET.tab %}active{% endif %}">
-                <i class="fa-solid fa-envelope"></i>
-                <span>Messages</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_nutrition' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_nutrition' %}active{% endif %}">
-                <i class="fa-solid fa-apple-whole"></i>
-                <span>Nutrition</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
-            <a href="{% url 'parent_children' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'parent_children' %}active{% endif %}">
-                <i class="fa-solid fa-children"></i>
-                <span>Children</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
-            </a>
+                <span style="flex:1;">ECCD, Tasks & Meals</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
+            <!-- COMBINED HUB 3: Children Directory & Teacher Messages (2 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('parent_pupils_messages')"
+                class="menu-item {% if request.resolver_match.url_name == 'parent_children' or request.resolver_match.url_name == 'parent_engagement' %}active{% endif %}">
+                <i class="fa-solid fa-users-rectangle"></i>
+                <span style="flex:1;">Pupils & Messages</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
             <a href="{% url 'home' %}#announcements"
                 class="menu-item">
                 <i class="fa-solid fa-bullhorn"></i>
                 <span>Announcements</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
             <a href="{% url 'parent_map_route' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'parent_map_route' %}active{% endif %}">
                 <i class="fa-solid fa-map-location-dot"></i>
                 <span>Student House Map</span>
-                <i class="fa-solid fa-chevron-right menu-chevron"></i>
             </a>
 
             <div style="margin-top: auto;"></div>
 
-            <div class="sidebar-footer-menu" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <div class="sidebar-footer-menu" style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <a href="{% url 'parent_settings' %}"
                     class="menu-item {% if request.resolver_match.url_name == 'parent_settings' %}active{% endif %}">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
-                    <i class="fa-solid fa-chevron-right menu-chevron"></i>
                 </a>
                 <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #f87171;">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -1624,8 +1610,8 @@
             </div>
         </div>
 
-        <div class="sidebar-footer" style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
-            <p style="text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.5; margin: 0;">BMVS Child Care Management System<br>v1.0.0 &copy; 2026</p>
+        <div class="sidebar-footer" style="padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <p style="text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4; margin: 0;">BMVS Child Care Management System<br>v1.0.0 &copy; 2026</p>
         </div>
     </nav>
 
@@ -1635,7 +1621,7 @@
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
         <div class="top-nav-right" style="display: flex; align-items: center; gap: 12px;">
-            <!-- System Language Switcher (EN / TL) -->
+            <!-- System Language Switcher (EN / TL) - Pinned to LEFT on mobile -->
             <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
                 <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
                     🇺🇸 EN
@@ -1645,7 +1631,7 @@
                 </button>
             </div>
 
-            <!-- Real-Time Notification Bell Icon & Dropdown -->
+            <!-- Real-Time Notification Bell Icon & Dropdown - Pinned to RIGHT on mobile -->
             <div class="parent-notif-wrapper" style="position: relative; display: inline-flex; align-items: center;">
                 <button type="button" id="parentNotifBtn" onclick="toggleParentNotifDropdown(event)" aria-label="Notifications" style="position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); color: var(--text-primary, #091e42); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s;">
                     <i class="fa-solid fa-bell"></i>
@@ -1676,10 +1662,89 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Mobile Toggle -->
-            <button class="mobile-sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarDrawer()"><i class="fa-solid fa-bars"></i></button>
         </div>
+
+        <!-- Inline Feature Hub Switcher Cards when inside a grouped module in Parent Portal -->
+        {% if request.resolver_match.url_name == 'parent_dropoff_pickup' or request.resolver_match.url_name == 'parent_attendance' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'parent_attendance' %}" style="text-decoration:none; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_attendance' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:42px; height:42px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_attendance' %}#2563eb{% else %}#eff6ff{% endif %}; color:{% if request.resolver_match.url_name == 'parent_attendance' %}#ffffff{% else %}#2563eb{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-primary, #0f172a);">Daily Attendance &amp; Records</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary, #64748b);">Monthly charts &amp; history check</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_attendance' %}<span style="background:#dbeafe; color:#1d4ed8; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px;">Active</span>{% endif %}
+            </a>
+            <a href="{% url 'parent_dropoff_pickup' %}" style="text-decoration:none; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:42px; height:42px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}#2563eb{% else %}#eff6ff{% endif %}; color:{% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}#ffffff{% else %}#2563eb{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-primary, #0f172a);">Drop-Off &amp; Pick-Up Gate Pass</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary, #64748b);">Digital ID QR Code &amp; Authorized Check-out</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_dropoff_pickup' %}<span style="background:#dbeafe; color:#1d4ed8; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px;">Active</span>{% endif %}
+            </a>
+        </div>
+        {% elif request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' or request.resolver_match.url_name == 'parent_activities' or request.resolver_match.url_name == 'parent_nutrition' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'parent_eccd_booklet' %}" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:38px; height:38px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' %}#2563eb{% else %}#eff6ff{% endif %}; color:{% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' %}#ffffff{% else %}#2563eb{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.88rem; color:var(--text-primary, #0f172a);">ECCD Booklet</div>
+                    <div style="font-size:0.72rem; color:var(--text-secondary, #64748b);">7-Domain checklist</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_eccd_booklet' or request.resolver_match.url_name == 'parent_milestones' %}<span style="background:#dbeafe; color:#1d4ed8; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:8px;">Active</span>{% endif %}
+            </a>
+            <a href="{% url 'parent_activities' %}" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_activities' %}#7c3aed{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:38px; height:38px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_activities' %}#7c3aed{% else %}#f5f3ff{% endif %}; color:{% if request.resolver_match.url_name == 'parent_activities' %}#ffffff{% else %}#7c3aed{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.88rem; color:var(--text-primary, #0f172a);">Daily Activities</div>
+                    <div style="font-size:0.72rem; color:var(--text-secondary, #64748b);">Classroom tasks &amp; homework</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_activities' %}<span style="background:#ede9fe; color:#6d28d9; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:8px;">Active</span>{% endif %}
+            </a>
+            <a href="{% url 'parent_nutrition' %}" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_nutrition' %}#059669{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:38px; height:38px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_nutrition' %}#059669{% else %}#ecfdf5{% endif %}; color:{% if request.resolver_match.url_name == 'parent_nutrition' %}#ffffff{% else %}#059669{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                    <i class="fa-solid fa-apple-whole"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.88rem; color:var(--text-primary, #0f172a);">Nutrition &amp; Meals</div>
+                    <div style="font-size:0.72rem; color:var(--text-secondary, #64748b);">Feeding intake &amp; BMI</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_nutrition' %}<span style="background:#d1fae5; color:#047857; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:8px;">Active</span>{% endif %}
+            </a>
+        </div>
+        {% elif request.resolver_match.url_name == 'parent_children' or request.resolver_match.url_name == 'parent_engagement' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'parent_children' %}" style="text-decoration:none; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_children' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:42px; height:42px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_children' %}#2563eb{% else %}#eff6ff{% endif %}; color:{% if request.resolver_match.url_name == 'parent_children' %}#ffffff{% else %}#2563eb{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                    <i class="fa-solid fa-children"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-primary, #0f172a);">My Children Profiles</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary, #64748b);">Enrollment details &amp; health alerts</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_children' %}<span style="background:#dbeafe; color:#1d4ed8; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px;">Active</span>{% endif %}
+            </a>
+            <a href="{% url 'parent_engagement' %}" style="text-decoration:none; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:14px; background:var(--bg-card, #ffffff); border:2px solid {% if request.resolver_match.url_name == 'parent_engagement' %}#10b981{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">
+                <div style="width:42px; height:42px; border-radius:10px; background:{% if request.resolver_match.url_name == 'parent_engagement' %}#10b981{% else %}#ecfdf5{% endif %}; color:{% if request.resolver_match.url_name == 'parent_engagement' %}#ffffff{% else %}#10b981{% endif %}; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-primary, #0f172a);">Teacher Messages &amp; Chat</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary, #64748b);">Direct inbox &amp; weekly digests</div>
+                </div>
+                {% if request.resolver_match.url_name == 'parent_engagement' %}<span style="background:#d1fae5; color:#047857; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px;">Active</span>{% endif %}
+            </a>
+        </div>
+        {% endif %}
 
         {% block content %}
         {% endblock content %}
@@ -2116,6 +2181,143 @@
                 localStorage.setItem('pwa_install_dismissed', 'true');
             });
         }
+    </script>
+
+    <!-- COMBINED FEATURE HUB MODAL FOR PARENT PORTAL -->
+    <div id="featureHubModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:99998; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:var(--bg-card, #ffffff); width:100%; max-width:740px; border-radius:20px; box-shadow:0 24px 48px rgba(0,0,0,0.28); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid var(--border-color, #e2e8f0); animation:fadeIn 0.2s ease;">
+            <div style="background:linear-gradient(135deg, #043263 0%, #1e40af 100%); color:#ffffff; padding:20px 26px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 id="featureHubModalTitle" style="margin:0; font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:10px;">Select Module</h3>
+                    <p id="featureHubModalSubtitle" style="margin:4px 0 0 0; font-size:0.84rem; color:rgba(255,255,255,0.85);">Choose a parent portal workspace</p>
+                </div>
+                <button type="button" onclick="closeFeatureHubModal()" style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.18); border:none; color:#ffffff; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="featureHubCardsGrid" style="padding:24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; background:var(--bg-body, #f8fafc);">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PARENT_FEATURE_HUB_GROUPS = {
+            'parent_attendance_gate': {
+                title: '<i class="fa-solid fa-calendar-check" style="color:#34d399;"></i> Attendance & Gate Access',
+                subtitle: 'Daily check-in logs and digital drop-off/pick-up authorization pass',
+                cards: [
+                    {
+                        title: 'Daily Attendance & Records',
+                        desc: "Review your child's presence logs, monthly attendance graphs, and excused absence history.",
+                        icon: 'fa-calendar-check',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'Attendance History',
+                        url: "{% url 'parent_attendance' %}"
+                    },
+                    {
+                        title: 'Drop-Off & Pick-Up Pass',
+                        desc: "Present your secure QR gate pass to the teacher's scanner for immediate gate drop-off and pickup clearance.",
+                        icon: 'fa-id-card',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Digital ID Pass',
+                        url: "{% url 'parent_dropoff_pickup' %}"
+                    }
+                ]
+            },
+            'parent_care_learning': {
+                title: '<i class="fa-solid fa-book-open-reader" style="color:#60a5fa;"></i> Child Care, Tasks & Feeding',
+                subtitle: 'Developmental milestones, daily activities, and nutritional feeding logs',
+                cards: [
+                    {
+                        title: 'ECCD Booklet (7 Domains)',
+                        desc: "Answer the 1st assessment checklist and track your child's progress across 7 DepEd developmental domains.",
+                        icon: 'fa-book-open',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'ECCD Checklist',
+                        url: "{% url 'parent_eccd_booklet' %}"
+                    },
+                    {
+                        title: 'Daily Activities & Tasks',
+                        desc: 'View classroom learning tasks, interactive manipulative play schedules, and assignment submissions.',
+                        icon: 'fa-list-check',
+                        color: '#7c3aed',
+                        bg: '#f5f3ff',
+                        badge: 'Daily Tasks',
+                        url: "{% url 'parent_activities' %}"
+                    },
+                    {
+                        title: 'Health & Nutrition Intake',
+                        desc: 'Monitor daily daycare meals served, meal consumption status (all eaten vs refused), and quarterly BMI tracking.',
+                        icon: 'fa-apple-whole',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Nutrition & Meals',
+                        url: "{% url 'parent_nutrition' %}"
+                    }
+                ]
+            },
+            'parent_pupils_messages': {
+                title: '<i class="fa-solid fa-users-rectangle" style="color:#f59e0b;"></i> Pupils & Teacher Chat',
+                subtitle: 'Child registration profiles and direct communication with center teachers',
+                cards: [
+                    {
+                        title: 'My Children Profiles',
+                        desc: 'Inspect enrolled child profiles, date of birth, dietary allergies, and authorized guardian emergency contacts.',
+                        icon: 'fa-children',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'Enrolled Pupils',
+                        url: "{% url 'parent_children' %}"
+                    },
+                    {
+                        title: 'Teacher Messages & Digests',
+                        desc: 'Direct real-time two-way chat with the daycare teacher and weekly automated child development digests.',
+                        icon: 'fa-comments',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Live Messages',
+                        url: "{% url 'parent_engagement' %}"
+                    }
+                ]
+            }
+        };
+
+        window.openFeatureHubModal = function(groupKey) {
+            const grp = PARENT_FEATURE_HUB_GROUPS[groupKey];
+            const modal = document.getElementById('featureHubModal');
+            if (!grp || !modal) return;
+
+            document.getElementById('featureHubModalTitle').innerHTML = grp.title;
+            document.getElementById('featureHubModalSubtitle').innerText = grp.subtitle;
+
+            const grid = document.getElementById('featureHubCardsGrid');
+            grid.innerHTML = grp.cards.map(c => `
+                <a href="${c.url}" style="text-decoration:none; background:var(--bg-card, #ffffff); border:2px solid var(--border-color, #e2e8f0); border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:12px; transition:all 0.22s ease; box-shadow:0 4px 14px rgba(15,23,42,0.06);" onmouseover="this.style.borderColor='${c.color}'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='var(--border-color, #e2e8f0)'; this.style.transform='none';">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="width:46px; height:46px; border-radius:12px; background:${c.bg}; color:${c.color}; display:flex; align-items:center; justify-content:center; font-size:1.35rem;">
+                            <i class="fa-solid ${c.icon}"></i>
+                        </div>
+                        <span style="background:${c.bg}; color:${c.color}; font-size:0.68rem; font-weight:800; padding:4px 9px; border-radius:12px; text-transform:uppercase;">${c.badge}</span>
+                    </div>
+                    <div style="font-size:1rem; font-weight:800; color:var(--text-primary, #0f172a); margin-top:4px;">${c.title}</div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary, #64748b); line-height:1.5; flex-grow:1;">${c.desc}</div>
+                    <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:800; color:${c.color}; margin-top:6px;">
+                        <span>Open Feature</span> <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+            `).join('');
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeFeatureHubModal = function() {
+            const modal = document.getElementById('featureHubModal');
+            if (modal) modal.style.display = 'none';
+        };
     </script>
     <script src="{% static 'core/js/system_translator.js' %}"></script>
 </body>

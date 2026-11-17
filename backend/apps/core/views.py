@@ -122,10 +122,25 @@ def parent_dashboard(request):
     return render(request, "parents/parent_dashboard.html")
 
 
+def get_parent_auth_token(user):
+    import hashlib
+    user_id = getattr(user, 'id', 1)
+    seed = f"BMV3-SECURITY-GATE-{user_id}"
+    token_hash = hashlib.sha256(seed.encode()).hexdigest()[:8].upper()
+    return f"BMV3-AUTH-{token_hash}"
+
+def get_child_auth_token(child):
+    import hashlib
+    child_id = getattr(child, 'id', 1)
+    seed = f"BMV3-CHILD-GATE-{child_id}"
+    token_hash = hashlib.sha256(seed.encode()).hexdigest()[:8].upper()
+    return f"BMV3-AUTH-{token_hash}"
+
 @login_required
 @parent_required
 def parent_dropoff_pickup(request):
-    return render(request, 'parents/drop_off_pick_up.html')
+    token = get_parent_auth_token(request.user)
+    return render(request, 'parents/drop_off_pick_up.html', {'parent_auth_token': token})
 
 @login_required
 @parent_required

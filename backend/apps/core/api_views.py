@@ -1081,11 +1081,16 @@ class ParentHistoryAPIView(APIView):
         if not parent_name:
             parent_name = profile.user.username
 
+        import hashlib
+        p_seed = f"BMV3-SECURITY-GATE-{profile.user.id}"
+        p_token = f"BMV3-AUTH-{hashlib.sha256(p_seed.encode()).hexdigest()[:8].upper()}"
+
         return Response({
             'child': child_data,
             'children': children_data,
             'parent_profile_id': profile.id,
             'parent_name': parent_name,
+            'parent_auth_token': p_token,
             'attendance': attendance_data,
             'nutrition': nutrition_data,
             'engagement': engagement_data,

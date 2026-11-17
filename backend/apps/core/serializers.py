@@ -17,6 +17,8 @@ class BMIRecordSerializer(serializers.ModelSerializer):
 class ChildSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     parent_usernames = serializers.SerializerMethodField()
+    parent_auth_tokens = serializers.SerializerMethodField()
+    auth_token = serializers.SerializerMethodField()
     bmi_records = BMIRecordSerializer(many=True, read_only=True)
 
     class Meta:
@@ -25,6 +27,23 @@ class ChildSerializer(serializers.ModelSerializer):
 
     def get_parent_usernames(self, obj):
         return [p.user.username for p in obj.parents.all() if p.user]
+
+    def get_parent_auth_tokens(self, obj):
+        import hashlib
+        tokens = []
+        for p in obj.parents.all():
+            if p.user:
+                seed = f"BMV3-SECURITY-GATE-{p.user.id}"
+                tokens.append(f"BMV3-AUTH-{hashlib.sha256(seed.encode()).hexdigest()[:8].upper()}")
+        if not tokens:
+            seed = f"BMV3-CHILD-GATE-{obj.id}"
+            tokens.append(f"BMV3-AUTH-{hashlib.sha256(seed.encode()).hexdigest()[:8].upper()}")
+        return tokens
+
+    def get_auth_token(self, obj):
+        import hashlib
+        seed = f"BMV3-CHILD-GATE-{obj.id}"
+        return f"BMV3-AUTH-{hashlib.sha256(seed.encode()).hexdigest()[:8].upper()}"
 
     def validate(self, attrs):
         dob = attrs.get('dob')

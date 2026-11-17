@@ -797,6 +797,7 @@ function ParentDashboard() {
       address_line1: '', barangay: '', city_municipality: '', province: '', region: '',
       allergies: '', health_conditions: '', shift: 'Morning'
   });
+  const [customAllergy, setCustomAllergy] = useState('');
   const [childImg, setChildImg] = useState(null);
   const [enrollError, setEnrollError] = useState('');
   const [enrollSuccess, setEnrollSuccess] = useState('');
@@ -1053,6 +1054,8 @@ function ParentDashboard() {
           updatedForm.barangay = '';
       } else if (name === 'city_municipality') {
           updatedForm.barangay = '';
+      } else if (name === 'allergies' && value !== 'Others') {
+          setCustomAllergy('');
       }
       setEnrollForm(updatedForm);
       setEnrollError('');
@@ -1121,8 +1124,18 @@ function ParentDashboard() {
       setEnrollError('');
       setEnrollSuccess('Uploading child profile...');
 
+      const finalAllergies = (enrollForm.allergies === 'Others')
+          ? (customAllergy.trim() || 'Others (Unspecified)')
+          : enrollForm.allergies;
+
       const formData = new FormData();
-      Object.keys(enrollForm).forEach(key => formData.append(key, enrollForm[key]));
+      Object.keys(enrollForm).forEach(key => {
+          if (key === 'allergies') {
+              formData.append('allergies', finalAllergies);
+          } else {
+              formData.append(key, enrollForm[key]);
+          }
+      });
       if (childImg) {
           formData.append('img', childImg);
       }
@@ -1431,6 +1444,22 @@ function ParentDashboard() {
                             <option value="Tree Nuts">Tree Nuts</option>
                             <option value="Others">Others</option>
                         </select>
+                        {enrollForm.allergies === 'Others' && (
+                            <div style={{ marginTop: '10px', animation: 'fadeIn 0.2s ease' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem', fontWeight: 700, color: '#dc2626' }}>
+                                    <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '6px' }}></i>
+                                    Please Specify Child's Allergies *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g., Pollen, Shrimp, Chicken, Ibuprofen, Dust, Chocolate..." 
+                                    value={customAllergy} 
+                                    onChange={(e) => setCustomAllergy(e.target.value)} 
+                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1.5px solid #ef4444', background: 'var(--bg-card)', boxSizing: 'border-box' }} 
+                                />
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label style={{ display:'block', marginBottom:'5px', fontWeight:600 }}>Other Health Conditions</label>
