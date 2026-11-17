@@ -279,50 +279,59 @@
         .sidebar-menu {
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            padding: 8px 0;
             flex-grow: 1;
-            overflow-y: auto;
+            overflow-y: hidden;
+            gap: 2px;
         }
 
         .menu-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin: 0 0 10px 30px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin: 0 0 6px 24px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
         }
 
         .menu-item {
-            padding: 12px 30px;
+            padding: 9px 22px;
             text-decoration: none;
             color: #fff;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
         }
 
         .menu-item i {
             width: 20px;
             text-align: center;
-            font-size: 1.1rem;
-            opacity: 0.8;
+            font-size: 1.02rem;
+            opacity: 0.85;
+            flex-shrink: 0;
         }
 
         .menu-item:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(255, 255, 255, 0.08);
         }
 
         .menu-item.active {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             color: #fff !important;
-            border-radius: 12px;
-            margin: 4px 18px;
-            padding: 10px 18px;
+            border-radius: 10px;
+            margin: 2px 14px;
+            padding: 9px 14px;
+            width: calc(100% - 28px);
             font-weight: 700;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
         }
 
         .menu-item.active i {
@@ -335,7 +344,7 @@
         }
 
         .sidebar-footer {
-            padding: 30px;
+            padding: 12px 20px;
         }
 
         .logout-btn {
@@ -1367,68 +1376,64 @@
             <p class="menu-label">MENU</p>
             <a href="{% url 'home' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                <i class="fa-solid fa-house"></i> Home
+                <i class="fa-solid fa-house"></i> <span>Home</span>
             </a>
             <a href="{% url 'teacher_dashboard' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-                <i class="fa-solid fa-border-all"></i> Dashboard
+                <i class="fa-solid fa-border-all"></i> <span>Dashboard</span>
             </a>
             <a href="{% url 'teacher_analytics' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_analytics' %}active{% endif %}">
-                <i class="fa-solid fa-brain"></i> Analytics & AI Insights
-            </a>
-            <a href="{% url 'teacher_dropoff_pickup' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}active{% endif %}">
-                <i class="fa-solid fa-car"></i> Drop-Off/Pick-Up
-            </a>
-            <a href="{% url 'teacher_attendance' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_attendance' %}active{% endif %}">
-                <i class="fa-regular fa-calendar-check"></i> Attendance
-            </a>
-            <a href="{% url 'teacher_milestones' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_milestones' %}active{% endif %}">
-                <i class="fa-solid fa-book-open"></i> ECCD Booklet
-            </a>
-            <a href="{% url 'teacher_activities' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_activities' %}active{% endif %}">
-                <i class="fa-solid fa-list-check"></i> Daily Activities
+                <i class="fa-solid fa-brain"></i> <span>Analytics & AI Insights</span>
             </a>
 
-            <a href="{% url 'teacher_engagement' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_engagement' %}active{% endif %}">
-                <i class="fa-regular fa-comments"></i> Parent Engagement
-            </a>
-            <a href="{% url 'teacher_nutrition' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_nutrition' %}active{% endif %}">
-                <i class="fa-solid fa-apple-whole"></i> Nutrition
-            </a>
-            <a href="{% url 'teacher_children' %}"
-                class="menu-item {% if request.resolver_match.url_name == 'teacher_children' %}active{% endif %}">
-                <i class="fa-regular fa-address-card"></i> Children
-            </a>
+            <!-- COMBINED HUB 1: Attendance & Drop-Off/Pick-Up (2 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('attendance_dropoff')"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name == 'teacher_attendance' %}active{% endif %}">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span style="flex:1;">Attendance & Gate</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
+            <!-- COMBINED HUB 2: ECCD Booklet, Daily Activities & Nutrition (3 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('care_learning')"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name == 'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}active{% endif %}">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <span style="flex:1;">ECCD, Tasks & Meals</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
+            <!-- COMBINED HUB 3: Children Directory & Parent Engagement (2 Cards) -->
+            <button type="button" onclick="openFeatureHubModal('students_parents')"
+                class="menu-item {% if request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name == 'teacher_engagement' %}active{% endif %}">
+                <i class="fa-solid fa-users-rectangle"></i>
+                <span style="flex:1;">Pupils & Engagement</span>
+                <i class="fa-solid fa-grip" style="font-size:0.75rem; opacity:0.7; width:auto;"></i>
+            </button>
+
             <a href="{% url 'teacher_announcements' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_announcements' %}active{% endif %}">
-                <i class="fa-solid fa-bullhorn"></i> Announcements
+                <i class="fa-solid fa-bullhorn"></i> <span>Announcements</span>
             </a>
             <a href="{% url 'teacher_student_map' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_student_map' %}active{% endif %}">
-                <i class="fa-solid fa-map-location-dot"></i> Student House Map
+                <i class="fa-solid fa-map-location-dot"></i> <span>Student House Map</span>
             </a>
             <a href="{% url 'teacher_textblast' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_textblast' %}active{% endif %}">
-                <i class="fa-solid fa-paper-plane"></i> Textblast Broadcast
+                <i class="fa-solid fa-paper-plane"></i> <span>Textblast Broadcast</span>
             </a>
             <a href="{% url 'teacher_settings' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'teacher_settings' %}active{% endif %}">
-                <i class="fa-solid fa-gear"></i> Settings
+                <i class="fa-solid fa-gear"></i> <span>Settings</span>
             </a>
             <a href="{% url 'logout' %}" class="logout-btn menu-item" style="color: #ff6b6b;">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Logout</span>
             </a>
         </div>
 
         <div class="sidebar-footer">
-            <p style="text-align: center; font-size: 0.70rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.4;">BMV3 Child Care Management System<br>v1.0.0 &copy; 2026</p>
+            <p style="text-align: center; font-size: 0.68rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.35; margin: 0;">BMV3 Child Care MS &bull; v1.0.0 &copy; 2026</p>
         </div>
     </nav>
 
@@ -1437,7 +1442,35 @@
             <div class="ambient-blob ambient-blob-1"></div>
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
-        <div class="top-nav-right" style="display: flex; align-items: center; gap: 12px;">
+        <div class="top-nav-right" style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200;">
+            <!-- Real-Time Notification Bell for Teacher -->
+            <div style="position: relative;" id="teacherNotifWrapper">
+                <button type="button" id="teacherNotifBellBtn" onclick="toggleTeacherNotifDropdown(event)" style="position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s;" title="Real-Time Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="teacherNotifBadge" style="display: none; position: absolute; top: -4px; right: -4px; background: #ef4444; color: #ffffff; font-size: 0.68rem; font-weight: 800; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(239,68,68,0.4);">0</span>
+                </button>
+
+                <!-- Notification Dropdown Panel -->
+                <div id="teacherNotifDropdown" style="display: none; position: absolute; top: 48px; right: 0; width: 370px; max-width: 92vw; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 16px; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18); z-index: 9999; overflow: hidden; font-family: 'Montserrat', sans-serif;">
+                    <div style="padding: 14px 18px; background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.92rem;">
+                            <i class="fa-solid fa-bell" style="color: #60a5fa;"></i>
+                            <span>Center Notifications</span>
+                        </div>
+                        <button type="button" onclick="markAllTeacherNotifsRead(event)" style="background: rgba(255,255,255,0.18); color: #ffffff; border: none; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">
+                            Mark all read
+                        </button>
+                    </div>
+                    <div id="teacherNotifList" style="max-height: 360px; overflow-y: auto; divide-y: 1px solid #f1f5f9;">
+                        <div style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">Loading notifications...</div>
+                    </div>
+                    <div style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                        <a href="{% url 'teacher_engagement' %}" style="color: #2563eb; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-comments"></i> Open Parent Chat</a>
+                        <a href="{% url 'teacher_attendance' %}" style="color: #059669; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-calendar-check"></i> Attendance Logs</a>
+                    </div>
+                </div>
+            </div>
+
             <!-- System Language Switcher (EN / TL) -->
             <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
                 <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
@@ -1451,6 +1484,81 @@
             <!-- Mobile Toggle -->
             <button class="mobile-sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
         </div>
+
+        <!-- Inline Feature Hub Switcher Cards when inside a grouped module -->
+        {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name == 'teacher_attendance' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_dropoff_pickup' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem;">Drop-Off & Pick-Up QR Scanner</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Scan parent QR pass & auto-record attendance</div>
+                </div>
+            </a>
+            <a href="{% url 'teacher_attendance' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_attendance' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem;">Attendance Calendar & History</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Click any date to inspect attendance popup & No-Class days</div>
+                </div>
+            </a>
+        </div>
+        {% elif request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name == 'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_milestones' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_milestones' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.9rem;">ECCD Booklet</div>
+                    <div style="font-size: 0.74rem; opacity: 0.85;">7-Domain checklist & scores</div>
+                </div>
+            </a>
+            <a href="{% url 'teacher_activities' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_activities' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}rgba(255,255,255,0.2){% else %}#f5f3ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}#7c3aed{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.9rem;">Daily Activities</div>
+                    <div style="font-size: 0.74rem; opacity: 0.85;">Classroom learning tasks</div>
+                </div>
+            </a>
+            <a href="{% url 'teacher_nutrition' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_nutrition' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-apple-whole"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.9rem;">Nutrition & Feeding</div>
+                    <div style="font-size: 0.74rem; opacity: 0.85;">Meals served & BMI status</div>
+                </div>
+            </a>
+        </div>
+        {% elif request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name == 'teacher_engagement' %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_children' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_children' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_children' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_children' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-children"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem;">Children Directory</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Enrolled pupil profiles, shifts & guardian accounts</div>
+                </div>
+            </a>
+            <a href="{% url 'teacher_engagement' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_engagement' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.95rem;">Parent Notification & Engagement</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Weekly performance digests & live parent chat</div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
 
         {% block content %}
         {% endblock content %}
@@ -1900,6 +2008,300 @@
                 mainSidebar.classList.toggle('active');
             });
         }
+    </script>
+
+    <!-- COMBINED FEATURE HUB MODAL (2-Card / 3-Card Module Selector) -->
+    <div id="featureHubModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:99998; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:var(--bg-card, #ffffff); width:100%; max-width:760px; border-radius:20px; box-shadow:0 24px 48px rgba(0,0,0,0.28); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid var(--border-color, #e2e8f0); animation:fadeIn 0.2s ease;">
+            <div style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 26px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 id="featureHubModalTitle" style="margin:0; font-size:1.3rem; font-weight:800; display:flex; align-items:center; gap:10px;">Select Module</h3>
+                    <p id="featureHubModalSubtitle" style="margin:4px 0 0 0; font-size:0.84rem; color:rgba(255,255,255,0.85);">Click a feature card below to open the workspace</p>
+                </div>
+                <button type="button" onclick="closeFeatureHubModal()" style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.18); border:none; color:#ffffff; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="featureHubCardsGrid" style="padding:26px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; background:var(--bg-body, #f8fafc);">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. COMBINED SIDEBAR FEATURE HUB LOGIC ---
+        const FEATURE_HUB_GROUPS = {
+            'attendance_dropoff': {
+                title: '<i class="fa-solid fa-calendar-check" style="color:#34d399;"></i> Attendance & Gate Access Hub',
+                subtitle: 'Choose between QR Gate Verification and the Class Attendance Calendar',
+                cards: [
+                    {
+                        title: 'Drop-Off & Pick-Up QR Scanner',
+                        desc: 'Scan parent/guardian QR pass at the gate. Automatically marks pupils Present or Late (15-min rule) and registers authorized guardians.',
+                        icon: 'fa-qrcode',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'Gate Verification',
+                        url: "{% url 'teacher_dropoff_pickup' %}"
+                    },
+                    {
+                        title: 'Attendance Calendar & Logs',
+                        desc: 'Inspect daily attendance records by clicking any calendar date popup, declare No-Class days, and review shift attendance.',
+                        icon: 'fa-calendar-days',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Class Records',
+                        url: "{% url 'teacher_attendance' %}"
+                    }
+                ]
+            },
+            'care_learning': {
+                title: '<i class="fa-solid fa-book-open-reader" style="color:#60a5fa;"></i> Child Care, Learning & Nutrition Hub',
+                subtitle: 'Select a child development, classroom activity, or supplementary feeding module',
+                cards: [
+                    {
+                        title: 'ECCD Booklet (7 Domains)',
+                        desc: "Official DepEd Child's Record 2 milestone checklist across all 7 developmental domains, M-CHAT-R, and score graphs.",
+                        icon: 'fa-book-open',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'DepEd ECCD',
+                        url: "{% url 'teacher_milestones' %}"
+                    },
+                    {
+                        title: 'Daily Classroom Activities',
+                        desc: 'Create and track daily learning tasks, manipulative play sessions, and pupil activity completion rates.',
+                        icon: 'fa-list-check',
+                        color: '#7c3aed',
+                        bg: '#f5f3ff',
+                        badge: 'Learning Tasks',
+                        url: "{% url 'teacher_activities' %}"
+                    },
+                    {
+                        title: 'Nutrition & Supplementary Feeding',
+                        desc: 'Log daily meal/snack menus served, monitor food eaten vs refused, and track WHO child BMI status & allergies.',
+                        icon: 'fa-apple-whole',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Health & Meals',
+                        url: "{% url 'teacher_nutrition' %}"
+                    }
+                ]
+            },
+            'students_parents': {
+                title: '<i class="fa-solid fa-users-rectangle" style="color:#f59e0b;"></i> Pupils Directory & Parent Engagement Hub',
+                subtitle: 'Manage enrolled pupil profiles or communicate with parents and send weekly digests',
+                cards: [
+                    {
+                        title: 'Children Directory & Profiles',
+                        desc: 'View and manage enrolled pupils, assign Morning/Afternoon class shifts, review allergies, and generate parent accounts.',
+                        icon: 'fa-children',
+                        color: '#2563eb',
+                        bg: '#eff6ff',
+                        badge: 'Pupil Registry',
+                        url: "{% url 'teacher_children' %}"
+                    },
+                    {
+                        title: 'Parent Notification & Engagement',
+                        desc: 'Dispatch automated Weekly Performance Digests and message parents in the real-time Parent Chat Inbox.',
+                        icon: 'fa-comments',
+                        color: '#10b981',
+                        bg: '#ecfdf5',
+                        badge: 'Parent Portal Sync',
+                        url: "{% url 'teacher_engagement' %}"
+                    }
+                ]
+            }
+        };
+
+        window.openFeatureHubModal = function(groupKey) {
+            const grp = FEATURE_HUB_GROUPS[groupKey];
+            const modal = document.getElementById('featureHubModal');
+            if (!grp || !modal) return;
+
+            document.getElementById('featureHubModalTitle').innerHTML = grp.title;
+            document.getElementById('featureHubModalSubtitle').innerText = grp.subtitle;
+
+            const grid = document.getElementById('featureHubCardsGrid');
+            grid.innerHTML = grp.cards.map(c => `
+                <a href="${c.url}" style="text-decoration:none; background:var(--bg-card, #ffffff); border:2px solid var(--border-color, #e2e8f0); border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:12px; transition:all 0.22s ease; box-shadow:0 4px 14px rgba(15,23,42,0.06);" onmouseover="this.style.borderColor='${c.color}'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='var(--border-color, #e2e8f0)'; this.style.transform='none';">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="width:50px; height:50px; border-radius:14px; background:${c.bg}; color:${c.color}; display:flex; align-items:center; justify-content:center; font-size:1.45rem;">
+                            <i class="fa-solid ${c.icon}"></i>
+                        </div>
+                        <span style="background:${c.bg}; color:${c.color}; font-size:0.7rem; font-weight:800; padding:4px 10px; border-radius:12px; text-transform:uppercase; letter-spacing:0.4px;">${c.badge}</span>
+                    </div>
+                    <div style="font-size:1.05rem; font-weight:800; color:var(--text-primary, #0f172a); margin-top:4px;">${c.title}</div>
+                    <div style="font-size:0.82rem; color:var(--text-secondary, #64748b); line-height:1.5; flex-grow:1;">${c.desc}</div>
+                    <div style="display:flex; align-items:center; gap:6px; font-size:0.84rem; font-weight:800; color:${c.color}; margin-top:6px;">
+                        <span>Open Feature</span> <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+            `).join('');
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeFeatureHubModal = function() {
+            const modal = document.getElementById('featureHubModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        // --- 2. REAL-TIME TEACHER NOTIFICATION BELL ENGINE ---
+        let _teacherNotifsCache = [];
+
+        window.toggleTeacherNotifDropdown = function(e) {
+            if (e) e.stopPropagation();
+            const dd = document.getElementById('teacherNotifDropdown');
+            if (!dd) return;
+            const isOpen = dd.style.display === 'block';
+            dd.style.display = isOpen ? 'none' : 'block';
+            if (!isOpen) {
+                fetchTeacherLiveNotifications();
+            }
+        };
+
+        window.markAllTeacherNotifsRead = function(e) {
+            if (e) e.stopPropagation();
+            const readIds = _teacherNotifsCache.map(n => n.id);
+            localStorage.setItem('bmv3_teacher_read_notifs', JSON.stringify(readIds));
+            // Also mark chat threads read count synced
+            renderTeacherNotificationsList();
+        };
+
+        async function fetchTeacherLiveNotifications() {
+            try {
+                const res = await fetch('/api/notifications/');
+                if (!res.ok) return;
+                const data = await res.json();
+                let apiNotifs = data.notifications || [];
+
+                // Also inspect localStorage parent chat messages for real-time parent->teacher messages
+                try {
+                    const chatThreads = JSON.parse(localStorage.getItem('bmv3_chat_threads') || '{}');
+                    Object.keys(chatThreads).forEach(childId => {
+                        const msgs = chatThreads[childId] || [];
+                        msgs.forEach((m, idx) => {
+                            if (m.sender === 'parent') {
+                                apiNotifs.unshift({
+                                    id: `chat_${childId}_${idx}_${m.time || ''}`,
+                                    type: 'parent_chat',
+                                    icon: 'fa-comment-dots',
+                                    color: '#2563eb',
+                                    title: `New Message from Parent (${m.parentName || 'Guardian'})`,
+                                    message: m.text || 'Sent a message in Parent Chat Inbox.',
+                                    timestamp: m.time || 'Just now',
+                                    link: '/engagement/'
+                                });
+                            }
+                        });
+                    });
+                } catch (err) {}
+
+                _teacherNotifsCache = apiNotifs.slice(0, 15);
+                renderTeacherNotificationsList();
+            } catch (e) {
+                console.error('Notification poll error:', e);
+            }
+        }
+
+        function renderTeacherNotificationsList() {
+            const badge = document.getElementById('teacherNotifBadge');
+            const listEl = document.getElementById('teacherNotifList');
+            if (!badge || !listEl) return;
+
+            let readIds = [];
+            try {
+                readIds = JSON.parse(localStorage.getItem('bmv3_teacher_read_notifs') || '[]');
+            } catch (e) {}
+
+            const unreadCount = _teacherNotifsCache.filter(n => !readIds.includes(n.id)).length;
+            if (unreadCount > 0) {
+                badge.style.display = 'inline-flex';
+                badge.innerText = unreadCount > 9 ? '9+' : String(unreadCount);
+            } else {
+                badge.style.display = 'none';
+            }
+
+            if (_teacherNotifsCache.length === 0) {
+                listEl.innerHTML = `<div style="padding: 28px 18px; text-align: center; color: #64748b; font-size: 0.85rem;">No new notifications.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = _teacherNotifsCache.map(n => {
+                const isUnread = !readIds.includes(n.id);
+                return `
+                    <a href="${n.link || '/dashboard/'}" onclick="markSingleTeacherNotifRead('${n.id}')" style="display: flex; gap: 12px; padding: 12px 16px; text-decoration: none; background: ${isUnread ? '#eff6ff' : 'var(--bg-card, #ffffff)'}; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: ${n.color}18; color: ${n.color}; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; margin-top: 2px;">
+                            <i class="fa-solid ${n.icon}"></i>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
+                                <span style="font-size: 0.82rem; font-weight: ${isUnread ? '800' : '700'}; color: var(--text-primary, #0f172a); line-height: 1.3;">${n.title}</span>
+                                ${isUnread ? `<span style="width: 7px; height: 7px; border-radius: 50%; background: #2563eb; flex-shrink: 0; margin-top: 4px;"></span>` : ''}
+                            </div>
+                            <div style="font-size: 0.76rem; color: var(--text-secondary, #475569); margin-top: 3px; line-height: 1.4;">${n.message}</div>
+                            <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 600; margin-top: 4px;">${n.timestamp || ''}</div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        window.markSingleTeacherNotifRead = function(id) {
+            try {
+                let readIds = JSON.parse(localStorage.getItem('bmv3_teacher_read_notifs') || '[]');
+                if (!readIds.includes(id)) {
+                    readIds.push(id);
+                    localStorage.setItem('bmv3_teacher_read_notifs', JSON.stringify(readIds));
+                }
+            } catch (e) {}
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchTeacherLiveNotifications();
+            setInterval(fetchTeacherLiveNotifications, 12000);
+        });
+
+        // --- 3. GLOBAL MODAL BACKDROP DISMISSAL (Click blurred background to close any popup) ---
+        document.addEventListener('click', (e) => {
+            // Close notification dropdown if clicked outside
+            const notifWrap = document.getElementById('teacherNotifWrapper');
+            const notifDd = document.getElementById('teacherNotifDropdown');
+            if (notifDd && notifDd.style.display === 'block' && notifWrap && !notifWrap.contains(e.target)) {
+                notifDd.style.display = 'none';
+            }
+
+            // Close any modal overlay when clicking directly on the blurred backdrop
+            const t = e.target;
+            if (!t || !t.classList) return;
+            if (
+                t.classList.contains('modal') ||
+                t.classList.contains('modal-overlay') ||
+                t.classList.contains('popup-overlay') ||
+                t.classList.contains('dossier-modal-overlay') ||
+                t.id === 'featureHubModal' ||
+                t.id === 'globalGenerateParentModal'
+            ) {
+                t.classList.remove('active');
+                if (t.style && t.style.display && t.style.display !== 'none') {
+                    t.style.display = 'none';
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFeatureHubModal();
+                closeGenerateParentAccountModal();
+                document.querySelectorAll('.modal.active, .modal-overlay.active, .popup-overlay.active, .dossier-modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                });
+                document.querySelectorAll('.modal-overlay, .popup-overlay, .dossier-modal-overlay').forEach(m => {
+                    if (m.style && m.style.display === 'flex') m.style.display = 'none';
+                });
+            }
+        });
     </script>
     <script src="{% static 'core/js/system_translator.js' %}"></script>
 </body>

@@ -1645,6 +1645,38 @@
                 </button>
             </div>
 
+            <!-- Real-Time Notification Bell Icon & Dropdown -->
+            <div class="parent-notif-wrapper" style="position: relative; display: inline-flex; align-items: center;">
+                <button type="button" id="parentNotifBtn" onclick="toggleParentNotifDropdown(event)" aria-label="Notifications" style="position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); color: var(--text-primary, #091e42); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s;">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="parentNotifBadge" style="display: none; position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px; background: #ef4444; color: #ffffff; font-size: 0.68rem; font-weight: 800; align-items: center; justify-content: center; border: 2px solid var(--bg-card, #ffffff); box-shadow: 0 2px 4px rgba(239,68,68,0.4);">0</span>
+                </button>
+
+                <div id="parentNotifDropdown" style="display: none; position: absolute; top: 48px; right: 0; width: min(370px, calc(100vw - 28px)); max-height: 460px; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 16px; box-shadow: 0 14px 34px rgba(9, 30, 66, 0.18); z-index: 2500; flex-direction: column; overflow: hidden;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border-color, #e2e8f0); background: #f8fafc;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-bell" style="color: #2563eb;"></i>
+                            <strong style="font-size: 0.92rem; font-weight: 800; color: #091e42;">Notifications</strong>
+                            <span id="parentNotifCountLabel" style="font-size: 0.72rem; font-weight: 700; background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 10px;">Live</span>
+                        </div>
+                        <button type="button" onclick="markAllParentNotifsRead(event)" style="background: none; border: none; color: #2563eb; font-size: 0.76rem; font-weight: 700; cursor: pointer; padding: 4px 6px; border-radius: 6px;">
+                            <i class="fa-solid fa-check-double"></i> Mark all as read
+                        </button>
+                    </div>
+                    <div id="parentNotifList" style="overflow-y: auto; max-height: 360px; divide-y: 1px solid #f1f5f9;">
+                        <div style="padding: 28px 16px; text-align: center; color: #64748b; font-size: 0.84rem;">
+                            <i class="fa-solid fa-spinner fa-spin" style="margin-bottom: 6px; font-size: 1.2rem; color: #2563eb;"></i>
+                            <div>Checking live updates...</div>
+                        </div>
+                    </div>
+                    <div style="padding: 10px 16px; border-top: 1px solid var(--border-color, #e2e8f0); background: #f8fafc; text-align: center;">
+                        <a href="{% url 'parent_engagement' %}" style="font-size: 0.78rem; font-weight: 700; color: #091e42; text-decoration: none;">
+                            Open Teacher Messages &amp; Performance Digests &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Mobile Toggle -->
             <button class="mobile-sidebar-toggle" id="sidebarToggle" onclick="toggleSidebarDrawer()"><i class="fa-solid fa-bars"></i></button>
         </div>
@@ -1720,10 +1752,15 @@
             });
         }
 
-        // Close dropdown or drawer when clicking outside
+        // Close dropdown or drawer when clicking outside, plus Global Modal Backdrop Dismissal
         document.addEventListener('click', (e) => {
             if (dropdownMenu && burgerToggle && !dropdownMenu.contains(e.target) && !burgerToggle.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
+            }
+            const notifDropdown = document.getElementById('parentNotifDropdown');
+            const notifBtn = document.getElementById('parentNotifBtn');
+            if (notifDropdown && notifBtn && notifDropdown.style.display !== 'none' && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                notifDropdown.style.display = 'none';
             }
             if (mainSidebar && mainSidebar.classList.contains('active')) {
                 const isClickInsideSidebar = mainSidebar.contains(e.target);
@@ -1732,13 +1769,247 @@
                     closeSidebarDrawer();
                 }
             }
+            // Global Modal Backdrop Dismissal: clicking directly on dark/blurred overlay closes modal
+            if (e.target && e.target.classList) {
+                const isModalOverlay = (
+                    e.target.classList.contains('modal') ||
+                    e.target.classList.contains('modal-overlay') ||
+                    e.target.classList.contains('popup-overlay') ||
+                    (e.target.id && /modal/i.test(e.target.id) && window.getComputedStyle(e.target).position === 'fixed')
+                );
+                if (isModalOverlay) {
+                    e.target.classList.remove('active');
+                    if (e.target.style && e.target.style.display && e.target.style.display !== 'none') {
+                        e.target.style.display = 'none';
+                    }
+                }
+            }
         });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeSidebarDrawer();
                 if (dropdownMenu) dropdownMenu.classList.remove('active');
+                const notifDropdown = document.getElementById('parentNotifDropdown');
+                if (notifDropdown) notifDropdown.style.display = 'none';
+                document.querySelectorAll('.modal.active, .modal-overlay.active, .popup-overlay.active').forEach(m => m.classList.remove('active'));
             }
+        });
+
+        // --- REAL-TIME PARENT NOTIFICATIONS ENGINE ---
+        window.parentNotificationsCache = [];
+
+        function getReadParentNotifIds() {
+            try {
+                return JSON.parse(localStorage.getItem('bmv3_parent_read_notifs') || '[]');
+            } catch (err) {
+                return [];
+            }
+        }
+
+        function setReadParentNotifIds(ids) {
+            try {
+                localStorage.setItem('bmv3_parent_read_notifs', JSON.stringify(Array.from(new Set(ids))));
+            } catch (err) {}
+        }
+
+        window.toggleParentNotifDropdown = function(e) {
+            if (e) e.stopPropagation();
+            const dd = document.getElementById('parentNotifDropdown');
+            if (!dd) return;
+            const isHidden = dd.style.display === 'none' || !dd.style.display;
+            dd.style.display = isHidden ? 'flex' : 'none';
+            if (isHidden) {
+                fetchParentLiveNotifications();
+            }
+        };
+
+        window.markAllParentNotifsRead = function(e) {
+            if (e) e.stopPropagation();
+            const readIds = getReadParentNotifIds();
+            (window.parentNotificationsCache || []).forEach(n => {
+                if (n && n.id) readIds.push(String(n.id));
+            });
+            setReadParentNotifIds(readIds);
+            renderParentNotificationsUI(window.parentNotificationsCache || []);
+        };
+
+        window.openParentNotifItem = function(notifId, targetUrl) {
+            const readIds = getReadParentNotifIds();
+            if (notifId) {
+                readIds.push(String(notifId));
+                setReadParentNotifIds(readIds);
+            }
+            renderParentNotificationsUI(window.parentNotificationsCache || []);
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        };
+
+        function collectLocalParentNotifications() {
+            const localItems = [];
+            // 1. Check Weekly Performance Digests in localStorage ('bmv3_reports')
+            try {
+                const rawReports = localStorage.getItem('bmv3_reports');
+                if (rawReports) {
+                    const reports = JSON.parse(rawReports);
+                    if (Array.isArray(reports)) {
+                        reports.slice(0, 4).forEach((rep, idx) => {
+                            const rId = rep.id || `digest_${rep.studentId || idx}_${rep.date || idx}`;
+                            const childLabel = rep.studentName || rep.child_name || 'Your Child';
+                            localItems.push({
+                                id: `loc_rep_${rId}`,
+                                type: 'digest',
+                                icon: 'fa-chart-line',
+                                color: '#10b981',
+                                title: `Weekly Performance Digest: ${childLabel}`,
+                                message: rep.notes || rep.summary || `Teacher shared a weekly progress & behavior digest (${rep.status || 'On Track'}).`,
+                                timestamp: rep.date || 'Recent Digest',
+                                link: '/parent/engagement/?tab=digest'
+                            });
+                        });
+                    }
+                }
+            } catch (e) {}
+
+            // 2. Check Direct Teacher Messages in localStorage ('bmv3_chat_threads')
+            try {
+                const rawThreads = localStorage.getItem('bmv3_chat_threads');
+                if (rawThreads) {
+                    const threads = JSON.parse(rawThreads);
+                    if (threads && typeof threads === 'object') {
+                        Object.keys(threads).forEach(key => {
+                            const msgs = threads[key];
+                            if (Array.isArray(msgs) && msgs.length > 0) {
+                                const teacherMsgs = msgs.filter(m => (m.sender || '').toLowerCase() === 'teacher');
+                                const latest = teacherMsgs[teacherMsgs.length - 1];
+                                if (latest) {
+                                    localItems.push({
+                                        id: `loc_msg_${key}_${latest.time || teacherMsgs.length}`,
+                                        type: 'message',
+                                        icon: 'fa-comments',
+                                        color: '#2563eb',
+                                        title: `Teacher Message (${key})`,
+                                        message: latest.text || 'Sent you a message in Parent-Teacher Engagement.',
+                                        timestamp: latest.time || 'Just now',
+                                        link: '/parent/engagement/'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (e) {}
+
+            return localItems;
+        }
+
+        function renderParentNotificationsUI(items) {
+            const badge = document.getElementById('parentNotifBadge');
+            const listEl = document.getElementById('parentNotifList');
+            const countLabel = document.getElementById('parentNotifCountLabel');
+            const readSet = new Set(getReadParentNotifIds());
+
+            const unreadCount = (items || []).filter(i => !readSet.has(String(i.id))).length;
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.style.display = 'inline-flex';
+                    badge.innerText = unreadCount > 99 ? '99+' : String(unreadCount);
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            if (countLabel) {
+                countLabel.innerText = unreadCount > 0 ? `${unreadCount} Unread` : 'All Read';
+            }
+
+            if (!listEl) return;
+            if (!items || items.length === 0) {
+                listEl.innerHTML = `
+                    <div style="padding: 32px 18px; text-align: center; color: #64748b;">
+                        <i class="fa-regular fa-bell-slash" style="font-size: 1.8rem; color: #cbd5e1; margin-bottom: 8px; display: block;"></i>
+                        <div style="font-weight: 700; font-size: 0.88rem; color: #091e42;">No notifications right now</div>
+                        <div style="font-size: 0.76rem; margin-top: 3px;">Attendance, meal logs, and teacher updates will appear here.</div>
+                    </div>`;
+                return;
+            }
+
+            listEl.innerHTML = items.map(item => {
+                const isUnread = !readSet.has(String(item.id));
+                const bg = isUnread ? '#eff6ff' : '#ffffff';
+                const safeId = String(item.id || '').replace(/'/g, "\\'");
+                const safeLink = String(item.link || '/parent/dashboard/').replace(/'/g, "\\'");
+                const clr = item.color || '#2563eb';
+                const ic = item.icon || 'fa-bell';
+                return `
+                <div onclick="openParentNotifItem('${safeId}', '${safeLink}')" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; background: ${bg}; cursor: pointer; transition: background 0.15s;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: ${clr}18; color: ${clr}; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; margin-top: 2px;">
+                        <i class="fa-solid ${ic}"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                            <div style="font-size: 0.82rem; font-weight: ${isUnread ? '800' : '700'}; color: #091e42; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title || 'Update'}</div>
+                            ${isUnread ? '<span style="width: 7px; height: 7px; border-radius: 50%; background: #2563eb; flex-shrink: 0;"></span>' : ''}
+                        </div>
+                        <div style="font-size: 0.76rem; color: #475569; margin-top: 3px; line-height: 1.38;">${item.message || ''}</div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 600; margin-top: 4px;">${item.timestamp || ''}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function fetchParentLiveNotifications() {
+            const localNotifs = collectLocalParentNotifications();
+            let apiNotifs = [];
+            try {
+                const res = await fetch('/api/notifications/');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.notifications)) {
+                        apiNotifs = data.notifications;
+                    }
+                }
+            } catch (e) {}
+
+            // Also check /api/engagement/ for recent Teacher messages & digests stored in backend DB
+            try {
+                const engRes = await fetch('/api/engagement/');
+                if (engRes.ok) {
+                    const engList = await engRes.json();
+                    if (Array.isArray(engList)) {
+                        engList.slice(0, 3).forEach(rec => {
+                            apiNotifs.unshift({
+                                id: `eng_db_${rec.id}`,
+                                type: 'digest',
+                                icon: 'fa-envelope-open-text',
+                                color: '#0284c7',
+                                title: `Teacher Update (${rec.interaction_type || 'Progress Log'})`,
+                                message: rec.notes || 'New classroom engagement note from teacher.',
+                                timestamp: rec.date || 'Recent',
+                                link: '/parent/engagement/'
+                            });
+                        });
+                    }
+                }
+            } catch (e) {}
+
+            // Merge & deduplicate by id
+            const seen = new Set();
+            const combined = [];
+            [...localNotifs, ...apiNotifs].forEach(n => {
+                if (n && n.id && !seen.has(n.id)) {
+                    seen.add(n.id);
+                    combined.push(n);
+                }
+            });
+
+            window.parentNotificationsCache = combined;
+            renderParentNotificationsUI(combined);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchParentLiveNotifications();
+            setInterval(fetchParentLiveNotifications, 12000);
         });
 
         document.querySelectorAll('.sidebar .menu-item').forEach(item => {

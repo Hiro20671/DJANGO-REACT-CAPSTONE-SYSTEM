@@ -147,6 +147,7 @@ class NutritionRecord(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='nutrition_records')
     school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='nutrition_records', null=True, blank=True)
     date = models.DateField()
+    food_item = models.CharField(max_length=150, blank=True, null=True, default='Champorado & Fortified Milk')
     snack_status = models.CharField(
         max_length=50, 
         choices=[('Finished', 'Finished'), ('Some Left', 'Some Left'), ('Not Eaten', 'Not Eaten')], 

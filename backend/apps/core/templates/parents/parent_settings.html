@@ -511,7 +511,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                     </div>
                     <div class="form-group">
                         <label>Child's Allergies</label>
-                        <select id="childAllergies">
+                        <select id="childAllergies" onchange="toggleChildAllergiesOther()">
                             <option value="">None</option>
                             <option value="Peanuts">Peanuts</option>
                             <option value="Dairy / Milk">Dairy / Milk</option>
@@ -522,6 +522,7 @@ input:checked + .slider:before { transform: translateX(26px); }
                             <option value="Tree Nuts">Tree Nuts</option>
                             <option value="Others">Others</option>
                         </select>
+                        <input type="text" id="childAllergiesOther" placeholder="Please specify child's allergy (e.g., Dust, Chicken, Chocolate)..." style="display:none; margin-top:8px;">
                     </div>
                     <div class="form-group">
                         <label>Other Health Conditions</label>
@@ -1525,7 +1526,35 @@ input:checked + .slider:before { transform: translateX(26px); }
                     document.getElementById('childId').value = data.child_id;
                     document.getElementById('childFirstName').value = data.child_first_name || '';
                     document.getElementById('childLastName').value = data.child_last_name || '';
-                    document.getElementById('childAllergies').value = data.child_allergies || '';
+
+                    const standardAllergies = ['', 'Peanuts', 'Dairy / Milk', 'Seafood / Shellfish', 'Eggs', 'Soy', 'Wheat', 'Tree Nuts'];
+                    const rawAllergy = (data.child_allergies || '').trim();
+                    const allergySelect = document.getElementById('childAllergies');
+                    const allergyOtherInput = document.getElementById('childAllergiesOther');
+
+                    if (!rawAllergy || rawAllergy.toLowerCase() === 'none' || rawAllergy.toLowerCase() === 'none reported') {
+                        allergySelect.value = '';
+                        if (allergyOtherInput) {
+                            allergyOtherInput.style.display = 'none';
+                            allergyOtherInput.required = false;
+                            allergyOtherInput.value = '';
+                        }
+                    } else if (standardAllergies.includes(rawAllergy)) {
+                        allergySelect.value = rawAllergy;
+                        if (allergyOtherInput) {
+                            allergyOtherInput.style.display = 'none';
+                            allergyOtherInput.required = false;
+                            allergyOtherInput.value = '';
+                        }
+                    } else {
+                        allergySelect.value = 'Others';
+                        if (allergyOtherInput) {
+                            allergyOtherInput.style.display = 'block';
+                            allergyOtherInput.required = true;
+                            allergyOtherInput.value = (rawAllergy.toLowerCase() === 'others') ? '' : rawAllergy;
+                        }
+                    }
+
                     document.getElementById('childHealthConditions').value = data.child_health_conditions || '';
                     document.getElementById('profChild').value = data.child_first_name + ' ' + data.child_last_name;
                     document.getElementById('profChild').disabled = true;
@@ -1799,14 +1828,41 @@ input:checked + .slider:before { transform: translateX(26px); }
         });
     }
 
+    function toggleChildAllergiesOther() {
+        const allergySelect = document.getElementById('childAllergies');
+        const allergyOtherInput = document.getElementById('childAllergiesOther');
+        if (!allergySelect || !allergyOtherInput) return;
+        if (allergySelect.value === 'Others') {
+            allergyOtherInput.style.display = 'block';
+            allergyOtherInput.required = true;
+            allergyOtherInput.focus();
+        } else {
+            allergyOtherInput.style.display = 'none';
+            allergyOtherInput.required = false;
+        }
+    }
+
     function saveChildProfile() {
         const childId = document.getElementById('childId').value;
         if (!childId) return;
+
+        const allergySelectVal = document.getElementById('childAllergies').value;
+        const allergyOtherEl = document.getElementById('childAllergiesOther');
+        let finalAllergies = allergySelectVal;
+        if (allergySelectVal === 'Others') {
+            const customAllergy = (allergyOtherEl ? allergyOtherEl.value : '').trim();
+            if (!customAllergy) {
+                showToast("Please specify your child's allergy in the input field.", "error");
+                if (allergyOtherEl) allergyOtherEl.focus();
+                return;
+            }
+            finalAllergies = customAllergy;
+        }
         
         const payload = {
             first_name: document.getElementById('childFirstName').value,
             last_name: document.getElementById('childLastName').value,
-            allergies: document.getElementById('childAllergies').value,
+            allergies: finalAllergies,
             health_conditions: document.getElementById('childHealthConditions').value
         };
 

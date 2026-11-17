@@ -69,6 +69,14 @@
 .pill-blue { background: #4a90e2; color: white; }
 .pill-purple { background: #9b59b6; color: white; }
 
+/* Pagination */
+.pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding: 12px 16px; border-top: 1px solid #e2e8f0; width: 100%; }
+.pagination-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+.page-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+.page-btn.active { background: #063970; color: #fff; border-color: #063970; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* Checked/Line Selector Styling */
 .score-selector {
     display: inline-flex;
@@ -424,6 +432,7 @@
             </tbody>
         </table>
     </div>
+    <div id="milestonePaginationBar" class="pagination-bar"></div>
     
     <!-- Overview DSS Advisory Section -->
     <div id="dssMilestoneOverviewPanel" class="card" style="margin-top:25px; border-left: 5px solid var(--warning, #f6c23e); background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
@@ -1511,9 +1520,41 @@ function toggleScoringSummary() {
 // OVERVIEW & DASHBOARD
 // ---------------------------
 let milestoneShiftFilter = 'all';
+let milestoneOverviewPage = 1;
+const MILESTONE_PAGE_SIZE = 10;
+
+function buildMilestonePagination(totalItems, currentPage, pageSize, callbackName) {
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    if (totalPages <= 1) return '';
+    const startItem = (currentPage - 1) * pageSize + 1;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+
+    let btns = `<button type="button" class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="${callbackName}(${currentPage - 1})"><i class="fa-solid fa-angle-left"></i></button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            btns += `<button type="button" class="page-btn ${i === currentPage ? 'active' : ''}" onclick="${callbackName}(${i})">${i}</button>`;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            btns += `<span style="padding:0 4px; color:#94a3b8;">...</span>`;
+        }
+    }
+    btns += `<button type="button" class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="${callbackName}(${currentPage + 1})"><i class="fa-solid fa-angle-right"></i></button>`;
+
+    return `
+        <div style="font-size:0.82rem; color:#64748b; font-weight:600;">
+            Showing <strong>${startItem}–${endItem}</strong> of <strong>${totalItems}</strong> pupils (10 per page)
+        </div>
+        <div class="pagination-btns">${btns}</div>
+    `;
+}
+
+window.setMilestoneOverviewPage = function(page) {
+    milestoneOverviewPage = page;
+    renderOverview();
+};
 
 function setMilestoneShift(shift) {
     milestoneShiftFilter = shift;
+    milestoneOverviewPage = 1;
     ['all', 'Morning', 'Afternoon'].forEach(s => {
         const btnId = s === 'all' ? 'mileShiftAll' : (s === 'Morning' ? 'mileShiftMorning' : 'mileShiftAfternoon');
         const btn = document.getElementById(btnId);
@@ -1532,6 +1573,7 @@ function setMilestoneShift(shift) {
 
 async function renderOverview() {
     const container = document.getElementById('overviewContainer');
+    const pagBar = document.getElementById('milestonePaginationBar');
     
     // Fetch all assessments and scores
     const [assRes, scoRes] = await Promise.all([
@@ -1548,6 +1590,7 @@ async function renderOverview() {
 
     if (enrolledChildren.length === 0) {
         container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No enrolled students found.</td></tr>`;
+        if (pagBar) pagBar.innerHTML = '';
         return;
     }
 
@@ -1571,10 +1614,17 @@ async function renderOverview() {
 
     if (filteredChildren.length === 0) {
         container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching students found.</td></tr>`;
+        if (pagBar) pagBar.innerHTML = '';
         return;
     }
 
-    filteredChildren.forEach(c => {
+    const totalItems = filteredChildren.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / MILESTONE_PAGE_SIZE));
+    if (milestoneOverviewPage > totalPages) milestoneOverviewPage = totalPages;
+    const startIdx = (milestoneOverviewPage - 1) * MILESTONE_PAGE_SIZE;
+    const pageChildren = filteredChildren.slice(startIdx, startIdx + MILESTONE_PAGE_SIZE);
+
+    pageChildren.forEach(c => {
         const cAss = allAss.filter(a => a.child === c.id);
         const cAssIds = cAss.map(a => a.id);
         const cSco = allSco.filter(s => cAssIds.includes(s.assessment) && s.teacher_score === 1);
@@ -1624,9 +1674,14 @@ async function renderOverview() {
             </td>
         </tr>`;
     });
+
+    if (pagBar) {
+        pagBar.innerHTML = buildMilestonePagination(totalItems, milestoneOverviewPage, MILESTONE_PAGE_SIZE, 'setMilestoneOverviewPage');
+    }
 }
 
 function filterOverviewTable() {
+    milestoneOverviewPage = 1;
     renderOverview();
 }
 

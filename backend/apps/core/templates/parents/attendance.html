@@ -2,851 +2,929 @@
 
 {% block content %}
 <style>
-/* Dashboard Layout container */
 .p-dash-container {
     padding: 10px;
     font-family: 'Montserrat', sans-serif;
-    color: #333;
+    color: var(--text-primary, #0f172a);
 }
 
-/* Header */
+.p-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
 .p-header h1 {
     font-size: 2rem;
     font-weight: 800;
     color: #043263;
     margin: 0;
 }
+
 .p-header p {
-    color: #777;
-    font-size: 1.1rem;
+    color: #64748b;
+    font-size: 0.98rem;
     margin-top: 5px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-/* Stats Row */
+/* KPI Stats Row */
 .stats-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 35px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 26px;
     width: 100%;
 }
+
 .stat-box {
     display: flex;
     flex-direction: column;
-    padding: 20px 25px;
-    border-radius: 12px;
-    background-color: #fff;
-    border: 1px solid #eaeaea;
+    padding: 20px 22px;
+    border-radius: 14px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
 }
+
 .stat-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.07);
 }
+
 .stat-label {
-    font-size: 1rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    color: #111;
-    margin-bottom: 5px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
 }
+
 .stat-value {
-    font-size: 3rem;
+    font-size: 2.3rem;
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 5px;
 }
-.stat-value.val-green { color: #1cc88a; }
-.stat-value.val-red { color: #e74a3b; }
-.stat-value.val-grey { color: #a0a0a0; }
+
+.stat-value.val-green { color: #10b981; }
+.stat-value.val-amber { color: #f59e0b; }
+.stat-value.val-red { color: #ef4444; }
+.stat-value.val-blue { color: #2563eb; }
 
 .stat-sub {
-    font-size: 0.8rem;
-    color: #111;
+    font-size: 0.78rem;
+    color: #475569;
     font-weight: 600;
 }
 
-/* Calendar Card */
-.cal-card {
-    background-color: #043263;
-    border-radius: 16px;
-    color: white;
-    padding: 40px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 60px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    width: 100%;
+/* Analytics Charts Grid */
+.att-charts-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 22px;
+    margin-bottom: 28px;
 }
 
-.cal-left-col {
-    flex-grow: 1;
+.att-chart-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
     display: flex;
     flex-direction: column;
 }
 
-.cal-header {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 25px;
-}
-
-.cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 15px;
-    width: 100%;
-}
-
-.cal-day-label {
-    text-align: center;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: white;
-    margin-bottom: 10px;
-}
-
-.cal-cell {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    max-height: 80px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: #111;
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: default;
-}
-.cell-grey { opacity: 0; pointer-events: none; }
-.cell-white { background-color: #fff; }
-.cell-green { background-color: #70e086; color: white; }
-.cell-red { background-color: #dd6a6a; color: white; }
-.cell-noclass { background-color: #5e5e5e; color: #aaa; }
-
-.status-pill-green { background-color: #10b981; }
-.status-pill-orange { background-color: #f97316; }
-.status-pill-red { background-color: #ef4444; }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .legend-color {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-    }
-
-    .legend-text {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: white;
-    }
-
-    /* History Log */
-    .history-card {
-        background-color: #fff;
-        border: 1px solid #dcdcdc;
-        border-radius: 12px;
-        padding: 25px;
-        margin-top: 30px;
-    }
-
-    .history-header {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-        color: #333;
-    }
-
-    .history-sub {
-        font-size: 0.85rem;
-        color: #777;
-        margin-bottom: 20px;
-    }
-
-    .history-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .history-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        border: 1px solid #eee;
-        border-radius: 8px;
-        background-color: #fcfcfc;
-    }
-
-    .history-info-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .history-date {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #333;
-    }
-
-    .history-time {
-        font-size: 0.85rem;
-        color: #666;
-    }
-
-    .history-guardian {
-        font-size: 0.8rem;
-        color: #888;
-        display:flex;
-        align-items:center;
-        gap:5px;
-    }
-
-    @media (max-width: 800px) {
-    .cal-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
-    .legend-box { margin-left: 0; flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
-    .stats-row { gap: 15px; grid-template-columns: 1fr; margin-top: 20px; margin-bottom: 20px; }
-    .cal-grid { gap: 5px; }
-    .cal-cell { font-size: 0.9rem; max-height: 40px; border-radius: 6px; }
-    .cal-day-label { font-size: 0.7rem; }
-    .history-item { flex-direction: column; align-items: flex-start; gap: 10px; }
-}
-
-/* Screen 7 Mobile Attendance Layout */
-.desktop-attendance-layout {
-    display: block;
-}
-.mobile-attendance-layout {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .desktop-attendance-layout { display: none !important; }
-    .p-header { display: none !important; }
-    .stats-row { display: none !important; }
-    .cal-card { display: none !important; }
-    .history-card { display: none !important; }
-    .mobile-attendance-layout {
-        display: block !important;
-        margin-bottom: 25px;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-}
-
-.mob-cal-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 20px 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-    margin-bottom: 18px;
-}
-
-.mob-cal-header {
+.att-chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 16px;
 }
 
-.mob-cal-title {
-    font-size: 1.05rem;
+.att-chart-title {
+    font-size: 1.08rem;
     font-weight: 800;
-    color: #091e42;
-}
-
-.mob-cal-nav-btn {
-    background: #f1f5f9;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    color: #043263;
+    margin: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #091e42;
-    font-size: 0.85rem;
+    gap: 8px;
 }
 
-.mob-cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    text-align: center;
-}
-
-.mob-day-label {
-    font-size: 0.72rem;
-    font-weight: 700;
+.att-chart-sub {
+    font-size: 0.8rem;
     color: #64748b;
-    padding-bottom: 8px;
+    margin: 3px 0 0 0;
 }
 
-.mob-day-cell {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.trend-toggle-group {
+    display: inline-flex;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
-    font-size: 0.85rem;
+    padding: 3px;
+    gap: 3px;
+}
+
+.trend-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 5px 12px;
+    border-radius: 7px;
+    font-size: 0.76rem;
     font-weight: 700;
-    color: #1e293b;
-    position: relative;
-    cursor: default;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.mob-day-cell.today {
-    border: 2px solid #091e42;
-    background: rgba(9, 30, 66, 0.04);
+.trend-toggle-btn.active {
+    background: #043263;
+    color: #ffffff;
 }
 
-.mob-status-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    margin-top: 2px;
+/* Past Attendance History Log Card */
+.history-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    margin-bottom: 30px;
 }
-.dot-present { background-color: #10b981; }
-.dot-absent { background-color: #ef4444; }
-.dot-late { background-color: #f59e0b; }
-.dot-none { background-color: #cbd5e1; }
 
-.mob-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+.history-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
     margin-bottom: 18px;
 }
 
-.mob-summary-box {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 14px;
+.filter-pills {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-pill-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-pill-btn.active {
+    background: #043263;
+    color: #ffffff;
+    border-color: #043263;
+}
+
+.att-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+}
+
+.att-history-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 13px 16px;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.att-history-table td {
+    padding: 13px 16px;
+    font-size: 0.86rem;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.att-history-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.status-badge.present {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.late {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.absent {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.page-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.page-btn.active {
+    background: #043263;
+    color: #ffffff;
+    border-color: #043263;
+}
+
+/* Excuse Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+@media (max-width: 960px) {
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .att-charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .stat-value {
+        font-size: 1.75rem;
+    }
 }
 </style>
 
 <div class="p-dash-container">
+    <!-- Mobile Subpage Header -->
+    <div class="mobile-subpage-header">
+        <a href="javascript:history.back()" class="mobile-subpage-back">
+            <i class="fa-solid fa-chevron-left"></i>
+            <span>Attendance Analytics &amp; History</span>
+        </a>
+    </div>
 
-    <!-- Mobile Screen 7 Layout -->
-    <div class="mobile-attendance-layout">
-        <div class="mobile-subpage-header">
-            <button class="mobile-back-btn" onclick="window.history.back();" aria-label="Go Back">
-                <i class="fa-solid fa-chevron-left"></i>
+    <!-- Active Child Card (Mobile) -->
+    <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
+        <div class="child-avatar" id="mobAttChildAvatarWrap">
+            <i class="fa-solid fa-child-reaching"></i>
+        </div>
+        <div class="child-details">
+            <p class="child-name" id="mobAttChildName">Student</p>
+            <div class="child-sub">
+                <span id="mobAttChildAge">4 yrs</span> &bull;
+                <span class="child-status-badge">Enrolled</span>
+                <span id="mobAttChildShiftBadge"></span>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right child-chevron"></i>
+    </div>
+
+    <!-- Header & Action Bar -->
+    <div class="p-header">
+        <div>
+            <h1>Attendance Analytics &amp; Past History</h1>
+            <p><span id="ui-child-name">Loading Student...</span> &bull; <span id="ui-current-month">School Year 2026–2027</span></p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div id="ui-child-shift-badge" style="display:none; align-items:center;"></div>
+            <button type="button" onclick="openExcuseNoticeModal()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #ffffff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">
+                <i class="fa-solid fa-file-medical"></i> Submit Absence / Excuse Notice
             </button>
-            <h1>Attendance</h1>
-            <div style="width:36px;"></div>
         </div>
+    </div>
 
-        <!-- Active Child Card -->
-        <div class="mobile-child-card" onclick="window.location.href='/parent/children/';" style="margin-bottom: 16px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div id="mobAttChildAvatarWrap" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; font-weight: 800; font-size: 1rem; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0;">
-                    <i class="fa-solid fa-child-reaching"></i>
-                </div>
+    <!-- 4-Card KPI Summary Row -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-label"><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Days Present</div>
+            <div class="stat-value val-green" id="stat-present">0</div>
+            <div class="stat-sub">Verified on-time arrivals</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label"><i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Days Late</div>
+            <div class="stat-value val-amber" id="stat-late">0</div>
+            <div class="stat-sub">Arrived past 15-min grace period</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> Days Absent</div>
+            <div class="stat-value val-red" id="stat-absent">0</div>
+            <div class="stat-sub">Logged absences &amp; excuses</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label"><i class="fa-solid fa-chart-pie" style="color:#2563eb;"></i> Attendance Rate</div>
+            <div class="stat-value val-blue" id="stat-rate">0%</div>
+            <div class="stat-sub"><span id="stat-total">0</span> total recorded sessions</div>
+        </div>
+    </div>
+
+    <!-- 1. ATTENDANCE ANALYTICS GRAPHS ROW (Replaced Calendar Grid Style) -->
+    <div class="att-charts-grid">
+        <!-- Monthly / Weekly Attendance Trend Bar Chart -->
+        <div class="att-chart-card">
+            <div class="att-chart-header">
                 <div>
-                    <div id="mobAttChildName" style="font-weight: 800; font-size: 0.95rem; color: #091e42;">Student</div>
-                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
-                        <span id="mobAttChildAge" style="font-size: 0.78rem; color: #64748b;">3 yrs</span>
-                        <span style="font-size: 0.75rem; color: #94a3b8;">•</span>
-                        <span style="font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px;">Enrolled</span>
-                        <span id="mobAttChildShiftBadge"></span>
-                    </div>
+                    <h3 class="att-chart-title">
+                        <i class="fa-solid fa-chart-column" style="color: #2563eb;"></i>
+                        <span id="trendChartTitleText">Monthly Attendance Trend</span>
+                    </h3>
+                    <p class="att-chart-sub">Comparison of Present, Late, and Absent days over time</p>
+                </div>
+                <div class="trend-toggle-group">
+                    <button type="button" class="trend-toggle-btn active" id="btnTrendMonthly" onclick="switchTrendGrouping('monthly')">Monthly</button>
+                    <button type="button" class="trend-toggle-btn" id="btnTrendWeekly" onclick="switchTrendGrouping('weekly')">Weekly</button>
                 </div>
             </div>
-            <i class="fa-solid fa-chevron-right" style="color: #94a3b8; font-size: 0.9rem;"></i>
-        </div>
-
-        <!-- Month Calendar Card -->
-        <div class="mob-cal-card">
-            <div class="mob-cal-header">
-                <button class="mob-cal-nav-btn" onclick="shiftMonth(-1)">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <div class="mob-cal-title" id="mob-cal-month-title">Month Year</div>
-                <button class="mob-cal-nav-btn" onclick="shiftMonth(1)">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
-
-            <div class="mob-cal-grid" id="mob-calendar-grid">
-                <div class="mob-day-label">S</div>
-                <div class="mob-day-label">M</div>
-                <div class="mob-day-label">T</div>
-                <div class="mob-day-label">W</div>
-                <div class="mob-day-label">T</div>
-                <div class="mob-day-label">F</div>
-                <div class="mob-day-label">S</div>
-                <!-- Dynamic Days -->
-            </div>
-
-            <!-- Calendar Legend -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; margin-top: 16px; padding-top: 12px; font-size: 0.72rem; color: #64748b;">
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span class="mob-status-dot dot-present"></span> Present
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span class="mob-status-dot dot-absent"></span> Absent
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span class="mob-status-dot dot-late"></span> Late
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span class="mob-status-dot dot-none"></span> No Data
-                </div>
+            <div style="position: relative; height: 270px; width: 100%;">
+                <canvas id="parentAttTrendChart"></canvas>
             </div>
         </div>
 
-        <!-- 4-metric Summary Cards -->
-        <div class="mob-summary-grid">
-            <div class="mob-summary-box">
-                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Present</span>
-                <strong id="mob-stat-present" style="font-size: 1.5rem; font-weight: 800; color: #10b981;">0</strong>
+        <!-- Attendance Status Distribution Doughnut Chart -->
+        <div class="att-chart-card">
+            <div class="att-chart-header">
+                <div>
+                    <h3 class="att-chart-title">
+                        <i class="fa-solid fa-chart-pie" style="color: #10b981;"></i>
+                        <span>Attendance Distribution</span>
+                    </h3>
+                    <p class="att-chart-sub">Overall breakdown of Present %, Late %, and Absent %</p>
+                </div>
             </div>
-            <div class="mob-summary-box">
-                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Absent</span>
-                <strong id="mob-stat-absent" style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">0</strong>
+            <div style="position: relative; height: 230px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <canvas id="parentAttDistChart"></canvas>
             </div>
-            <div class="mob-summary-box">
-                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Late</span>
-                <strong id="mob-stat-late" style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;">0</strong>
+            <div id="distLegendSummary" style="display: flex; justify-content: space-around; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 0.78rem; font-weight: 700; color: #475569;">
+                <span><i class="fa-solid fa-circle" style="color:#10b981;"></i> Present: <strong id="pctPresent">0%</strong></span>
+                <span><i class="fa-solid fa-circle" style="color:#f59e0b;"></i> Late: <strong id="pctLate">0%</strong></span>
+                <span><i class="fa-solid fa-circle" style="color:#ef4444;"></i> Absent: <strong id="pctAbsent">0%</strong></span>
             </div>
-            <div class="mob-summary-box">
-                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">Total Days</span>
-                <strong id="mob-stat-total" style="font-size: 1.5rem; font-weight: 800; color: #091e42;">0</strong>
+        </div>
+    </div>
+
+    <!-- 2. PAST ATTENDANCE HISTORY LOG TABLE (With Status Filter & 10-per-page Pagination) -->
+    <div class="history-card">
+        <div class="history-toolbar">
+            <div>
+                <h3 style="margin: 0; font-size: 1.18rem; font-weight: 800; color: #043263; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color: #2563eb;"></i>
+                    <span>Past Attendance History Log</span>
+                </h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.83rem; color: #64748b;">
+                    Complete chronological history of your child's daily attendance, gate QR scans, and excuse notices
+                </p>
+            </div>
+
+            <div class="filter-pills">
+                <button type="button" class="filter-pill-btn active" onclick="filterHistoryByStatus('All', this)">All (<span id="countAll">0</span>)</button>
+                <button type="button" class="filter-pill-btn" onclick="filterHistoryByStatus('Present', this)">Present (<span id="countPresent">0</span>)</button>
+                <button type="button" class="filter-pill-btn" onclick="filterHistoryByStatus('Late', this)">Late (<span id="countLate">0</span>)</button>
+                <button type="button" class="filter-pill-btn" onclick="filterHistoryByStatus('Absent', this)">Absent (<span id="countAbsent">0</span>)</button>
             </div>
         </div>
 
-        <!-- Recent Logs on Mobile -->
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px;">
-            <div style="margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
-                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #091e42;">Recent Check-Ins</h4>
+        <div class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 12px; overflow-x: auto;">
+            <table class="att-history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Class Shift</th>
+                        <th>Status</th>
+                        <th>Gate Scan / Excuse Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="attHistoryTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 32px; color: #64748b;">
+                            <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Loading past attendance history...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10-Records-Per-Page Pagination Controls -->
+        <div class="pagination-bar">
+            <div id="attPaginationInfo" style="font-size: 0.82rem; font-weight: 600; color: #64748b;">
+                Showing 0 to 0 of 0 records
             </div>
-            <div id="mob-recent-checkins" style="display: flex; flex-direction: column; gap: 10px;">
+            <div id="attPaginationControls" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <!-- Populated by JS -->
             </div>
         </div>
     </div>
-    
-    <!-- HEADER (Desktop) -->
-    <div class="desktop-attendance-layout">
-    <div class="p-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
-        <div>
-            <h1>Attendance</h1>
-            <p><span id="ui-child-name">Student</span> • <span id="ui-current-month">Month Year</span></p>
-        </div>
-        <div id="ui-child-shift-badge" style="display:none; align-items:center;"></div>
-    </div>
-
-    <!-- STATS (Desktop) -->
-    <div class="stats-row">
-        <div class="stat-box">
-            <div class="stat-label">Days present</div>
-            <div class="stat-value val-green" id="stat-present">0</div>
-            <div class="stat-sub">This month</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Days absent</div>
-            <div class="stat-value val-red" id="stat-absent">0</div>
-            <div class="stat-sub">This month</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Total school days</div>
-            <div class="stat-value val-grey" id="stat-total">0</div>
-            <div class="stat-sub">This month</div>
-        </div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="cal-card">
-        <div class="cal-left-col">
-            <div class="cal-header" id="cal-month-title">Month Year</div>
-            
-            <div class="cal-grid" id="calendar-grid">
-                <!-- Day labels -->
-                <div class="cal-day-label">SUN</div>
-                <div class="cal-day-label">MON</div>
-                <div class="cal-day-label">TUE</div>
-                <div class="cal-day-label">WED</div>
-                <div class="cal-day-label">THU</div>
-                <div class="cal-day-label">FRI</div>
-                <div class="cal-day-label">SAT</div>
-                
-                <!-- Cells generated by JS -->
-            </div>
-        </div>
-
-        <div class="legend-box">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #70e086;"></div>
-                <div class="legend-text">Present</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #dd6a6a;"></div>
-                <div class="legend-text">Absent</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #5e5e5e;"></div>
-                <div class="legend-text">No class</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- HISTORY LOG -->
-    <div class="history-card">
-        <div class="history-header">Recent Check-In Logs</div>
-        <div class="history-sub">Detailed receipt of arrival and departure records</div>
-        
-        <div class="history-list" id="ui-history-log">
-            <!-- Populated by JS -->
-        </div>
-    </div>
 </div>
+
+<!-- 3. SUBMIT ABSENCE / EXCUSE NOTICE MODAL -->
+<div class="modal-overlay" id="excuseNoticeModal">
+    <div class="modal-content" style="background: #ffffff; width: 480px; max-width: 95vw; border-radius: 18px; padding: 26px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 18px;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #043263; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-file-medical" style="color: #ef4444;"></i>
+                    <span>Submit Absence / Excuse Notice</span>
+                </h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #64748b;">Notify the teacher and log an excused absence for your child</p>
+            </div>
+            <button type="button" onclick="closeExcuseNoticeModal()" style="background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; color: #64748b; cursor: pointer;">&times;</button>
+        </div>
+
+        <form id="excuseNoticeForm" onsubmit="submitExcuseNotice(event)">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Date of Absence *</label>
+                <input type="date" id="excuseDateInput" required style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-family: inherit;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Reason Category *</label>
+                <select id="excuseCategorySelect" onchange="toggleExcuseCustomReason()" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-family: inherit;">
+                    <option value="Fever / Flu / Illness">Fever / Flu / Illness</option>
+                    <option value="Medical / Dental Check-up">Medical / Dental Check-up</option>
+                    <option value="Family Emergency">Family Emergency</option>
+                    <option value="Inclement Weather / Transportation">Inclement Weather / Transportation</option>
+                    <option value="Others">Others (Specify below)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Additional Notes / Specific Excuse Details</label>
+                <textarea id="excuseNotesInput" rows="3" placeholder="Provide brief details for the teacher (e.g., resting at home due to mild cough)..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; font-family: inherit; resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeExcuseNoticeModal()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancel</button>
+                <button type="submit" id="btnSubmitExcuse" style="background: #ef4444; color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Excuse Notice
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
+let linkedChildObj = null;
+let allAttendanceRecords = [];
+let filteredAttendanceRecords = [];
+let currentStatusFilter = 'All';
+let currentHistoryPage = 1;
+const HISTORY_PAGE_SIZE = 10;
+let currentTrendMode = 'monthly';
+let trendChartInstance = null;
+let distChartInstance = null;
 
-  document.addEventListener("DOMContentLoaded", function() {
-    // Core Date logic
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth(); // 0-11
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const monthTitle = `${monthNames[currentMonth]} ${currentYear}`;
-    document.getElementById('ui-current-month').innerText = monthTitle;
-    document.getElementById('cal-month-title').innerText = monthTitle;
-    // Database logic
-    let linkedChildId = null;
-    let attDB = {};
-    let noClassDB = {};
-    
-    Promise.all([
-      fetch('/api/parent/history/').then(res => res.json()),
-      fetch('/api/no-class-days/').then(res => res.json())
-    ])
-      .then(([data, noClassData]) => {
+function openExcuseNoticeModal() {
+    const modal = document.getElementById('excuseNoticeModal');
+    const dateInput = document.getElementById('excuseDateInput');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+    if (modal) modal.classList.add('active');
+}
+
+function closeExcuseNoticeModal() {
+    const modal = document.getElementById('excuseNoticeModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function toggleExcuseCustomReason() {
+    const sel = document.getElementById('excuseCategorySelect');
+    const notes = document.getElementById('excuseNotesInput');
+    if (sel && notes) {
+        notes.required = (sel.value === 'Others');
+    }
+}
+
+async function submitExcuseNotice(e) {
+    e.preventDefault();
+    if (!linkedChildObj || !linkedChildObj.id) {
+        alert('No linked child found on this account.');
+        return;
+    }
+
+    const dt = document.getElementById('excuseDateInput').value;
+    const cat = document.getElementById('excuseCategorySelect').value;
+    const notes = document.getElementById('excuseNotesInput').value.trim();
+    const finalReason = cat === 'Others' ? (notes || 'Parent Excuse Notice') : (notes ? `${cat} — ${notes}` : cat);
+    const btn = document.getElementById('btnSubmitExcuse');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const shiftSession = (linkedChildObj.shift || 'Morning').toLowerCase().includes('afternoon') ? 'Afternoon' : 'Morning';
+        const res = await fetch('/api/attendance/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.getCookie ? window.getCookie('csrftoken') : ''
+            },
+            body: JSON.stringify({
+                child: linkedChildObj.id,
+                date: dt,
+                session: shiftSession,
+                status: 'Absent',
+                absence_reason: finalReason
+            })
+        });
+
+        if (!res.ok) throw new Error('Failed to submit excuse notice');
+        closeExcuseNoticeModal();
+        document.getElementById('excuseNotesInput').value = '';
+        await loadParentAttendanceData();
+        alert(`Absence excuse recorded for ${dt}. Your child has been marked Absent (Excused: ${finalReason}).`);
+    } catch (err) {
+        console.error(err);
+        alert('Could not submit absence notice. Please try again.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Excuse Notice';
+    }
+}
+
+function normalizeStatus(rawStatus) {
+    const s = String(rawStatus || '').trim().toLowerCase();
+    if (s === 'late') return 'Late';
+    if (s === 'absent') return 'Absent';
+    return 'Present';
+}
+
+async function loadParentAttendanceData() {
+    try {
+        const res = await fetch('/api/parent/history/');
+        const data = await res.json();
+
         if (data.detail || !data.child) {
-          document.getElementById('ui-child-name').innerText = 'No Child Linked';
-          return;
-        }
-        
-        if (Array.isArray(noClassData)) {
-            noClassData.forEach(nc => {
-                noClassDB[nc.date] = nc.reason;
-            });
+            document.getElementById('ui-child-name').innerText = 'No Child Linked';
+            document.getElementById('attHistoryTableBody').innerHTML = `
+                <tr><td colspan="5" style="text-align:center; padding:30px; color:#64748b;">No child is currently linked to this parent account.</td></tr>`;
+            return;
         }
 
         const child = data.child;
-        linkedChildId = child.id;
-        document.getElementById('ui-child-name').innerText = child.first_name + ' ' + child.last_name;
+        linkedChildObj = child;
+        const fullName = `${child.first_name || ''} ${child.last_name || ''}`.trim();
+        document.getElementById('ui-child-name').innerText = fullName;
 
-        // Shift Badge Binding
         const isPM = (child.shift || 'Morning').toLowerCase().includes('afternoon');
+        const shiftLabel = isPM ? 'Afternoon PM (1:00 PM – 3:30 PM)' : 'Morning AM (8:00 AM – 10:30 AM)';
         const deskBadge = document.getElementById('ui-child-shift-badge');
         if (deskBadge) {
             deskBadge.style.display = 'inline-flex';
             deskBadge.innerHTML = isPM
-                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
-                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
+                ? '<span style="background:#ffedd5; color:#ea580c; border:1px solid #fed7aa; font-size:0.82rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (1:00 PM – 3:30 PM)</span>'
+                : '<span style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-size:0.82rem; font-weight:700; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-sun"></i> Morning Shift (8:00 AM – 10:30 AM)</span>';
         }
-        const mobBadge = document.getElementById('mobAttChildShiftBadge');
-        if (mobBadge) {
-            mobBadge.innerHTML = isPM
-                ? '<span style="font-size:0.72rem; font-weight:700; background:#ffedd5; color:#ea580c; padding:2px 8px; border-radius:10px;"><i class="fa-solid fa-cloud-sun"></i> Afternoon PM</span>'
-                : '<span style="font-size:0.72rem; font-weight:700; background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px;"><i class="fa-solid fa-sun"></i> Morning AM</span>';
-        }
-        
-        const attData = data.attendance || [];
-        attData.forEach(record => {
-          attDB[record.date] = record.status.toLowerCase();
-        });
-        
-        // Mobile Screen 7 Child Data Binding
-        if (document.getElementById('mobAttChildName')) {
-            document.getElementById('mobAttChildName').innerText = `${child.first_name} ${child.last_name}`;
-        }
-        const mobAttAvatarWrap = document.getElementById('mobAttChildAvatarWrap');
-        if (mobAttAvatarWrap) {
-            if (child.img) {
-                mobAttAvatarWrap.innerHTML = `<img src="${child.img}" alt="${child.first_name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+
+        // Sort records newest first
+        const rawAtt = Array.isArray(data.attendance) ? data.attendance : [];
+        allAttendanceRecords = rawAtt.map(r => {
+            const normStatus = normalizeStatus(r.status);
+            const dtObj = new Date(r.date + 'T00:00:00');
+            const dayName = isNaN(dtObj.getTime()) ? '--' : dtObj.toLocaleDateString('en-US', { weekday: 'long' });
+            const formattedDate = isNaN(dtObj.getTime()) ? r.date : dtObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            let remarks = '';
+            if (normStatus === 'Absent') {
+                remarks = r.absence_reason
+                    ? `Excused: ${r.absence_reason}`
+                    : (r.teacher_notes || 'Marked Absent (No gate check-in recorded)');
+            } else if (normStatus === 'Late') {
+                remarks = r.teacher_notes || `Late arrival (${r.dropoff_time || (isPM ? 'After 1:15 PM' : 'After 8:15 AM')})`;
             } else {
-                const initials = ((child.first_name || 'C')[0] + (child.last_name || '')[0]).toUpperCase();
-                mobAttAvatarWrap.innerHTML = initials;
+                remarks = r.teacher_notes || `Verified on-time check-in (${r.dropoff_time || (isPM ? '1:00 PM' : '8:00 AM')})`;
             }
-        }
-        if (document.getElementById('mobAttChildAge') && child.age) {
-            document.getElementById('mobAttChildAge').innerText = `${child.age} yrs`;
-        }
+            return {
+                id: r.id,
+                date: r.date,
+                formattedDate,
+                dayName,
+                shift: shiftLabel,
+                status: normStatus,
+                remarks
+            };
+        }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const grid = document.getElementById('calendar-grid');
-        let htmlContent = '';
-        let daysPresentCount = 0;
-        let daysAbsentCount = 0;
-        let daysLateCount = 0;
-        let totalSchoolDaysInMonth = 0;
-        
-        for (let i = 0; i < firstDay; i++) {
-          htmlContent += `<div class="cal-cell cell-grey">0</div>`;
-        }
-        
-        for (let day = 1; day <= daysInMonth; day++) {
-          const m = (currentMonth + 1).toString().padStart(2, '0');
-          const d = day.toString().padStart(2, '0');
-          const dateKey = `${currentYear}-${m}-${d}`;
-          let cellClass = 'cell-white';
-          const currentDayOfWeek = new Date(currentYear, currentMonth, day).getDay();
-          
-          let isNoClass = (currentDayOfWeek === 0 || currentDayOfWeek === 6 || noClassDB[dateKey]);
-          
-          if (isNoClass) {
-            cellClass = 'cell-noclass';
-          } else {
-            // Regular classes run Mon-Thu. Friday counts if an event attendance record exists.
-            if ((currentDayOfWeek >= 1 && currentDayOfWeek <= 4) || attDB[dateKey]) {
-              totalSchoolDaysInMonth++;
-            }
-          }
-          
-          if (attDB[dateKey]) {
-            const status = attDB[dateKey];
-            if (status === 'present') {
-              cellClass = 'cell-green';
-              daysPresentCount++;
-            } else if (status === 'late') {
-              cellClass = 'cell-green';
-              daysPresentCount++;
-              daysLateCount++;
-            } else if (status === 'absent') {
-              cellClass = 'cell-red';
-              daysAbsentCount++;
-            }
-          }
-          
-          let titleAttr = noClassDB[dateKey] ? `title="No Class: ${noClassDB[dateKey]}"` : '';
-          htmlContent += `<div class="cal-cell ${cellClass}" ${titleAttr}>${day}</div>`;
-        }
-        
-        const totalCells = firstDay + daysInMonth;
-        const remainder = totalCells % 7;
-        if (remainder !== 0) {
-          const trailingCells = 7 - remainder;
-          for (let i = 0; i < trailingCells; i++) {
-            htmlContent += `<div class="cal-cell cell-grey">0</div>`;
-          }
-        }
-        if (grid) grid.insertAdjacentHTML('beforeend', htmlContent);
-        
-        // Desktop stats
-        if (document.getElementById('stat-present')) document.getElementById('stat-present').innerText = daysPresentCount;
-        if (document.getElementById('stat-absent')) document.getElementById('stat-absent').innerText = daysAbsentCount;
-        if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = totalSchoolDaysInMonth;
-
-        // Populate Mobile Screen 7 Grid and Metrics
-        renderMobileCalendarView(currentYear, currentMonth, attDB, noClassDB, attData);
-
-        const historyContainer = document.getElementById('ui-history-log');
-        let historyHtml = '';
-        const allDates = Object.keys(attDB).sort((a, b) => new Date(b) - new Date(a));
-        let recordsRendered = 0;
-        
-        allDates.forEach(dt => {
-          if (recordsRendered >= 5) return;
-          const status = attDB[dt];
-          if (status) {
-            const formattedDate = new Date(dt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            const sLower = String(status || '').toLowerCase();
-            const pillClass = sLower === 'absent' ? 'status-pill-red' : (sLower === 'late' ? 'status-pill-orange' : 'status-pill-green');
-            const recordObj = attData.find(a => a.date === dt);
-            const timeText = recordObj && recordObj.dropoff_time ? recordObj.dropoff_time : (status === 'absent' ? '--:--' : '08:00 AM Dropped Off');
-            const guardianText = recordObj && recordObj.authorized_guardian ? `Confirmed by ${recordObj.authorized_guardian}` : (status === 'absent' ? 'No arrival' : `Confirmed by System Tracker`);
-            
-            let reasonHtml = '';
-            if (status === 'absent' && recordObj && recordObj.absence_reason) {
-              reasonHtml = `<div style="font-size: 0.8rem; color: #d9534f; margin-top: 5px; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>`;
-            }
-
-            historyHtml += `
-            <div class="history-item">
-              <div class="history-info-left">
-                <div class="legend-color" style="background-color: ${status==='absent'? '#dd6a6a' : '#70e086'}; align-self: center;"></div>
-                <div>
-                  <div class="history-date">${formattedDate}</div>
-                  <div class="history-time">${timeText}</div>
-                  <div class="history-guardian"><i class="fa-solid fa-user-lock" style="font-size:0.75rem;"></i> ${guardianText}</div>
-                  ${reasonHtml}
-                </div>
-              </div>
-              <div>
-                <span class="${pillClass}" style="padding:6px 15px; border-radius:20px; color:white; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${status}</span>
-              </div>
-            </div>`;
-            recordsRendered++;
-          }
-        });
-        
-        if (historyContainer) {
-          if (recordsRendered === 0) {
-            historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">No attendance history available yet.</div>`;
-          } else {
-            historyContainer.innerHTML = historyHtml;
-          }
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        if (document.getElementById('ui-child-name')) document.getElementById('ui-child-name').innerText = 'Error loading data';
-      });
-
-    // Mobile Calendar State & Functions
-    let mobYear = currentYear;
-    let mobMonth = currentMonth;
-    window.shiftMonth = function(delta) {
-        mobMonth += delta;
-        if (mobMonth < 0) {
-            mobMonth = 11;
-            mobYear--;
-        } else if (mobMonth > 11) {
-            mobMonth = 0;
-            mobYear++;
-        }
-        renderMobileCalendarView(mobYear, mobMonth, attDB, noClassDB, []);
-    };
-
-    function renderMobileCalendarView(yr, mo, attDbMap, noClassMap, attList) {
-        const mobTitle = `${monthNames[mo]} ${yr}`;
-        if (document.getElementById('mob-cal-month-title')) {
-            document.getElementById('mob-cal-month-title').innerText = mobTitle;
-        }
-
-        const mobGrid = document.getElementById('mob-calendar-grid');
-        if (!mobGrid) return;
-
-        // Clear previous day cells (keep first 7 weekday labels)
-        const labels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(l => `<div class="mob-day-label">${l}</div>`).join('');
-        let mHtml = labels;
-
-        const totalDays = new Date(yr, mo + 1, 0).getDate();
-        const startDay = new Date(yr, mo, 1).getDay();
-
-        let mPres = 0;
-        let mAbs = 0;
-        let mLate = 0;
-        let mTotalSchool = 0;
-
-        for (let i = 0; i < startDay; i++) {
-            mHtml += `<div class="mob-day-cell" style="opacity:0; pointer-events:none;"></div>`;
-        }
-
-        const todayDay = today.getDate();
-        const isCurrentMonthNow = (yr === today.getFullYear() && mo === today.getMonth());
-
-        for (let day = 1; day <= totalDays; day++) {
-            const mStr = (mo + 1).toString().padStart(2, '0');
-            const dStr = day.toString().padStart(2, '0');
-            const dtKey = `${yr}-${mStr}-${dStr}`;
-            const dow = new Date(yr, mo, day).getDay();
-            const isWeekend = (dow === 0 || dow === 6);
-            const isNoClass = isWeekend || (noClassMap && noClassMap[dtKey]);
-            const isRegularClassDay = (dow >= 1 && dow <= 4 && !isNoClass);
-            const isEventFriday = (dow === 5 && attDbMap && attDbMap[dtKey]);
-
-            if (isRegularClassDay || isEventFriday) mTotalSchool++;
-
-            let dotClass = 'dot-none';
-            if (attDbMap && attDbMap[dtKey]) {
-                const s = attDbMap[dtKey];
-                if (s === 'present') {
-                    dotClass = 'dot-present';
-                    mPres++;
-                } else if (s === 'late') {
-                    dotClass = 'dot-late';
-                    mPres++;
-                    mLate++;
-                } else if (s === 'absent') {
-                    dotClass = 'dot-absent';
-                    mAbs++;
-                }
-            } else if (isRegularClassDay) {
-                // If past regular Mon-Thu school day with no record
-                const dayDate = new Date(yr, mo, day);
-                if (dayDate < today) {
-                    dotClass = 'dot-absent';
-                    mAbs++;
-                }
-            }
-
-            const isTodayCell = isCurrentMonthNow && (day === todayDay);
-            mHtml += `
-            <div class="mob-day-cell ${isTodayCell ? 'today' : ''}">
-                <span>${day}</span>
-                <span class="mob-status-dot ${dotClass}"></span>
-            </div>`;
-        }
-
-        mobGrid.innerHTML = mHtml;
-
-        // Update 4-metric summary
-        if (document.getElementById('mob-stat-present')) document.getElementById('mob-stat-present').innerText = mPres;
-        if (document.getElementById('mob-stat-absent')) document.getElementById('mob-stat-absent').innerText = mAbs;
-        if (document.getElementById('mob-stat-late')) document.getElementById('mob-stat-late').innerText = mLate;
-        if (document.getElementById('mob-stat-total')) document.getElementById('mob-stat-total').innerText = mTotalSchool;
-
-        // Mobile Recent Check-Ins List
-        const mobCheckins = document.getElementById('mob-recent-checkins');
-        if (mobCheckins) {
-            let logsHtml = '';
-            const datesDesc = Object.keys(attDbMap || {}).sort((a, b) => new Date(b) - new Date(a)).slice(0, 4);
-            if (datesDesc.length === 0) {
-                logsHtml = '<div style="font-size:0.8rem; color:#64748b; text-align:center; padding:10px 0;">No check-ins logged for this month.</div>';
-            } else {
-                datesDesc.forEach((d, idx) => {
-                    const st = attDbMap[d];
-                    const isP = st === 'present';
-                    const isL = st === 'late';
-                    const clr = isP ? '#10b981' : (isL ? '#f59e0b' : '#ef4444');
-                    const bg = isP ? '#dcfce7' : (isL ? '#fef3c7' : '#fee2e2');
-                    logsHtml += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; ${idx < datesDesc.length - 1 ? 'border-bottom:1px solid #f8fafc; padding-bottom:8px;' : ''}">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:30px; height:30px; border-radius:50%; background:${bg}; color:${clr}; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">
-                                <i class="fa-solid ${isP ? 'fa-check' : (isL ? 'fa-clock' : 'fa-xmark')}"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight:700; font-size:0.82rem; color:#091e42;">${new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                <div style="font-size:0.7rem; color:#64748b;">${st === 'absent' ? 'No Arrival' : '07:45 AM Arrival'}</div>
-                            </div>
-                        </div>
-                        <span style="font-size:0.7rem; font-weight:700; color:${clr}; background:${bg}; padding:2px 8px; border-radius:10px; text-transform:capitalize;">${st}</span>
-                    </div>`;
-                });
-            }
-            mobCheckins.innerHTML = logsHtml;
-        }
+        updateAttendanceMetricsAndCharts();
+        applyStatusFilterAndRender();
+    } catch (err) {
+        console.error('Error loading attendance data:', err);
     }
-  });
+}
+
+function updateAttendanceMetricsAndCharts() {
+    const presentCount = allAttendanceRecords.filter(r => r.status === 'Present').length;
+    const lateCount = allAttendanceRecords.filter(r => r.status === 'Late').length;
+    const absentCount = allAttendanceRecords.filter(r => r.status === 'Absent').length;
+    const totalCount = allAttendanceRecords.length;
+    const ratePct = totalCount > 0 ? Math.round(((presentCount + lateCount) / totalCount) * 100) : 0;
+
+    document.getElementById('stat-present').innerText = presentCount;
+    document.getElementById('stat-late').innerText = lateCount;
+    document.getElementById('stat-absent').innerText = absentCount;
+    document.getElementById('stat-total').innerText = totalCount;
+    document.getElementById('stat-rate').innerText = `${ratePct}%`;
+
+    document.getElementById('countAll').innerText = totalCount;
+    document.getElementById('countPresent').innerText = presentCount;
+    document.getElementById('countLate').innerText = lateCount;
+    document.getElementById('countAbsent').innerText = absentCount;
+
+    const pPct = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
+    const lPct = totalCount > 0 ? Math.round((lateCount / totalCount) * 100) : 0;
+    const aPct = totalCount > 0 ? Math.max(0, 100 - pPct - lPct) : 0;
+    document.getElementById('pctPresent').innerText = `${pPct}%`;
+    document.getElementById('pctLate').innerText = `${lPct}%`;
+    document.getElementById('pctAbsent').innerText = `${aPct}%`;
+
+    renderTrendBarChart();
+    renderDistributionChart(presentCount, lateCount, absentCount);
+}
+
+window.switchTrendGrouping = function(mode) {
+    currentTrendMode = mode;
+    document.getElementById('btnTrendMonthly').classList.toggle('active', mode === 'monthly');
+    document.getElementById('btnTrendWeekly').classList.toggle('active', mode === 'weekly');
+    document.getElementById('trendChartTitleText').innerText = mode === 'monthly'
+        ? 'Monthly Attendance Trend'
+        : 'Weekly Attendance Trend';
+    renderTrendBarChart();
+};
+
+function renderTrendBarChart() {
+    const ctx = document.getElementById('parentAttTrendChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    const buckets = {};
+    const chronological = [...allAttendanceRecords].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    chronological.forEach(r => {
+        const d = new Date(r.date + 'T00:00:00');
+        if (isNaN(d.getTime())) return;
+        let label = '';
+        if (currentTrendMode === 'monthly') {
+            label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        } else {
+            // Week start (Monday)
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            const weekStart = new Date(d);
+            weekStart.setDate(diff);
+            label = 'Wk of ' + weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+        if (!buckets[label]) {
+            buckets[label] = { Present: 0, Late: 0, Absent: 0 };
+        }
+        buckets[label][r.status] = (buckets[label][r.status] || 0) + 1;
+    });
+
+    const labels = Object.keys(buckets).slice(-8);
+    const presentData = labels.map(k => buckets[k].Present);
+    const lateData = labels.map(k => buckets[k].Late);
+    const absentData = labels.map(k => buckets[k].Absent);
+
+    if (trendChartInstance) {
+        trendChartInstance.destroy();
+    }
+
+    trendChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels.length ? labels : ['No Data'],
+            datasets: [
+                {
+                    label: 'Present',
+                    data: labels.length ? presentData : [0],
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Late',
+                    data: labels.length ? lateData : [0],
+                    backgroundColor: '#f59e0b',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Absent',
+                    data: labels.length ? absentData : [0],
+                    backgroundColor: '#ef4444',
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { font: { family: 'Montserrat', weight: '700', size: 11 } }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0, font: { family: 'Montserrat', weight: '600' } },
+                    grid: { color: '#f1f5f9' }
+                },
+                x: {
+                    ticks: { font: { family: 'Montserrat', weight: '700', size: 11 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+function renderDistributionChart(pres, late, abs) {
+    const ctx = document.getElementById('parentAttDistChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    if (distChartInstance) {
+        distChartInstance.destroy();
+    }
+
+    const hasAny = (pres + late + abs) > 0;
+    distChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Late', 'Absent'],
+            datasets: [{
+                data: hasAny ? [pres, late, abs] : [1, 0, 0],
+                backgroundColor: hasAny ? ['#10b981', '#f59e0b', '#ef4444'] : ['#e2e8f0', '#e2e8f0', '#e2e8f0'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '66%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { family: 'Montserrat', weight: '700', size: 11 } }
+                }
+            }
+        }
+    });
+}
+
+window.filterHistoryByStatus = function(status, btnEl) {
+    currentStatusFilter = status;
+    currentHistoryPage = 1;
+    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    applyStatusFilterAndRender();
+};
+
+function applyStatusFilterAndRender() {
+    if (currentStatusFilter === 'All') {
+        filteredAttendanceRecords = [...allAttendanceRecords];
+    } else {
+        filteredAttendanceRecords = allAttendanceRecords.filter(r => r.status === currentStatusFilter);
+    }
+    renderHistoryTablePage();
+}
+
+window.goToHistoryPage = function(pageNum) {
+    const totalPages = Math.max(1, Math.ceil(filteredAttendanceRecords.length / HISTORY_PAGE_SIZE));
+    if (pageNum < 1 || pageNum > totalPages) return;
+    currentHistoryPage = pageNum;
+    renderHistoryTablePage();
+};
+
+function renderHistoryTablePage() {
+    const tbody = document.getElementById('attHistoryTableBody');
+    const infoEl = document.getElementById('attPaginationInfo');
+    const ctrlEl = document.getElementById('attPaginationControls');
+    if (!tbody) return;
+
+    const total = filteredAttendanceRecords.length;
+    if (total === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 32px; color: #64748b;">
+                    No past attendance records found for filter "<strong>${currentStatusFilter}</strong>".
+                </td>
+            </tr>`;
+        if (infoEl) infoEl.innerText = 'Showing 0 to 0 of 0 records';
+        if (ctrlEl) ctrlEl.innerHTML = '';
+        return;
+    }
+
+    const totalPages = Math.ceil(total / HISTORY_PAGE_SIZE);
+    if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
+
+    const startIdx = (currentHistoryPage - 1) * HISTORY_PAGE_SIZE;
+    const endIdx = Math.min(startIdx + HISTORY_PAGE_SIZE, total);
+    const pageItems = filteredAttendanceRecords.slice(startIdx, endIdx);
+
+    tbody.innerHTML = pageItems.map(item => {
+        const sLower = item.status.toLowerCase();
+        const icon = sLower === 'present' ? 'fa-check-circle' : (sLower === 'late' ? 'fa-clock' : 'fa-circle-xmark');
+        return `
+        <tr>
+            <td style="font-weight: 800; color: #091e42; white-space: nowrap;">${item.formattedDate}</td>
+            <td style="font-weight: 600; color: #475569;">${item.dayName}</td>
+            <td style="font-size: 0.8rem; font-weight: 700; color: #0284c7;">${item.shift}</td>
+            <td>
+                <span class="status-badge ${sLower}">
+                    <i class="fa-solid ${icon}"></i> ${item.status}
+                </span>
+            </td>
+            <td style="color: #334155; font-size: 0.83rem;">${item.remarks}</td>
+        </tr>`;
+    }).join('');
+
+    if (infoEl) {
+        infoEl.innerText = `Showing ${startIdx + 1} to ${endIdx} of ${total} records (Page ${currentHistoryPage} of ${totalPages})`;
+    }
+
+    if (ctrlEl) {
+        let btns = `
+            <button type="button" class="page-btn" onclick="goToHistoryPage(${currentHistoryPage - 1})" ${currentHistoryPage === 1 ? 'disabled' : ''}>
+                &laquo; Prev
+            </button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || Math.abs(p - currentHistoryPage) <= 1) {
+                btns += `<button type="button" class="page-btn ${p === currentHistoryPage ? 'active' : ''}" onclick="goToHistoryPage(${p})">${p}</button>`;
+            }
+        }
+        btns += `
+            <button type="button" class="page-btn" onclick="goToHistoryPage(${currentHistoryPage + 1})" ${currentHistoryPage === totalPages ? 'disabled' : ''}>
+                Next &raquo;
+            </button>`;
+        ctrlEl.innerHTML = btns;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadParentAttendanceData);
 </script>
 {% endblock %}

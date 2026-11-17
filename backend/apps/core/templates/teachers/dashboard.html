@@ -354,11 +354,10 @@
             </div>
             <div class="ai-banner-text">
                 <h3>
-                    <span>AI Analytics & Early-Warning Intelligence Suite</span>
-                    <span style="background: #10b981; color: white; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; font-weight: 800;">DEDICATED MODULE</span>
+                    <span>Data Analytics & Early-Warning Intelligence</span>
                 </h3>
                 <p>
-                    Full 10-pillar analytics, Development Readiness Index (DRI), Risk Scoring Engine, Predictive Trends, & Interactive AI Diagnostic Assistant
+                    100% Weighted Evaluation: Attendance (25%) • Nutrition & Feeding (25%) • Learning & ECCD (30%) • Social & Behavior (20%)
                 </p>
             </div>
         </div>
@@ -470,6 +469,114 @@
         </button>
     </div>
 
+    <!-- Classroom Analytics & Readiness Overview (Live Preview) -->
+    <div style="margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-primary, #0f172a); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-pie" style="color: #1e40af;"></i> Classroom Analytics & Readiness Overview
+            </h3>
+            <a href="{% url 'teacher_analytics' %}" style="font-size: 0.84rem; font-weight: 700; color: #1e40af; text-decoration: none;">
+                View All 10 Analytics Pillars <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+            <!-- Card 1: Shift Attendance Overview -->
+            <div class="dash-card" style="padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary, #0f172a);"><i class="fa-solid fa-calendar-check" style="color: #2563eb; margin-right: 6px;"></i> Shift Attendance Overview</span>
+                        <span class="pill-badge info" id="dashPreviewOverallAtt">--% Overall</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center;">
+                        <div style="height: 100px; position: relative;">
+                            <canvas id="dashAttMiniChart"></canvas>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem;">
+                            <div style="background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; padding: 6px 10px; border-radius: 6px;">
+                                <div style="color: #64748b; font-weight: 600;">Morning Shift (AM)</div>
+                                <strong style="font-size: 1rem; color: #1e40af;" id="dashPreviewAmAtt">--%</strong>
+                            </div>
+                            <div style="background: rgba(139, 92, 246, 0.08); border-left: 3px solid #8b5cf6; padding: 6px 10px; border-radius: 6px;">
+                                <div style="color: #64748b; font-weight: 600;">Afternoon Shift (PM)</div>
+                                <strong style="font-size: 1rem; color: #6d28d9;" id="dashPreviewPmAtt">--%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color, #f1f5f9); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                    <span style="color: #64748b;" id="dashPreviewAttCounts">Present: -- • Absent: -- • Late: --</span>
+                    <a href="{% url 'teacher_analytics' %}" style="color: #2563eb; font-weight: 700; text-decoration: none;">Details &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 2: Development Readiness Index (DRI — 100% Scale) -->
+            <div class="dash-card" style="padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary, #0f172a);"><i class="fa-solid fa-gauge-high" style="color: #10b981; margin-right: 6px;"></i> Readiness Index (DRI — 100% Scale)</span>
+                        <span class="pill-badge success" id="dashPreviewClassDri">--% DRI</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center;">
+                        <div style="height: 100px; position: relative;">
+                            <canvas id="dashDriMiniChart"></canvas>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="pill-badge success" style="font-size: 0.7rem;">School Ready (81–100%)</span>
+                                <strong id="dashPreviewReadyCnt">--</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="pill-badge warning" style="font-size: 0.7rem;">Developing (50–80%)</span>
+                                <strong id="dashPreviewDevCnt">--</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="pill-badge danger" style="font-size: 0.7rem;">Needs Support (&lt;50%)</span>
+                                <strong id="dashPreviewSupportCnt">--</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color, #f1f5f9); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                    <span style="color: #64748b;">Projected Year-End DRI: <strong style="color: #10b981;" id="dashPreviewProjDri">--%</strong></span>
+                    <a href="{% url 'teacher_analytics' %}" style="color: #10b981; font-weight: 700; text-decoration: none;">DRI Breakdown &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 3: ECCD & Feeding Insights -->
+            <div class="dash-card" style="padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.85rem; font-weight: 800; color: var(--text-primary, #0f172a);"><i class="fa-solid fa-bowl-food" style="color: #f59e0b; margin-right: 6px;"></i> ECCD & Feeding Insights</span>
+                        <span class="pill-badge warning" id="dashPreviewNutRate">--% Intake</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 7px; font-size: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; gap: 8px; background: var(--btn-neutral-bg, #f8fafc); padding: 6px 10px; border-radius: 6px;">
+                            <span style="color: #64748b;"><i class="fa-solid fa-trophy" style="color: #10b981; margin-right: 4px;"></i> Highest Domain:</span>
+                            <strong style="color: #0f172a; text-align: right;" id="dashPreviewTopDomain">--</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; gap: 8px; background: var(--btn-neutral-bg, #f8fafc); padding: 6px 10px; border-radius: 6px;">
+                            <span style="color: #64748b;"><i class="fa-solid fa-bullseye" style="color: #ef4444; margin-right: 4px;"></i> Growth Focus:</span>
+                            <strong style="color: #0f172a; text-align: right;" id="dashPreviewLowDomain">--</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; gap: 8px; background: var(--btn-neutral-bg, #f8fafc); padding: 6px 10px; border-radius: 6px;">
+                            <span style="color: #64748b;"><i class="fa-solid fa-utensils" style="color: #10b981; margin-right: 4px;"></i> Most Eaten Meal:</span>
+                            <strong style="color: #15803d; text-align: right;" id="dashPreviewBestFood">--</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; gap: 8px; background: var(--btn-neutral-bg, #f8fafc); padding: 6px 10px; border-radius: 6px;">
+                            <span style="color: #64748b;"><i class="fa-solid fa-circle-exclamation" style="color: #ef4444; margin-right: 4px;"></i> Most Refused Meal:</span>
+                            <strong style="color: #b91c1c; text-align: right;" id="dashPreviewWorstFood">--</strong>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color, #f1f5f9); display: flex; justify-content: flex-end;">
+                    <a href="{% url 'teacher_analytics' %}" style="background: #1e40af; color: #ffffff; padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>Open Full Analytics &rarr;</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Workspace -->
     <div class="dash-grid-main">
         <!-- Enrolled Students Active Cohort -->
@@ -477,7 +584,7 @@
             <div class="dash-card-header" style="flex-wrap:wrap; gap:12px;">
                 <div>
                     <h3 class="dash-card-title"><i class="fa-solid fa-user-graduate" style="color: #1e40af;"></i> Enrolled Pupils (Active Cohort)</h3>
-                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">Pupils enrolled in the current school year with assigned class shifts</div>
+                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">Pupils enrolled in the current school year with assigned class shifts (10 pupils per page)</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                     <div style="display:inline-flex; background:var(--btn-neutral-bg, #f1f5f9); padding:3px; border-radius:8px; gap:4px;">
@@ -508,6 +615,9 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <!-- 10-Students-Per-Page Pagination Bar -->
+            <div id="dashStudentsPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 10px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 10px;">
             </div>
         </div>
 
@@ -549,12 +659,18 @@
 </div>
 
 <script>
+    let dashAttChartObj = null;
+    let dashDriChartObj = null;
+    let dashCohortPage = 1;
+    const DASH_PAGE_SIZE = 10;
+
     document.addEventListener('DOMContentLoaded', async function () {
         await loadSchoolYears();
         const sySelect = document.getElementById('sySelector');
         const syId = sySelect ? sySelect.value : '';
         loadDashboardStats(syId);
         loadCohortStudents(syId);
+        loadDashboardAnalyticsPreview(syId);
     });
 
     async function loadSchoolYears() {
@@ -570,6 +686,88 @@
                 </option>
             `).join('');
         } catch(e) { console.error(e); }
+    }
+
+    async function loadDashboardAnalyticsPreview(syId = '') {
+        try {
+            const qs = syId ? `?school_year=${syId}` : '';
+            const res = await fetch(`/api/general-analytics/${qs}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const att = data.attendance || {};
+            const dri = data.dri || {};
+            const lrn = data.learning || {};
+            const nut = data.nutrition || {};
+            const summary = data.summary || {};
+
+            // Card 1: Shift Attendance
+            document.getElementById('dashPreviewOverallAtt').innerText = `${att.overall_rate ?? 0}% Overall`;
+            document.getElementById('dashPreviewAmAtt').innerText = `${att.morning_rate ?? 0}% (${data.morning_count ?? 0} kids)`;
+            document.getElementById('dashPreviewPmAtt').innerText = `${att.afternoon_rate ?? 0}% (${data.afternoon_count ?? 0} kids)`;
+            document.getElementById('dashPreviewAttCounts').innerText = `Present: ${att.present_count ?? 0} • Absent: ${att.absent_count ?? 0} • Late: ${att.late_count ?? 0}`;
+
+            const ctxAtt = document.getElementById('dashAttMiniChart');
+            if (ctxAtt && typeof Chart !== 'undefined') {
+                if (dashAttChartObj) dashAttChartObj.destroy();
+                const hasAtt = (att.present_count || 0) + (att.absent_count || 0) + (att.late_count || 0) > 0;
+                dashAttChartObj = new Chart(ctxAtt, {
+                    type: 'doughnut',
+                    data: {
+                        labels: hasAtt ? ['Present', 'Absent', 'Late'] : ['No Data'],
+                        datasets: [{
+                            data: hasAtt ? [att.present_count || 0, att.absent_count || 0, att.late_count || 0] : [1],
+                            backgroundColor: hasAtt ? ['#10b981', '#ef4444', '#f59e0b'] : ['#cbd5e1'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Card 2: DRI 100% Scale
+            document.getElementById('dashPreviewClassDri').innerText = `${summary.class_dri ?? 0}% DRI`;
+            document.getElementById('dashPreviewReadyCnt').innerText = dri.school_ready_count ?? 0;
+            document.getElementById('dashPreviewDevCnt').innerText = dri.developing_count ?? 0;
+            document.getElementById('dashPreviewSupportCnt').innerText = dri.support_needed_count ?? 0;
+            document.getElementById('dashPreviewProjDri').innerText = `${data.predictive_trends?.projected_class_dri ?? 0}%`;
+
+            const ctxDri = document.getElementById('dashDriMiniChart');
+            if (ctxDri && typeof Chart !== 'undefined') {
+                if (dashDriChartObj) dashDriChartObj.destroy();
+                const hasKids = (data.total_children || 0) > 0;
+                dashDriChartObj = new Chart(ctxDri, {
+                    type: 'doughnut',
+                    data: {
+                        labels: hasKids ? ['School Ready (81–100%)', 'Developing (50–80%)', 'Needs Support (<50%)'] : ['No Data'],
+                        datasets: [{
+                            data: hasKids ? [dri.school_ready_count || 0, dri.developing_count || 0, dri.support_needed_count || 0] : [1],
+                            backgroundColor: hasKids ? ['#10b981', '#f59e0b', '#ef4444'] : ['#cbd5e1'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Card 3: ECCD & Feeding Insights
+            document.getElementById('dashPreviewNutRate').innerText = `${nut.health_index ?? 0}% Intake`;
+            document.getElementById('dashPreviewTopDomain').innerText = lrn.highest_domain?.name ? `${lrn.highest_domain.name} (${lrn.highest_domain.score_pct}%)` : 'None';
+            document.getElementById('dashPreviewLowDomain').innerText = lrn.lowest_domain?.name ? `${lrn.lowest_domain.name} (${lrn.lowest_domain.score_pct}%)` : 'None';
+            document.getElementById('dashPreviewBestFood').innerText = nut.most_eaten_food ? `${nut.most_eaten_food.food_item} (${nut.most_eaten_food.acceptance_rate}%)` : 'N/A';
+            document.getElementById('dashPreviewWorstFood').innerText = nut.most_refused_food ? `${nut.most_refused_food.food_item} (${nut.most_refused_food.not_eaten_count} refused)` : 'N/A';
+        } catch (err) {
+            console.error('Error loading dashboard analytics preview:', err);
+        }
     }
 
     async function loadDashboardStats(syId = '') {
@@ -601,6 +799,7 @@
 
     function setDashShift(shift) {
         dashShiftFilter = shift;
+        dashCohortPage = 1;
         ['all', 'Morning', 'Afternoon'].forEach(s => {
             const btnId = s === 'all' ? 'dashShiftAll' : (s === 'Morning' ? 'dashShiftMorning' : 'dashShiftAfternoon');
             const btn = document.getElementById(btnId);
@@ -617,6 +816,11 @@
         renderCohortTable();
     }
 
+    function setDashCohortPage(page) {
+        dashCohortPage = page;
+        renderCohortTable();
+    }
+
     async function loadCohortStudents(syId = '') {
         try {
             const qs = syId ? `?school_year=${syId}` : '';
@@ -624,12 +828,14 @@
             const children = await res.json();
 
             cachedCohortStudents = children.filter(c => c.enrollment_status === 'Enrolled');
+            dashCohortPage = 1;
             renderCohortTable();
         } catch(e) { console.error(e); }
     }
 
     function renderCohortTable() {
         const tbody = document.getElementById('dashStudentsBody');
+        const pagDiv = document.getElementById('dashStudentsPagination');
         let filtered = cachedCohortStudents;
         if (dashShiftFilter !== 'all') {
             filtered = filtered.filter(c => (c.shift || 'Morning').toLowerCase() === dashShiftFilter.toLowerCase());
@@ -637,10 +843,19 @@
 
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">No ${dashShiftFilter !== 'all' ? dashShiftFilter : ''} enrolled students found in this cohort.</td></tr>`;
+            if (pagDiv) pagDiv.innerHTML = '';
             return;
         }
 
-        tbody.innerHTML = filtered.map(c => `
+        const totalItems = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / DASH_PAGE_SIZE));
+        if (dashCohortPage > totalPages) dashCohortPage = totalPages;
+        if (dashCohortPage < 1) dashCohortPage = 1;
+
+        const startIdx = (dashCohortPage - 1) * DASH_PAGE_SIZE;
+        const pageItems = filtered.slice(startIdx, startIdx + DASH_PAGE_SIZE);
+
+        tbody.innerHTML = pageItems.map(c => `
             <tr>
                 <td>
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -672,6 +887,25 @@
                 </td>
             </tr>
         `).join('');
+
+        if (pagDiv) {
+            const endNum = Math.min(startIdx + DASH_PAGE_SIZE, totalItems);
+            let pageBtns = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const isActive = p === dashCohortPage;
+                pageBtns += `<button type="button" onclick="setDashCohortPage(${p})" style="padding: 5px 10px; border-radius: 6px; border: 1px solid ${isActive ? '#1e40af' : '#cbd5e1'}; background: ${isActive ? '#1e40af' : '#ffffff'}; color: ${isActive ? '#ffffff' : '#334155'}; font-weight: 700; font-size: 0.78rem; cursor: pointer;">${p}</button>`;
+            }
+            pagDiv.innerHTML = `
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">
+                    Showing <strong>${startIdx + 1}–${endNum}</strong> of <strong>${totalItems}</strong> pupils
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                    <button type="button" onclick="setDashCohortPage(${dashCohortPage - 1})" ${dashCohortPage <= 1 ? 'disabled' : ''} style="padding: 5px 10px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 700; font-size: 0.78rem; cursor: ${dashCohortPage <= 1 ? 'not-allowed' : 'pointer'}; opacity: ${dashCohortPage <= 1 ? '0.5' : '1'};">Prev</button>
+                    ${pageBtns}
+                    <button type="button" onclick="setDashCohortPage(${dashCohortPage + 1})" ${dashCohortPage >= totalPages ? 'disabled' : ''} style="padding: 5px 10px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 700; font-size: 0.78rem; cursor: ${dashCohortPage >= totalPages ? 'not-allowed' : 'pointer'}; opacity: ${dashCohortPage >= totalPages ? '0.5' : '1'};">Next</button>
+                </div>
+            `;
+        }
     }
 
     function onSchoolYearChange() {

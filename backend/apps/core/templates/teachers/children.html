@@ -263,6 +263,14 @@
     .pill-badge.info { background: #e0f2fe; color: #0369a1; }
     .pill-badge.neutral { background: #f1f5f9; color: #475569; }
 
+    /* Pagination */
+    .pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding: 12px 16px; border-top: 1px solid #e2e8f0; width: 100%; }
+    .pagination-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+    .page-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+    .page-btn.active { background: #063970; color: #fff; border-color: #063970; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
     /* Modals */
     .modal-overlay {
         display: none;
@@ -515,6 +523,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="enrolledPaginationBar" class="pagination-bar"></div>
         </div>
     </div>
 
@@ -546,6 +555,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="pendingPaginationBar" class="pagination-bar"></div>
         </div>
     </div>
 
@@ -582,6 +592,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="withdrawnPaginationBar" class="pagination-bar"></div>
         </div>
     </div>
 </div>
@@ -705,16 +716,97 @@
         document.getElementById('tabCountWithdrawn').innerText = withdrawn.length;
     }
 
-    function renderEnrolledTable(children) {
-        const enrolled = children.filter(c => c.enrollment_status === 'Enrolled');
-        const tbody = document.getElementById('enrolledTableBody');
+    let enrolledCurrentPage = 1;
+    let pendingCurrentPage = 1;
+    let withdrawnCurrentPage = 1;
+    const CHILDREN_PAGE_SIZE = 10;
 
-        if (enrolled.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">No enrolled students found in this school year.</td></tr>`;
+    function buildGenericPagination(totalItems, currentPage, pageSize, callbackName) {
+        const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+        if (totalPages <= 1) return '';
+        const startItem = (currentPage - 1) * pageSize + 1;
+        const endItem = Math.min(currentPage * pageSize, totalItems);
+
+        let btns = `<button type="button" class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="${callbackName}(${currentPage - 1})"><i class="fa-solid fa-angle-left"></i></button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                btns += `<button type="button" class="page-btn ${i === currentPage ? 'active' : ''}" onclick="${callbackName}(${i})">${i}</button>`;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                btns += `<span style="padding:0 4px; color:#94a3b8;">...</span>`;
+            }
+        }
+        btns += `<button type="button" class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="${callbackName}(${currentPage + 1})"><i class="fa-solid fa-angle-right"></i></button>`;
+
+        return `
+            <div style="font-size:0.82rem; color:#64748b; font-weight:600;">
+                Showing <strong>${startItem}–${endItem}</strong> of <strong>${totalItems}</strong> pupils (10 per page)
+            </div>
+            <div class="pagination-btns">${btns}</div>
+        `;
+    }
+
+    function filterEnrolledTable() {
+        enrolledCurrentPage = 1;
+        renderEnrolledTable();
+    }
+    window.filterEnrolledTable = filterEnrolledTable;
+
+    window.setEnrolledPage = function(page) {
+        enrolledCurrentPage = page;
+        renderEnrolledTable();
+    };
+
+    window.setPendingPage = function(page) {
+        pendingCurrentPage = page;
+        renderPendingTable();
+    };
+
+    window.setWithdrawnPage = function(page) {
+        withdrawnCurrentPage = page;
+        renderWithdrawnTable();
+    };
+
+    function renderEnrolledTable() {
+        const enrolled = (masterChildrenList || []).filter(c => c.enrollment_status === 'Enrolled');
+        const tbody = document.getElementById('enrolledTableBody');
+        const pagBar = document.getElementById('enrolledPaginationBar');
+        if (!tbody) return;
+
+        const searchVal = document.getElementById('enrolledSearchInput') ? document.getElementById('enrolledSearchInput').value.trim().toLowerCase() : '';
+        const shiftFilter = document.getElementById('shiftTableFilter') ? document.getElementById('shiftTableFilter').value : 'ALL';
+
+        let filtered = enrolled.filter(c => {
+            const fullName = `${c.first_name} ${c.last_name}`.toLowerCase();
+            const lrn = (c.lrn || '').toLowerCase();
+            const idStr = String(c.id);
+            const matchesSearch = !searchVal || fullName.includes(searchVal) || lrn.includes(searchVal) || idStr.includes(searchVal);
+            if (!matchesSearch) return false;
+            if (shiftFilter !== 'ALL') {
+                return (c.shift || 'Morning').toLowerCase() === shiftFilter.toLowerCase();
+            }
+            return true;
+        });
+
+        filtered.sort((a, b) => {
+            const lastA = (a.last_name || '').toLowerCase();
+            const lastB = (b.last_name || '').toLowerCase();
+            if (lastA !== lastB) return lastA.localeCompare(lastB);
+            return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">No matching enrolled students found.</td></tr>`;
+            if (pagBar) pagBar.innerHTML = '';
             return;
         }
 
-        tbody.innerHTML = enrolled.map(c => `
+        const totalItems = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / CHILDREN_PAGE_SIZE));
+        if (enrolledCurrentPage > totalPages) enrolledCurrentPage = totalPages;
+        const startIdx = (enrolledCurrentPage - 1) * CHILDREN_PAGE_SIZE;
+        const pageItems = filtered.slice(startIdx, startIdx + CHILDREN_PAGE_SIZE);
+
+        tbody.innerHTML = pageItems.map(c => `
             <tr>
                 <td>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -755,18 +847,31 @@
                 </td>
             </tr>
         `).join('');
+
+        if (pagBar) {
+            pagBar.innerHTML = buildGenericPagination(totalItems, enrolledCurrentPage, CHILDREN_PAGE_SIZE, 'setEnrolledPage');
+        }
     }
 
-    function renderPendingTable(children) {
-        const pending = children.filter(c => c.enrollment_status === 'Pending');
+    function renderPendingTable() {
+        const pending = (masterChildrenList || []).filter(c => c.enrollment_status === 'Pending');
         const tbody = document.getElementById('pendingTableBody');
+        const pagBar = document.getElementById('pendingPaginationBar');
+        if (!tbody) return;
 
         if (pending.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No pending applications to review at this time.</td></tr>`;
+            if (pagBar) pagBar.innerHTML = '';
             return;
         }
 
-        tbody.innerHTML = pending.map(c => `
+        const totalItems = pending.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / CHILDREN_PAGE_SIZE));
+        if (pendingCurrentPage > totalPages) pendingCurrentPage = totalPages;
+        const startIdx = (pendingCurrentPage - 1) * CHILDREN_PAGE_SIZE;
+        const pageItems = pending.slice(startIdx, startIdx + CHILDREN_PAGE_SIZE);
+
+        tbody.innerHTML = pageItems.map(c => `
             <tr>
                 <td>
                     <strong style="color: var(--text-primary); font-size: 0.95rem;">${c.last_name}, ${c.first_name}</strong>
@@ -803,6 +908,10 @@
                 </td>
             </tr>
         `).join('');
+
+        if (pagBar) {
+            pagBar.innerHTML = buildGenericPagination(totalItems, pendingCurrentPage, CHILDREN_PAGE_SIZE, 'setPendingPage');
+        }
     }
 
     // Interactive Shift Change Auto-Save
@@ -965,10 +1074,20 @@
                     <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">HOME ADDRESS</label>
                     <div style="font-weight: 600;">${addressDisplay}</div>
                 </div>
-                <div style="grid-column: 1 / -1;">
-                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">KNOWN ALLERGIES</label>
-                    <div style="font-weight: 600; color: ${child.allergies && child.allergies !== 'None' ? '#ef4444' : 'inherit'};">
-                        ${child.allergies || 'None reported'}
+                <div style="grid-column: 1 / -1; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <label style="font-size: 0.78rem; color: #64748b; font-weight: 700; margin-bottom:6px; display:block;">KNOWN ALLERGIES (EDITABLE)</label>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <select id="modalAllergySelect" class="form-control" style="font-weight:600; padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; width:auto; min-width:210px;" onchange="toggleModalAllergyCustom(this.value)">
+                            <option value="None">None</option>
+                            <option value="Peanuts / Tree nuts">Peanuts / Tree nuts</option>
+                            <option value="Dairy / Milk / Lactose">Dairy / Milk / Lactose</option>
+                            <option value="Eggs">Eggs</option>
+                            <option value="Seafood / Shellfish">Seafood / Shellfish</option>
+                            <option value="Wheat / Gluten">Wheat / Gluten</option>
+                            <option value="Soy">Soy</option>
+                            <option value="Others">Others (Please specify)</option>
+                        </select>
+                        <input type="text" id="modalAllergyCustomInput" placeholder="Specify custom allergy..." style="display:none; padding:8px 12px; border-radius:8px; border:1px solid #ef4444; font-size:0.88rem; font-weight:600; min-width:220px;">
                     </div>
                 </div>
                 <div style="grid-column: 1 / -1;">
@@ -992,24 +1111,92 @@
                     <button class="btn-child" style="background: #dc2626; color: white;" onclick="closeProfileModal(); openWithdrawModal(${child.id})">
                         <i class="fa-solid fa-user-minus"></i> Withdraw Pupil
                     </button>
-                    <button class="btn-child btn-child-primary" onclick="saveModalShift(${child.id})">Save Shift</button>
+                    <button class="btn-child btn-child-primary" onclick="saveModalProfile(${child.id})">Save Changes</button>
                 `}
             </div>
         `;
 
+        // Pre-fill allergy dropdown and custom input
+        const standardAllergies = ['None', 'Peanuts / Tree nuts', 'Dairy / Milk / Lactose', 'Eggs', 'Seafood / Shellfish', 'Wheat / Gluten', 'Soy'];
+        const allergySelect = document.getElementById('modalAllergySelect');
+        const customAllergyInput = document.getElementById('modalAllergyCustomInput');
+        const curAllergy = (child.allergies || 'None').trim();
+
+        if (allergySelect) {
+            if (standardAllergies.includes(curAllergy)) {
+                allergySelect.value = curAllergy;
+                if (customAllergyInput) customAllergyInput.style.display = 'none';
+            } else if (curAllergy && curAllergy !== 'None') {
+                allergySelect.value = 'Others';
+                if (customAllergyInput) {
+                    customAllergyInput.style.display = 'inline-block';
+                    customAllergyInput.value = curAllergy;
+                }
+            } else {
+                allergySelect.value = 'None';
+                if (customAllergyInput) customAllergyInput.style.display = 'none';
+            }
+        }
+
         document.getElementById('profileModal').classList.add('active');
+    }
+
+    function toggleModalAllergyCustom(val) {
+        const customInput = document.getElementById('modalAllergyCustomInput');
+        if (!customInput) return;
+        if (val === 'Others') {
+            customInput.style.display = 'inline-block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+        }
+    }
+    window.toggleModalAllergyCustom = toggleModalAllergyCustom;
+
+    async function updateStudentDetails(childId, patchData) {
+        try {
+            const resp = await fetch(`/api/children/${childId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(patchData)
+            });
+            if (!resp.ok) throw new Error('Failed to update student profile');
+            const target = masterChildrenList.find(c => c.id === childId);
+            if (target) {
+                Object.assign(target, patchData);
+            }
+            showToast('Student profile updated successfully!');
+        } catch(err) {
+            console.error(err);
+            alert('Failed to update student profile.');
+        }
     }
 
     async function approveFromModal(childId) {
         const newShift = document.getElementById('modalShiftSelect').value;
+        const allergySelect = document.getElementById('modalAllergySelect');
+        let finalAllergy = allergySelect ? allergySelect.value : 'None';
+        if (finalAllergy === 'Others') {
+            const customVal = document.getElementById('modalAllergyCustomInput') ? document.getElementById('modalAllergyCustomInput').value.trim() : '';
+            finalAllergy = customVal || 'Other allergy';
+        }
         closeProfileModal();
-        await updateStudentShift(childId, newShift);
+        await updateStudentDetails(childId, { shift: newShift, allergies: finalAllergy });
         await processEnrollment(childId, 'Enrolled');
     }
 
-    async function saveModalShift(childId) {
+    async function saveModalProfile(childId) {
         const newShift = document.getElementById('modalShiftSelect').value;
-        await updateStudentShift(childId, newShift);
+        const allergySelect = document.getElementById('modalAllergySelect');
+        let finalAllergy = allergySelect ? allergySelect.value : 'None';
+        if (finalAllergy === 'Others') {
+            const customVal = document.getElementById('modalAllergyCustomInput') ? document.getElementById('modalAllergyCustomInput').value.trim() : '';
+            finalAllergy = customVal || 'Other allergy';
+        }
+        await updateStudentDetails(childId, { shift: newShift, allergies: finalAllergy });
         closeProfileModal();
         loadChildrenData();
     }
@@ -1018,17 +1205,25 @@
         document.getElementById('profileModal').classList.remove('active');
     }
 
-    function renderWithdrawnTable(children) {
-        const withdrawn = children.filter(c => c.enrollment_status === 'Withdrawn');
+    function renderWithdrawnTable() {
+        const withdrawn = (masterChildrenList || []).filter(c => c.enrollment_status === 'Withdrawn');
         const tbody = document.getElementById('withdrawnTableBody');
+        const pagBar = document.getElementById('withdrawnPaginationBar');
         if (!tbody) return;
 
         if (withdrawn.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">No withdrawn students in this cohort.</td></tr>`;
+            if (pagBar) pagBar.innerHTML = '';
             return;
         }
 
-        tbody.innerHTML = withdrawn.map(c => `
+        const totalItems = withdrawn.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / CHILDREN_PAGE_SIZE));
+        if (withdrawnCurrentPage > totalPages) withdrawnCurrentPage = totalPages;
+        const startIdx = (withdrawnCurrentPage - 1) * CHILDREN_PAGE_SIZE;
+        const pageItems = withdrawn.slice(startIdx, startIdx + CHILDREN_PAGE_SIZE);
+
+        tbody.innerHTML = pageItems.map(c => `
             <tr>
                 <td>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -1061,6 +1256,10 @@
                 </td>
             </tr>
         `).join('');
+
+        if (pagBar) {
+            pagBar.innerHTML = buildGenericPagination(totalItems, withdrawnCurrentPage, CHILDREN_PAGE_SIZE, 'setWithdrawnPage');
+        }
     }
 
     function openWithdrawModal(childId) {

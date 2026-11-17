@@ -263,15 +263,48 @@
             </div>
         </div>
 
-        <!-- Health & Allergies Alerts -->
+        <!-- Health & Allergies Alerts + Editable Custom Allergy Support -->
         <div style="margin-bottom:20px;">
             <div id="m-allergies-box" style="background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:12px; margin-bottom:10px;">
                 <div style="font-weight:700; font-size:0.85rem; color:#dc2626;"><i class="fa-solid fa-triangle-exclamation"></i> Allergies</div>
                 <div id="m-allergies-text" style="font-size:0.85rem; color:#991b1b; margin-top:2px;">None reported</div>
             </div>
-            <div id="m-health-box" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px;">
+            <div id="m-health-box" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px; margin-bottom:12px;">
                 <div style="font-weight:700; font-size:0.85rem; color:#d97706;"><i class="fa-solid fa-notes-medical"></i> Health Conditions</div>
                 <div id="m-health-text" style="font-size:0.85rem; color:#92400e; margin-top:2px;">None reported</div>
+            </div>
+
+            <!-- Update Allergies & Health Conditions Box -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px;">
+                <div style="font-size:0.84rem; font-weight:800; color:#091e42; margin-bottom:10px;">
+                    <i class="fa-solid fa-pen-to-square" style="color:#2563eb;"></i> Update Child's Allergies &amp; Health Info
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; align-items:start;">
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px;">Dietary / Environmental Allergies</label>
+                        <select id="childAllergies" onchange="toggleModalChildAllergiesOther()" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem; font-family:inherit;">
+                            <option value="">None</option>
+                            <option value="Peanuts">Peanuts</option>
+                            <option value="Dairy / Milk">Dairy / Milk</option>
+                            <option value="Seafood / Shellfish">Seafood / Shellfish</option>
+                            <option value="Eggs">Eggs</option>
+                            <option value="Soy">Soy</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Tree Nuts">Tree Nuts</option>
+                            <option value="Others">Others</option>
+                        </select>
+                        <input type="text" id="childAllergiesOther" placeholder="Please specify child's allergy (e.g., Dust, Chicken, Chocolate)..." style="display:none; margin-top:8px; width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem; font-family:inherit; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:4px;">Health Conditions</label>
+                        <input type="text" id="childHealthConditions" placeholder="e.g., Asthma, Eczema, None" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem; font-family:inherit; box-sizing:border-box;">
+                    </div>
+                </div>
+                <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                    <button type="button" id="btnSaveModalHealth" onclick="saveModalChildAllergies()" style="background:#063970; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Allergy &amp; Health Info
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -461,10 +494,37 @@
         document.getElementById('m-school-year').innerText = c.school_year_name || '2026-2027';
 
         // Health & Allergies
-        const allergies = c.allergies ? c.allergies.trim() : '';
-        document.getElementById('m-allergies-text').innerText = allergies || 'No known allergies reported';
+        window.activeModalChildId = c.id;
+        const rawAllergies = c.allergies ? c.allergies.trim() : '';
+        const displayAllergies = (rawAllergies && rawAllergies.toLowerCase() !== 'others') ? rawAllergies : '';
+        document.getElementById('m-allergies-text').innerText = displayAllergies || 'No known allergies reported';
         const health = c.health_conditions ? c.health_conditions.trim() : '';
         document.getElementById('m-health-text').innerText = health || 'No medical conditions reported';
+
+        const standardAllergies = ['', 'Peanuts', 'Dairy / Milk', 'Seafood / Shellfish', 'Eggs', 'Soy', 'Wheat', 'Tree Nuts'];
+        const allergySel = document.getElementById('childAllergies');
+        const allergyOther = document.getElementById('childAllergiesOther');
+        const healthInput = document.getElementById('childHealthConditions');
+        if (healthInput) healthInput.value = health;
+
+        if (allergySel && allergyOther) {
+            if (!rawAllergies || rawAllergies.toLowerCase() === 'none' || rawAllergies.toLowerCase() === 'none reported') {
+                allergySel.value = '';
+                allergyOther.style.display = 'none';
+                allergyOther.required = false;
+                allergyOther.value = '';
+            } else if (standardAllergies.includes(rawAllergies)) {
+                allergySel.value = rawAllergies;
+                allergyOther.style.display = 'none';
+                allergyOther.required = false;
+                allergyOther.value = '';
+            } else {
+                allergySel.value = 'Others';
+                allergyOther.style.display = 'block';
+                allergyOther.required = true;
+                allergyOther.value = (rawAllergies.toLowerCase() === 'others') ? '' : rawAllergies;
+            }
+        }
 
         // Guardian
         const mother = c.mother_first_name ? `${c.mother_first_name} ${c.mother_last_name || ''}`.trim() : 'N/A';
@@ -475,6 +535,78 @@
         document.getElementById('m-address').innerText = c.mother_address || c.father_address || 'Barangay Market View 3';
 
         document.getElementById('profileModal').classList.add('active');
+    }
+
+    function toggleModalChildAllergiesOther() {
+        const allergySel = document.getElementById('childAllergies');
+        const allergyOther = document.getElementById('childAllergiesOther');
+        if (!allergySel || !allergyOther) return;
+        if (allergySel.value === 'Others') {
+            allergyOther.style.display = 'block';
+            allergyOther.required = true;
+            allergyOther.focus();
+        } else {
+            allergyOther.style.display = 'none';
+            allergyOther.required = false;
+        }
+    }
+
+    async function saveModalChildAllergies() {
+        const childId = window.activeModalChildId;
+        const c = myChildrenData.find(st => st.id === childId);
+        if (!c) return;
+
+        const allergySel = document.getElementById('childAllergies');
+        const allergyOther = document.getElementById('childAllergiesOther');
+        const healthInput = document.getElementById('childHealthConditions');
+        let finalAllergies = allergySel ? allergySel.value : '';
+
+        if (finalAllergies === 'Others') {
+            const customVal = (allergyOther ? allergyOther.value : '').trim();
+            if (!customVal) {
+                alert("Please specify your child's allergy in the input field.");
+                if (allergyOther) allergyOther.focus();
+                return;
+            }
+            finalAllergies = customVal;
+        }
+
+        const finalHealth = healthInput ? healthInput.value.trim() : '';
+        const btn = document.getElementById('btnSaveModalHealth');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+        }
+
+        try {
+            const res = await fetch(`/api/children/${childId}/update_profile/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCookie ? window.getCookie('csrftoken') : ''
+                },
+                body: JSON.stringify({
+                    first_name: c.first_name,
+                    last_name: c.last_name,
+                    allergies: finalAllergies,
+                    health_conditions: finalHealth
+                })
+            });
+            if (!res.ok) throw new Error('Failed to update child health info');
+            c.allergies = finalAllergies;
+            c.health_conditions = finalHealth;
+            document.getElementById('m-allergies-text').innerText = finalAllergies || 'No known allergies reported';
+            document.getElementById('m-health-text').innerText = finalHealth || 'No medical conditions reported';
+            alert('Child allergies & health conditions updated successfully!');
+        } catch (err) {
+            console.error(err);
+            alert('Error updating child allergies. Please try again.');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Allergy & Health Info';
+            }
+        }
     }
 
     function closeProfile() {

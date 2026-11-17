@@ -696,7 +696,7 @@
         </div>
 
         <!-- Monthly Attendance Status Distribution -->
-        <div class="analytics-card">
+        <div class="analytics-card" style="margin-bottom: 25px;">
             <div class="analytics-card-header">
                 <div>
                     <h3 class="analytics-card-title"><i class="fa-solid fa-pie-chart" style="color: #f59e0b;"></i> Daily Attendance Status Records</h3>
@@ -726,6 +726,113 @@
                 </div>
             </div>
         </div>
+
+        <!-- Shift & Individual Student Attendance Pie Charts -->
+        <div class="grid-3">
+            <!-- Morning Shift Pie -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-sun" style="color: #eab308;"></i> Morning Shift (AM) Pie</h3>
+                        <div class="analytics-card-subtitle" id="amPieSub">Present vs Absent vs Late</div>
+                    </div>
+                    <span class="pill-badge info" id="amPieRateBadge">--%</span>
+                </div>
+                <div class="chart-container" style="min-height: 200px; max-height: 220px;">
+                    <canvas id="morningAttPieChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Afternoon Shift Pie -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-cloud-sun" style="color: #f97316;"></i> Afternoon Shift (PM) Pie</h3>
+                        <div class="analytics-card-subtitle" id="pmPieSub">Present vs Absent vs Late</div>
+                    </div>
+                    <span class="pill-badge warning" id="pmPieRateBadge">--%</span>
+                </div>
+                <div class="chart-container" style="min-height: 200px; max-height: 220px;">
+                    <canvas id="afternoonAttPieChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Per-Student Attendance Pie Viewer -->
+            <div class="analytics-card" style="border: 2px solid rgba(59, 130, 246, 0.3);">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-user-check" style="color: #2563eb;"></i> Student Attendance Pie</h3>
+                        <div class="analytics-card-subtitle" id="studentAttPieName">Select any student below to inspect</div>
+                    </div>
+                    <span class="pill-badge success" id="studentAttPieBadge">--%</span>
+                </div>
+                <div class="chart-container" style="min-height: 175px; max-height: 190px;">
+                    <canvas id="studentAttPieChart"></canvas>
+                </div>
+                <div id="studentAttPieStats" style="margin-top: 8px; text-align: center; font-size: 0.78rem; color: #475569; font-weight: 600;">
+                    Click "View Pie" on any student in the AM or PM table below
+                </div>
+            </div>
+        </div>
+
+        <!-- Morning (AM) & Afternoon (PM) Student Attendance Tables (10 per page) -->
+        <div class="grid-2">
+            <!-- Morning Shift Student Table -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-sun" style="color: #eab308;"></i> Morning Shift (AM) Student Attendance</h3>
+                        <div class="analytics-card-subtitle">8:00 AM – 10:30 AM Cohort (10 students per page)</div>
+                    </div>
+                    <span class="pill-badge info" id="amTableCountBadge">0 Pupils</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Late</th>
+                                <th>Rate</th>
+                                <th>Chart</th>
+                            </tr>
+                        </thead>
+                        <tbody id="morningAttTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="morningAttPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-top: 8px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+
+            <!-- Afternoon Shift Student Table -->
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3 class="analytics-card-title"><i class="fa-solid fa-cloud-sun" style="color: #f97316;"></i> Afternoon Shift (PM) Student Attendance</h3>
+                        <div class="analytics-card-subtitle">1:00 PM – 3:30 PM Cohort (10 students per page)</div>
+                    </div>
+                    <span class="pill-badge warning" id="pmTableCountBadge">0 Pupils</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Late</th>
+                                <th>Rate</th>
+                                <th>Chart</th>
+                            </tr>
+                        </thead>
+                        <tbody id="afternoonAttTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="afternoonAttPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; margin-top: 8px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+        </div>
     </div>
 
     <!-- ============================================================== -->
@@ -737,16 +844,16 @@
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                     <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1e40af;">
-                        <i class="fa-solid fa-microchip"></i> Multimodal AI Weighted Risk Scoring Engine
+                        <i class="fa-solid fa-microchip"></i> Multimodal 100% Weighted Readiness & Risk Scoring Engine
                     </h4>
                     <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
-                        Algorithmic Formula: <strong>Attendance (25%) + Nutrition & Health (25%) + Learning & Milestones (30%) + Behavioral Tracking (20%)</strong>
+                        100% Weighted Formula: <strong>Attendance (25%) + Nutrition & Health (25%) + Learning & ECCD (30%) + Social & Behavior (20%) = Current DRI (100%) | Risk Score = 100% − DRI</strong>
                     </p>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <span class="pill-badge success">Low: &lt;22 pts</span>
-                    <span class="pill-badge warning">Moderate: 22–37 pts</span>
-                    <span class="pill-badge danger">High: ≥38 pts</span>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <span class="pill-badge success">On Track / Low Risk: 81–100% DRI</span>
+                    <span class="pill-badge warning">Developing / Moderate Risk: 50–80% DRI</span>
+                    <span class="pill-badge danger">Needs Support / High Risk: &lt;50% DRI</span>
                 </div>
             </div>
         </div>
@@ -777,10 +884,10 @@
             <div class="analytics-card-header">
                 <div>
                     <h3 class="analytics-card-title"><i class="fa-solid fa-list-ol" style="color: #3b82f6;"></i> Comprehensive Risk Prioritization Watchlist</h3>
-                    <div class="analytics-card-subtitle">Sorted by composite risk score with trajectory vectors</div>
+                    <div class="analytics-card-subtitle">Sorted by composite risk score (`100% − DRI`) with unified color-coded trajectory vectors (10 pupils per page)</div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" id="riskTableSearch" placeholder="Filter student..." class="ai-input" style="padding: 6px 12px; font-size: 0.82rem; width: 180px;" oninput="filterRiskTable()">
+                    <input type="text" id="riskTableSearch" placeholder="Filter student..." class="ai-input" style="padding: 6px 12px; font-size: 0.82rem; width: 180px;" oninput="filterRiskTable(true)">
                 </div>
             </div>
             <div style="overflow-x: auto;">
@@ -792,7 +899,7 @@
                             <th>Attendance</th>
                             <th>Nutrition & BMI</th>
                             <th>ECCD Score</th>
-                            <th>Risk Score</th>
+                            <th>DRI / Risk Score</th>
                             <th>Risk Level</th>
                             <th>Trajectory</th>
                             <th>Actions</th>
@@ -803,6 +910,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="riskTablePagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 10px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 10px;"></div>
         </div>
     </div>
 
@@ -816,16 +924,16 @@
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title"><i class="fa-solid fa-gauge-high" style="color: #10b981;"></i> Development Readiness Index (DRI) Distribution</h3>
-                        <div class="analytics-card-subtitle">Measures overall developmental readiness for Grade 1 / Kindergarten transition</div>
+                        <div class="analytics-card-subtitle">100% Weighted Scale: School Ready (81–100%), Developing (50–80%), Needs Support (&lt;50%)</div>
                     </div>
                 </div>
                 <div class="chart-container">
                     <canvas id="driDistributionChart"></canvas>
                 </div>
-                <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem;">
-                    <div><span class="pill-badge success">School Ready:</span> <strong id="driCountReady">--</strong></div>
-                    <div><span class="pill-badge warning">Developing:</span> <strong id="driCountDev">--</strong></div>
-                    <div><span class="pill-badge danger">Needs Support:</span> <strong id="driCountSupport">--</strong></div>
+                <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem; flex-wrap: wrap; gap: 8px;">
+                    <div><span class="pill-badge success">School Ready (81–100%):</span> <strong id="driCountReady">--</strong></div>
+                    <div><span class="pill-badge warning">Developing (50–80%):</span> <strong id="driCountDev">--</strong></div>
+                    <div><span class="pill-badge danger">Needs Support (&lt;50%):</span> <strong id="driCountSupport">--</strong></div>
                 </div>
             </div>
 
@@ -834,7 +942,7 @@
                 <div class="analytics-card-header">
                     <div>
                         <h3 class="analytics-card-title"><i class="fa-solid fa-arrow-trend-up" style="color: #8b5cf6;"></i> Predictive Trend Analysis (Growth Vectors)</h3>
-                        <div class="analytics-card-subtitle">Evaluates week-over-week growth vector to project end-of-year readiness</div>
+                        <div class="analytics-card-subtitle">Evaluates baseline vs. current progression to project end-of-year readiness</div>
                     </div>
                 </div>
                 
@@ -842,17 +950,17 @@
                     <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;">IMPROVING (↗)</span>
                         <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendImprovingCount">--</div>
-                        <span style="font-size: 0.74rem; color: #64748b;">Accelerating DRI</span>
+                        <span style="font-size: 0.74rem; color: #64748b;">81–100% DRI Tier</span>
                     </div>
-                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
-                        <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">STABLE (→)</span>
+                    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">STABLE (→)</span>
                         <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendStableCount">--</div>
-                        <span style="font-size: 0.74rem; color: #64748b;">Consistent Pace</span>
+                        <span style="font-size: 0.74rem; color: #64748b;">50–80% DRI Tier</span>
                     </div>
                     <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.8rem; font-weight: 700; color: #ef4444;">DECLINING (↘)</span>
                         <div style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 4px 0;" id="trendDecliningCount">--</div>
-                        <span style="font-size: 0.74rem; color: #64748b;">Requires Attention</span>
+                        <span style="font-size: 0.74rem; color: #64748b;">&lt;50% DRI Tier</span>
                     </div>
                 </div>
 
@@ -865,9 +973,41 @@
                         <div id="projectedDriBar" style="width: 85%; height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); transition: width 0.8s;"></div>
                     </div>
                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
-                        Forecast model calculated through multi-week linear growth regression on attendance, milestone acquisitions, and task completion.
+                        Forecast model calculated from 1st Assessment baseline vs. latest period growth across Attendance (25%), Nutrition (25%), Learning/ECCD (30%), and Social/Behavior (20%).
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Morning Shift (AM) vs Afternoon Shift (PM) Readiness & Growth Breakdown Table -->
+        <div class="analytics-card" style="margin-bottom: 25px;">
+            <div class="analytics-card-header">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-table-columns" style="color: #2563eb;"></i> Morning Shift (AM) vs Afternoon Shift (PM) Readiness & Growth Breakdown</h3>
+                    <div class="analytics-card-subtitle">Exact pupil counts across 100% DRI Readiness Tiers and Growth Trajectories by assigned shift</div>
+                </div>
+                <span class="pill-badge info">100% Scale Cohort Summary</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Class Shift</th>
+                            <th>Enrolled Pupils</th>
+                            <th>School Ready (81–100%)</th>
+                            <th>Developing (50–80%)</th>
+                            <th>Needs Support (&lt;50%)</th>
+                            <th>Improving (↗)</th>
+                            <th>Stable (→)</th>
+                            <th>Declining (↘)</th>
+                            <th>Average DRI</th>
+                            <th>Projected Year-End DRI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driShiftBreakdownBody">
+                        <!-- Dynamically Populated -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -876,7 +1016,7 @@
             <div class="analytics-card-header">
                 <div>
                     <h3 class="analytics-card-title"><i class="fa-solid fa-graduation-cap" style="color: #10b981;"></i> Individual Student Development Readiness Index</h3>
-                    <div class="analytics-card-subtitle">Comprehensive composite readiness percentage and projected elementary transition status</div>
+                    <div class="analytics-card-subtitle">Comprehensive composite readiness percentage and projected elementary transition status (10 pupils per page)</div>
                 </div>
             </div>
             <div style="overflow-x: auto;">
@@ -897,6 +1037,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="driStudentPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 10px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 10px;"></div>
         </div>
     </div>
 
@@ -932,12 +1073,50 @@
             </div>
         </div>
 
+        <!-- NEW: Food Acceptance & Refusal Analytics (Meals Eaten vs. Leftover/Refused) -->
+        <div class="analytics-card" style="margin-bottom: 25px;">
+            <div class="analytics-card-header" style="flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h3 class="analytics-card-title"><i class="fa-solid fa-bowl-rice" style="color: #10b981;"></i> Food Acceptance & Refusal Analytics (Meals Eaten vs. Leftover/Refused)</h3>
+                    <div class="analytics-card-subtitle">Tracks which daycare menu items children finish completely vs. which meals are left unfinished or refused</div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <span class="pill-badge success" id="mostEatenFoodBadge">Most Eaten: --</span>
+                    <span class="pill-badge danger" id="mostRefusedFoodBadge">Most Refused: --</span>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-bottom: 0; align-items: start;">
+                <div class="chart-container" style="min-height: 290px;">
+                    <canvas id="foodAcceptanceChart"></canvas>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="analytics-table" style="font-size: 0.82rem;">
+                        <thead>
+                            <tr>
+                                <th>Daycare Menu Item</th>
+                                <th>Served</th>
+                                <th>Finished</th>
+                                <th>Some Left</th>
+                                <th>Not Eaten (Refused)</th>
+                                <th>Acceptance Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foodBreakdownTableBody">
+                            <!-- Dynamically Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Special Health & Allergies Watchlist -->
         <div class="analytics-card" style="margin-bottom: 25px;">
-            <div class="analytics-card-header">
+            <div class="analytics-card-header" style="flex-wrap: wrap; gap: 10px;">
                 <div>
                     <h3 class="analytics-card-title"><i class="fa-solid fa-notes-medical" style="color: #ef4444;"></i> Health Conditions & Allergy Registry</h3>
-                    <div class="analytics-card-subtitle">Special dietary restrictions and respiratory health watch for BMV3 Daycare</div>
+                    <div class="analytics-card-subtitle">
+                        Special dietary restrictions & meal tracking • <strong>Formula: Feeding Routine % = (Finished Meals × 100% + Some Left × 50%) ÷ Total Logged Meals</strong>
+                    </div>
                 </div>
                 <span class="pill-badge neutral"><i class="fa-solid fa-shield-virus"></i> Safety Protocol Active</span>
             </div>
@@ -949,8 +1128,8 @@
                             <th>Shift</th>
                             <th>Allergies</th>
                             <th>Health Conditions</th>
-                            <th>Feeding Routine</th>
-                            <th>Safety Recommendations</th>
+                            <th>Feeding Routine & Meal Counts</th>
+                            <th>Foods Refused / Safety Action</th>
                         </tr>
                     </thead>
                     <tbody id="healthAllergyTableBody">
@@ -958,6 +1137,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="healthAllergyPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 10px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 10px;"></div>
         </div>
 
         <!-- Behavioral Observation & Social Interaction -->
@@ -1060,14 +1240,14 @@
             <div class="analytics-card-header">
                 <div>
                     <h3 class="analytics-card-title"><i class="fa-solid fa-route" style="color: #3b82f6;"></i> Intervention Recommendation Engine</h3>
-                    <div class="analytics-card-subtitle">Evidence-based daycare interventions mapped from attendance, nutritional, and developmental vulnerabilities</div>
+                    <div class="analytics-card-subtitle">Evidence-based daycare interventions mapped from 100% DRI thresholds (Immediate Action &lt;50%, Guided Monitoring 50–80%, Regular Enrichment 81–100%)</div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <select id="interventionPriorityFilter" class="shift-filter-select" onchange="filterInterventionsTable()">
-                        <option value="ALL">All Priorities</option>
-                        <option value="High">High Priority</option>
-                        <option value="Medium">Medium Priority</option>
-                        <option value="Routine">Routine</option>
+                    <select id="interventionPriorityFilter" class="shift-filter-select" onchange="filterInterventionsTable(true)">
+                        <option value="ALL">All Action Levels</option>
+                        <option value="Immediate Action">Immediate Action (At Risk &lt;50%)</option>
+                        <option value="Guided Monitoring">Guided Monitoring (Developing 50–80%)</option>
+                        <option value="Regular Enrichment">Regular Enrichment (On Track 81–100%)</option>
                     </select>
                 </div>
             </div>
@@ -1078,9 +1258,9 @@
                         <tr>
                             <th>Student</th>
                             <th>Shift</th>
-                            <th>Risk Level</th>
+                            <th>DRI & Risk Level</th>
                             <th>Recommended Intervention</th>
-                            <th>Priority</th>
+                            <th>Action Priority</th>
                             <th>Action Plan</th>
                             <th>Review Timeline</th>
                             <th>Actions</th>
@@ -1091,6 +1271,7 @@
                     </tbody>
                 </table>
             </div>
+            <div id="interventionsPagination" style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 10px; border-top: 1px solid var(--border-color, #e2e8f0); flex-wrap: wrap; gap: 10px;"></div>
         </div>
     </div>
 
@@ -1146,7 +1327,7 @@
                         <i class="fa-solid fa-robot" style="margin-right: 6px;"></i> Magandang araw, Teacher! Ako ang iyong AI Analytics Assistant para sa BMV3 Daycare.
                     </p>
                     <p style="margin: 8px 0 0 0; color: var(--text-secondary, #475569); font-size: 0.88rem;">
-                        Pumili sa mga katanungan sa ibaba o mag-type ng sariling tanong tungkol sa attendance, ECCD domains, BMI nutrition, at mga rekomendadong aksyon:
+                        Pumili sa mga katanungan sa ibaba o mag-type ng sariling tanong (o pangalan ng bata) tungkol sa attendance, ECCD domains, pagkain/nutrisyon, at 100% DRI formula:
                     </p>
                 </div>
             </div>
@@ -1156,6 +1337,12 @@
                 <div class="ai-pills-row">
                     <button class="ai-pill-btn" onclick="sendAiPrompt('Sino ang mga at-risk students at bakit?')">
                         🚨 Sino ang at-risk students at bakit?
+                    </button>
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Paano kinokompyut ang 100% DRI formula at risk thresholds?')">
+                        🧮 Paano kinokompyut ang 100% DRI formula?
+                    </button>
+                    <button class="ai-pill-btn" onclick="sendAiPrompt('Anong pagkain ang pinakakinakain at hindi kinakain ng mga bata?')">
+                        🍲 Pagkain na kinakain vs. tinatanggihan?
                     </button>
                     <button class="ai-pill-btn" onclick="sendAiPrompt('Anong ECCD domains ang pinakamababang scores?')">
                         📚 Pinakamababang ECCD domains?
@@ -1171,7 +1358,7 @@
 
             <!-- Input Bar -->
             <div class="ai-input-group">
-                <input type="text" id="aiQueryInput" class="ai-input" placeholder="Magtanong sa AI tungkol sa database o performance ng mga bata..." onkeypress="handleAiKeyPress(event)">
+                <input type="text" id="aiQueryInput" class="ai-input" placeholder="Magtanong sa AI tungkol sa database, pagkain, o pangalan ng bata..." onkeypress="handleAiKeyPress(event)">
                 <button class="btn-analytics btn-analytics-primary" id="btnSendAiQuery" onclick="submitCustomAiQuery()">
                     <i class="fa-solid fa-paper-plane"></i> Itanong
                 </button>
@@ -1183,7 +1370,7 @@
 <!-- ============================================================== -->
 <!-- MODAL: INTELLIGENT REPORT GENERATOR (PRINTABLE DOSSIER)        -->
 <!-- ============================================================== -->
-<div class="dossier-modal" id="dossierModal">
+<div class="dossier-modal" id="dossierModal" onclick="if(event.target === this) closeReportDossierModal()">
     <div class="dossier-dialog">
         <div class="dossier-head no-print">
             <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
@@ -1231,11 +1418,61 @@
     let globalAnalyticsData = null;
     let attendanceTrendChart = null;
     let attendanceStatusDonut = null;
+    let morningAttPieChart = null;
+    let afternoonAttPieChart = null;
+    let studentAttPieChart = null;
     let driDistributionChart = null;
     let feedingParticipationChart = null;
     let bmiStatusChart = null;
+    let foodAcceptanceChart = null;
     let eccdDomainsBarChart = null;
     let periodProgressionChart = null;
+
+    // Pagination states (10 students per page across all tables)
+    const ANALYTICS_PAGE_SIZE = 10;
+    let amAttPage = 1;
+    let pmAttPage = 1;
+    let riskPage = 1;
+    let driPage = 1;
+    let healthPage = 1;
+    let interventionsPage = 1;
+    let selectedAttStudentId = null;
+
+    function buildPaginationBarHtml(containerId, currentPage, totalItems, pageFnName) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (totalItems <= 0) {
+            container.innerHTML = '';
+            return;
+        }
+        const totalPages = Math.max(1, Math.ceil(totalItems / ANALYTICS_PAGE_SIZE));
+        const startIdx = (currentPage - 1) * ANALYTICS_PAGE_SIZE;
+        const endNum = Math.min(startIdx + ANALYTICS_PAGE_SIZE, totalItems);
+
+        let pageBtns = '';
+        for (let p = 1; p <= totalPages; p++) {
+            const isActive = p === currentPage;
+            pageBtns += `<button type="button" onclick="${pageFnName}(${p})" style="padding: 4px 10px; border-radius: 6px; border: 1px solid ${isActive ? '#1e40af' : '#cbd5e1'}; background: ${isActive ? '#1e40af' : '#ffffff'}; color: ${isActive ? '#ffffff' : '#334155'}; font-weight: 700; font-size: 0.76rem; cursor: pointer;">${p}</button>`;
+        }
+
+        container.innerHTML = `
+            <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
+                Showing <strong>${startIdx + 1}–${endNum}</strong> of <strong>${totalItems}</strong> records
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                <button type="button" onclick="${pageFnName}(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} style="padding: 4px 9px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 700; font-size: 0.76rem; cursor: ${currentPage <= 1 ? 'not-allowed' : 'pointer'}; opacity: ${currentPage <= 1 ? '0.5' : '1'};">Prev</button>
+                ${pageBtns}
+                <button type="button" onclick="${pageFnName}(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} style="padding: 4px 9px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 700; font-size: 0.76rem; cursor: ${currentPage >= totalPages ? 'not-allowed' : 'pointer'}; opacity: ${currentPage >= totalPages ? '0.5' : '1'};">Next</button>
+            </div>
+        `;
+    }
+
+    function getUnifiedBadgeClass(val) {
+        const v = (val || '').toLowerCase();
+        if (v.includes('high') || v.includes('declin') || v.includes('immediate') || v.includes('support')) return 'danger';
+        if (v.includes('mod') || v.includes('stable') || v.includes('guided') || v.includes('develop')) return 'warning';
+        return 'success';
+    }
 
     document.addEventListener('DOMContentLoaded', async function () {
         await initSchoolYears();
@@ -1268,6 +1505,13 @@
 
     function onSchoolYearFilterChange() {
         const syId = document.getElementById('analyticsSySelect').value;
+        amAttPage = 1;
+        pmAttPage = 1;
+        riskPage = 1;
+        driPage = 1;
+        healthPage = 1;
+        interventionsPage = 1;
+        selectedAttStudentId = null;
         loadGeneralAnalytics(syId);
     }
 
@@ -1350,7 +1594,18 @@
         const nut = data.nutrition || {};
         const lrn = data.learning || {};
 
-        document.getElementById('kpiDriValue').innerText = (summary.class_dri ?? 0) + '%';
+        const classDri = summary.class_dri ?? 0;
+        document.getElementById('kpiDriValue').innerText = classDri + '%';
+        if (classDri >= 81) {
+            document.getElementById('kpiDriTier').innerHTML = '<i class="fa-solid fa-graduation-cap"></i> School Ready (81–100%)';
+            document.getElementById('kpiDriTier').className = 'pill-badge success';
+        } else if (classDri >= 50) {
+            document.getElementById('kpiDriTier').innerHTML = '<i class="fa-solid fa-seedling"></i> Developing (50–80%)';
+            document.getElementById('kpiDriTier').className = 'pill-badge warning';
+        } else {
+            document.getElementById('kpiDriTier').innerHTML = '<i class="fa-solid fa-hand-holding-heart"></i> Needs Support (<50%)';
+            document.getElementById('kpiDriTier').className = 'pill-badge danger';
+        }
         document.getElementById('kpiDriProj').innerText = (data.predictive_trends?.projected_class_dri ?? 0) + '%';
         
         document.getElementById('kpiAttValue').innerText = (att.overall_rate ?? 0) + '%';
@@ -1362,7 +1617,7 @@
         document.getElementById('kpiBmiAlertCount').innerText = (nut.bmi_breakdown?.underweight ?? 0) + ' Underweight';
 
         document.getElementById('kpiTaskValue').innerText = (lrn.task_completion_rate ?? 0) + '%';
-        document.getElementById('kpiEccdAvg').innerText = (lrn.highest_domain?.score_pct ?? 0) + '%';
+        document.getElementById('kpiEccdAvg').innerText = (lrn.eccd_average_rate ?? summary.eccd_mastery_rate ?? 0) + '%';
 
         document.getElementById('kpiRiskCount').innerText = (summary.high_risk_count ?? 0) + (summary.moderate_risk_count ?? 0);
         document.getElementById('kpiHighRiskBadge').innerText = (summary.high_risk_count ?? 0) + ' High Risk';
@@ -1375,8 +1630,9 @@
         document.getElementById('boxAfternoonAtt').innerText = (att.afternoon_rate ?? 0) + '%';
 
         const shiftDiff = Math.abs((att.morning_rate || 0) - (att.afternoon_rate || 0)).toFixed(1);
+        const leadShift = (att.morning_rate || 0) >= (att.afternoon_rate || 0) ? 'Morning Shift (AM)' : 'Afternoon Shift (PM)';
         document.getElementById('shiftComparisonDiagnosis').innerText = 
-            `Morning Shift is demonstrating a +${shiftDiff}% attendance variance compared to Afternoon Shift.`;
+            `${leadShift} is demonstrating a +${shiftDiff}% attendance rate advantage across recorded sessions.`;
 
         // Attendance Counts
         document.getElementById('countPresent').innerText = att.present_count || 0;
@@ -1384,9 +1640,12 @@
         document.getElementById('countLate').innerText = att.late_count || 0;
     }
 
-    // 2. Overview Charts
+    // 2. Overview Charts + AM/PM Shift Pie Charts + Per-Student Attendance Pie + AM/PM Tables
     function initOverviewCharts(data) {
-        if (!data.total_children || data.total_children === 0) {
+        const att = data.attendance || {};
+        const total = data.total_children || 0;
+
+        if (total === 0) {
             const ctxTrend = document.getElementById('attendanceTrendChart');
             if (ctxTrend) {
                 if (attendanceTrendChart) attendanceTrendChart.destroy();
@@ -1427,13 +1686,13 @@
                     }
                 });
             }
+            renderShiftAttendancePies(att, true);
+            renderShiftAttendanceTables();
             return;
         }
 
-        const att = data.attendance || {};
         const weekly = att.weekly_trend || [];
-        
-        const labels = weekly.map(w => w.week);
+        const labels = weekly.map(w => w.label || w.week);
         const mData = weekly.map(w => w.morning_rate);
         const aData = weekly.map(w => w.afternoon_rate);
         const allData = weekly.map(w => w.overall_rate);
@@ -1480,7 +1739,7 @@
                         legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Montserrat' } } }
                     },
                     scales: {
-                        y: { min: 60, max: 100, ticks: { callback: v => v + '%' } }
+                        y: { min: 50, max: 100, ticks: { callback: v => v + '%' } }
                     }
                 }
             });
@@ -1507,6 +1766,212 @@
                 }
             });
         }
+
+        renderShiftAttendancePies(att, false);
+        renderShiftAttendanceTables();
+
+        // Initialize per-student pie chart with first student if none selected yet
+        const allAttStudents = [...(att.morning_students || []), ...(att.afternoon_students || [])];
+        if (allAttStudents.length > 0) {
+            const targetStudent = allAttStudents.find(s => s.id === selectedAttStudentId) || allAttStudents[0];
+            viewStudentAttendancePie(targetStudent.id);
+        }
+    }
+
+    function renderShiftAttendancePies(att, isEmpty) {
+        const mb = att.morning_breakdown || { present: 0, absent: 0, late: 0, rate: 0 };
+        const ab = att.afternoon_breakdown || { present: 0, absent: 0, late: 0, rate: 0 };
+
+        document.getElementById('amPieRateBadge').innerText = `${mb.rate ?? 0}% Rate`;
+        document.getElementById('amPieSub').innerText = `Present: ${mb.present || 0} • Absent: ${mb.absent || 0} • Late: ${mb.late || 0}`;
+
+        document.getElementById('pmPieRateBadge').innerText = `${ab.rate ?? 0}% Rate`;
+        document.getElementById('pmPieSub').innerText = `Present: ${ab.present || 0} • Absent: ${ab.absent || 0} • Late: ${ab.late || 0}`;
+
+        const ctxAm = document.getElementById('morningAttPieChart');
+        if (ctxAm) {
+            if (morningAttPieChart) morningAttPieChart.destroy();
+            const hasAm = !isEmpty && ((mb.present || 0) + (mb.absent || 0) + (mb.late || 0) > 0);
+            morningAttPieChart = new Chart(ctxAm, {
+                type: 'pie',
+                data: {
+                    labels: hasAm ? [`Present (${mb.present})`, `Absent (${mb.absent})`, `Late (${mb.late})`] : ['No Records'],
+                    datasets: [{
+                        data: hasAm ? [mb.present || 0, mb.absent || 0, mb.late || 0] : [1],
+                        backgroundColor: hasAm ? ['#10b981', '#ef4444', '#f59e0b'] : ['#cbd5e1']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Montserrat', size: 11 } } } }
+                }
+            });
+        }
+
+        const ctxPm = document.getElementById('afternoonAttPieChart');
+        if (ctxPm) {
+            if (afternoonAttPieChart) afternoonAttPieChart.destroy();
+            const hasPm = !isEmpty && ((ab.present || 0) + (ab.absent || 0) + (ab.late || 0) > 0);
+            afternoonAttPieChart = new Chart(ctxPm, {
+                type: 'pie',
+                data: {
+                    labels: hasPm ? [`Present (${ab.present})`, `Absent (${ab.absent})`, `Late (${ab.late})`] : ['No Records'],
+                    datasets: [{
+                        data: hasPm ? [ab.present || 0, ab.absent || 0, ab.late || 0] : [1],
+                        backgroundColor: hasPm ? ['#10b981', '#ef4444', '#f59e0b'] : ['#cbd5e1']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Montserrat', size: 11 } } } }
+                }
+            });
+        }
+    }
+
+    function viewStudentAttendancePie(studentId) {
+        selectedAttStudentId = studentId;
+        const att = globalAnalyticsData?.attendance || {};
+        const allAttStudents = [...(att.morning_students || []), ...(att.afternoon_students || [])];
+        const student = allAttStudents.find(s => s.id === studentId);
+        const ctxStu = document.getElementById('studentAttPieChart');
+
+        if (!student) {
+            document.getElementById('studentAttPieName').innerText = 'No student selected';
+            document.getElementById('studentAttPieBadge').innerText = '0%';
+            document.getElementById('studentAttPieStats').innerText = 'No attendance records available';
+            if (ctxStu) {
+                if (studentAttPieChart) studentAttPieChart.destroy();
+                studentAttPieChart = new Chart(ctxStu, {
+                    type: 'pie',
+                    data: { labels: ['No Data'], datasets: [{ data: [1], backgroundColor: ['#cbd5e1'] }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+            return;
+        }
+
+        const tot = Math.max(1, student.total || (student.present + student.absent + student.late));
+        const pPct = ((student.present / tot) * 100).toFixed(1);
+        const aPct = ((student.absent / tot) * 100).toFixed(1);
+        const lPct = ((student.late / tot) * 100).toFixed(1);
+
+        document.getElementById('studentAttPieName').innerText = `${student.name} (${student.shift} Shift)`;
+        const badgeEl = document.getElementById('studentAttPieBadge');
+        badgeEl.innerText = `${student.rate}% Present`;
+        badgeEl.className = `pill-badge ${student.rate >= 81 ? 'success' : (student.rate >= 50 ? 'warning' : 'danger')}`;
+        document.getElementById('studentAttPieStats').innerHTML = `
+            <span style="color:#15803d;">Present: ${student.present} (${pPct}%)</span> •
+            <span style="color:#b91c1c;">Absent: ${student.absent} (${aPct}%)</span> •
+            <span style="color:#b45309;">Late: ${student.late} (${lPct}%)</span>
+        `;
+
+        if (ctxStu) {
+            if (studentAttPieChart) studentAttPieChart.destroy();
+            studentAttPieChart = new Chart(ctxStu, {
+                type: 'pie',
+                data: {
+                    labels: [`Present (${student.present})`, `Absent (${student.absent})`, `Late (${student.late})`],
+                    datasets: [{
+                        data: [student.present || 0, student.absent || 0, student.late || 0],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Montserrat', size: 11 } } }
+                    }
+                }
+            });
+        }
+        renderShiftAttendanceTables();
+    }
+    window.viewStudentAttendancePie = viewStudentAttendancePie;
+
+    function setAmAttPage(p) {
+        amAttPage = p;
+        renderShiftAttendanceTables();
+    }
+    function setPmAttPage(p) {
+        pmAttPage = p;
+        renderShiftAttendanceTables();
+    }
+    window.setAmAttPage = setAmAttPage;
+    window.setPmAttPage = setPmAttPage;
+
+    function renderShiftAttendanceTables() {
+        const att = globalAnalyticsData?.attendance || {};
+        const amList = att.morning_students || [];
+        const pmList = att.afternoon_students || [];
+
+        document.getElementById('amTableCountBadge').innerText = `${amList.length} Pupils`;
+        document.getElementById('pmTableCountBadge').innerText = `${pmList.length} Pupils`;
+
+        // Morning Table
+        const amTbody = document.getElementById('morningAttTableBody');
+        if (amList.length === 0) {
+            amTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">No Morning Shift pupils enrolled.</td></tr>`;
+            buildPaginationBarHtml('morningAttPagination', 1, 0, 'setAmAttPage');
+        } else {
+            const amTotalPages = Math.max(1, Math.ceil(amList.length / ANALYTICS_PAGE_SIZE));
+            if (amAttPage > amTotalPages) amAttPage = amTotalPages;
+            if (amAttPage < 1) amAttPage = 1;
+            const amSlice = amList.slice((amAttPage - 1) * ANALYTICS_PAGE_SIZE, amAttPage * ANALYTICS_PAGE_SIZE);
+            amTbody.innerHTML = amSlice.map(s => {
+                const isSelected = s.id === selectedAttStudentId;
+                const badgeCls = s.rate >= 81 ? 'success' : (s.rate >= 50 ? 'warning' : 'danger');
+                return `
+                    <tr onclick="viewStudentAttendancePie(${s.id})" style="cursor:pointer; ${isSelected ? 'background: rgba(59, 130, 246, 0.08);' : ''}">
+                        <td><strong>${s.name}</strong></td>
+                        <td style="color:#15803d; font-weight:700;">${s.present}</td>
+                        <td style="color:#b91c1c; font-weight:700;">${s.absent}</td>
+                        <td style="color:#b45309; font-weight:700;">${s.late}</td>
+                        <td><span class="pill-badge ${badgeCls}">${s.rate}%</span></td>
+                        <td>
+                            <button type="button" class="btn-analytics btn-analytics-secondary" style="padding: 3px 8px; font-size: 0.72rem;" onclick="event.stopPropagation(); viewStudentAttendancePie(${s.id})">
+                                <i class="fa-solid fa-chart-pie" style="color:#2563eb;"></i> View Pie
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            buildPaginationBarHtml('morningAttPagination', amAttPage, amList.length, 'setAmAttPage');
+        }
+
+        // Afternoon Table
+        const pmTbody = document.getElementById('afternoonAttTableBody');
+        if (pmList.length === 0) {
+            pmTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">No Afternoon Shift pupils enrolled.</td></tr>`;
+            buildPaginationBarHtml('afternoonAttPagination', 1, 0, 'setPmAttPage');
+        } else {
+            const pmTotalPages = Math.max(1, Math.ceil(pmList.length / ANALYTICS_PAGE_SIZE));
+            if (pmAttPage > pmTotalPages) pmAttPage = pmTotalPages;
+            if (pmAttPage < 1) pmAttPage = 1;
+            const pmSlice = pmList.slice((pmAttPage - 1) * ANALYTICS_PAGE_SIZE, pmAttPage * ANALYTICS_PAGE_SIZE);
+            pmTbody.innerHTML = pmSlice.map(s => {
+                const isSelected = s.id === selectedAttStudentId;
+                const badgeCls = s.rate >= 81 ? 'success' : (s.rate >= 50 ? 'warning' : 'danger');
+                return `
+                    <tr onclick="viewStudentAttendancePie(${s.id})" style="cursor:pointer; ${isSelected ? 'background: rgba(139, 92, 246, 0.08);' : ''}">
+                        <td><strong>${s.name}</strong></td>
+                        <td style="color:#15803d; font-weight:700;">${s.present}</td>
+                        <td style="color:#b91c1c; font-weight:700;">${s.absent}</td>
+                        <td style="color:#b45309; font-weight:700;">${s.late}</td>
+                        <td><span class="pill-badge ${badgeCls}">${s.rate}%</span></td>
+                        <td>
+                            <button type="button" class="btn-analytics btn-analytics-secondary" style="padding: 3px 8px; font-size: 0.72rem;" onclick="event.stopPropagation(); viewStudentAttendancePie(${s.id})">
+                                <i class="fa-solid fa-chart-pie" style="color:#7c3aed;"></i> View Pie
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            buildPaginationBarHtml('afternoonAttPagination', pmAttPage, pmList.length, 'setPmAttPage');
+        }
     }
 
     // 3. Risk Watchlist & Early Warnings
@@ -1514,7 +1979,7 @@
     function renderRiskWatchlist(data) {
         window.allEarlyWarningsData = data.early_warnings || [];
         filterEarlyWarnings(currentEWFilter);
-        renderRiskTableRows(data.risk_scoring?.ranked_students || []);
+        filterRiskTable(false);
     }
 
     function filterEarlyWarnings(shift) {
@@ -1553,7 +2018,7 @@
                     <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
                             <strong style="font-size: 0.92rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${w.child_name}</strong>
-                            <span class="pill-badge ${w.shift.toLowerCase() === 'morning' ? 'info' : 'purple'}" style="font-size: 0.68rem; padding: 2px 6px;">${w.shift}</span>
+                            <span class="pill-badge ${w.shift.toLowerCase() === 'morning' ? 'info' : 'warning'}" style="font-size: 0.68rem; padding: 2px 6px;">${w.shift}</span>
                         </div>
                         <div style="font-size: 0.8rem; margin-top: 4px; color: #334155; line-height: 1.4;">
                             <strong style="color: ${w.severity.toLowerCase() === 'critical' ? '#b91c1c' : '#b45309'};">[${w.category}]</strong> ${w.message}
@@ -1570,28 +2035,49 @@
     }
     window.filterEarlyWarnings = filterEarlyWarnings;
 
+    function setRiskPage(p) {
+        riskPage = p;
+        filterRiskTable(false);
+    }
+    window.setRiskPage = setRiskPage;
+
     function renderRiskTableRows(students) {
         const tbody = document.getElementById('riskScoringTableBody');
         if (!students || students.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students match the current filter.</td></tr>`;
+            buildPaginationBarHtml('riskTablePagination', 1, 0, 'setRiskPage');
             return;
         }
-        tbody.innerHTML = students.map(s => `
+
+        const totalPages = Math.max(1, Math.ceil(students.length / ANALYTICS_PAGE_SIZE));
+        if (riskPage > totalPages) riskPage = totalPages;
+        if (riskPage < 1) riskPage = 1;
+        const pageSlice = students.slice((riskPage - 1) * ANALYTICS_PAGE_SIZE, riskPage * ANALYTICS_PAGE_SIZE);
+
+        tbody.innerHTML = pageSlice.map(s => {
+            const unifiedCls = getUnifiedBadgeClass(s.risk_level);
+            const trendCls = getUnifiedBadgeClass(s.trend);
+            const arrow = s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→');
+            return `
             <tr>
                 <td><strong>${s.name}</strong></td>
-                <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
+                <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'warning'}">${s.shift}</span></td>
                 <td>${s.attendance.rate}% (${s.attendance.absent} abs)</td>
                 <td>
                     <span class="pill-badge ${s.nutrition.bmi_status === 'Normal' ? 'success' : 'danger'}">
                         ${s.nutrition.bmi_status}
                     </span>
+                    <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">${s.nutrition.rate}% Meal Intake</div>
                 </td>
-                <td>${s.learning.eccd_rate}%</td>
-                <td><strong>${s.risk_score}</strong>/100</td>
-                <td><span class="pill-badge ${s.risk_badge}">${s.risk_level}</span></td>
+                <td><strong>${s.learning.eccd_rate}%</strong></td>
                 <td>
-                    <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
-                        ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend}
+                    <div><strong style="color:#0f172a;">DRI: ${s.dri_score}%</strong></div>
+                    <div style="font-size:0.74rem; color:#64748b;">Risk: ${s.risk_score}%</div>
+                </td>
+                <td><span class="pill-badge ${unifiedCls}">${s.risk_level}</span></td>
+                <td>
+                    <span class="pill-badge ${trendCls}">
+                        ${arrow} ${s.trend} (${s.trend_delta})
                     </span>
                 </td>
                 <td>
@@ -1600,12 +2086,16 @@
                     </button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
+
+        buildPaginationBarHtml('riskTablePagination', riskPage, students.length, 'setRiskPage');
     }
 
-    function filterRiskTable() {
-        const query = (document.getElementById('riskTableSearch').value || '').toLowerCase();
-        const shiftFilter = document.getElementById('shiftClassFilter').value;
+    function filterRiskTable(resetPage = false) {
+        if (resetPage) riskPage = 1;
+        const query = (document.getElementById('riskTableSearch')?.value || '').toLowerCase();
+        const shiftFilter = document.getElementById('shiftClassFilter')?.value || 'ALL';
         const allStudents = globalAnalyticsData?.risk_scoring?.ranked_students || [];
 
         const filtered = allStudents.filter(s => {
@@ -1618,6 +2108,12 @@
     }
 
     // 4. DRI & Predictive Trends
+    function setDriPage(p) {
+        driPage = p;
+        renderDriStudentTable();
+    }
+    window.setDriPage = setDriPage;
+
     function initDriCharts(data) {
         const total = data.total_children || 0;
         const dri = data.dri || {};
@@ -1639,7 +2135,7 @@
             driDistributionChart = new Chart(ctxDri, {
                 type: 'pie',
                 data: {
-                    labels: total === 0 ? ['No Active Cohort'] : ['School Ready (≥80%)', 'Developing (65–79%)', 'Needs Support (<65%)'],
+                    labels: total === 0 ? ['No Active Cohort'] : ['School Ready (81–100%)', 'Developing (50–80%)', 'Needs Support (<50%)'],
                     datasets: [{
                         data: total === 0 ? [1] : [dri.school_ready_count || 0, dri.developing_count || 0, dri.support_needed_count || 0],
                         backgroundColor: total === 0 ? ['#cbd5e1'] : ['#10b981', '#f59e0b', '#ef4444']
@@ -1655,35 +2151,108 @@
             });
         }
 
-        // Student DRI Table
-        const tbody = document.getElementById('driStudentTableBody');
-        if (!dri.students || dri.students.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
-        } else {
-            tbody.innerHTML = dri.students.map(s => `
+        // Morning (AM) vs Afternoon (PM) Readiness & Growth Breakdown Table
+        const shiftTbody = document.getElementById('driShiftBreakdownBody');
+        if (shiftTbody) {
+            const m = dri.shift_breakdown?.morning || { total: 0, school_ready: 0, developing: 0, needs_support: 0, improving: 0, stable: 0, declining: 0, avg_dri: 0, projected_dri: 0 };
+            const a = dri.shift_breakdown?.afternoon || { total: 0, school_ready: 0, developing: 0, needs_support: 0, improving: 0, stable: 0, declining: 0, avg_dri: 0, projected_dri: 0 };
+            shiftTbody.innerHTML = `
                 <tr>
-                    <td><strong>${s.name}</strong></td>
-                    <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'purple'}">${s.shift}</span></td>
-                    <td><strong>${s.dri_score}%</strong></td>
-                    <td><span class="pill-badge ${s.readiness_badge}">${s.readiness_tier}</span></td>
-                    <td>
-                        <span style="font-weight: 700; color: ${s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
-                            ${s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→')} ${s.trend_delta}
-                        </span>
-                    </td>
-                    <td><strong style="color: #10b981;">${s.projected_dri}%</strong></td>
-                    <td>${s.recommendations?.[0]?.type || 'Standard Curriculum'}</td>
+                    <td><span class="pill-badge info"><i class="fa-solid fa-sun"></i> Morning Shift (AM)</span></td>
+                    <td><strong>${m.total}</strong></td>
+                    <td><span class="pill-badge success">${m.school_ready} pupils</span></td>
+                    <td><span class="pill-badge warning">${m.developing} pupils</span></td>
+                    <td><span class="pill-badge danger">${m.needs_support} pupils</span></td>
+                    <td style="color:#10b981; font-weight:700;">↗ ${m.improving}</td>
+                    <td style="color:#d97706; font-weight:700;">→ ${m.stable}</td>
+                    <td style="color:#ef4444; font-weight:700;">↘ ${m.declining}</td>
+                    <td><strong>${m.avg_dri}%</strong></td>
+                    <td><strong style="color:#10b981;">${m.projected_dri}%</strong></td>
                 </tr>
-            `).join('');
+                <tr>
+                    <td><span class="pill-badge warning"><i class="fa-solid fa-cloud-sun"></i> Afternoon Shift (PM)</span></td>
+                    <td><strong>${a.total}</strong></td>
+                    <td><span class="pill-badge success">${a.school_ready} pupils</span></td>
+                    <td><span class="pill-badge warning">${a.developing} pupils</span></td>
+                    <td><span class="pill-badge danger">${a.needs_support} pupils</span></td>
+                    <td style="color:#10b981; font-weight:700;">↗ ${a.improving}</td>
+                    <td style="color:#d97706; font-weight:700;">→ ${a.stable}</td>
+                    <td style="color:#ef4444; font-weight:700;">↘ ${a.declining}</td>
+                    <td><strong>${a.avg_dri}%</strong></td>
+                    <td><strong style="color:#10b981;">${a.projected_dri}%</strong></td>
+                </tr>
+                <tr style="background: var(--btn-neutral-bg, #f8fafc); font-weight: 700;">
+                    <td><strong>Total Active Cohort</strong></td>
+                    <td><strong>${total}</strong></td>
+                    <td><span class="pill-badge success">${dri.school_ready_count || 0} pupils</span></td>
+                    <td><span class="pill-badge warning">${dri.developing_count || 0} pupils</span></td>
+                    <td><span class="pill-badge danger">${dri.support_needed_count || 0} pupils</span></td>
+                    <td style="color:#10b981; font-weight:800;">↗ ${trends.improving_count || 0}</td>
+                    <td style="color:#d97706; font-weight:800;">→ ${trends.stable_count || 0}</td>
+                    <td style="color:#ef4444; font-weight:800;">↘ ${trends.declining_count || 0}</td>
+                    <td><strong>${dri.class_average ?? 0}%</strong></td>
+                    <td><strong style="color:#10b981;">${trends.projected_class_dri ?? 0}%</strong></td>
+                </tr>
+            `;
         }
+
+        renderDriStudentTable();
     }
 
-    // 5. Health & Nutrition Charts
+    function renderDriStudentTable() {
+        const dri = globalAnalyticsData?.dri || {};
+        const shiftFilter = document.getElementById('shiftClassFilter')?.value || 'ALL';
+        const allStudents = (dri.students || []).filter(s => shiftFilter === 'ALL' || s.shift === shiftFilter);
+        const tbody = document.getElementById('driStudentTableBody');
+
+        if (allStudents.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in this shift cohort.</td></tr>`;
+            buildPaginationBarHtml('driStudentPagination', 1, 0, 'setDriPage');
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(allStudents.length / ANALYTICS_PAGE_SIZE));
+        if (driPage > totalPages) driPage = totalPages;
+        if (driPage < 1) driPage = 1;
+        const pageSlice = allStudents.slice((driPage - 1) * ANALYTICS_PAGE_SIZE, driPage * ANALYTICS_PAGE_SIZE);
+
+        tbody.innerHTML = pageSlice.map(s => {
+            const tierCls = getUnifiedBadgeClass(s.readiness_tier);
+            const trendColor = s.trend === 'Improving' ? '#10b981' : (s.trend === 'Declining' ? '#ef4444' : '#d97706');
+            const arrow = s.trend === 'Improving' ? '↗' : (s.trend === 'Declining' ? '↘' : '→');
+            return `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'warning'}">${s.shift}</span></td>
+                    <td><strong>${s.dri_score}%</strong></td>
+                    <td><span class="pill-badge ${tierCls}">${s.readiness_tier}</span></td>
+                    <td>
+                        <span style="font-weight: 700; color: ${trendColor};">
+                            ${arrow} ${s.trend} (${s.trend_delta})
+                        </span>
+                    </td>
+                    <td><strong style="color: ${trendColor};">${s.projected_dri}%</strong></td>
+                    <td>${s.recommendations?.[0]?.type || 'Standard Curriculum'}</td>
+                </tr>
+            `;
+        }).join('');
+
+        buildPaginationBarHtml('driStudentPagination', driPage, allStudents.length, 'setDriPage');
+    }
+
+    // 5. Health, Nutrition & Food Acceptance Charts
+    function setHealthPage(p) {
+        healthPage = p;
+        renderHealthAllergyTable();
+    }
+    window.setHealthPage = setHealthPage;
+
     function initNutritionCharts(data) {
         const total = data.total_children || 0;
         const nut = data.nutrition || {};
         const feed = nut.feeding_breakdown || {};
         const bmi = nut.bmi_breakdown || {};
+        const foods = nut.food_breakdown || [];
 
         const ctxFeed = document.getElementById('feedingParticipationChart');
         if (ctxFeed) {
@@ -1691,7 +2260,11 @@
             feedingParticipationChart = new Chart(ctxFeed, {
                 type: 'doughnut',
                 data: {
-                    labels: total === 0 ? ['No Records'] : ['Finished Snack', 'Some Left', 'Not Eaten'],
+                    labels: total === 0 ? ['No Records'] : [
+                        `Finished (${feed.finished_count || 0})`,
+                        `Some Left (${feed.some_left_count || 0})`,
+                        `Not Eaten / Refused (${feed.not_eaten_count || 0})`
+                    ],
                     datasets: [{
                         data: total === 0 ? [1] : [feed.finished_count || 0, feed.some_left_count || 0, feed.not_eaten_count || 0],
                         backgroundColor: total === 0 ? ['#cbd5e1'] : ['#10b981', '#f59e0b', '#ef4444']
@@ -1726,26 +2299,70 @@
             });
         }
 
-        // Health and Allergy Registry Table
-        const students = data.risk_scoring?.ranked_students || [];
-        const healthTbody = document.getElementById('healthAllergyTableBody');
-        if (!students || students.length === 0) {
-            healthTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in the active school year cohort yet.</td></tr>`;
-        } else {
-            healthTbody.innerHTML = students.map(s => `
-                <tr>
-                    <td><strong>${s.name}</strong></td>
-                    <td><span class="pill-badge neutral">${s.shift}</span></td>
-                    <td>${s.nutrition.allergies !== 'None' ? `<span class="pill-badge danger">${s.nutrition.allergies}</span>` : 'None'}</td>
-                    <td>${s.nutrition.health_conditions !== 'None' ? `<span class="pill-badge warning">${s.nutrition.health_conditions}</span>` : 'None'}</td>
-                    <td>${s.nutrition.rate}% Intake</td>
-                    <td style="font-size: 0.82rem; color: #475569;">
-                        ${s.nutrition.has_allergy ? 'Check daily snack ingredients. ' : ''}
-                        ${s.nutrition.bmi_status !== 'Normal' ? 'Refer to Barangay Health Station supplementary feeding.' : 'Routine balanced daycare meal.'}
-                    </td>
-                </tr>
-            `).join('');
+        // Food Acceptance & Refusal Chart + Table
+        const bestFood = nut.most_eaten_food;
+        const worstFood = nut.most_refused_food;
+        const bestBadge = document.getElementById('mostEatenFoodBadge');
+        const worstBadge = document.getElementById('mostRefusedFoodBadge');
+        if (bestBadge) bestBadge.innerText = bestFood ? `Most Eaten: ${bestFood.food_item} (${bestFood.acceptance_rate}%)` : 'Most Eaten: N/A';
+        if (worstBadge) worstBadge.innerText = worstFood ? `Most Refused: ${worstFood.food_item} (${worstFood.not_eaten_count} refused)` : 'Most Refused: N/A';
+
+        const ctxFood = document.getElementById('foodAcceptanceChart');
+        if (ctxFood) {
+            if (foodAcceptanceChart) foodAcceptanceChart.destroy();
+            foodAcceptanceChart = new Chart(ctxFood, {
+                type: 'bar',
+                data: {
+                    labels: foods.length ? foods.map(f => f.food_item) : ['No Meal Logs'],
+                    datasets: [
+                        {
+                            label: 'Acceptance Rate (%)',
+                            data: foods.length ? foods.map(f => f.acceptance_rate) : [0],
+                            backgroundColor: foods.map(f => f.acceptance_rate >= 80 ? '#10b981' : '#f59e0b')
+                        },
+                        {
+                            label: 'Leftover / Refused (%)',
+                            data: foods.length ? foods.map(f => f.left_or_refused_pct) : [0],
+                            backgroundColor: '#ef4444'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
         }
+
+        const foodTbody = document.getElementById('foodBreakdownTableBody');
+        if (foodTbody) {
+            if (foods.length === 0) {
+                foodTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#64748b;">No daycare meal logs recorded yet.</td></tr>`;
+            } else {
+                foodTbody.innerHTML = foods.map(f => {
+                    const badgeCls = f.acceptance_rate >= 81 ? 'success' : (f.acceptance_rate >= 60 ? 'warning' : 'danger');
+                    return `
+                        <tr>
+                            <td><strong>${f.food_item}</strong></td>
+                            <td>${f.total_served}</td>
+                            <td style="color:#15803d; font-weight:700;">${f.finished_count} (${f.finished_pct}%)</td>
+                            <td style="color:#b45309; font-weight:700;">${f.some_left_count}</td>
+                            <td style="color:#b91c1c; font-weight:700;">${f.not_eaten_count} (${f.refusal_rate}%)</td>
+                            <td><span class="pill-badge ${badgeCls}">${f.acceptance_rate}%</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        renderHealthAllergyTable();
 
         // Behavior counts
         const beh = data.behavior?.participation_breakdown || {};
@@ -1754,7 +2371,58 @@
         document.getElementById('behaviorSupportCount').innerText = beh.needs_guidance || 0;
     }
 
-    // 6. ECCD 7 Domains & Periods
+    function renderHealthAllergyTable() {
+        const shiftFilter = document.getElementById('shiftClassFilter')?.value || 'ALL';
+        const allStudents = (globalAnalyticsData?.risk_scoring?.ranked_students || []).filter(
+            s => shiftFilter === 'ALL' || s.shift === shiftFilter
+        );
+        const healthTbody = document.getElementById('healthAllergyTableBody');
+        if (!healthTbody) return;
+
+        if (allStudents.length === 0) {
+            healthTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-users-slash"></i> No enrolled students in this cohort.</td></tr>`;
+            buildPaginationBarHtml('healthAllergyPagination', 1, 0, 'setHealthPage');
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(allStudents.length / ANALYTICS_PAGE_SIZE));
+        if (healthPage > totalPages) healthPage = totalPages;
+        if (healthPage < 1) healthPage = 1;
+        const pageSlice = allStudents.slice((healthPage - 1) * ANALYTICS_PAGE_SIZE, healthPage * ANALYTICS_PAGE_SIZE);
+
+        healthTbody.innerHTML = pageSlice.map(s => {
+            const hasAllergy = s.nutrition.has_allergy && s.nutrition.allergies && s.nutrition.allergies !== 'None';
+            const hasHealthCond = s.nutrition.has_health_cond && s.nutrition.health_conditions && s.nutrition.health_conditions !== 'None';
+            const refusedFoods = s.nutrition.refused_foods || [];
+            const refusedText = refusedFoods.length > 0
+                ? `<div style="font-size:0.76rem; color:#b91c1c; margin-bottom:2px;"><strong>Refused:</strong> ${refusedFoods.join(', ')}</div>`
+                : `<div style="font-size:0.76rem; color:#15803d; margin-bottom:2px;">Eats all served menu items</div>`;
+            const rateCls = s.nutrition.rate >= 81 ? 'success' : (s.nutrition.rate >= 50 ? 'warning' : 'danger');
+            return `
+                <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="pill-badge ${s.shift === 'Morning' ? 'info' : 'warning'}">${s.shift}</span></td>
+                    <td>${hasAllergy ? `<span class="pill-badge danger">${s.nutrition.allergies}</span>` : `<span class="pill-badge neutral">None</span>`}</td>
+                    <td>${hasHealthCond ? `<span class="pill-badge warning">${s.nutrition.health_conditions}</span>` : `<span class="pill-badge neutral">None</span>`}</td>
+                    <td>
+                        <span class="pill-badge ${rateCls}">${s.nutrition.rate}% Intake</span>
+                        <div style="font-size:0.72rem; color:#64748b; margin-top:3px;">
+                            ${s.nutrition.finished ?? 0} fin • ${s.nutrition.some ?? 0} left • ${s.nutrition.none ?? 0} refused
+                        </div>
+                    </td>
+                    <td style="font-size: 0.8rem; color: #475569;">
+                        ${refusedText}
+                        ${hasAllergy ? '<span style="color:#b91c1c; font-weight:600;">Check daily snack ingredients.</span> ' : ''}
+                        ${s.nutrition.bmi_status !== 'Normal' ? 'Refer to Barangay Health Station supplementary feeding.' : 'Routine balanced daycare meal.'}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        buildPaginationBarHtml('healthAllergyPagination', healthPage, allStudents.length, 'setHealthPage');
+    }
+
+    // 6. ECCD 7 Domains & Periods (Vertical Upward Bars!)
     function initEccdCharts(data) {
         const total = data.total_children || 0;
         const lrn = data.learning || {};
@@ -1765,7 +2433,7 @@
             document.getElementById('highestDomainTitle').innerText = 'None (0%)';
             document.getElementById('lowestDomainTitle').innerText = 'None (0%)';
         } else {
-            document.getElementById('highestDomainTitle').innerText = `${lrn.highest_domain?.name || 'Expressive Language'} (${lrn.highest_domain?.score_pct ?? 0}%)`;
+            document.getElementById('highestDomainTitle').innerText = `${lrn.highest_domain?.name || 'Gross Motor'} (${lrn.highest_domain?.score_pct ?? 0}%)`;
             document.getElementById('lowestDomainTitle').innerText = `${lrn.lowest_domain?.name || 'Cognitive'} (${lrn.lowest_domain?.score_pct ?? 0}%)`;
         }
 
@@ -1775,18 +2443,21 @@
             eccdDomainsBarChart = new Chart(ctxEccd, {
                 type: 'bar',
                 data: {
-                    labels: domains.length ? domains.map(d => d.name) : ['Gross Motor', 'Fine Motor', 'Self-Help', 'Receptive Lang', 'Expressive Lang', 'Cognitive', 'Socio-Emotional'],
+                    labels: domains.length ? domains.map(d => `${d.name} (${d.score_pct}%)`) : ['Gross Motor', 'Fine Motor', 'Self-Help', 'Receptive Lang', 'Expressive Lang', 'Cognitive', 'Socio-Emotional'],
                     datasets: [{
-                        label: 'Mastery Rate (%)',
+                        label: 'Domain Mastery (%)',
                         data: domains.length ? domains.map(d => d.score_pct) : [0, 0, 0, 0, 0, 0, 0],
-                        backgroundColor: domains.map(d => d.score_pct >= 80 ? '#10b981' : (d.score_pct >= 70 ? '#3b82f6' : '#ef4444'))
+                        backgroundColor: domains.map(d => d.score_pct >= 80 ? '#10b981' : (d.score_pct >= 70 ? '#3b82f6' : '#f59e0b')),
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    scales: { x: { min: 0, max: 100, ticks: { callback: v => v + '%' } } },
+                    indexAxis: 'x',
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+                    },
                     plugins: { legend: { display: false } }
                 }
             });
@@ -1795,58 +2466,49 @@
         const ctxPeriods = document.getElementById('periodProgressionChart');
         if (ctxPeriods) {
             if (periodProgressionChart) periodProgressionChart.destroy();
+            const periodColors = ['#3b82f6', '#10b981', '#8b5cf6'];
             periodProgressionChart = new Chart(ctxPeriods, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: periods.length ? periods.map(p => p.short_name) : ['Q1 Assessment', 'Mid-Year', 'Post-Assessment'],
+                    labels: periods.length ? periods.map(p => `${p.short_name} (${p.average_score}%)`) : ['1st Period', '2nd Period'],
                     datasets: [{
                         label: 'Class Average Mastery (%)',
-                        data: periods.length ? periods.map(p => p.average_score) : [0, 0, 0],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.3,
-                        fill: true
+                        data: periods.length ? periods.map(p => p.average_score) : [0, 0],
+                        backgroundColor: periods.map((_, idx) => periodColors[idx % periodColors.length]),
+                        borderRadius: 8,
+                        barPercentage: 0.55
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }
+                    indexAxis: 'x',
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
                 }
             });
         }
     }
 
-    // 7. Interventions
+    // 7. Interventions (Unified Colors + 10-per-page Pagination)
+    function setInterventionsPage(p) {
+        interventionsPage = p;
+        filterInterventionsTable(false);
+    }
+    window.setInterventionsPage = setInterventionsPage;
+
     function renderInterventionsTable(data) {
-        const interventions = data.interventions || [];
-        const tbody = document.getElementById('interventionsTableBody');
-        if (!interventions || interventions.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-clipboard-check"></i> No active intervention plans required (0 enrolled pupils).</td></tr>`;
-            return;
-        }
-        tbody.innerHTML = interventions.map((item, idx) => `
-            <tr>
-                <td><strong>${item.child_name}</strong></td>
-                <td><span class="pill-badge neutral">${item.shift}</span></td>
-                <td><span class="pill-badge ${item.risk_level === 'High' ? 'danger' : (item.risk_level === 'Moderate' ? 'warning' : 'success')}">${item.risk_level}</span></td>
-                <td><strong>${item.recommendation_type}</strong></td>
-                <td><span class="pill-badge ${item.priority === 'High' ? 'danger' : (item.priority === 'Medium' ? 'warning' : 'neutral')}">${item.priority}</span></td>
-                <td style="font-size: 0.83rem; max-width: 280px;">${item.action_plan}</td>
-                <td><strong>${item.timeline}</strong></td>
-                <td>
-                    <button class="btn-analytics btn-analytics-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="viewChildDossier(${item.child_id})">
-                        <i class="fa-solid fa-file-invoice"></i> Action Plan
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        filterInterventionsTable(false);
     }
 
-    function filterInterventionsTable() {
-        const prio = document.getElementById('interventionPriorityFilter').value;
-        const shiftFilter = document.getElementById('shiftClassFilter').value;
+    function filterInterventionsTable(resetPage = false) {
+        if (resetPage) interventionsPage = 1;
+        const prio = document.getElementById('interventionPriorityFilter')?.value || 'ALL';
+        const shiftFilter = document.getElementById('shiftClassFilter')?.value || 'ALL';
         const list = globalAnalyticsData?.interventions || [];
 
         const filtered = list.filter(i => {
@@ -1856,18 +2518,33 @@
         });
 
         const tbody = document.getElementById('interventionsTableBody');
+        if (!tbody) return;
+
         if (!filtered || filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 25px; color: #64748b;"><i class="fa-solid fa-clipboard-check"></i> No intervention plans match the selected criteria.</td></tr>`;
+            buildPaginationBarHtml('interventionsPagination', 1, 0, 'setInterventionsPage');
             return;
         }
-        tbody.innerHTML = filtered.map(item => `
+
+        const totalPages = Math.max(1, Math.ceil(filtered.length / ANALYTICS_PAGE_SIZE));
+        if (interventionsPage > totalPages) interventionsPage = totalPages;
+        if (interventionsPage < 1) interventionsPage = 1;
+        const pageSlice = filtered.slice((interventionsPage - 1) * ANALYTICS_PAGE_SIZE, interventionsPage * ANALYTICS_PAGE_SIZE);
+
+        tbody.innerHTML = pageSlice.map(item => {
+            const riskCls = getUnifiedBadgeClass(item.risk_level);
+            const prioCls = getUnifiedBadgeClass(item.priority);
+            return `
             <tr>
                 <td><strong>${item.child_name}</strong></td>
-                <td><span class="pill-badge neutral">${item.shift}</span></td>
-                <td><span class="pill-badge ${item.risk_level === 'High' ? 'danger' : 'warning'}">${item.risk_level}</span></td>
+                <td><span class="pill-badge ${item.shift === 'Morning' ? 'info' : 'warning'}">${item.shift}</span></td>
+                <td>
+                    <span class="pill-badge ${riskCls}">${item.risk_level} Risk</span>
+                    <div style="font-size:0.72rem; color:#64748b; margin-top:2px;">DRI: ${item.dri_score ?? '--'}%</div>
+                </td>
                 <td><strong>${item.recommendation_type}</strong></td>
-                <td><span class="pill-badge ${item.priority === 'High' ? 'danger' : 'warning'}">${item.priority}</span></td>
-                <td style="font-size: 0.83rem;">${item.action_plan}</td>
+                <td><span class="pill-badge ${prioCls}">${item.priority}</span></td>
+                <td style="font-size: 0.83rem; max-width: 280px;">${item.action_plan}</td>
                 <td><strong>${item.timeline}</strong></td>
                 <td>
                     <button class="btn-analytics btn-analytics-secondary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="viewChildDossier(${item.child_id})">
@@ -1875,7 +2552,10 @@
                     </button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
+
+        buildPaginationBarHtml('interventionsPagination', interventionsPage, filtered.length, 'setInterventionsPage');
     }
 
     // 8. AI Diagnostic Panel
@@ -1940,6 +2620,7 @@
             
             // Format answer markdown to HTML basic formatting
             let formattedAnswer = (resData.answer || '')
+                .replace(/#### (.*?)\n/g, '<h5 style="margin: 10px 0 6px 0; color: #0f172a; font-size: 0.95rem;">$1</h5>')
                 .replace(/### (.*?)\n/g, '<h4 style="margin: 0 0 10px 0; color: #1e40af; font-size: 1.05rem;">$1</h4>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -1963,7 +2644,7 @@
         const select = document.getElementById('dossierStudentSelect');
         const students = data.risk_scoring?.ranked_students || [];
         select.innerHTML = `<option value="CLASS_OVERVIEW">Whole Class Analytical Dossier</option>` + 
-            students.map(s => `<option value="${s.id}">${s.name} (${s.shift} Shift)</option>`).join('');
+            students.map(s => `<option value="${s.id}">${s.name} (${s.shift} Shift — DRI: ${s.dri_score}%)</option>`).join('');
     }
 
     function openReportDossierModal() {
@@ -2009,7 +2690,7 @@
                     </div>
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">ECCD Mastery</span>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #7c3aed;">${lrn.highest_domain?.score_pct ?? 0}%</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #7c3aed;">${lrn.eccd_average_rate ?? summary.eccd_mastery_rate ?? 0}%</div>
                     </div>
                     <div style="border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px;">
                         <span style="font-size: 0.78rem; color: #64748b;">At-Risk Students</span>
@@ -2023,17 +2704,19 @@
                         <tr>
                             <th>Student</th>
                             <th>Shift</th>
-                            <th>Risk Type</th>
+                            <th>Risk Level</th>
+                            <th>Action Priority</th>
                             <th>Prescribed Daycare Intervention</th>
                             <th>Timeline</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${(data.interventions || []).slice(0, 6).map(i => `
+                        ${(data.interventions || []).slice(0, 8).map(i => `
                             <tr>
                                 <td><strong>${i.child_name}</strong></td>
                                 <td>${i.shift}</td>
-                                <td><span class="pill-badge ${i.risk_level === 'High' ? 'danger' : 'warning'}">${i.risk_level}</span></td>
+                                <td><span class="pill-badge ${getUnifiedBadgeClass(i.risk_level)}">${i.risk_level}</span></td>
+                                <td><span class="pill-badge ${getUnifiedBadgeClass(i.priority)}">${i.priority}</span></td>
                                 <td><strong>${i.recommendation_type}</strong>: ${i.action_plan}</td>
                                 <td>${i.timeline}</td>
                             </tr>
@@ -2046,11 +2729,24 @@
             const student = (data.risk_scoring?.ranked_students || []).find(s => s.id === childId);
             if (!student) return;
 
+            const fb = student.formula_breakdown || {
+                attendance_pct: student.attendance.rate,
+                attendance_points: (student.attendance.rate * 0.25).toFixed(1),
+                nutrition_pct: student.nutrition.composite_rate ?? student.nutrition.rate,
+                nutrition_points: ((student.nutrition.composite_rate ?? student.nutrition.rate) * 0.25).toFixed(1),
+                learning_pct: student.learning.learning_composite ?? student.learning.eccd_rate,
+                learning_points: ((student.learning.learning_composite ?? student.learning.eccd_rate) * 0.30).toFixed(1),
+                behavior_pct: student.learning.social_rate ?? student.learning.eccd_rate,
+                behavior_points: ((student.learning.social_rate ?? student.learning.eccd_rate) * 0.20).toFixed(1)
+            };
+
             const childWarnings = (data.early_warnings || []).filter(w => w.child_id === childId);
             const childInterventions = (data.interventions || []).filter(i => i.child_id === childId);
+            const unifiedCls = getUnifiedBadgeClass(student.risk_level);
+            const trendColor = student.trend === 'Improving' ? '#10b981' : (student.trend === 'Declining' ? '#ef4444' : '#d97706');
 
             container.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; border-bottom: 1px solid #cbd5e1; padding-bottom: 15px;">
                     <div>
                         <h2 style="margin: 0; color: #091e42; font-size: 1.5rem;">${student.name}</h2>
                         <div style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">
@@ -2058,12 +2754,32 @@
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <span class="pill-badge ${student.readiness_badge}" style="font-size: 0.9rem; padding: 6px 14px;">
-                            ${student.readiness_tier} (${student.dri_score}%)
+                        <span class="pill-badge ${unifiedCls}" style="font-size: 0.9rem; padding: 6px 14px;">
+                            ${student.readiness_tier} (${student.dri_score}% DRI)
                         </span>
                         <div style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">
-                            Risk Score: <strong>${student.risk_score}/100</strong> (${student.risk_level})
+                            Composite Risk Score (100% − DRI): <strong>${student.risk_score}%</strong> (${student.risk_level} Risk)
                         </div>
+                    </div>
+                </div>
+
+                <!-- 100% Weighted Score Calculation Breakdown Panel -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #1e40af; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px;">
+                    <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.95rem;">
+                        <i class="fa-solid fa-calculator"></i> 100% Weighted Score Calculation Breakdown
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.83rem; color: #334155;">
+                        <div>• <strong>Attendance (25% weight):</strong> <code>${fb.attendance_pct}% × 0.25 = ${fb.attendance_points}%</code></div>
+                        <div>• <strong>Nutrition & Health (25% weight):</strong> <code>${fb.nutrition_pct}% × 0.25 = ${fb.nutrition_points}%</code></div>
+                        <div>• <strong>Learning & ECCD (30% weight):</strong> <code>${fb.learning_pct}% × 0.30 = ${fb.learning_points}%</code></div>
+                        <div>• <strong>Social & Behavior (20% weight):</strong> <code>${fb.behavior_pct}% × 0.20 = ${fb.behavior_points}%</code></div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 0.84rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <span><strong>Total Current DRI:</strong> <code>${fb.attendance_points}% + ${fb.nutrition_points}% + ${fb.learning_points}% + ${fb.behavior_points}% = ${student.dri_score}%</code></span>
+                        <span><strong>Composite Risk Score (100% − DRI):</strong> <code>100% − ${student.dri_score}% = ${student.risk_score}%</code></span>
+                    </div>
+                    <div style="margin-top: 6px; font-size: 0.8rem; color: #475569;">
+                        <strong>Growth Trajectory (${student.trend_delta} → ${student.projected_dri}% Projected Year-End DRI):</strong> Calculated from the change between 1st Assessment baseline (${student.learning.baseline_eccd_rate ?? student.learning.eccd_rate}% ECCD / ${student.attendance.early_rate ?? student.attendance.rate}% Attendance) and current performance.
                     </div>
                 </div>
 
@@ -2071,24 +2787,24 @@
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.76rem; color: #64748b;">Attendance Rate</span>
                         <div style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">${student.attendance.rate}%</div>
-                        <span style="font-size: 0.7rem; color: #64748b;">${student.attendance.absent} absences</span>
+                        <span style="font-size: 0.7rem; color: #64748b;">${student.attendance.present} pres / ${student.attendance.absent} abs</span>
                     </div>
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.76rem; color: #64748b;">Nutritional Status</span>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: ${student.nutrition.bmi_status === 'Normal' ? '#10b981' : '#ef4444'};">${student.nutrition.bmi_status}</div>
-                        <span style="font-size: 0.7rem; color: #64748b;">${student.nutrition.rate}% Intake</span>
+                        <div style="font-size: 1.15rem; font-weight: 800; color: ${student.nutrition.bmi_status === 'Normal' ? '#10b981' : '#ef4444'};">${student.nutrition.bmi_status}</div>
+                        <span style="font-size: 0.7rem; color: #64748b;">${student.nutrition.rate}% Meal Intake</span>
                     </div>
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.76rem; color: #64748b;">ECCD Mastery</span>
                         <div style="font-size: 1.4rem; font-weight: 800; color: #7c3aed;">${student.learning.eccd_rate}%</div>
-                        <span style="font-size: 0.7rem; color: #64748b;">Cognitive: ${student.learning.cognitive_rate}%</span>
+                        <span style="font-size: 0.7rem; color: #64748b;">Tasks: ${student.learning.task_rate}%</span>
                     </div>
                     <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; text-align: center;">
                         <span style="font-size: 0.76rem; color: #64748b;">Growth Trajectory</span>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: ${student.trend === 'Improving' ? '#10b981' : (student.trend === 'Declining' ? '#ef4444' : '#3b82f6')};">
+                        <div style="font-size: 1.4rem; font-weight: 800; color: ${trendColor};">
                             ${student.trend === 'Improving' ? '↗' : (student.trend === 'Declining' ? '↘' : '→')} ${student.projected_dri}%
                         </div>
-                        <span style="font-size: 0.7rem; color: #64748b;">Projected Year-End</span>
+                        <span style="font-size: 0.7rem; color: #64748b;">Projected (${student.trend_delta})</span>
                     </div>
                 </div>
 
@@ -2107,7 +2823,7 @@
                         <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                                 <strong style="color: #1e40af;">${i.recommendation_type}</strong>
-                                <span class="pill-badge ${i.priority === 'High' ? 'danger' : 'warning'}">${i.priority} Priority</span>
+                                <span class="pill-badge ${getUnifiedBadgeClass(i.priority)}">${i.priority}</span>
                             </div>
                             <p style="margin: 0; font-size: 0.86rem; color: #475569;">${i.action_plan}</p>
                             <div style="font-size: 0.78rem; color: #64748b; margin-top: 6px;">Evaluation Review Timeline: <strong>${i.timeline}</strong></div>
@@ -2134,7 +2850,13 @@
 
     // Shift Filter
     function onShiftFilterChange() {
+        riskPage = 1;
+        driPage = 1;
+        healthPage = 1;
+        interventionsPage = 1;
         filterRiskTable();
+        renderDriStudentTable();
+        renderHealthAllergyTable();
         filterInterventionsTable();
     }
 

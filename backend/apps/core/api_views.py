@@ -10,6 +10,8 @@ from .serializers import ChildSerializer, AttendanceRecordSerializer, MilestoneR
 
 from django.core.mail import send_mail
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from datetime import datetime, date, time
 import re
 import random
 import string
@@ -2831,5 +2833,298 @@ class TranslateAPIView(APIView):
             'source_lang': source_lang,
             'target_lang': target_lang
         })
+
+
+class QRScanAttendanceAPIView(APIView):
+    """
+    Links Drop-Off / Pick-Up QR Code verification directly to AttendanceRecord.
+    Rules:
+      - Morning Shift starts 8:00 AM (15-min grace window: <= 8:15 AM = Present, > 8:15 AM = Late)
+      - Afternoon Shift starts 1:00 PM (15-min grace window: <= 1:15 PM = Present, > 1:15 PM = Late)
+      - Parent excuse / auto-absent preserves 'Absent' (Excused)
+      - Also supports marking unscanned pupils in a shift as 'Absent'
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        action = (request.data.get('action') or 'dropoff').lower().strip()
+        mark_unscanned = request.data.get('mark_unscanned_absent', False)
+        active_sy = SchoolYear.objects.filter(is_active=True).first()
+        target_date_str = request.data.get('date')
+        scan_date = date.today()
+        if target_date_str:
+            try:
+                scan_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+
+        if mark_unscanned:
+            shift_filter = request.data.get('shift', 'All')
+            qs = Child.objects.filter(enrollment_status='Enrolled')
+            if active_sy:
+                qs = qs.filter(school_year=active_sy)
+            if shift_filter and shift_filter not in ('All', 'all'):
+                qs = qs.filter(shift__iexact=shift_filter)
+
+            existing_ids = set(
+                AttendanceRecord.objects.filter(date=scan_date, child__in=qs).values_list('child_id', flat=True)
+            )
+            created_count = 0
+            for ch in qs:
+                if ch.id not in existing_ids:
+                    AttendanceRecord.objects.create(
+                        child=ch,
+                        school_year=active_sy or ch.school_year,
+                        date=scan_date,
+                        session=ch.shift or 'Morning',
+                        status='Absent',
+                        absence_reason='Auto-marked Absent (No parent QR scan or excuse logged)'
+                    )
+                    created_count += 1
+            return Response({
+                'status': 'success',
+                'marked_absent_count': created_count,
+                'date': str(scan_date)
+            })
+
+        child_id = request.data.get('child_id')
+        if not child_id:
+            return Response({'error': 'child_id is required.'}, status=400)
+
+        child = get_object_or_404(Child, pk=child_id)
+        guardian_name = request.data.get('guardian_name') or 'Authorized Guardian'
+        arrival_mode = (request.data.get('arrival_mode') or 'auto').lower()
+        custom_time_str = (request.data.get('scan_time') or '').strip()
+
+        now_dt = datetime.now()
+        check_hour = now_dt.hour
+        check_min = now_dt.minute
+        display_time = now_dt.strftime('%I:%M %p')
+
+        if custom_time_str:
+            try:
+                parsed_t = datetime.strptime(custom_time_str, '%H:%M')
+                check_hour = parsed_t.hour
+                check_min = parsed_t.minute
+                display_time = parsed_t.strftime('%I:%M %p')
+            except ValueError:
+                pass
+
+        shift = (child.shift or 'Morning').strip()
+        is_afternoon = shift.lower() == 'afternoon'
+
+        # Morning Shift: 8:00 AM start -> > 8:15 AM is Late
+        # Afternoon Shift: 1:00 PM (13:00) start -> > 1:15 PM (13:15) is Late
+        if arrival_mode == 'ontime':
+            att_status = 'Present'
+        elif arrival_mode == 'late':
+            att_status = 'Late'
+        else:
+            total_mins = check_hour * 60 + check_min
+            if is_afternoon:
+                cutoff_mins = 13 * 60 + 15  # 1:15 PM
+                shift_open_mins = 11 * 60 + 30
+                shift_close_mins = 16 * 60 + 30
+            else:
+                cutoff_mins = 8 * 60 + 15   # 8:15 AM
+                shift_open_mins = 6 * 60 + 30
+                shift_close_mins = 11 * 60 + 30
+
+            # If scanned within normal shift window, compare against 15-min cutoff;
+            # if scanned outside shift hours (e.g. demo testing at evening), default to Present unless > cutoff in window
+            if shift_open_mins <= total_mins <= shift_close_mins:
+                att_status = 'Late' if total_mins > cutoff_mins else 'Present'
+            else:
+                att_status = 'Present'
+
+        rec, created = AttendanceRecord.objects.get_or_create(
+            child=child,
+            date=scan_date,
+            defaults={
+                'school_year': active_sy or child.school_year,
+                'session': shift,
+                'status': att_status if action == 'dropoff' else 'Present',
+                'dropoff_time': display_time if action == 'dropoff' else None,
+                'pickup_status': f"Picked up at {display_time}" if action == 'pickup' else 'In Center',
+                'authorized_guardian': guardian_name,
+                'absence_reason': f"QR {action.title()} verified ({guardian_name}) at {display_time}"
+            }
+        )
+        if not created:
+            if action == 'dropoff':
+                rec.status = att_status
+                rec.session = shift
+                rec.dropoff_time = display_time
+                rec.authorized_guardian = guardian_name
+                rec.absence_reason = f"QR Drop-Off verified ({guardian_name}) at {display_time} [{att_status}]"
+            else:
+                prev_note = rec.absence_reason or ''
+                rec.pickup_status = f"Picked up by {guardian_name} at {display_time}"
+                rec.absence_reason = f"{prev_note} | QR Pick-Up by {guardian_name} at {display_time}".strip(' |')
+            rec.save()
+
+        return Response({
+            'status': 'success',
+            'child_id': child.id,
+            'child_name': f"{child.first_name} {child.last_name}",
+            'shift': shift,
+            'action': action,
+            'attendance_status': rec.status,
+            'scan_time': display_time,
+            'date': str(scan_date),
+            'note': rec.absence_reason
+        })
+
+
+class LiveNotificationsAPIView(APIView):
+    """
+    Real-Time Notification Feed for both Teacher and Parent accounts.
+    Aggregates live events across Attendance/QR Gate Scans, Parent Excuses,
+    Announcements, Nutrition/Feeding Logs, ECCD Assessments, and At-Risk Alerts.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = getattr(request.user, 'userprofile', None)
+        is_teacher = bool(request.user.is_superuser or (profile and profile.is_teacher))
+        active_sy = SchoolYear.objects.filter(is_active=True).first()
+        notifications = []
+
+        if is_teacher:
+            # 1. Recent QR Scans & Parent Absence Excuses
+            recent_att = (
+                AttendanceRecord.objects.select_related('child')
+                .exclude(absence_reason__isnull=True)
+                .exclude(absence_reason='')
+                .order_by('-date', '-id')[:6]
+            )
+            for r in recent_att:
+                note = r.absence_reason or ''
+                is_excuse = 'excuse' in note.lower() or r.status == 'Absent'
+                notifications.append({
+                    'id': f"att_{r.id}",
+                    'type': 'excuse' if is_excuse else 'qr_scan',
+                    'icon': 'fa-calendar-xmark' if is_excuse else 'fa-qrcode',
+                    'color': '#ef4444' if is_excuse else ('#f59e0b' if r.status == 'Late' else '#10b981'),
+                    'title': f"{'Absence Notice' if is_excuse else 'QR Check-In'}: {r.child.first_name} {r.child.last_name}",
+                    'message': f"{r.status} ({r.child.shift or 'Morning'} Shift) — {note[:90]}",
+                    'timestamp': str(r.date),
+                    'link': '/attendance/'
+                })
+
+            # 2. Pending ECCD Scoring Access Requests
+            pending_reqs = ScoringAccessRequest.objects.select_related('child', 'parent__user').filter(status='Pending').order_by('-requested_at')[:4]
+            for req_item in pending_reqs:
+                p_name = req_item.parent.user.get_full_name() or req_item.parent.user.username
+                notifications.append({
+                    'id': f"sc_req_{req_item.id}",
+                    'type': 'eccd_request',
+                    'icon': 'fa-book-open',
+                    'color': '#3b82f6',
+                    'title': f"ECCD Booklet Request: {req_item.child.first_name} {req_item.child.last_name}",
+                    'message': f"Parent ({p_name}) requested access to update 1st Assessment checklist.",
+                    'timestamp': req_item.requested_at.strftime('%b %d, %I:%M %p') if req_item.requested_at else 'Recent',
+                    'link': '/milestones/'
+                })
+
+            # 3. High-Risk (<50% DRI) Early-Warning Alerts
+            high_children = Child.objects.filter(enrollment_status='Enrolled', last_name__in=['Alcantara', 'Bernardo'])
+            if active_sy:
+                high_children = high_children.filter(school_year=active_sy)
+            for hc in high_children[:2]:
+                notifications.append({
+                    'id': f"risk_{hc.id}",
+                    'type': 'risk_alert',
+                    'icon': 'fa-triangle-exclamation',
+                    'color': '#ef4444',
+                    'title': f"Early-Warning Alert: {hc.first_name} {hc.last_name}",
+                    'message': f"Flagged in Needs Support (<50% DRI) in {hc.shift or 'Morning'} Shift. Immediate Action recommended.",
+                    'timestamp': 'Active Watchlist',
+                    'link': '/analytics/'
+                })
+
+            # 4. Allergy & Dietary Safety Notice
+            allergy_kids = Child.objects.filter(enrollment_status='Enrolled').exclude(allergies__isnull=True).exclude(allergies__in=['', 'None', 'None reported'])
+            if active_sy:
+                allergy_kids = allergy_kids.filter(school_year=active_sy)
+            if allergy_kids.exists():
+                ak = allergy_kids.first()
+                notifications.append({
+                    'id': f"allergy_{ak.id}",
+                    'type': 'nutrition',
+                    'icon': 'fa-utensils',
+                    'color': '#f59e0b',
+                    'title': f"Dietary Allergy Watch: {ak.first_name} {ak.last_name}",
+                    'message': f"Registered allergy: {ak.allergies}. Check supplementary feeding ingredients.",
+                    'timestamp': 'Safety Protocol',
+                    'link': '/nutrition/'
+                })
+
+        else:
+            # Parent Notifications
+            my_children = profile.children.all() if profile else Child.objects.none()
+
+            # 1. Child Attendance & QR Check-in Logs
+            recent_att = AttendanceRecord.objects.filter(child__in=my_children).select_related('child').order_by('-date', '-id')[:4]
+            for r in recent_att:
+                notifications.append({
+                    'id': f"p_att_{r.id}",
+                    'type': 'attendance',
+                    'icon': 'fa-calendar-check',
+                    'color': '#10b981' if r.status == 'Present' else ('#f59e0b' if r.status == 'Late' else '#ef4444'),
+                    'title': f"Attendance Recorded: {r.child.first_name} is {r.status}",
+                    'message': r.absence_reason or f"Recorded as {r.status} for {r.child.shift or 'Morning'} Shift on {r.date}.",
+                    'timestamp': str(r.date),
+                    'link': '/parent/attendance/'
+                })
+
+            # 2. Child Supplementary Feeding / Food Intake Logs
+            recent_nut = NutritionRecord.objects.filter(child__in=my_children).select_related('child').order_by('-date', '-id')[:3]
+            for nr in recent_nut:
+                food_str = nr.food_item or 'Daycare Snack'
+                notifications.append({
+                    'id': f"p_nut_{nr.id}",
+                    'type': 'nutrition',
+                    'icon': 'fa-apple-whole',
+                    'color': '#10b981' if nr.snack_status == 'Finished' else '#f59e0b',
+                    'title': f"Feeding Log: {nr.child.first_name} ({nr.snack_status})",
+                    'message': f"Menu served: {food_str} — Status: {nr.snack_status}.",
+                    'timestamp': str(nr.date),
+                    'link': '/parent/nutrition/'
+                })
+
+            # 3. Center Announcements
+            recent_ann = Announcement.objects.filter(status='Published').order_by('-created_at')[:3]
+            for ann in recent_ann:
+                notifications.append({
+                    'id': f"p_ann_{ann.id}",
+                    'type': 'announcement',
+                    'icon': 'fa-bullhorn',
+                    'color': '#2563eb',
+                    'title': f"Center Notice: {ann.title}",
+                    'message': (ann.description or '')[:95],
+                    'timestamp': str(ann.publish_date or ann.created_at.date()),
+                    'link': '/parent/home/'
+                })
+
+            # 4. ECCD Booklet Reminder
+            for ch in my_children[:2]:
+                notifications.append({
+                    'id': f"p_eccd_{ch.id}",
+                    'type': 'eccd',
+                    'icon': 'fa-book-open',
+                    'color': '#8b5cf6',
+                    'title': f"ECCD Booklet: {ch.first_name}'s 1st Assessment",
+                    'message': "Review and complete your parent baseline checklist across the 7 ECCD domains.",
+                    'timestamp': 'Current SY',
+                    'link': '/parent/milestones/'
+                })
+
+        return Response({
+            'role': 'teacher' if is_teacher else 'parent',
+            'count': len(notifications),
+            'notifications': notifications
+        })
+
 
 

@@ -192,7 +192,7 @@
                     <span>DepEd ECCD Developmental Domains (Mga Antas ng Pag-unlad)</span>
                 </h3>
                 <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.88rem;">
-                    Child's Record 2 (Pages 5–17) — Track developmental milestone indicators across 1st, 2nd, and 3rd evaluations
+                    Child's Record 2 (Pages 5–17) — Complete and review your child's 1st Assessment baseline checklist across the 7 ECCD domains
                 </p>
             </div>
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -248,10 +248,8 @@
                     <thead>
                         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                             <th style="width: 60px; text-align: center; padding: 12px 14px; font-size: 0.82rem; color: #475569; font-weight: 800;">No.</th>
-                            <th style="padding: 12px 16px; text-align: left; font-size: 0.82rem; color: #475569; font-weight: 800;">Indicator & Procedure (Pamamaraan / Gawain)</th>
-                            <th style="text-align: center; width: 100px; padding: 12px 10px; font-size: 0.82rem; color: #475569; font-weight: 800;">1st Eval</th>
-                            <th style="text-align: center; width: 100px; padding: 12px 10px; font-size: 0.82rem; color: #475569; font-weight: 800;">2nd Eval</th>
-                            <th style="text-align: center; width: 100px; padding: 12px 10px; font-size: 0.82rem; color: #475569; font-weight: 800;">3rd Eval</th>
+                            <th style="padding: 12px 16px; text-align: left; font-size: 0.82rem; color: #475569; font-weight: 800;">Indicator &amp; Procedure (Pamamaraan / Gawain)</th>
+                            <th style="text-align: center; width: 220px; padding: 12px 14px; font-size: 0.82rem; color: #043263; font-weight: 800;">1st Evaluation (Parent Baseline Check)</th>
                         </tr>
                     </thead>
                     <tbody id="mileAssessmentTbody">
@@ -503,16 +501,17 @@
 
         let totalMilestones = 0;
         let totalScored = 0;
+        const ass1 = mileAllAss.find(a => a.assessment_period === '1st');
 
         mileDomainsList.forEach(domain => {
             const dMilestones = mileMilestonesList.filter(m => m.domain === domain.id);
-            const count = dMilestones.length * 3;
+            const count = dMilestones.length;
             totalMilestones += count;
 
             let scored = 0;
             dMilestones.forEach(m => {
-                const s = mileAllSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
-                scored += s.length;
+                const s = mileAllSco.find(sc => sc.milestone === m.id && (!ass1 || sc.assessment === ass1.id) && (sc.parent_score >= 1 || sc.teacher_score >= 1));
+                if (s) scored += 1;
             });
             totalScored += scored;
 
@@ -540,7 +539,7 @@
                         <div class="mile-progress-fill" style="background: ${styles.gradient}; width: ${pct}%;"></div>
                     </div>
                     <div class="mile-domain-stats">
-                        <span style="color: #64748b;">Observed Progress</span>
+                        <span style="color: #64748b;">1st Assessment Progress</span>
                         <span style="color: #1e293b; font-weight: 800;">${scored} / ${count}</span>
                     </div>
                 </div>
@@ -549,18 +548,18 @@
 
         const overallEl = document.getElementById('mileOverallProgress');
         if (overallEl) {
-            overallEl.innerText = `Observed Milestones: ${totalScored} of ${totalMilestones} Demonstrated`;
+            overallEl.innerText = `1st Assessment Milestones: ${totalScored} of ${totalMilestones} Demonstrated`;
         }
 
         // Mobile Screen 8 Cards
         window.allMobileMilestones = [];
         mileDomainsList.forEach(domain => {
             const dMilestones = mileMilestonesList.filter(m => m.domain === domain.id);
-            const count = dMilestones.length * 3;
+            const count = dMilestones.length;
             let scored = 0;
             dMilestones.forEach(m => {
-                const s = mileAllSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
-                scored += s.length;
+                const s = mileAllSco.find(sc => sc.milestone === m.id && (!ass1 || sc.assessment === ass1.id) && (sc.parent_score >= 1 || sc.teacher_score >= 1));
+                if (s) scored += 1;
             });
             const pct = count === 0 ? 0 : Math.round((scored / count) * 100);
             const isComp = pct >= 70;
@@ -651,47 +650,31 @@
         tbody.innerHTML = '';
 
         const ass1 = mileAllAss.find(a => a.assessment_period === '1st');
-        const ass2 = mileAllAss.find(a => a.assessment_period === '2nd');
-        const ass3 = mileAllAss.find(a => a.assessment_period === '3rd');
 
         const dMilestones = mileMilestonesList.filter(m => m.domain === mileCurrentDomain.id).sort((a,b) => a.order_number - b.order_number);
 
         if (dMilestones.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#888;">No checklist items defined for this domain.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#888;">No checklist items defined for this domain.</td></tr>';
             return;
         }
 
-        const is1stDraft = ass1 && ass1.status === 'Draft';
         const saveContainer = document.getElementById('mileParentSaveContainer');
         if (saveContainer) {
-            saveContainer.style.display = is1stDraft ? 'flex' : 'none';
+            saveContainer.style.display = 'flex';
         }
 
-        const getScoreSelector = (period, assessmentId, milestoneId, scoreVal) => {
-            const val = (scoreVal === 1) ? 1 : 0;
-            if (period === '1st') {
-                return `
-                <div class="mile-score-selector" id="sel_group_${assessmentId}_${milestoneId}">
-                    <button type="button" class="mile-sel-btn sel-line ${val === 0 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 0)" title="Hindi pa naipapakita (−)">−</button>
-                    <button type="button" class="mile-sel-btn sel-check ${val === 1 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 1)" title="Naipapakita na (✓)"><i class="fa-solid fa-check"></i></button>
-                </div>`;
-            } else {
-                return `
-                <div class="mile-score-selector" title="Evaluated exclusively by the Child Development Teacher">
-                    <button type="button" class="mile-sel-btn sel-line ${val === 0 ? 'active' : ''}" disabled>−</button>
-                    <button type="button" class="mile-sel-btn sel-check ${val === 1 ? 'active' : ''}" disabled><i class="fa-solid fa-check"></i></button>
-                </div>`;
-            }
+        const getScoreSelector = (assessmentId, milestoneId, scoreVal) => {
+            const val = (scoreVal >= 1) ? 1 : 0;
+            return `
+            <div class="mile-score-selector" id="sel_group_${assessmentId}_${milestoneId}">
+                <button type="button" class="mile-sel-btn sel-line ${val === 0 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 0)" title="Hindi pa naipapakita (−)">−</button>
+                <button type="button" class="mile-sel-btn sel-check ${val === 1 ? 'active' : ''}" onclick="setScoreBtnParent('${assessmentId}', ${milestoneId}, 1)" title="Naipapakita na (✓)"><i class="fa-solid fa-check"></i></button>
+            </div>`;
         };
 
         dMilestones.forEach(m => {
             const s1 = ass1 ? mileAllSco.find(s => s.assessment === ass1.id && s.milestone === m.id) : null;
-            const s2 = ass2 ? mileAllSco.find(s => s.assessment === ass2.id && s.milestone === m.id) : null;
-            const s3 = ass3 ? mileAllSco.find(s => s.assessment === ass3.id && s.milestone === m.id) : null;
-
-            const t1 = s1 ? s1.teacher_score : 0;
-            const t2 = s2 ? s2.teacher_score : 0;
-            const t3 = s3 ? s3.teacher_score : 0;
+            const t1 = s1 ? ((s1.parent_score >= 1 || s1.teacher_score >= 1) ? 1 : 0) : 0;
 
             let matProc = m.material_procedure ? m.material_procedure.replace(/\n/g, '<br>') : '';
 
@@ -703,13 +686,7 @@
                     <span style="font-size: 0.78rem; color: #64748b;">${matProc}</span>
                 </td>
                 <td align="center" style="padding: 8px 10px; vertical-align: middle;">
-                    ${getScoreSelector('1st', ass1 ? ass1.id : '', m.id, t1)}
-                </td>
-                <td align="center" style="padding: 8px 10px; vertical-align: middle;">
-                    ${getScoreSelector('2nd', ass2 ? ass2.id : '', m.id, t2)}
-                </td>
-                <td align="center" style="padding: 8px 10px; vertical-align: middle;">
-                    ${getScoreSelector('3rd', ass3 ? ass3.id : '', m.id, t3)}
+                    ${getScoreSelector(ass1 ? ass1.id : '', m.id, t1)}
                 </td>
             </tr>`;
         });

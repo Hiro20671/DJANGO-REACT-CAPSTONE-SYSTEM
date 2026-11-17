@@ -94,17 +94,24 @@
 .legend-text { font-size: 0.88rem; font-weight: 600; color: white; white-space: nowrap; }
 
 /* Modals */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
 .modal-overlay.active { display: flex; }
-.modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.modal-container { background-color: #fff; border-radius: 14px; width: 600px; max-width: 95%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 45px rgba(0,0,0,0.28); }
 .modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
 .modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
-.btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; }
+.btn-close { background: none; border: none; font-size: 2rem; font-weight: 800; cursor: pointer; color: #64748b; width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
+.btn-close:hover { background: rgba(0,0,0,0.06); color: #0f172a; }
 .modal-body { padding: 20px 25px; overflow-y: auto; flex-grow: 1; }
 .pill { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
 .pill.success { background-color: #d4edda; color: #155724; }
 .pill.warning { background-color: #fff3cd; color: #856404; }
 .pill.danger { background-color: #fdf2f2; color: #d9534f; }
+.pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; width: 100%; }
+.pagination-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+.page-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+.page-btn.active { background: #063970; color: #fff; border-color: #063970; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
     .summary-container { grid-template-columns: 1fr; }
@@ -206,7 +213,7 @@
             <div class="legend-text">No Class</div>
         </div>
         <p style="color:#94a3b8; font-size:0.75rem; margin-top:12px; line-height: 1.4;">
-            Click any day to select it for attendance below. Classes: Mon–Thu.
+            Click any date cell on the calendar to open the Daily Attendance Register popup. Classes: Mon–Thu.
         </p>
     </div>
 </div>
@@ -222,71 +229,66 @@
     </div>
 </div>
 
-<!-- NEW SECTION: Daily Attendance Checklist -->
-<div class="content-section" style="border: 2px solid #4a90e2; background-color: #fff;" id="checklist-section-anchor">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:15px;">
-        <div>
-            <div class="section-title" style="color: #4a90e2; margin:0;">Daily Attendance Checklist</div>
-            <div class="section-subtitle" style="margin:5px 0 0 0; display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
-                <span>Class Date:</span>
-                <input type="date" id="attendanceDate" class="date-picker">
-                <button type="button" onclick="stageAllShiftPresent()" style="background:#10b981; color:#fff; border:none; padding:7px 13px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Stage all unrecorded pupils in this shift as present">
-                    <i class="fa-solid fa-check-double"></i> Mark Shift Present
-                </button>
-                <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Declare this date as No Class and notify parents">
+<!-- CALENDAR DATE POPUP MODAL: Daily Attendance Register -->
+<div class="modal-overlay" id="attendanceDateModal">
+    <div class="modal-container" style="width: 960px; max-width: 96%; max-height: 90vh;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #043263 0%, #0f4c81 100%); color: #fff; padding: 18px 24px; flex-wrap: wrap; gap: 14px;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <div style="width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div>
+                    <h3 id="attendanceModalDateTitle" style="color:#fff; font-size:1.25rem; font-weight:800; margin:0;">Daily Attendance Register</h3>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:0.82rem; color:#bae6fd;">
+                        <span>Selected Date:</span>
+                        <input type="date" id="attendanceDate" class="date-picker" style="padding:3px 8px; font-size:0.8rem; border-radius:6px; border:none;">
+                        <span>&bull; Driven by QR Drop-Off (15-min Grace Rule) &amp; Parent Excuses</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#ef4444; color:#ffffff; border:2px solid #fca5a5; padding:10px 18px; font-size:0.92rem; font-weight:800; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; box-shadow:0 4px 12px rgba(239,68,68,0.35);" title="Declare this date as No Class and notify parents">
                     <i class="fa-solid fa-ban"></i> Declare 'No Class'
                 </button>
-                <button type="button" onclick="clearCurrentDateAttendance()" style="background:#ffffff; color:#b91c1c; border:1.5px solid #f87171; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Reset or remove saved attendance if entered on the wrong date">
+                <button type="button" onclick="clearCurrentDateAttendance()" style="background:#fff1f2; color:#be123c; border:2px solid #fda4af; padding:10px 18px; font-size:0.92rem; font-weight:800; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; box-shadow:0 4px 12px rgba(0,0,0,0.12);" title="Reset or remove saved attendance if entered on the wrong date">
                     <i class="fa-solid fa-rotate-left"></i> Undo / Clear Date Attendance
                 </button>
+                <button type="button" onclick="closeModal('attendanceDateModal')" class="btn-close" style="color:#fff; background:rgba(255,255,255,0.15); width:42px; height:42px; font-size:1.8rem;" title="Close Popup">&times;</button>
             </div>
         </div>
-        
-        <!-- BMV3 Shift Class Switcher -->
-        <div style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:5px; border-radius:10px; border:1px solid #cbd5e1;">
-            <button type="button" id="btn-shift-morning" onclick="setAttendanceShift('Morning')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:#063970; color:#fff; display:flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Morning Shift (AM)
-            </button>
-            <button type="button" id="btn-shift-afternoon" onclick="setAttendanceShift('Afternoon')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-cloud-sun" style="color:#f97316;"></i> Afternoon Shift (PM)
-            </button>
-            <button type="button" id="btn-shift-all" onclick="setAttendanceShift('All')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-users"></i> All Shifts
-            </button>
-        </div>
-    </div>
-    
-    <div id="shift-count-badge" style="font-size:0.82rem; color:#475569; margin-bottom:15px; padding:6px 12px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; display:inline-block;">
-        Loading students...
-    </div>
+        <div class="modal-body" style="background:#f8fafc; padding:20px 24px;">
+            <!-- Top Toolbar inside Popup: Shift Filter + QR Scanner Link + Auto-Absent -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; background:#fff; padding:12px 16px; border-radius:10px; border:1px solid #e2e8f0;">
+                <div style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:4px; border-radius:10px; border:1px solid #cbd5e1; flex-wrap:wrap;">
+                    <button type="button" id="btn-shift-morning" onclick="setAttendanceShift('Morning')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:0.2s; background:#063970; color:#fff; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Morning Shift (AM)
+                    </button>
+                    <button type="button" id="btn-shift-afternoon" onclick="setAttendanceShift('Afternoon')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-cloud-sun" style="color:#f97316;"></i> Afternoon Shift (PM)
+                    </button>
+                    <button type="button" id="btn-shift-all" onclick="setAttendanceShift('All')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:0.2s; background:transparent; color:#64748b; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-users"></i> All Shifts
+                    </button>
+                </div>
 
-    <!-- BATCH ATTENDANCE CONFIRMATION ACTION BAR (Hybrid Workflow) -->
-    <div id="batch-confirm-bar" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; transition: all 0.25s ease; position: sticky; top: 12px; z-index: 100;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: #063970; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                <i class="fa-solid fa-clipboard-user"></i>
-            </div>
-            <div>
-                <div style="font-weight: 800; color: #1e293b; font-size: 0.95rem; font-family: 'Montserrat', sans-serif;">
-                    Attendance Confirmation: <span id="batch-status-text" style="color: #64748b; font-weight: 700;">Ready to mark attendance</span>
-                </div>
-                <div id="batch-breakdown-text" style="color: #64748b; font-size: 0.82rem; margin-top: 2px;">
-                    Mark each child individually below. Confirm them one-by-one or click <strong>'Confirm All Attendance'</strong> to save all at once.
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <a href="/dropoff-pickup/" style="background:#0284c7; color:#fff; text-decoration:none; padding:9px 14px; border-radius:8px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-qrcode"></i> Go to QR Drop-Off Scanner
+                    </a>
+                    <button type="button" onclick="markDateUnscannedAbsent()" style="background:#f97316; color:#fff; border:none; padding:9px 14px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="Mark all unscanned pupils on this date as Absent">
+                        <i class="fa-solid fa-user-clock"></i> Mark Unscanned as Absent
+                    </button>
                 </div>
             </div>
+
+            <div id="shift-count-badge" style="font-size:0.82rem; color:#475569; margin-bottom:14px; padding:8px 12px; background:#fff; border-radius:8px; border:1px solid #e2e8f0; display:block;">
+                Loading students...
+            </div>
+
+            <div class="student-list" id="daily-checklist-container">
+                <!-- Rendered by JS (10 students per page) -->
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button type="button" id="btn-batch-clear" onclick="clearAllStaged()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: none; align-items: center; gap: 6px; transition: all 0.2s;">
-                <i class="fa-solid fa-rotate-left"></i> Reset Selections
-            </button>
-            <button type="button" id="btn-batch-confirm" onclick="confirmAllAttendance()" disabled style="background: #94a3b8; color: #ffffff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 800; font-size: 0.88rem; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s;">
-                <i class="fa-solid fa-floppy-disk"></i> <span id="btn-batch-label">Confirm All Attendance (0 marked)</span>
-            </button>
-        </div>
-    </div>
-    
-    <div class="student-list" id="daily-checklist-container">
-        <!-- Rendered by JS -->
     </div>
 </div>
 
@@ -369,9 +371,44 @@
 
     let currentChecklistShift = 'Morning'; // 'Morning', 'Afternoon', 'All'
     let currentOverviewShift = 'All'; // 'All', 'Morning', 'Afternoon'
+    let checklistModalPage = 1;
+    let overviewAllPage = 1;
+    let overviewAlertsPage = 1;
+    const ATT_PAGE_SIZE = 10;
+
+    function buildAttPagination(totalItems, currentPage, pageSize, pageFnName) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        if (totalPages <= 1) return '';
+        const startIdx = (currentPage - 1) * pageSize + 1;
+        const endIdx = Math.min(totalItems, currentPage * pageSize);
+        let btns = `<button type="button" class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} onclick="${pageFnName}(${currentPage - 1})">&laquo; Prev</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            btns += `<button type="button" class="page-btn ${p === currentPage ? 'active' : ''}" onclick="${pageFnName}(${p})">${p}</button>`;
+        }
+        btns += `<button type="button" class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="${pageFnName}(${currentPage + 1})">Next &raquo;</button>`;
+        return `
+        <div class="pagination-bar">
+            <span style="font-size:0.82rem; color:#64748b; font-weight:600;">Showing <strong>${startIdx}–${endIdx}</strong> of <strong>${totalItems}</strong> students</span>
+            <div class="pagination-btns">${btns}</div>
+        </div>`;
+    }
+
+    window.setChecklistModalPage = function(p) {
+        checklistModalPage = p;
+        renderChecklistForDate(datePicker.value);
+    };
+    window.setOverviewAllPage = function(p) {
+        overviewAllPage = p;
+        renderOverview();
+    };
+    window.setOverviewAlertsPage = function(p) {
+        overviewAlertsPage = p;
+        renderOverview();
+    };
 
     function setAttendanceShift(shift) {
         currentChecklistShift = shift;
+        checklistModalPage = 1;
         ['morning', 'afternoon', 'all'].forEach(s => {
             const btn = document.getElementById('btn-shift-' + s);
             if (!btn) return;
@@ -389,6 +426,8 @@
 
     function setOverviewShift(shift) {
         currentOverviewShift = shift;
+        overviewAllPage = 1;
+        overviewAlertsPage = 1;
         ['all', 'morning', 'afternoon'].forEach(s => {
             const btn = document.getElementById('btn-overview-shift-' + s);
             if (!btn) return;
@@ -602,12 +641,16 @@
         if (!dateKey) return;
         const parts = dateKey.split('-');
         const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-        const dayOfWeek = dt.getDay();
+        const formattedTitle = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-        // Update date picker
+        // Update date picker & modal title
         const datePicker = document.getElementById('attendanceDate');
         if (datePicker) {
             datePicker.value = dateKey;
+        }
+        const modalTitleEl = document.getElementById('attendanceModalDateTitle');
+        if (modalTitleEl) {
+            modalTitleEl.innerText = `Daily Attendance Register — ${formattedTitle}`;
         }
 
         // Highlight selected cell on calendar
@@ -617,16 +660,69 @@
             targetCell.classList.add('cell-selected');
         }
 
-        // Render checklist for this date
+        checklistModalPage = 1;
+        // Render checklist for this date & open the Popup Modal
         renderChecklistForDate(dateKey);
-
-        // Smooth scroll to checklist section
-        const anchor = document.getElementById('checklist-section-anchor');
-        if (anchor) {
-            anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        openModal('attendanceDateModal');
     }
     window.selectCalendarDate = selectCalendarDate;
+
+    async function markDateUnscannedAbsent() {
+        const shiftParam = currentChecklistShift || 'All';
+        if (!confirm(`Mark all unscanned pupils in ${shiftParam === 'All' ? 'All Shifts' : shiftParam + ' Shift'} as ABSENT?\n\nPupils who were not scanned via QR Drop-Off and have no parent excuse will be marked Absent.`)) {
+            return;
+        }
+        try {
+            const resp = await fetch('/api/qr-scan-attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    mark_unscanned_absent: true,
+                    shift: shiftParam
+                })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                alert(`Marked ${data.marked_absent_count !== undefined ? data.marked_absent_count : 0} unscanned pupil(s) as Absent.`);
+                await fetchData();
+            } else {
+                alert(data.error || data.detail || 'Could not mark unscanned pupils absent.');
+            }
+        } catch (err) {
+            console.error('Error marking unscanned absent:', err);
+            alert('Error communicating with server.');
+        }
+    }
+    window.markDateUnscannedAbsent = markDateUnscannedAbsent;
+
+    async function quickSyncStudentQrStatus(studentId) {
+        const date = datePicker.value;
+        const st = studentsMaster.find(s => s.id == studentId);
+        const sess = currentChecklistShift === 'All' ? (st ? (st.shift || 'Morning') : 'Morning') : currentChecklistShift;
+        try {
+            await fetch('/api/attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    child: parseInt(studentId, 10),
+                    date: date,
+                    session: sess,
+                    status: 'present',
+                    absence_reason: 'Synced via Attendance Register'
+                })
+            });
+            await fetchData();
+        } catch (e) {
+            console.error('Quick sync failed:', e);
+        }
+    }
+    window.quickSyncStudentQrStatus = quickSyncStudentQrStatus;
 
     function renderCalendar() {
         const currentYear = calYear;
@@ -909,11 +1005,19 @@
         }
 
         if(filteredStudents.length === 0) {
-            container.innerHTML = `<div class="empty-state"><h3>No students found in ${currentChecklistShift} Shift.</h3><p>Assign students to ${currentChecklistShift} Shift or switch to 'All Shifts'.</p></div>`;
+            container.innerHTML += `<div class="empty-state"><h3>No students found in ${currentChecklistShift} Shift.</h3><p>Assign students to ${currentChecklistShift} Shift or switch to 'All Shifts'.</p></div>`;
             return;
         }
 
-        filteredStudents.forEach(st => {
+        const totalFiltered = filteredStudents.length;
+        const totalPages = Math.max(1, Math.ceil(totalFiltered / ATT_PAGE_SIZE));
+        if (checklistModalPage > totalPages) checklistModalPage = totalPages;
+        const pageStudents = filteredStudents.slice((checklistModalPage - 1) * ATT_PAGE_SIZE, checklistModalPage * ATT_PAGE_SIZE);
+
+        let checkinLocal = {};
+        try { checkinLocal = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; } catch(e) {}
+
+        pageStudents.forEach(st => {
             const studentShift = st.shift || 'Morning';
             const targetSession = currentChecklistShift === 'All' ? studentShift : currentChecklistShift;
             
@@ -924,8 +1028,9 @@
 
             let status = recordObj ? recordObj.status : null;
             let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : st.initial || `${st.first_name[0]}${st.last_name[0]}`.toUpperCase();
-            let badgeHtml = '';
-            let toggleHtml = '';
+            let actionAreaHtml = '';
+            const cScan = checkinLocal[st.id];
+            const scanTimeSub = (cScan && cScan.time) ? `<span style="font-size:0.73rem; color:#0284c7; font-weight:700;"><i class="fa-solid fa-qrcode"></i> QR Scan: ${cScan.time} (${cScan.guardian || 'Guardian'})</span>` : '';
 
             if (status) {
                 const sLower = String(status).trim().toLowerCase();
@@ -933,41 +1038,33 @@
                 let t = 'Present';
                 if (sLower === 'late') {
                     bc = 'late';
-                    t = 'Late';
+                    t = 'Late (>15 mins)';
                 } else if (sLower === 'absent') {
                     bc = 'absent';
                     t = 'Absent';
                 }
                 actionAreaHtml = `
-                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span class="status-badge ${bc}">${t}</span>
-                        <button type="button" class="btn-toggle" onclick="reopenStudentAttendance('${st.id}', '${sLower}')" title="Change attendance status" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 4px; color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; display:inline-flex; align-items:center; gap:3px;">
-                            <i class="fa-solid fa-pen"></i> Change
-                        </button>
-                        <button type="button" class="btn-toggle" onclick="deleteStudentAttendance('${st.id}')" title="Remove / undo saved attendance" style="padding: 2px 7px; font-size: 0.72rem; border-radius: 4px; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; display:inline-flex; align-items:center; gap:3px;">
-                            <i class="fa-solid fa-trash-can"></i> Remove
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="status-badge ${bc}" style="padding:6px 14px; font-size:0.8rem;">${t}</span>
+                        <button type="button" class="btn-toggle" onclick="deleteStudentAttendance('${st.id}')" title="Remove / undo saved attendance" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; display:inline-flex; align-items:center; gap:4px;">
+                            <i class="fa-solid fa-trash-can"></i> Clear
                         </button>
                     </div>
-                    <span style="font-size:0.72rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession}</span>
-                    ${sLower === 'absent' && recordObj.absence_reason ? `<div style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-top:2px; text-align:right;"><i class="fa-solid fa-circle-info"></i> Reason: ${recordObj.absence_reason}</div>` : ''}
+                    <span style="font-size:0.73rem; color:#64748b; font-weight:700;"><i class="fa-solid fa-clock"></i> ${recordObj.session || targetSession} Shift</span>
+                    ${scanTimeSub}
+                    ${recordObj.absence_reason ? `<div style="font-size:0.75rem; color:${sLower === 'absent' ? '#ef4444' : '#475569'}; font-weight:700; margin-top:2px; text-align:right;"><i class="fa-solid fa-circle-info"></i> ${recordObj.absence_reason}</div>` : ''}
                 </div>`;
             } else {
                 actionAreaHtml = `
-                <div class="attendance-action-area" id="action-area-${st.id}" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <div class="attendance-toggles">
-                        <button type="button" class="btn-toggle present" id="btn-toggle-present-${st.id}" onclick="selectAttendance('${st.id}', 'present')">Present</button>
-                        <button type="button" class="btn-toggle absent" id="btn-toggle-absent-${st.id}" onclick="selectAttendance('${st.id}', 'absent')">Absent</button>
-                        <button type="button" class="btn-toggle late" id="btn-toggle-late-${st.id}" onclick="selectAttendance('${st.id}', 'late')">Late</button>
-                    </div>
-                    <div id="reason-area-${st.id}" style="display:none; width: 170px;">
-                        <input type="text" id="reason-input-${st.id}" oninput="updateAbsenceReason('${st.id}', this.value)" placeholder="Reason for absence" style="padding: 5px 8px; width: 100%; border-radius:4px; border:1px solid #cbd5e1; font-size: 0.8rem;">
-                    </div>
-                    <button type="button" class="btn-confirm" id="confirm-btn-${st.id}" style="display:none; padding: 6px 12px; font-size: 0.78rem; background-color: #2563eb;" onclick="confirmAttendance('${st.id}')">
-                        <i class="fa-solid fa-check"></i> Confirm
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                    <span style="background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; padding:6px 12px; border-radius:12px; font-size:0.76rem; font-weight:700;">
+                        <i class="fa-solid fa-qrcode" style="margin-right:4px;"></i> No Record / Unscanned
+                    </span>
+                    <button type="button" onclick="quickSyncStudentQrStatus('${st.id}')" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:6px 11px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Quick sync attendance record">
+                        <i class="fa-solid fa-arrows-rotate"></i> Sync QR
                     </button>
-                </div>
-                `;
+                </div>`;
             }
 
             const shiftBadge = studentShift === 'Afternoon'
@@ -989,6 +1086,7 @@
                 </div>
             </div>`;
         });
+        container.innerHTML += buildAttPagination(totalFiltered, checklistModalPage, ATT_PAGE_SIZE, 'setChecklistModalPage');
         tempSelections = {};
         updateBatchActionBar();
     }
@@ -1016,13 +1114,15 @@
         let poorCount = 0;
         let lateCount = 0;
 
+        let allItemsHtml = [];
+        let alertItemsHtml = [];
+
         filteredStudents.forEach(st => {
             let daysP = 0;
             let daysL = 0;
             Object.keys(window.mockDatabase || {}).forEach(d => { 
                 let childRecords = window.mockDatabase[d][st.id];
                 if (childRecords) {
-                    // Check shift record or latest
                     let record = currentOverviewShift === 'All' ? childRecords['_latest'] : (childRecords[currentOverviewShift] || childRecords['_latest']);
                     if (record) {
                         if (record.status === 'present') daysP++; 
@@ -1067,11 +1167,25 @@
                 </div>
             </div>`;
 
-            overviewAll.innerHTML += html;
+            allItemsHtml.push(html);
             if (badgeClass !== 'excellent') {
-                overviewAlerts.innerHTML += html;
+                alertItemsHtml.push(html);
             }
         });
+
+        const totalAllPages = Math.max(1, Math.ceil(allItemsHtml.length / ATT_PAGE_SIZE));
+        if (overviewAllPage > totalAllPages) overviewAllPage = totalAllPages;
+        const allSlice = allItemsHtml.slice((overviewAllPage - 1) * ATT_PAGE_SIZE, overviewAllPage * ATT_PAGE_SIZE);
+        overviewAll.innerHTML = allSlice.join('') + buildAttPagination(allItemsHtml.length, overviewAllPage, ATT_PAGE_SIZE, 'setOverviewAllPage');
+
+        if (alertItemsHtml.length === 0) {
+            overviewAlerts.innerHTML = `<div class="empty-state"><h3>No attendance alerts in this shift.</h3></div>`;
+        } else {
+            const totalAlertPages = Math.max(1, Math.ceil(alertItemsHtml.length / ATT_PAGE_SIZE));
+            if (overviewAlertsPage > totalAlertPages) overviewAlertsPage = totalAlertPages;
+            const alertSlice = alertItemsHtml.slice((overviewAlertsPage - 1) * ATT_PAGE_SIZE, overviewAlertsPage * ATT_PAGE_SIZE);
+            overviewAlerts.innerHTML = alertSlice.join('') + buildAttPagination(alertItemsHtml.length, overviewAlertsPage, ATT_PAGE_SIZE, 'setOverviewAlertsPage');
+        }
 
         document.getElementById('val-absences').innerText = '0'; // placeholder logic
         document.getElementById('val-poor').innerText = poorCount;
@@ -1461,6 +1575,14 @@
 
     function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
     function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
 
     window.viewStudentAttendanceHistory = function(studentId) {
         const student = studentsMaster.find(st => st.id === studentId);

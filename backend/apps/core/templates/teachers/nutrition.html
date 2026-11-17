@@ -43,8 +43,14 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
 .empty-state h3 { margin-bottom: 10px; font-size: 1.3rem; }
 
 /* Modal Styles */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
 .modal-overlay.active { display: flex; }
+.pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+.pagination-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+.page-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+.page-btn.active { background: #063970; color: #fff; border-color: #063970; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .modal-container { background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 650px; max-width: 95%; overflow: hidden; animation: slideIn 0.3s ease; }
 .modal-header { padding: 15px 20px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; background: #043263; color: #fff; }
 .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; font-family: 'Montserrat', sans-serif; }
@@ -80,12 +86,30 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
 <!-- ================= OVERVIEW TAB ================= -->
 <div id="content-overview">
     <div class="digest-section">
-        <div class="section-header">
-            <h3>Feeding Program Overview</h3>
-            <p>Supplementary feeding intake and attendance for the selected date.</p>
+        <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:15px;">
+            <div>
+                <h3>Supplementary Feeding Program &amp; Daily Intake Checklist</h3>
+                <p>Select today's menu served and log each pupil's meal consumption (10 students per page).</p>
+            </div>
+            <!-- Food / Menu Served Today Selector at Top of Feeding Checklist -->
+            <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:320px;">
+                <label style="font-size:0.82rem; font-weight:800; color:#0369a1; white-space:nowrap;"><i class="fa-solid fa-utensils" style="margin-right:5px;"></i> Food / Menu Served Today:</label>
+                <select id="overviewFoodMenuSelect" onchange="syncFoodMenuInputs('overview')" style="padding:8px 12px; border-radius:8px; border:1px solid #7dd3fc; font-weight:700; font-size:0.86rem; color:#043263; background:#fff; width:auto; min-width:250px;">
+                    <option value="Champorado & Fortified Milk">Champorado &amp; Fortified Milk</option>
+                    <option value="Arroz Caldo with Boiled Egg" selected>Arroz Caldo with Boiled Egg</option>
+                    <option value="Banana & Fortified Cream Biscuit">Banana &amp; Fortified Cream Biscuit</option>
+                    <option value="Chicken Sopas with Carrots">Chicken Sopas with Carrots</option>
+                    <option value="Ginataang Mais & Milk">Ginataang Mais &amp; Milk</option>
+                    <option value="Monggo Guisado with Malunggay & Rice">Monggo Guisado with Malunggay &amp; Rice</option>
+                    <option value="Ginataang Kalabasa & Sitaw with Rice">Ginataang Kalabasa &amp; Sitaw with Rice</option>
+                    <option value="Steamed Pechay & Fish Fillet">Steamed Pechay &amp; Fish Fillet</option>
+                    <option value="Other">Other (Specify)</option>
+                </select>
+                <input type="text" id="overviewFoodCustomInput" placeholder="Specify custom food/menu..." oninput="syncFoodMenuInputs('overview')" style="display:none; padding:8px 12px; border-radius:8px; border:1px solid #0284c7; font-size:0.85rem; font-weight:600; width:220px;">
+            </div>
         </div>
         
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; flex-wrap:wrap; gap:15px; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; flex-wrap:wrap; gap:15px; margin-top:15px;">
             <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <div style="display:inline-flex; background:#f1f5f9; padding:3px; border-radius:8px; gap:4px;">
                     <button type="button" id="nutriShiftAll" onclick="setNutriShift('all')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:#063970; color:white; transition:0.2s;">All Shifts</button>
@@ -93,13 +117,13 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                     <button type="button" id="nutriShiftAfternoon" onclick="setNutriShift('Afternoon')" style="padding:6px 14px; border-radius:6px; border:none; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:#64748b; transition:0.2s;"><i class="fa-solid fa-cloud-sun" style="color:#f97316; margin-right:4px;"></i> Afternoon (PM)</button>
                 </div>
                 <div style="position: relative; width: 250px;">
-                    <input type="text" id="nutritionSearch" placeholder="Search student by name..." style="width: 100%; padding: 8px 12px; padding-left: 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; font-family:'Montserrat', sans-serif;" oninput="renderDashboard()">
+                    <input type="text" id="nutritionSearch" placeholder="Search student by name..." style="width: 100%; padding: 8px 12px; padding-left: 34px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; font-family:'Montserrat', sans-serif;" oninput="nutriOverviewPage=1; renderDashboard();">
                     <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
                 </div>
             </div>
             <div>
                 <button type="button" onclick="switchTab('log')" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:700; font-size:0.85rem; padding:8px 16px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-utensils"></i> Record Today's Feeding
+                    <i class="fa-solid fa-utensils"></i> Detailed Feeding Form
                 </button>
             </div>
         </div>
@@ -111,8 +135,8 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Student</th>
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 120px;">Class Shift</th>
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 90px;">Age</th>
-                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 230px;">Physical Stats</th>
-                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 150px;">Feeding Status</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 200px;">Physical Stats</th>
+                        <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width: 220px;">Feeding Status &amp; Menu</th>
                         <th style="padding:15px; text-align:left; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px;">Teacher Notes</th>
                         <th style="padding:15px; text-align:center; font-weight:700; color:#475569; font-size:0.85rem; font-family:'Montserrat', sans-serif; text-transform:uppercase; letter-spacing:0.5px; width:130px;">Actions</th>
                     </tr>
@@ -124,6 +148,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 </tbody>
             </table>
         </div>
+        <div id="nutriOverviewPaginationBar"></div>
     </div>
 </div>
 
@@ -132,12 +157,28 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
     <div class="digest-section" style="max-width: 650px; margin: 0 auto;">
         <div class="section-header" style="margin-bottom: 25px;">
             <h3>Supplementary Feeding Program</h3>
-            <p>Log a student's consumed feeding meal status and appetite observation.</p>
+            <p>Log a student's consumed feeding meal status, menu served, and appetite observation.</p>
         </div>
 
         <div class="form-group">
             <label>Date</label>
             <input type="date" id="logDate">
+        </div>
+
+        <div class="form-group">
+            <label>Food / Menu Served Today</label>
+            <select id="logFoodMenuSelect" onchange="syncFoodMenuInputs('log')">
+                <option value="Champorado & Fortified Milk">Champorado &amp; Fortified Milk</option>
+                <option value="Arroz Caldo with Boiled Egg" selected>Arroz Caldo with Boiled Egg</option>
+                <option value="Banana & Fortified Cream Biscuit">Banana &amp; Fortified Cream Biscuit</option>
+                <option value="Chicken Sopas with Carrots">Chicken Sopas with Carrots</option>
+                <option value="Ginataang Mais & Milk">Ginataang Mais &amp; Milk</option>
+                <option value="Monggo Guisado with Malunggay & Rice">Monggo Guisado with Malunggay &amp; Rice</option>
+                <option value="Ginataang Kalabasa & Sitaw with Rice">Ginataang Kalabasa &amp; Sitaw with Rice</option>
+                <option value="Steamed Pechay & Fish Fillet">Steamed Pechay &amp; Fish Fillet</option>
+                <option value="Other">Other (Specify)</option>
+            </select>
+            <input type="text" id="logFoodCustomInput" placeholder="Specify custom food or menu served..." oninput="syncFoodMenuInputs('log')" style="display:none; width:100%; margin-top:10px; padding:12px 15px; border:1px solid #0284c7; border-radius:8px; font-size:0.95rem; font-family:'Montserrat', sans-serif; box-sizing:border-box;">
         </div>
 
         <div class="form-group">
@@ -263,6 +304,28 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 <div id="dssBmiContent" style="font-size:0.9rem; color:var(--text-secondary);">
                     <!-- DSS Recommendations will be populated here -->
                 </div>
+            </div>
+
+            <!-- 10-per-page Paginated Student BMI Directory -->
+            <div style="margin-top:30px; border-top:1px solid #e2e8f0; padding-top:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                    <h4 style="margin:0; color:#043263; font-size:1.05rem; font-weight:800;"><i class="fa-solid fa-weight-scale" style="margin-right:6px;"></i> Enrolled Pupils Monthly BMI Roster (10 per page)</h4>
+                </div>
+                <div class="table-responsive" style="background:#fff; border:1px solid #edf2f7; border-radius:12px; overflow:hidden;">
+                    <table class="assess-table" style="width:100%; border-collapse:collapse; margin:0;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                                <th style="padding:12px; text-align:left; font-size:0.82rem; font-weight:700; color:#475569;">Pupil Name</th>
+                                <th style="padding:12px; text-align:left; font-size:0.82rem; font-weight:700; color:#475569;">Shift</th>
+                                <th style="padding:12px; text-align:left; font-size:0.82rem; font-weight:700; color:#475569;">Weight &amp; Height</th>
+                                <th style="padding:12px; text-align:left; font-size:0.82rem; font-weight:700; color:#475569;">BMI Status</th>
+                                <th style="padding:12px; text-align:center; font-size:0.82rem; font-weight:700; color:#475569;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bmiRosterTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="bmiRosterPaginationBar"></div>
             </div>
         </div>
     </div>
@@ -1112,8 +1175,82 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         if (targetContent) targetContent.style.display = 'block';
     }
 
-    // LOGGING LOGIC
+    // LOGGING LOGIC & FOOD MENU SELECTOR
     let selectedAmt = null;
+    let nutriOverviewPage = 1;
+    let bmiRosterPage = 1;
+    const NUTRI_PAGE_SIZE = 10;
+
+    window.syncFoodMenuInputs = function(source) {
+        const ovSelect = document.getElementById('overviewFoodMenuSelect');
+        const ovCustom = document.getElementById('overviewFoodCustomInput');
+        const lgSelect = document.getElementById('logFoodMenuSelect');
+        const lgCustom = document.getElementById('logFoodCustomInput');
+
+        if (source === 'overview' && ovSelect) {
+            if (ovSelect.value === 'Other') {
+                if (ovCustom) ovCustom.style.display = 'inline-block';
+            } else {
+                if (ovCustom) ovCustom.style.display = 'none';
+            }
+            if (lgSelect) {
+                lgSelect.value = ovSelect.value;
+                if (lgCustom) {
+                    lgCustom.style.display = ovSelect.value === 'Other' ? 'block' : 'none';
+                    lgCustom.value = ovCustom ? ovCustom.value : '';
+                }
+            }
+        } else if (source === 'log' && lgSelect) {
+            if (lgSelect.value === 'Other') {
+                if (lgCustom) lgCustom.style.display = 'block';
+            } else {
+                if (lgCustom) lgCustom.style.display = 'none';
+            }
+            if (ovSelect) {
+                ovSelect.value = lgSelect.value;
+                if (ovCustom) {
+                    ovCustom.style.display = lgSelect.value === 'Other' ? 'inline-block' : 'none';
+                    ovCustom.value = lgCustom ? lgCustom.value : '';
+                }
+            }
+        }
+    };
+
+    function getSelectedFoodItem(source) {
+        const selectEl = document.getElementById(source === 'overview' ? 'overviewFoodMenuSelect' : 'logFoodMenuSelect');
+        const customEl = document.getElementById(source === 'overview' ? 'overviewFoodCustomInput' : 'logFoodCustomInput');
+        if (!selectEl) return 'Arroz Caldo with Boiled Egg';
+        if (selectEl.value === 'Other') {
+            return (customEl && customEl.value.trim()) ? customEl.value.trim() : 'Custom Nutritious Meal';
+        }
+        return selectEl.value;
+    }
+
+    function buildNutriPagination(totalItems, currentPage, pageSize, fnName) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        if (totalPages <= 1) return '';
+        const startIdx = (currentPage - 1) * pageSize + 1;
+        const endIdx = Math.min(totalItems, currentPage * pageSize);
+        let btns = `<button type="button" class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} onclick="${fnName}(${currentPage - 1})">&laquo; Prev</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            btns += `<button type="button" class="page-btn ${p === currentPage ? 'active' : ''}" onclick="${fnName}(${p})">${p}</button>`;
+        }
+        btns += `<button type="button" class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="${fnName}(${currentPage + 1})">Next &raquo;</button>`;
+        return `
+        <div class="pagination-bar">
+            <span style="font-size:0.82rem; color:#64748b; font-weight:600;">Showing <strong>${startIdx}–${endIdx}</strong> of <strong>${totalItems}</strong> students</span>
+            <div class="pagination-btns">${btns}</div>
+        </div>`;
+    }
+
+    window.setNutriOverviewPage = function(p) {
+        nutriOverviewPage = p;
+        renderDashboard();
+    };
+    window.setBmiRosterPage = function(p) {
+        bmiRosterPage = p;
+        renderBmiRosterTable();
+    };
 
     function selectAmt(amt) {
         document.querySelectorAll('.mtype-btn').forEach(b => b.classList.remove('active'));
@@ -1142,14 +1279,16 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
     function submitLog() {
         const sid = document.getElementById('logStudent').value;
         const logDate = document.getElementById('logDate').value;
+        const foodItemVal = getSelectedFoodItem('log');
         if (!sid || !selectedAmt || !logDate) {
-            alert("Please select a student, date, and snack status.");
+            alert("Please select a student, date, food served, and snack status.");
             return;
         }
 
         const payload = {
             child: sid,
             date: logDate,
+            food_item: foodItemVal,
             snack_status: selectedAmt,
             teacher_notes: document.getElementById('logNotes').value
         };
@@ -1171,7 +1310,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             return res.json();
         })
         .then(data => {
-            alert("Snack saved successfully!");
+            alert(`Feeding record (${foodItemVal} - ${selectedAmt}) saved successfully!`);
             document.getElementById('logStudent').value = "";
             document.getElementById('logNotes').value = "";
             document.querySelectorAll('.mtype-btn').forEach(b => b.classList.remove('active'));
@@ -1187,10 +1326,40 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         });
     }
 
+    window.quickLogRowFeeding = function(studentId, statusVal) {
+        const overviewDate = document.getElementById('overviewDate').value || todayStr;
+        const foodItemVal = getSelectedFoodItem('overview');
+        const existingRecord = nutritionRecords.find(r => r.child == studentId && r.date === overviewDate);
+        const payload = {
+            child: studentId,
+            date: overviewDate,
+            food_item: foodItemVal,
+            snack_status: statusVal,
+            teacher_notes: existingRecord && existingRecord.teacher_notes ? existingRecord.teacher_notes : `Served ${foodItemVal}`
+        };
+        const url = existingRecord ? `/api/nutrition/${existingRecord.id}/` : '/api/nutrition/';
+        const method = existingRecord ? 'PATCH' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(() => {
+            fetchSystemData();
+        })
+        .catch(e => console.error('Quick feeding log failed:', e));
+    };
+
     let nutriShiftFilter = 'all';
 
     function setNutriShift(shift) {
         nutriShiftFilter = shift;
+        nutriOverviewPage = 1;
         ['all', 'Morning', 'Afternoon'].forEach(s => {
             const btnId = s === 'all' ? 'nutriShiftAll' : (s === 'Morning' ? 'nutriShiftMorning' : 'nutriShiftAfternoon');
             const btn = document.getElementById(btnId);
@@ -1207,9 +1376,68 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
         renderDashboard();
     }
 
+    function renderBmiRosterTable() {
+        const tbody = document.getElementById('bmiRosterTableBody');
+        const pagBar = document.getElementById('bmiRosterPaginationBar');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (pagBar) pagBar.innerHTML = '';
+
+        const activeChildren = childrenList.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
+        activeChildren.sort((a, b) => (a.last_name || '').localeCompare(b.last_name || ''));
+
+        if (activeChildren.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:25px; color:#888;">No enrolled pupils found.</td></tr>`;
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(activeChildren.length / NUTRI_PAGE_SIZE));
+        if (bmiRosterPage > totalPages) bmiRosterPage = totalPages;
+        const pageSlice = activeChildren.slice((bmiRosterPage - 1) * NUTRI_PAGE_SIZE, bmiRosterPage * NUTRI_PAGE_SIZE);
+
+        pageSlice.forEach(st => {
+            let weight = st.weight ? `${st.weight} kg` : 'N/A';
+            let height = st.height ? `${st.height} cm` : 'N/A';
+            let bmiText = 'N/A';
+            if (st.weight && st.height) {
+                let heightM = st.height / 100;
+                let bmi = (st.weight / (heightM * heightM)).toFixed(1);
+                let cat = 'Normal';
+                if (bmi < 14) cat = 'Underweight';
+                else if (bmi >= 18) cat = 'Overweight';
+                bmiText = `${bmi} (${cat})`;
+            }
+            const isM = (st.shift || 'Morning').toLowerCase().includes('morning');
+            const shiftBadge = isM
+                ? '<span style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px; font-size:0.74rem; font-weight:700;">☀️ AM</span>'
+                : '<span style="background:#ffedd5; color:#ea580c; padding:2px 8px; border-radius:10px; font-size:0.74rem; font-weight:700;">🌤️ PM</span>';
+
+            tbody.innerHTML += `
+            <tr style="border-bottom:1px solid #edf2f7;">
+                <td style="padding:10px 12px; font-weight:700; color:#1e293b;">${st.last_name}, ${st.first_name}</td>
+                <td style="padding:10px 12px;">${shiftBadge}</td>
+                <td style="padding:10px 12px; font-size:0.84rem; color:#475569;">${weight} &bull; ${height}</td>
+                <td style="padding:10px 12px; font-size:0.84rem; font-weight:700; color:#043263;">${bmiText}</td>
+                <td style="padding:10px 12px; text-align:center;">
+                    <button type="button" onclick="document.getElementById('bmiStudent').value='${st.id}'; renderStudentMonthlyBmi('${st.id}'); window.scrollTo({top: 0, behavior: 'smooth'});" style="background:#043263; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:0.76rem; font-weight:700; cursor:pointer;">
+                        <i class="fa-solid fa-chart-line"></i> Open BMI
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+        if (pagBar) {
+            pagBar.innerHTML = buildNutriPagination(activeChildren.length, bmiRosterPage, NUTRI_PAGE_SIZE, 'setBmiRosterPage');
+        }
+    }
+
     function renderDashboard() {
         const container = document.getElementById('student-list-container');
+        const pagBar = document.getElementById('nutriOverviewPaginationBar');
         container.innerHTML = '';
+        if (pagBar) pagBar.innerHTML = '';
+
+        renderBmiRosterTable();
 
         const activeChildren = childrenList.filter(c => c.enrollment_status !== 'Pending' && c.enrollment_status !== 'Rejected');
 
@@ -1237,8 +1465,17 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             return (a.first_name || '').toLowerCase().localeCompare((b.first_name || '').toLowerCase());
         });
 
+        if (filteredChildren.length === 0) {
+            container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
+            return;
+        }
+
+        const totalFiltered = filteredChildren.length;
+        const totalPages = Math.max(1, Math.ceil(totalFiltered / NUTRI_PAGE_SIZE));
+        if (nutriOverviewPage > totalPages) nutriOverviewPage = totalPages;
+        const pageChildren = filteredChildren.slice((nutriOverviewPage - 1) * NUTRI_PAGE_SIZE, nutriOverviewPage * NUTRI_PAGE_SIZE);
+
         if (isArchive) {
-            // Archive UI adjustments
             const tabsEl = document.querySelector('.tabs');
             if (tabsEl) {
                 const logTab = document.getElementById('tab-log');
@@ -1257,15 +1494,7 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 if (p) p.innerText = "View historical snack logs, weights, heights, and BMI progressions.";
             }
 
-            if (filteredChildren.length === 0) {
-                container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
-                return;
-            }
-
-            filteredChildren.forEach(st => {
-                let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]);
-                
-                // Physical stats overview
+            pageChildren.forEach(st => {
                 let weight = st.weight ? `${st.weight} kg` : 'N/A';
                 let height = st.height ? `${st.height} cm` : 'N/A';
                 let bmiText = 'N/A';
@@ -1310,19 +1539,17 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                 </tr>`;
                 container.innerHTML += html;
             });
+            if (pagBar) pagBar.innerHTML = buildNutriPagination(totalFiltered, nutriOverviewPage, NUTRI_PAGE_SIZE, 'setNutriOverviewPage');
             return;
         }
 
         const overviewDate = document.getElementById('overviewDate').value;
+        const defaultMenu = getSelectedFoodItem('overview');
 
-        if (filteredChildren.length === 0) {
-            container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#888;">No matching children found.</td></tr>`;
-            return;
-        }
-
-        filteredChildren.forEach(st => {
+        pageChildren.forEach(st => {
             const record = nutritionRecords.find(r => r.child === st.id && r.date === overviewDate);
             const status = record && record.snack_status ? record.snack_status : 'No Data';
+            const foodBadgeText = (record && record.food_item) ? record.food_item : defaultMenu;
             
             let color = '#718096';
             let bg = '#edf2f7';
@@ -1330,8 +1557,6 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             else if (status === 'Some Left') { color = '#b45309'; bg = '#fef3c7'; }
             else if (status === 'Not Eaten') { color = '#b91c1c'; bg = '#fee2e2'; }
 
-            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]);
-            
             const notesText = record && record.teacher_notes ? record.teacher_notes : '-';
             
             let weight = st.weight ? `${st.weight} kg` : 'N/A';
@@ -1371,6 +1596,16 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
                     <span class="pill" style="background:${bg}; color:${color}; font-weight:bold; font-size:0.75rem; padding:4px 10px; border-radius:30px; display:inline-block; text-transform:uppercase;">
                         ${status}
                     </span>
+                    <div style="margin-top:5px;">
+                        <span style="background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; padding:2px 8px; border-radius:8px; font-size:0.72rem; font-weight:700; display:inline-block;">
+                            <i class="fa-solid fa-bowl-rice"></i> ${foodBadgeText}
+                        </span>
+                    </div>
+                    <div style="margin-top:6px; display:flex; gap:4px; flex-wrap:wrap;">
+                        <button type="button" onclick="quickLogRowFeeding(${st.id}, 'Finished')" style="padding:2px 7px; font-size:0.68rem; border-radius:4px; border:1px solid #10b981; background:${status === 'Finished' ? '#10b981' : '#fff'}; color:${status === 'Finished' ? '#fff' : '#0f766e'}; font-weight:700; cursor:pointer;">Finished</button>
+                        <button type="button" onclick="quickLogRowFeeding(${st.id}, 'Some Left')" style="padding:2px 7px; font-size:0.68rem; border-radius:4px; border:1px solid #f59e0b; background:${status === 'Some Left' ? '#f59e0b' : '#fff'}; color:${status === 'Some Left' ? '#fff' : '#b45309'}; font-weight:700; cursor:pointer;">Some Left</button>
+                        <button type="button" onclick="quickLogRowFeeding(${st.id}, 'Not Eaten')" style="padding:2px 7px; font-size:0.68rem; border-radius:4px; border:1px solid #ef4444; background:${status === 'Not Eaten' ? '#ef4444' : '#fff'}; color:${status === 'Not Eaten' ? '#fff' : '#b91c1c'}; font-weight:700; cursor:pointer;">Not Eaten</button>
+                    </div>
                 </td>
                 <td style="padding:15px; color:#475569; font-size:0.85rem; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${notesText}">
                     ${notesText}
@@ -1383,7 +1618,19 @@ select, input[type="date"], textarea { width: 100%; padding: 12px 15px; border: 
             </tr>`;
             container.innerHTML += html;
         });
+
+        if (pagBar) {
+            pagBar.innerHTML = buildNutriPagination(totalFiltered, nutriOverviewPage, NUTRI_PAGE_SIZE, 'setNutriOverviewPage');
+        }
     }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
 
     window.viewStudentNutritionHistory = function(studentId) {
         switchTab('history');

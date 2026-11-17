@@ -48,8 +48,14 @@
 .pill.warning { background-color: #fff3cd; color: #856404; }
 
 /* Modals */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
 .modal-overlay.active { display: flex; }
+.pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+.pagination-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.page-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.15s; }
+.page-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+.page-btn.active { background: #063970; color: #fff; border-color: #063970; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .modal-container { background-color: #fff; border-radius: 12px; width: 600px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
 .modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #333; margin: 0; }
@@ -104,25 +110,38 @@
 
     <!-- QR Scanner Section -->
     <div class="content-section">
-        <div class="section-title">QR Code Authorization</div>
-        <div class="section-subtitle">Scan guardian QR code for check-in or check-out verification</div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:15px;">
+            <div>
+                <div class="section-title" style="margin:0;">QR Code Authorization & Attendance Sync</div>
+                <div class="section-subtitle" style="margin:4px 0 0 0;">Scan guardian QR code for check-in/out — automatically records Present or Late (15-min grace rule)</div>
+            </div>
+            <button type="button" onclick="markUnscannedPupilsAbsent()" style="background:#ef4444; color:white; border:none; border-radius:8px; padding:10px 16px; font-weight:700; font-size:0.84rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 6px rgba(239,68,68,0.25);">
+                <i class="fa-solid fa-user-clock"></i> Mark Unscanned Pupils Absent
+            </button>
+        </div>
         
-        <div class="scanner-input-group">
-            <button class="btn-action" style="background-color: #f8f9fa; border: 1px solid #ccc; display: flex; align-items: center; gap: 8px;" onclick="startRealCamera()" type="button">
+        <div class="scanner-input-group" style="flex-wrap:wrap;">
+            <button class="btn-action" style="background-color: #f8f9fa; border: 1px solid #ccc; display: flex; align-items: center; gap: 8px; padding:12px 16px;" onclick="startRealCamera()" type="button">
                 <i class="fa-solid fa-qrcode"></i> Scan QR Code
             </button>
             <span style="display:flex; align-items:center; color:#888; font-size:0.9rem;">or</span>
-            <input type="text" id="qrInput" placeholder="Enter code manually (e.g. BMV3-USERNAME or Contact No.)" autocomplete="off">
-            <select class="btn-action" id="authAction">
+            <input type="text" id="qrInput" placeholder="Enter code manually (e.g. BMV3-USERNAME or Contact No.)" autocomplete="off" style="min-width:240px;">
+            <select class="btn-action" id="authAction" style="padding:10px 12px;">
                 <option value="dropoff">Drop-Off</option>
                 <option value="pickup">Pick-Up</option>
             </select>
-            <button class="btn-verify" id="btnVerify" onclick="simulateScan()" type="button">
+            <select class="btn-action" id="arrivalModeSelect" style="padding:10px 12px; border-color:#4a90e2; color:#043263; font-weight:700; background:#f0f7ff;" title="Arrival timing rule for attendance">
+                <option value="auto">Auto Clock (≤15 mins = Present, &gt;15 mins = Late)</option>
+                <option value="ontime">On-Time Arrival (≤15 mins &rarr; Present)</option>
+                <option value="late">Late Arrival (&gt;15 mins after start &rarr; Late)</option>
+            </select>
+            <button class="btn-verify" id="btnVerify" onclick="simulateScan()" type="button" style="padding:12px 22px;">
                 <span><i class="fa-solid fa-mobile-screen"></i></span> Verify
             </button>
         </div>
-        <div class="scanner-help">
-            <i class="fa-solid fa-circle-check" style="color:#4a90e2;"></i> System automatically validates guardian authorization and logs all access attempts.
+        <div class="scanner-help" style="justify-content:space-between; flex-wrap:wrap;">
+            <span><i class="fa-solid fa-circle-check" style="color:#4a90e2; margin-right:6px;"></i> Scanning a Drop-Off QR code immediately logs <strong>Present</strong> (within 15 mins of shift start) or <strong>Late</strong> (&gt;15 mins) in the Daily Attendance database.</span>
+            <a href="/attendance/" style="color:#043263; font-weight:700; text-decoration:none; font-size:0.82rem;"><i class="fa-solid fa-calendar-check"></i> View Attendance Calendar &rarr;</a>
         </div>
     </div>
 
@@ -189,9 +208,42 @@
 
         <button class="btn-submit" onclick="registerGuardian()">Add Authorized Guardian +</button>
     </div>
+
+    <div class="content-section" style="margin-top: 25px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+            <div>
+                <div class="section-title" style="margin:0;">Registered Guardians & Offline QR Passes</div>
+                <div class="section-subtitle" style="margin:0;">Download offline PNG QR passes so parents can save them to their phones and scan without internet/Wi-Fi.</div>
+            </div>
+        </div>
+        <div id="inline-guardians-container">
+            <!-- Dynamically populated with 10-per-page pagination -->
+        </div>
+    </div>
 </div>
 
 <!-- MODALS -->
+
+<!-- View & Download Offline QR Pass Modal -->
+<div class="modal-overlay" id="viewQrModal">
+    <div class="modal-container" style="width: 480px; max-width: 95%;">
+        <div class="modal-header" style="background: #043263; color: white;">
+            <h3 style="margin:0; color:white; font-size:1.15rem;"><i class="fa-solid fa-qrcode"></i> Offline Guardian QR Pass</h3>
+            <button class="btn-close" style="color:white;" onclick="closeModal('viewQrModal')">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align:center; padding:20px; background:#f8fafc;">
+            <canvas id="offlineQrCanvas" width="420" height="540" style="max-width:100%; height:auto; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.12); background:#fff; border:1px solid #cbd5e1;"></canvas>
+            <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button type="button" onclick="downloadCurrentQrPassPng()" style="background:#10b981; color:white; border:none; padding:11px 20px; border-radius:8px; font-weight:800; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 10px rgba(16,185,129,0.25);">
+                    <i class="fa-solid fa-download"></i> Download QR Pass (Offline PNG)
+                </button>
+                <button type="button" onclick="closeModal('viewQrModal')" style="background:#fff; color:#475569; border:1px solid #cbd5e1; padding:11px 18px; border-radius:8px; font-weight:700; font-size:0.88rem; cursor:pointer;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Checked In Modal -->
 <div class="modal-overlay" id="checkedInModal">
@@ -282,15 +334,36 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" type="text/javascript"></script>
 <script>
     let studentsMaster = [];
     let extraGuardiansDB = JSON.parse(localStorage.getItem('bmv3_extra_guardians')) || {};
     // Database for today's checkin tracking. Key: studentId -> val: { status: 'checked-in'/'picked-up', time: '...', guardian: '...' }
     let checkinDB = JSON.parse(localStorage.getItem('bmv3_checkin')) || {}; 
     let dropShiftFilter = 'all';
+    let checkedInPage = 1;
+    let guardiansModalPage = 1;
+    let inlineGuardiansPage = 1;
+    const DROP_PAGE_SIZE = 10;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
     function setDropShift(shift) {
         dropShiftFilter = shift;
+        checkedInPage = 1;
         ['all', 'Morning', 'Afternoon'].forEach(s => {
             const btnId = s === 'all' ? 'dropShiftAll' : (s === 'Morning' ? 'dropShiftMorning' : 'dropShiftAfternoon');
             const btn = document.getElementById(btnId);
@@ -448,6 +521,85 @@
         return null;
     }
 
+    async function processVerification(guardianObjOrMatch, action, studentParam) {
+        const student = studentParam || (guardianObjOrMatch && guardianObjOrMatch.student);
+        const guardianName = (typeof guardianObjOrMatch === 'string') ? guardianObjOrMatch : (guardianObjOrMatch.name || guardianObjOrMatch.guardian || 'Parent/Guardian');
+        const selectedArrivalMode = document.getElementById('arrivalModeSelect') ? document.getElementById('arrivalModeSelect').value : 'auto';
+        const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        let recordedStatus = 'Present';
+        if (selectedArrivalMode === 'late') recordedStatus = 'Late';
+        else if (selectedArrivalMode === 'ontime') recordedStatus = 'Present';
+
+        try {
+            const resp = await fetch('/api/qr-scan-attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    child_id: student.id,
+                    action: action,
+                    guardian_name: guardianName,
+                    arrival_mode: selectedArrivalMode,
+                    scan_time: timeStr
+                })
+            });
+            if (resp.ok) {
+                const resData = await resp.json();
+                if (resData.status || resData.attendance_status) {
+                    recordedStatus = resData.status || resData.attendance_status;
+                }
+            }
+        } catch (err) {
+            console.error('Error syncing QR scan with attendance API:', err);
+        }
+
+        if (action === 'dropoff') {
+            checkinDB[student.id] = { status: 'checked-in', time: timeStr, guardian: guardianName, attendanceStatus: recordedStatus };
+        } else {
+            checkinDB[student.id] = { status: 'picked-up', time: timeStr, guardian: guardianName, attendanceStatus: recordedStatus };
+        }
+        localStorage.setItem('bmv3_checkin', JSON.stringify(checkinDB));
+
+        showToast(`Verified: ${guardianName}. Action: ${action} (${recordedStatus}) for ${student.first_name} ${student.last_name}`, 'success');
+        document.getElementById('qrInput').value = '';
+        calculateDash();
+        openChildRecordModal(student, guardianName, action, timeStr, recordedStatus);
+    }
+
+    async function markUnscannedPupilsAbsent() {
+        const shiftParam = dropShiftFilter === 'all' ? 'All' : dropShiftFilter;
+        if (!confirm(`Mark all unscanned pupils in ${shiftParam === 'All' ? 'All Shifts' : shiftParam + ' Shift'} as ABSENT for today?\n\nChildren whose QR pass was not scanned and who did not file a parent excuse will be recorded as Absent in the database.`)) {
+            return;
+        }
+        try {
+            const resp = await fetch('/api/qr-scan-attendance/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    mark_unscanned_absent: true,
+                    shift: shiftParam
+                })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                const countMarked = data.marked_absent_count !== undefined ? data.marked_absent_count : (data.count || 0);
+                showToast(`Marked ${countMarked} unscanned pupil(s) as Absent in Attendance database!`, 'success');
+                alert(`Success! ${countMarked} unscanned pupil(s) in ${shiftParam} shift have been marked ABSENT in the daily attendance database.`);
+            } else {
+                showToast(data.error || data.detail || 'Could not mark unscanned pupils absent.', 'error');
+            }
+        } catch (err) {
+            console.error('Error marking unscanned absent:', err);
+            showToast('Network error while marking unscanned pupils absent.', 'error');
+        }
+    }
+
     function simulateScan() {
         const inputStr = document.getElementById('qrInput').value.trim();
         const action = document.getElementById('authAction').value;
@@ -471,24 +623,8 @@
                 return;
             }
 
-            // Perform Action
-            showToast(`Verified: ${match.guardian}. Action: ${action} for ${match.student.first_name} ${match.student.last_name}`, 'success');
-            
-            let timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            if(action === 'dropoff') {
-                checkinDB[match.student.id] = { status: 'checked-in', time: timeStr, guardian: match.guardian };
-            } else {
-                checkinDB[match.student.id] = { status: 'picked-up', time: timeStr, guardian: match.guardian };
-            }
-            localStorage.setItem('bmv3_checkin', JSON.stringify(checkinDB));
-
-            document.getElementById('qrInput').value = ''; // clear
-            
-            calculateDash();
-
-            // Display Child Record Modal instantly!
-            openChildRecordModal(match.student, match.guardian, action, timeStr);
-        }, 800);
+            processVerification({ name: match.guardian, guardian: match.guardian, student: match.student }, action, match.student);
+        }, 600);
     }
     
     let html5QrCode = null;
@@ -528,11 +664,28 @@
     }
     
     // Renders the comprehensive "Verified Child Record" Modal
-    function openChildRecordModal(student, guardian, action, timeStr) {
+    function openChildRecordModal(student, guardian, action, timeStr, recordedStatus) {
         const modalBody = document.getElementById('childRecordModalBody');
         const actionLabel = action === 'dropoff' ? 'Dropped Off' : 'Picked Up';
         const actionColor = action === 'dropoff' ? '#28a745' : '#f39c12';
         const actionIcon = action === 'dropoff' ? 'fa-arrow-down-long' : 'fa-arrow-up-long';
+
+        const attStatusNorm = String(recordedStatus || 'Present').toLowerCase();
+        const isLate = attStatusNorm === 'late';
+        const attBadgeHtml = action === 'dropoff'
+            ? (isLate
+                ? `<div style="margin-bottom:16px; background:#fffbeb; border:1.5px solid #f59e0b; color:#b45309; padding:10px 16px; border-radius:10px; font-weight:800; font-size:0.88rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <span><i class="fa-solid fa-clock" style="margin-right:6px;"></i> Attendance Automatically Recorded: <strong>LATE (&gt;15 mins after class start)</strong></span>
+                    <span style="background:#f59e0b; color:white; padding:3px 10px; border-radius:12px; font-size:0.75rem;">LATE</span>
+                   </div>`
+                : `<div style="margin-bottom:16px; background:#f0fdf4; border:1.5px solid #10b981; color:#047857; padding:10px 16px; border-radius:10px; font-weight:800; font-size:0.88rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <span><i class="fa-solid fa-calendar-check" style="margin-right:6px;"></i> Attendance Automatically Recorded: <strong>PRESENT (On-Time)</strong></span>
+                    <span style="background:#10b981; color:white; padding:3px 10px; border-radius:12px; font-size:0.75rem;">PRESENT</span>
+                   </div>`)
+            : `<div style="margin-bottom:16px; background:#eff6ff; border:1.5px solid #3b82f6; color:#1d4ed8; padding:10px 16px; border-radius:10px; font-weight:800; font-size:0.88rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <span><i class="fa-solid fa-shield-check" style="margin-right:6px;"></i> Safe Pick-Up Verified &bull; Attendance Record Updated (${timeStr})</span>
+                <span style="background:#2563eb; color:white; padding:3px 10px; border-radius:12px; font-size:0.75rem;">PICKED UP</span>
+               </div>`;
         
         let avatarHtml = student.img ? 
             `<img src="${student.img}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">` : 
@@ -632,7 +785,7 @@
 
         modalBody.innerHTML = `
         <!-- Top verified card banner -->
-        <div style="display:flex; justify-content:space-between; align-items:center; background:${actionColor}20; border:1px solid ${actionColor}40; padding:15px 20px; border-radius:10px; margin-bottom:25px; text-align: left;">
+        <div style="display:flex; justify-content:space-between; align-items:center; background:${actionColor}20; border:1px solid ${actionColor}40; padding:15px 20px; border-radius:10px; margin-bottom:14px; text-align: left;">
             <div style="display:flex; align-items:center; gap:12px;">
                 <div style="background:${actionColor}; color:white; width:40px; height:40px; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:1.2rem;">
                     <i class="fa-solid ${actionIcon}"></i>
@@ -644,6 +797,7 @@
             </div>
             <span style="background:${actionColor}; color:white; padding:5px 12px; border-radius:15px; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;">${actionLabel}</span>
         </div>
+        ${attBadgeHtml}
 
         <div class="modal-grid-layout" style="display:grid; grid-template-columns: 1fr 1.8fr; gap:25px;">
             <!-- Left Profile Section -->
@@ -750,18 +904,227 @@
 
     document.getElementById('qrInput').addEventListener('keypress', function(e) { if(e.key === 'Enter') simulateScan(); });
 
+    let currentQrPassMeta = null;
+
+    function getStudentVerificationToken(st) {
+        if (st.parent_usernames && st.parent_usernames.length > 0) {
+            return `BMV3-${st.parent_usernames[0].toUpperCase()}`;
+        }
+        if (st.mother_phone) return st.mother_phone;
+        if (st.father_phone) return st.father_phone;
+        return `BMV3-CHILD-${st.id}`;
+    }
+
+    function getPrimaryGuardianName(st) {
+        if (st.mother_first_name) return `${st.mother_first_name} ${st.mother_last_name || ''} (Mother)`.trim();
+        if (st.father_first_name) return `${st.father_first_name} ${st.father_last_name || ''} (Father)`.trim();
+        if (st.other_guardian_first_name) return `${st.other_guardian_first_name} ${st.other_guardian_last_name || ''} (Guardian)`.trim();
+        if (extraGuardiansDB[st.id] && extraGuardiansDB[st.id].length > 0) {
+            return `${extraGuardiansDB[st.id][0].name} (${extraGuardiansDB[st.id][0].rel})`;
+        }
+        return 'Authorized Parent / Guardian';
+    }
+
+    function drawQrMatrixOnCanvas(ctx, text, x, y, size) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, y, size, size);
+        if (typeof qrcode === 'function') {
+            try {
+                const qr = qrcode(0, 'M');
+                qr.addData(text);
+                qr.make();
+                const count = qr.getModuleCount();
+                const cellSize = size / count;
+                ctx.fillStyle = '#043263';
+                for (let r = 0; r < count; r++) {
+                    for (let c = 0; c < count; c++) {
+                        if (qr.isDark(r, c)) {
+                            ctx.fillRect(x + c * cellSize, y + r * cellSize, Math.ceil(cellSize), Math.ceil(cellSize));
+                        }
+                    }
+                }
+                return;
+            } catch (e) {
+                console.warn('Fallback QR matrix renderer used:', e);
+            }
+        }
+        // Offline deterministic QR matrix fallback
+        const grid = 21;
+        const cell = size / grid;
+        ctx.fillStyle = '#043263';
+        function drawFinder(r0, c0) {
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 7; c++) {
+                    if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+                        ctx.fillRect(x + (c0 + c) * cell, y + (r0 + r) * cell, Math.ceil(cell), Math.ceil(cell));
+                    }
+                }
+            }
+        }
+        drawFinder(0, 0);
+        drawFinder(0, grid - 7);
+        drawFinder(grid - 7, 0);
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+            hash ^= text.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+        }
+        for (let r = 0; r < grid; r++) {
+            for (let c = 0; c < grid; c++) {
+                if ((r < 8 && c < 8) || (r < 8 && c >= grid - 8) || (r >= grid - 8 && c < 8)) continue;
+                hash ^= (r * 31 + c * 17);
+                hash = Math.imul(hash, 16777619);
+                if ((Math.abs(hash) % 10) < 5) {
+                    ctx.fillRect(x + c * cell, y + r * cell, Math.ceil(cell), Math.ceil(cell));
+                }
+            }
+        }
+    }
+
+    function renderQrPassCanvas(studentId, customGuardianName, customToken) {
+        const st = studentsMaster.find(s => s.id == studentId);
+        if (!st) return null;
+        const canvas = document.getElementById('offlineQrCanvas');
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        const childName = `${st.first_name} ${st.last_name}`;
+        const guardianName = customGuardianName || getPrimaryGuardianName(st);
+        const tokenCode = customToken || getStudentVerificationToken(st);
+        const isAfternoon = (st.shift || 'Morning').toLowerCase().includes('afternoon');
+        const shiftText = isAfternoon ? 'Afternoon Shift (1:00 PM - 3:30 PM)' : 'Morning Shift (8:00 AM - 10:30 AM)';
+
+        currentQrPassMeta = { studentId: st.id, childName, guardianName, tokenCode, shiftText };
+
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+
+        // Header banner
+        ctx.fillStyle = '#043263';
+        ctx.fillRect(0, 0, w, 92);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(0, 88, w, 4);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px Montserrat, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('BMV3 CHILD DEVELOPMENT CENTER', w / 2, 34);
+        ctx.fillStyle = '#bae6fd';
+        ctx.font = 'bold 12px Montserrat, Arial, sans-serif';
+        ctx.fillText('OFFLINE GUARDIAN DROP-OFF / PICK-UP PASS', w / 2, 56);
+        ctx.fillStyle = '#e0f2fe';
+        ctx.font = '11px Montserrat, Arial, sans-serif';
+        ctx.fillText('Works Offline • Save Image to Phone Gallery', w / 2, 75);
+
+        // QR Code Box
+        const qrSize = 210;
+        const qrX = (w - qrSize) / 2;
+        const qrY = 112;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+        drawQrMatrixOnCanvas(ctx, tokenCode, qrX, qrY, qrSize);
+
+        // Details Box
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(24, 345, w - 48, 145);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(24, 345, w - 48, 145);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 18px Montserrat, Arial, sans-serif';
+        ctx.fillText(childName, w / 2, 374);
+
+        ctx.fillStyle = '#0284c7';
+        ctx.font = 'bold 12.5px Montserrat, Arial, sans-serif';
+        ctx.fillText(shiftText, w / 2, 396);
+
+        ctx.fillStyle = '#334155';
+        ctx.font = '600 13px Montserrat, Arial, sans-serif';
+        ctx.fillText(`Guardian: ${guardianName}`, w / 2, 422);
+
+        // Verification Code Pill
+        ctx.fillStyle = '#043263';
+        ctx.fillRect(54, 438, w - 108, 36);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px monospace';
+        ctx.fillText(`CODE: ${tokenCode}`, w / 2, 461);
+
+        // Footer
+        ctx.fillStyle = '#64748b';
+        ctx.font = '600 11px Montserrat, Arial, sans-serif';
+        ctx.fillText('15-Minute Grace Window • Auto-Syncs With Daily Attendance', w / 2, 518);
+
+        return canvas;
+    }
+
+    window.openQrPassModal = function(studentId, guardianName, tokenCode) {
+        renderQrPassCanvas(studentId, guardianName, tokenCode);
+        openModal('viewQrModal');
+    };
+
+    window.downloadCurrentQrPassPng = function() {
+        const canvas = document.getElementById('offlineQrCanvas');
+        if (!canvas || !currentQrPassMeta) return;
+        const link = document.createElement('a');
+        const safeName = currentQrPassMeta.childName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        link.download = `BMV3_QR_Pass_${safeName}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast(`Downloaded offline QR Pass PNG for ${currentQrPassMeta.childName}!`, 'success');
+    };
+
+    window.downloadGuardianQrPass = function(studentId, guardianName, tokenCode) {
+        renderQrPassCanvas(studentId, guardianName, tokenCode);
+        downloadCurrentQrPassPng();
+    };
+
+    function buildPaginationBar(totalItems, currentPage, pageSize, onPageChangeFnName) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        if (totalPages <= 1) return '';
+        const startIdx = (currentPage - 1) * pageSize + 1;
+        const endIdx = Math.min(totalItems, currentPage * pageSize);
+        let btns = `<button type="button" class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} onclick="${onPageChangeFnName}(${currentPage - 1})">&laquo; Prev</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            btns += `<button type="button" class="page-btn ${p === currentPage ? 'active' : ''}" onclick="${onPageChangeFnName}(${p})">${p}</button>`;
+        }
+        btns += `<button type="button" class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="${onPageChangeFnName}(${currentPage + 1})">Next &raquo;</button>`;
+        return `
+        <div class="pagination-bar">
+            <span style="font-size:0.82rem; color:#64748b; font-weight:600;">Showing <strong>${startIdx}–${endIdx}</strong> of <strong>${totalItems}</strong> records</span>
+            <div class="pagination-btns">${btns}</div>
+        </div>`;
+    }
+
+    window.setCheckedInPage = function(p) {
+        checkedInPage = p;
+        calculateDash();
+    };
+    window.setGuardiansModalPage = function(p) {
+        guardiansModalPage = p;
+        calculateDash();
+    };
+    window.setInlineGuardiansPage = function(p) {
+        inlineGuardiansPage = p;
+        calculateDash();
+    };
+
     // UI Updates
     function calculateDash() {
         if (sessionStorage.getItem('bmv3_archive_year_id')) {
-            // Hide elements
             const tabsEl = document.querySelector('.tabs');
             if (tabsEl) tabsEl.style.display = 'none';
             const sumEl = document.querySelector('.summary-container');
             if (sumEl) sumEl.style.display = 'none';
             const scannerInputEl = document.querySelector('.scanner-input-group');
-            if (scannerInputEl && scannerInputEl.parentElement) scannerInputEl.parentElement.style.display = 'none'; // QR scanner section
+            if (scannerInputEl && scannerInputEl.parentElement) scannerInputEl.parentElement.style.display = 'none';
             
-            // Update title of the preview section
             const previewSection = document.getElementById('checkedin-preview-container').parentElement;
             if (previewSection) {
                 const titleEl = previewSection.querySelector('.section-title');
@@ -770,9 +1133,13 @@
                 if (subEl) subEl.innerText = "Select a child below to view their historical year-long drop-off and pick-up logs.";
             }
             
-            // Build all student preview list
+            const totalArch = studentsMaster.length;
+            const totalArchPages = Math.max(1, Math.ceil(totalArch / DROP_PAGE_SIZE));
+            if (checkedInPage > totalArchPages) checkedInPage = totalArchPages;
+            const pageSlice = studentsMaster.slice((checkedInPage - 1) * DROP_PAGE_SIZE, checkedInPage * DROP_PAGE_SIZE);
+
             let archiveHtml = '';
-            studentsMaster.forEach(st => {
+            pageSlice.forEach(st => {
                 let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]).toUpperCase();
                 
                 archiveHtml += `
@@ -789,6 +1156,7 @@
                     </button>
                 </div>`;
             });
+            archiveHtml += buildPaginationBar(totalArch, checkedInPage, DROP_PAGE_SIZE, 'setCheckedInPage');
             document.getElementById('checkedin-preview-container').innerHTML = archiveHtml || `<div class="empty-state">No students found for this year.</div>`;
             return;
         }
@@ -796,19 +1164,21 @@
         let checkedInCount = 0;
         let totalGuardians = 0;
 
-        let previewHtml = '';
-        let modalHtml = '';
-        let guardiansModalHtml = '';
+        let checkedInFilteredItems = [];
+        let checkedInAllItems = [];
+        let guardiansItems = [];
 
         if(studentsMaster.length === 0) {
             document.getElementById('checkedin-preview-container').innerHTML = `<div class="empty-state">No students enrolled system-wide.</div>`;
             document.getElementById('modal-guardians-body').innerHTML = `<div class="empty-state">No records found.</div>`;
             document.getElementById('modal-checkedin-body').innerHTML = `<div class="empty-state">No children currently checked in.</div>`;
+            const inlineG = document.getElementById('inline-guardians-container');
+            if (inlineG) inlineG.innerHTML = `<div class="empty-state">No records found.</div>`;
             return;
         }
 
         studentsMaster.forEach(st => {
-            // Count standard parents + extra ones
+            let avatarHtml = st.img ? `<img src="${st.img}" style="width:100%; height:100%; object-fit:cover;">` : (st.first_name[0] + st.last_name[0]).toUpperCase();
             let studentGuardiansCount = 0;
             let gHtml = '';
             if(st.mother_first_name) {
@@ -852,15 +1222,26 @@
                 ? '<span style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:800; margin-left:6px;"><i class="fa-solid fa-sun"></i> AM</span>'
                 : '<span style="background:#ffedd5; color:#ea580c; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:800; margin-left:6px;"><i class="fa-solid fa-cloud-sun"></i> PM</span>';
 
-            guardiansModalHtml += `
-            <div class="list-item">
+            const tokenCode = getStudentVerificationToken(st).replace(/'/g, "\\'");
+            const primaryGuardian = getPrimaryGuardianName(st).replace(/'/g, "\\'");
+
+            guardiansItems.push(`
+            <div class="list-item" style="flex-wrap:wrap;">
                 <div class="avatar">${avatarHtml}</div>
                 <div class="item-details">
                     <div class="item-name">${st.first_name} ${st.last_name} ${shiftBadge}</div>
                     ${gHtml || '<div class="item-sub" style="color:#e74a3b;">No guardians registered!</div>'}
                 </div>
-                ${gHtml ? '<span class="pill success"><i class="fa-solid fa-check"></i> Authorized</span>' : ''}
-            </div>`;
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    ${gHtml ? '<span class="pill success"><i class="fa-solid fa-check"></i> Authorized</span>' : ''}
+                    <button type="button" onclick="openQrPassModal(${st.id}, '${primaryGuardian}', '${tokenCode}')" style="background:#043263; color:white; border:none; padding:6px 11px; border-radius:6px; font-size:0.76rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                        <i class="fa-solid fa-qrcode"></i> View QR Pass
+                    </button>
+                    <button type="button" onclick="downloadGuardianQrPass(${st.id}, '${primaryGuardian}', '${tokenCode}')" style="background:#10b981; color:white; border:none; padding:6px 11px; border-radius:6px; font-size:0.76rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Download Offline QR Pass PNG">
+                        <i class="fa-solid fa-download"></i> Download QR Pass (Offline PNG)
+                    </button>
+                </div>
+            </div>`);
 
             // Check In List
             let cState = checkinDB[st.id];
@@ -870,42 +1251,60 @@
                     (dropShiftFilter.toLowerCase() === 'morning' && isMorning) || 
                     (dropShiftFilter.toLowerCase() === 'afternoon' && !isMorning);
 
-                if (matchesShift) {
-                    let html = `
-                    <div class="list-item">
-                        <div class="avatar">${avatarHtml}</div>
-                        <div class="item-details">
-                            <div class="item-name">${st.first_name} ${st.last_name} ${shiftBadge}</div>
-                            <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
-                        </div>
-                        <span class="pill success">Present</span>
-                    </div>`;
-                    previewHtml += html;
-                }
-                let fullHtml = `
+                const attPill = (cState.attendanceStatus && String(cState.attendanceStatus).toLowerCase() === 'late')
+                    ? '<span class="pill warning">Late (&gt;15m)</span>'
+                    : '<span class="pill success">Present</span>';
+
+                const itemHtml = `
                 <div class="list-item">
                     <div class="avatar">${avatarHtml}</div>
                     <div class="item-details">
                         <div class="item-name">${st.first_name} ${st.last_name} ${shiftBadge}</div>
                         <div class="item-sub">Dropped off at ${cState.time} by ${cState.guardian}</div>
                     </div>
-                    <span class="pill success">Present</span>
+                    ${attPill}
                 </div>`;
-                modalHtml += fullHtml;
+
+                if (matchesShift) {
+                    checkedInFilteredItems.push(itemHtml);
+                }
+                checkedInAllItems.push(itemHtml);
             }
         });
 
         document.getElementById('kpi-checked-in').innerText = checkedInCount;
         document.getElementById('kpi-guardians').innerText = totalGuardians;
 
-        if (checkedInCount === 0) {
+        // Paginate Checked-In Preview (10 per page)
+        let previewHtml = '';
+        if (checkedInFilteredItems.length === 0) {
             previewHtml = `<div class="empty-state">No children currently checked in.</div>`;
-            modalHtml = `<div class="empty-state">No children currently checked in.</div>`;
+        } else {
+            const totalCheckedPages = Math.max(1, Math.ceil(checkedInFilteredItems.length / DROP_PAGE_SIZE));
+            if (checkedInPage > totalCheckedPages) checkedInPage = totalCheckedPages;
+            const slice = checkedInFilteredItems.slice((checkedInPage - 1) * DROP_PAGE_SIZE, checkedInPage * DROP_PAGE_SIZE);
+            previewHtml = slice.join('') + buildPaginationBar(checkedInFilteredItems.length, checkedInPage, DROP_PAGE_SIZE, 'setCheckedInPage');
         }
+
+        let modalHtml = checkedInAllItems.length === 0
+            ? `<div class="empty-state">No children currently checked in.</div>`
+            : checkedInAllItems.join('');
+
+        // Paginate Guardians Modal & Inline Guardians Container (10 per page)
+        const totalGPages = Math.max(1, Math.ceil(guardiansItems.length / DROP_PAGE_SIZE));
+        if (guardiansModalPage > totalGPages) guardiansModalPage = totalGPages;
+        if (inlineGuardiansPage > totalGPages) inlineGuardiansPage = totalGPages;
+
+        const gModalSlice = guardiansItems.slice((guardiansModalPage - 1) * DROP_PAGE_SIZE, guardiansModalPage * DROP_PAGE_SIZE);
+        const gInlineSlice = guardiansItems.slice((inlineGuardiansPage - 1) * DROP_PAGE_SIZE, inlineGuardiansPage * DROP_PAGE_SIZE);
 
         document.getElementById('checkedin-preview-container').innerHTML = previewHtml;
         document.getElementById('modal-checkedin-body').innerHTML = modalHtml;
-        document.getElementById('modal-guardians-body').innerHTML = guardiansModalHtml;
+        document.getElementById('modal-guardians-body').innerHTML = gModalSlice.join('') + buildPaginationBar(guardiansItems.length, guardiansModalPage, DROP_PAGE_SIZE, 'setGuardiansModalPage');
+        const inlineG = document.getElementById('inline-guardians-container');
+        if (inlineG) {
+            inlineG.innerHTML = gInlineSlice.join('') + buildPaginationBar(guardiansItems.length, inlineGuardiansPage, DROP_PAGE_SIZE, 'setInlineGuardiansPage');
+        }
     }
 
     window.viewStudentTransportHistory = function(studentId) {
