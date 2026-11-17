@@ -2009,20 +2009,19 @@
         });
 
         // Floating Back to Top Button
-        const backToTopBtn = document.getElementById('backToTopBtn');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                if (backToTopBtn) backToTopBtn.classList.add('visible');
-            } else {
-                if (backToTopBtn) backToTopBtn.classList.remove('visible');
-            }
-        });
+        // NOTE: the button element is looked up lazily (it sits below this <script> in the DOM)
+        function updateBackToTopVisibility() {
+            const btn = document.getElementById('backToTopBtn');
+            if (!btn) return;
+            const y = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            btn.classList.toggle('visible', y > 300);
+        }
+        window.addEventListener('scroll', updateBackToTopVisibility, { passive: true });
+        document.addEventListener('scroll', updateBackToTopVisibility, { passive: true });
+        document.addEventListener('DOMContentLoaded', updateBackToTopVisibility);
 
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Initial Load
