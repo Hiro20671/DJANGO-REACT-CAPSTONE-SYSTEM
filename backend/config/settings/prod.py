@@ -38,9 +38,19 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Database configuration: supports Aiven PostgreSQL / MySQL via DATABASE_URL or individual env vars
+def _is_placeholder_db(val):
+    if not val:
+        return True
+    val_lower = str(val).lower()
+    placeholders = (
+        'your_host', 'your-aiven-host', 'your_password', 'your_user',
+        'your-port', '<your', 'example.com', 'dummy', 'change-me'
+    )
+    return any(p in val_lower for p in placeholders)
+
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('AIVEN_DATABASE_URL')
 
-if DATABASE_URL:
+if DATABASE_URL and not _is_placeholder_db(DATABASE_URL):
     is_postgres = 'postgres' in DATABASE_URL.lower()
     DATABASES = {
         'default': dj_database_url.parse(
@@ -52,7 +62,7 @@ if DATABASE_URL:
     # Ensure SSL settings for PostgreSQL if using psycopg2
     if is_postgres and 'postgresql' in DATABASES['default'].get('ENGINE', ''):
         DATABASES['default'].setdefault('OPTIONS', {})['sslmode'] = os.environ.get('DB_SSLMODE', 'require')
-elif os.environ.get('DB_HOST') and os.environ.get('DB_NAME'):
+elif os.environ.get('DB_HOST') and not _is_placeholder_db(os.environ.get('DB_HOST')) and os.environ.get('DB_NAME'):
     # In case user enters individual fields instead of URI
     engine = 'django.db.backends.postgresql' if os.environ.get('DB_ENGINE', '').lower() in ('postgres', 'postgresql') else 'django.db.backends.mysql'
     DATABASES = {
@@ -71,7 +81,7 @@ elif os.environ.get('DB_HOST') and os.environ.get('DB_NAME'):
         }
     }
 else:
-    # Safe fallback to local SQLite if no external DB configured
+    # Safe fallback to local SQLite if no external DB configured or dummy placeholder was detected
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

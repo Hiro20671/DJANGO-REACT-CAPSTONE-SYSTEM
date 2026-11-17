@@ -21,9 +21,10 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.prod'
 os.environ['DEBUG'] = 'False'
 os.environ['SECRET_KEY'] = 'bmv3-prod-capstone-secret-key-replace-with-random-chars'
 
-# 3. Aiven Database Service URI (PostgreSQL or MySQL with SSL)
-# Example: postgres://avnadmin:password@pg-xxx.aivencloud.com:12345/defaultdb?sslmode=require
-os.environ['DATABASE_URL'] = 'postgres://avnadmin:your_password@your-aiven-host:your-port/defaultdb?sslmode=require'
+# 3. Optional External Database (Aiven PostgreSQL or MySQL with SSL)
+# Only uncomment and set if you are using an external cloud database.
+# Otherwise, leave commented out to safely use local SQLite (db.sqlite3).
+# os.environ['DATABASE_URL'] = 'postgres://avnadmin:your_real_password@your-real-host:12345/defaultdb?sslmode=require'
 
 # 4. Brevo Email API Configuration (REQUIRED for email on PythonAnywhere)
 # IMPORTANT: In Brevo dashboard, go to 'SMTP & API' -> 'API Keys' tab (NOT SMTP) -> 'Generate a new API key'
