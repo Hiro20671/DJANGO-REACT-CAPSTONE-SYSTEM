@@ -721,13 +721,12 @@
     let dashCohortPage = 1;
     const DASH_PAGE_SIZE = 10;
 
-    document.addEventListener('DOMContentLoaded', async function () {
-        await loadSchoolYears();
-        const sySelect = document.getElementById('sySelector');
-        const syId = sySelect ? sySelect.value : '';
-        loadDashboardStats(syId);
-        loadCohortStudents(syId);
-        loadDashboardAnalyticsPreview(syId);
+    document.addEventListener('DOMContentLoaded', function () {
+        const archiveId = sessionStorage.getItem('bmv3_archive_year_id') || localStorage.getItem('bmv3_archive_year_id') || '';
+        loadSchoolYears();
+        loadDashboardStats(archiveId);
+        loadCohortStudents(archiveId);
+        loadDashboardAnalyticsPreview(archiveId);
     });
 
     async function loadSchoolYears() {

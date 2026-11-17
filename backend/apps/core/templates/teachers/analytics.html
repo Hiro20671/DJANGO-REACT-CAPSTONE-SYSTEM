@@ -1578,9 +1578,9 @@
         return 'success';
     }
 
-    document.addEventListener('DOMContentLoaded', async function () {
-        await initSchoolYears();
-        await loadGeneralAnalytics();
+    document.addEventListener('DOMContentLoaded', function () {
+        initSchoolYears();
+        loadGeneralAnalytics();
     });
 
     async function initSchoolYears() {

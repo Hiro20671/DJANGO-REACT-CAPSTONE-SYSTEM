@@ -189,23 +189,26 @@ class TeacherDashboardStatsAPIView(APIView):
         if shift:
             qs = qs.filter(shift__iexact=shift)
             
-        total_children = qs.filter(enrollment_status='Enrolled').count()
-        pending = qs.filter(enrollment_status='Pending').count()
-        present = qs.filter(attendance_status='Present').count()
-        absent = qs.filter(attendance_status='Absent').count()
-        late = qs.filter(attendance_status='Late').count()
-        morning_count = qs.filter(enrollment_status='Enrolled', shift='Morning').count()
-        afternoon_count = qs.filter(enrollment_status='Enrolled', shift='Afternoon').count()
+        from django.db.models import Count, Q
+        agg = qs.aggregate(
+            total_children=Count('id', filter=Q(enrollment_status='Enrolled')),
+            pending=Count('id', filter=Q(enrollment_status='Pending')),
+            present=Count('id', filter=Q(attendance_status='Present')),
+            absent=Count('id', filter=Q(attendance_status='Absent')),
+            late=Count('id', filter=Q(attendance_status='Late')),
+            morning_count=Count('id', filter=Q(enrollment_status='Enrolled', shift__iexact='Morning')),
+            afternoon_count=Count('id', filter=Q(enrollment_status='Enrolled', shift__iexact='Afternoon')),
+        )
         
         data = {
-            'total_children': total_children,
-            'pending_count': pending,
-            'morning_count': morning_count,
-            'afternoon_count': afternoon_count,
+            'total_children': agg['total_children'] or 0,
+            'pending_count': agg['pending'] or 0,
+            'morning_count': agg['morning_count'] or 0,
+            'afternoon_count': agg['afternoon_count'] or 0,
             'attendance': {
-                'present': present,
-                'absent': absent,
-                'late': late,
+                'present': agg['present'] or 0,
+                'absent': agg['absent'] or 0,
+                'late': agg['late'] or 0,
             }
         }
         return Response(data)

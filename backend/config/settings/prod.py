@@ -76,8 +76,34 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 30,
+            }
         }
     }
+
+# SQLite WAL mode & performance optimization for PythonAnywhere
+from django.db.backends.signals import connection_created
+def _enable_sqlite_perf(sender, connection, **kwargs):
+    if connection.vendor == 'sqlite':
+        try:
+            cursor = connection.cursor()
+            cursor.execute('PRAGMA journal_mode = WAL;')
+            cursor.execute('PRAGMA synchronous = NORMAL;')
+            cursor.execute('PRAGMA cache_size = -64000;')
+            cursor.execute('PRAGMA temp_store = MEMORY;')
+        except Exception:
+            pass
+connection_created.connect(_enable_sqlite_perf)
+
+# In-Memory Cache configuration for lightning-fast queries
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'bmv3-prod-cache',
+        'TIMEOUT': 180,
+    }
+}
 
 # Production static settings
 STATIC_ROOT = BASE_DIR / 'staticfiles'

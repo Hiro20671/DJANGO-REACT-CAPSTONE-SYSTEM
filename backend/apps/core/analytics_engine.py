@@ -27,6 +27,10 @@ from .models import (
     ECCDDomain, ECCDMilestone, ECCDAssessment, ECCDMilestoneScore,
     StudentActivityCompletion, SchoolYear, EngagementRecord
 )
+from django.core.cache import cache
+
+# Global in-process flag to avoid redundant calibrations
+_CALIBRATED_IN_MEMORY = False
 
 # Realistic Filipino Daycare Supplementary Feeding Menu Items
 DAYCARE_FOOD_MENU = [
@@ -60,6 +64,16 @@ def ensure_analytics_data_calibrated():
     3. Realistic record distributions for high-risk (<50% DRI), moderate-risk (50-80% DRI), and on-track (81-100% DRI) pupils
        so that 100% of analytics numbers come straight from real database queries.
     """
+    global _CALIBRATED_IN_MEMORY
+    if _CALIBRATED_IN_MEMORY:
+        return
+    try:
+        if cache.get('bmv3_calibrated_flag'):
+            _CALIBRATED_IN_MEMORY = True
+            return
+    except Exception:
+        pass
+
     try:
         distinct_foods = NutritionRecord.objects.values('food_item').distinct().count()
         # Check if already calibrated with the 8 menu items and differentiated ECCD domains
@@ -71,6 +85,11 @@ def ensure_analytics_data_calibrated():
                 att_tot = AttendanceRecord.objects.filter(child=sample_high).count()
                 att_pres = AttendanceRecord.objects.filter(child=sample_high, status__iexact='Present').count()
                 if att_tot > 0 and (att_pres / att_tot) < 0.55:
+                    _CALIBRATED_IN_MEMORY = True
+                    try:
+                        cache.set('bmv3_calibrated_flag', True, 86400 * 7)
+                    except Exception:
+                        pass
                     return
     except Exception:
         return
@@ -278,9 +297,15 @@ def ensure_analytics_data_calibrated():
 
     except Exception as e:
         print("Calibration warning:", e)
+    finally:
+        _CALIBRATED_IN_MEMORY = True
+        try:
+            cache.set('bmv3_calibrated_flag', True, 86400 * 7)
+        except Exception:
+            pass
 
 
-def get_full_analytics_data(school_year_id=None):
+def get_full_analytics_data(school_year_id=None, force_refresh=False):
     """
     Computes all 10 analytics pillars directly from real database records.
     Every score and percentage uses the 100% factor:
@@ -291,6 +316,15 @@ def get_full_analytics_data(school_year_id=None):
       - 50% to 80% DRI (Risk 20% - 50%): Developing Readiness / Moderate Risk / Stable / Guided Monitoring
       - Below 50% DRI (Risk > 50%): Needs Support / High Risk / Declining / Immediate Action
     """
+    cache_key = f"bmv3_analytics_data_{school_year_id or 'active'}"
+    if not force_refresh:
+        try:
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return cached_data
+        except Exception:
+            pass
+
     ensure_analytics_data_calibrated()
 
     # Determine Target School Year
@@ -1000,7 +1034,7 @@ def get_full_analytics_data(school_year_id=None):
         most_refused_food=most_refused_food
     )
 
-    return {
+    result_payload = {
         'total_children': total_children,
         'morning_count': morning_count,
         'afternoon_count': afternoon_count,
@@ -1092,6 +1126,13 @@ def get_full_analytics_data(school_year_id=None):
         'ai_diagnosis': ai_diagnosis,
         'school_year': sy_info
     }
+
+    try:
+        cache.set(cache_key, result_payload, 90)
+    except Exception:
+        pass
+
+    return result_payload
 
 
 def generate_ai_class_diagnosis_data(
