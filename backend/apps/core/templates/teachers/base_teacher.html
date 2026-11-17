@@ -897,6 +897,55 @@
             .btn-send, .btn-action, .btn-primary { width: 100% !important; text-align: center !important; }
             .modal-content { width: 95% !important; max-width: 95vw !important; padding: 20px !important; }
             .kpi-card, .auto-card, .card, .status-box { width: 100% !important; box-sizing: border-box; }
+
+            /* Fluid Table Scrolling & Mobile Touch Handling */
+            .table-responsive,
+            .table-responsive-wrapper,
+            [class*="table-responsive"],
+            div[style*="overflow-x: auto"] {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                touch-action: pan-x pan-y !important;
+                position: relative !important;
+                margin-bottom: 15px !important;
+                scrollbar-width: thin;
+                scrollbar-color: #94a3b8 #f1f5f9;
+            }
+
+            .table-responsive::-webkit-scrollbar,
+            div[style*="overflow-x: auto"]::-webkit-scrollbar {
+                height: 6px !important;
+            }
+            .table-responsive::-webkit-scrollbar-track,
+            div[style*="overflow-x: auto"]::-webkit-scrollbar-track {
+                background: #f1f5f9 !important;
+                border-radius: 4px !important;
+            }
+            .table-responsive::-webkit-scrollbar-thumb,
+            div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb {
+                background: #94a3b8 !important;
+                border-radius: 4px !important;
+            }
+            .table-responsive::-webkit-scrollbar-thumb:hover,
+            div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb:hover {
+                background: #64748b !important;
+            }
+
+            /* Ensure tables inside responsive containers retain readable column widths on phones */
+            .table-responsive > table,
+            .table-scrollable > table,
+            div[style*="overflow-x: auto"] > table,
+            table.analytics-table,
+            table.dash-table,
+            table.assess-table,
+            table.children-table,
+            table.att-history-table,
+            table.data-table {
+                min-width: 580px;
+            }
         }
 
         @media (max-width: 480px) {

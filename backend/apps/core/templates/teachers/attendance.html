@@ -131,6 +131,153 @@
     .cal-cell { font-size: 0.9rem; max-height: 40px; border-radius: 6px; }
     .cal-day-label { font-size: 0.7rem; }
 }
+
+/* Daily Attendance Register Modal Mobile Optimization */
+#attendanceDateModal .modal-container {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 94vh !important;
+    overflow: hidden !important;
+}
+#attendanceDateModal .modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+@media (max-width: 768px) {
+    #attendanceDateModal {
+        padding: 8px !important;
+    }
+    #attendanceDateModal .modal-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 96vh !important;
+        height: 96vh !important;
+        margin: 0 !important;
+        border-radius: 12px !important;
+    }
+    #attendanceDateModal .modal-header {
+        padding: 10px 12px !important;
+        gap: 8px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        flex-shrink: 0 !important;
+    }
+    #attendanceDateModal .modal-title-group {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+    #attendanceDateModal .modal-title-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    #attendanceDateModal .modal-title-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        border-radius: 6px !important;
+    }
+    #attendanceDateModal #attendanceModalDateTitle {
+        font-size: 0.98rem !important;
+        line-height: 1.2 !important;
+    }
+    #attendanceDateModal .modal-date-subtitle {
+        font-size: 0.72rem !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        margin-top: 2px !important;
+    }
+    #attendanceDateModal .modal-date-subtitle .date-picker {
+        padding: 2px 6px !important;
+        font-size: 0.75rem !important;
+        width: auto !important;
+        margin-top: 0 !important;
+    }
+    #attendanceDateModal .modal-header-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr auto !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+    #attendanceDateModal .modal-header-actions button {
+        padding: 6px 8px !important;
+        font-size: 0.75rem !important;
+        border-radius: 8px !important;
+        justify-content: center !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        gap: 4px !important;
+    }
+    #attendanceDateModal .modal-header-actions .btn-close {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1.4rem !important;
+        padding: 0 !important;
+    }
+    #attendanceDateModal .modal-body {
+        padding: 10px 10px !important;
+    }
+    #attendanceDateModal .modal-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        padding: 8px !important;
+        margin-bottom: 10px !important;
+    }
+    #attendanceDateModal .modal-toolbar-shifts {
+        display: flex !important;
+        width: 100% !important;
+        gap: 4px !important;
+    }
+    #attendanceDateModal .modal-toolbar-shifts button {
+        flex: 1 !important;
+        padding: 6px 4px !important;
+        font-size: 0.72rem !important;
+        justify-content: center !important;
+        text-align: center !important;
+        border-radius: 6px !important;
+        white-space: nowrap !important;
+    }
+    #attendanceDateModal .modal-toolbar-actions {
+        display: flex !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+    #attendanceDateModal .modal-toolbar-actions a,
+    #attendanceDateModal .modal-toolbar-actions button {
+        flex: 1 !important;
+        padding: 6px 6px !important;
+        font-size: 0.72rem !important;
+        justify-content: center !important;
+        text-align: center !important;
+        border-radius: 6px !important;
+        white-space: nowrap !important;
+    }
+    #attendanceDateModal #shift-count-badge {
+        margin-bottom: 8px !important;
+        padding: 6px 8px !important;
+        font-size: 0.74rem !important;
+    }
+    #attendanceDateModal .list-item {
+        padding: 10px !important;
+        gap: 8px !important;
+    }
+    #attendanceDateModal .avatar {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 0.9rem !important;
+    }
+    #attendanceDateModal .item-name {
+        font-size: 0.88rem !important;
+    }
+    #attendanceDateModal .item-sub {
+        font-size: 0.72rem !important;
+    }
+}
 </style>
 
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -233,20 +380,22 @@
 <div class="modal-overlay" id="attendanceDateModal">
     <div class="modal-container" style="width: 960px; max-width: 96%; max-height: 90vh;">
         <div class="modal-header" style="background: linear-gradient(135deg, #043263 0%, #0f4c81 100%); color: #fff; padding: 18px 24px; flex-wrap: wrap; gap: 14px;">
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                <div style="width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-                    <i class="fa-solid fa-calendar-check"></i>
-                </div>
-                <div>
-                    <h3 id="attendanceModalDateTitle" style="color:#fff; font-size:1.25rem; font-weight:800; margin:0;">Daily Attendance Register</h3>
-                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:0.82rem; color:#bae6fd;">
-                        <span>Selected Date:</span>
-                        <input type="date" id="attendanceDate" class="date-picker" style="padding:3px 8px; font-size:0.8rem; border-radius:6px; border:none;">
-                        <span>&bull; Driven by QR Drop-Off (15-min Grace Rule) &amp; Parent Excuses</span>
+            <div class="modal-title-group" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; flex:1;">
+                <div class="modal-title-left" style="display:flex; align-items:center; gap:12px;">
+                    <div class="modal-title-icon" style="width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h3 id="attendanceModalDateTitle" style="color:#fff; font-size:1.25rem; font-weight:800; margin:0;">Daily Attendance Register</h3>
+                        <div class="modal-date-subtitle" style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:0.82rem; color:#bae6fd;">
+                            <span>Selected Date:</span>
+                            <input type="date" id="attendanceDate" class="date-picker" style="padding:3px 8px; font-size:0.8rem; border-radius:6px; border:none;">
+                            <span>&bull; Driven by QR Drop-Off (15-min Grace Rule) &amp; Parent Excuses</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div class="modal-header-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <button type="button" onclick="promptNoClass(document.getElementById('attendanceDate').value)" style="background:#ef4444; color:#ffffff; border:2px solid #fca5a5; padding:10px 18px; font-size:0.92rem; font-weight:800; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; box-shadow:0 4px 12px rgba(239,68,68,0.35);" title="Declare this date as No Class and notify parents">
                     <i class="fa-solid fa-ban"></i> Declare 'No Class'
                 </button>
@@ -258,8 +407,8 @@
         </div>
         <div class="modal-body" style="background:#f8fafc; padding:20px 24px;">
             <!-- Top Toolbar inside Popup: Shift Filter + QR Scanner Link + Auto-Absent -->
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; background:#fff; padding:12px 16px; border-radius:10px; border:1px solid #e2e8f0;">
-                <div style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:4px; border-radius:10px; border:1px solid #cbd5e1; flex-wrap:wrap;">
+            <div class="modal-toolbar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; background:#fff; padding:12px 16px; border-radius:10px; border:1px solid #e2e8f0;">
+                <div class="modal-toolbar-shifts" style="display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:4px; border-radius:10px; border:1px solid #cbd5e1; flex-wrap:wrap;">
                     <button type="button" id="btn-shift-morning" onclick="setAttendanceShift('Morning')" style="border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; transition:0.2s; background:#063970; color:#fff; display:flex; align-items:center; gap:6px;">
                         <i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Morning Shift (AM)
                     </button>
@@ -271,7 +420,7 @@
                     </button>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <div class="modal-toolbar-actions" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <a href="/dropoff-pickup/" style="background:#0284c7; color:#fff; text-decoration:none; padding:9px 14px; border-radius:8px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px;">
                         <i class="fa-solid fa-qrcode"></i> Go to QR Drop-Off Scanner
                     </a>
