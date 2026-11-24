@@ -386,21 +386,35 @@
         </div>
     </div>
 
-    <!-- Smart Quick Prompt Pills -->
-    <div class="floating-ai-pills" id="floatingAiPills">
-        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('How do I use this feature?')">
-            💡 How do I use this feature?
-        </button>
-        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('What can I do on this page?')">
-            📋 What can I do here?
-        </button>
-        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('Paano gamitin ang feature na ito?')">
-            🇵🇭 Paano gamitin ito?
-        </button>
+    <!-- Smart Quick Prompt Pills Wrapper (with X dismiss button to maximize chat area) -->
+    <div class="floating-ai-pills-wrapper" id="floatingAiPillsWrapper" style="background: var(--bg-card, #ffffff); border-top: 1px solid var(--border-color, #e2e8f0); flex-shrink: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 14px 2px 14px;">
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Quick Suggestions
+            </span>
+            <button type="button" onclick="toggleFloatingAiPills(false)" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; cursor: pointer; font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;" title="Hide suggestions to see whole chat">
+                <span style="font-weight: 700;">Hide</span>
+                <i class="fa-solid fa-xmark" style="font-size: 0.82rem;"></i>
+            </button>
+        </div>
+        <div class="floating-ai-pills" id="floatingAiPills">
+            <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('How do I use this feature?')">
+                💡 How do I use this feature?
+            </button>
+            <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('What can I do on this page?')">
+                📋 What can I do here?
+            </button>
+            <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('Paano gamitin ang feature na ito?')">
+                🇵🇭 Paano gamitin ito?
+            </button>
+        </div>
     </div>
 
     <!-- Input Box -->
     <div class="floating-ai-footer">
+        <button type="button" id="floatingAiTogglePillsBtn" onclick="toggleFloatingAiPills()" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #475569; cursor: pointer; flex-shrink: 0; transition: all 0.15s;" title="Show / Hide suggestions">
+            <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i>
+        </button>
         <input type="text" id="floatingAiInput" class="floating-ai-input" placeholder="Ask AI anything (English / Tagalog)..." onkeypress="handleFloatingAiKey(event)">
         <button type="button" class="floating-ai-send-btn" id="floatingAiSendBtn" onclick="submitFloatingAiQuery()" aria-label="Send Query">
             <i class="fa-solid fa-paper-plane"></i>
@@ -464,6 +478,23 @@
             }
         }
 
+        window.toggleFloatingAiPills = function(forceState) {
+            const wrapper = document.getElementById('floatingAiPillsWrapper');
+            const toggleBtn = document.getElementById('floatingAiTogglePillsBtn');
+            if (!wrapper) return;
+            let show;
+            if (typeof forceState === 'boolean') {
+                show = forceState;
+            } else {
+                show = (wrapper.style.display === 'none');
+            }
+            wrapper.style.display = show ? 'block' : 'none';
+            if (toggleBtn) {
+                toggleBtn.style.background = show ? '#eff6ff' : '#f1f5f9';
+                toggleBtn.style.borderColor = show ? '#2563eb' : '#cbd5e1';
+            }
+        };
+
         window.toggleFloatingAiDrawer = function() {
             if (!drawer) return;
             const isOpening = !drawer.classList.contains('active');
@@ -477,6 +508,7 @@
         window.sendFloatingAiQuickPrompt = function(questionText) {
             if (inputEl) {
                 inputEl.value = questionText;
+                toggleFloatingAiPills(false); // Auto-hide pills so full chat area is visible
                 submitFloatingAiQuery();
             }
         };
@@ -492,6 +524,9 @@
             if (!inputEl || !bodyEl) return;
             const q = (inputEl.value || '').trim();
             if (!q) return;
+
+            // Auto-hide suggestion pills so chat messages take full height
+            toggleFloatingAiPills(false);
 
             // Append user message
             const userBubble = document.createElement('div');
