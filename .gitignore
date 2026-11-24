@@ -53,9 +53,11 @@ ehthumbs.db
 Thumbs.db
 
 # Databases
-*.sqlite3
 *.sqlite3.*
+*.sqlite3-wal
+*.sqlite3-shm
 *.bak
+!backend/db.sqlite3
 
 # Local media/uploads
 backend/media/
