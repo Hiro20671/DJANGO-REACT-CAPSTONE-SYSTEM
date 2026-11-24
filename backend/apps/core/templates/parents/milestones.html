@@ -684,7 +684,7 @@ function renderDomainCards() {
 
         let scored = 0;
         dMilestones.forEach(m => {
-            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score >= 1);
             scored += s.length;
         });
         totalScored += scored;
@@ -729,7 +729,7 @@ function renderDomainCards() {
         const count = dMilestones.length * 3;
         let scored = 0;
         dMilestones.forEach(m => {
-            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+            const s = allSco.filter(sc => sc.milestone === m.id && sc.teacher_score >= 1);
             scored += s.length;
         });
         const pct = count === 0 ? 0 : Math.round((scored / count) * 100);
@@ -836,7 +836,7 @@ function renderAssessmentTable() {
     }
 
     const getScoreSelector = (period, assessmentId, milestoneId, scoreVal) => {
-        const val = (scoreVal === 1) ? 1 : 0;
+        const val = (scoreVal >= 1) ? 1 : 0;
         
         if (period === '1st' && is1stDraft) {
             return `

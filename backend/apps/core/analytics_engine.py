@@ -675,22 +675,21 @@ def get_full_analytics_data(school_year_id=None, force_refresh=False):
     )
 
     # Calculate true mastery per domain:
-    # Score 2 (Consistently Demonstrated) = 1.0 credit, Score 1 (Emerging) = 0.5 credit, Score 0 = 0 credit
+    # Any checked/demonstrated milestone (teacher_score >= 1) = 1.0 credit, Score 0 = 0 credit
     domain_breakdown = []
     for d in domains:
         d_scores = [s for s in scores if s.milestone.domain_id == d.id]
         d_tot = len(d_scores)
-        d_s2 = sum(1 for s in d_scores if s.teacher_score == 2)
-        d_s1 = sum(1 for s in d_scores if s.teacher_score == 1)
-        d_points = d_s2 * 1.0 + d_s1 * 0.5
-        d_rate = round((d_points / d_tot * 100), 1) if d_tot > 0 else 0.0
+        d_checked = sum(1 for s in d_scores if s.teacher_score is not None and s.teacher_score >= 1)
+        d_unobs = sum(1 for s in d_scores if s.teacher_score == 0)
+        d_rate = round((d_checked / d_tot * 100), 1) if d_tot > 0 else 0.0
         domain_breakdown.append({
             'id': d.id,
             'name': d.name,
             'score_pct': d_rate,
             'total_milestones': d_tot,
-            'mastered_milestones': d_s2,
-            'emerging_milestones': d_s1
+            'mastered_milestones': d_checked,
+            'emerging_milestones': d_unobs
         })
 
     sorted_domains = sorted(domain_breakdown, key=lambda x: x['score_pct'])
@@ -705,9 +704,8 @@ def get_full_analytics_data(school_year_id=None, force_refresh=False):
         p_scores = [s for s in scores if s.assessment_id in p_ass_ids]
         p_tot = len(p_scores)
         if p_tot > 0:
-            p_s2 = sum(1 for s in p_scores if s.teacher_score == 2)
-            p_s1 = sum(1 for s in p_scores if s.teacher_score == 1)
-            p_rate = round(((p_s2 * 1.0 + p_s1 * 0.5) / p_tot * 100), 1)
+            p_checked = sum(1 for s in p_scores if s.teacher_score is not None and s.teacher_score >= 1)
+            p_rate = round((p_checked / p_tot * 100), 1)
             period_stats.append({
                 'period': p_title,
                 'short_name': f"{p_label} Period",
@@ -732,7 +730,7 @@ def get_full_analytics_data(school_year_id=None, force_refresh=False):
         def calc_mastery(sc_list):
             if not sc_list:
                 return None
-            pts = sum(1.0 if s.teacher_score == 2 else (0.5 if s.teacher_score == 1 else 0.0) for s in sc_list)
+            pts = sum(1.0 if (s.teacher_score is not None and s.teacher_score >= 1) else 0.0 for s in sc_list)
             return round((pts / len(sc_list) * 100), 1)
 
         p1_rate = calc_mastery(c_p1)
@@ -1993,6 +1991,12 @@ def answer_ai_query(question, analytics_data, current_page="", is_parent=False):
     ])
     if is_feature_help:
         return get_feature_explanation(current_page, q, is_parent=is_parent)
+
+    # Check for friendly concept definitions (Zero IT jargon, plain English & Tagalog definitions for daycare concepts)
+    # Checked first before any complex DB search or LLM to give instant, human, genuine answers!
+    concept_def = get_friendly_concept_definition(q, is_parent=is_parent)
+    if concept_def:
+        return concept_def
 
     if total == 0:
         return (

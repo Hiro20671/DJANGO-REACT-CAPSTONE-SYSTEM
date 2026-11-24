@@ -128,3 +128,5 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+# Prevent 500 errors if a static file or vite chunk is missing/renamed in production
+WHITENOISE_MANIFEST_STRICT = False

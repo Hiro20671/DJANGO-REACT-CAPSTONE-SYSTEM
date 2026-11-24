@@ -1967,7 +1967,7 @@
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
         <div class="top-nav-right"
-            style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200;">
+            style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200; overflow: visible !important;">
             <!-- System Language Switcher (EN / TL) - Placed on the LEFT of mobile header -->
             <div class="sys-lang-pill"
                 style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
@@ -1983,16 +1983,16 @@
                 </button>
             </div>
 
-            <!-- Real-Time Notification Bell for Teacher - Placed on the RIGHT only -->
-            <div style="position: relative; display: inline-flex; align-items: center; overflow: visible !important;"
+            <!-- Real-Time Notification Bell for Teacher - Placed on the RIGHT only with generous margin so badge is never clipped -->
+            <div style="position: relative; display: inline-flex; align-items: center; overflow: visible !important; margin-right: 10px;"
                 id="teacherNotifWrapper">
                 <button type="button" id="teacherNotifBellBtn" onclick="toggleTeacherNotifDropdown(event)"
-                    style="position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s; overflow: visible !important;"
+                    style="position: relative; width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s; overflow: visible !important;"
                     title="Real-Time Notifications">
                     <i class="fa-solid fa-bell"></i>
                 </button>
                 <span id="teacherNotifBadge"
-                    style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: #ffffff; font-size: 0.70rem; font-weight: 800; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(239,68,68,0.5); pointer-events: none; z-index: 20; line-height: 1;">0</span>
+                    style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: #ffffff; font-size: 0.72rem; font-weight: 800; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(239,68,68,0.6); pointer-events: none; z-index: 50; line-height: 18px; text-align: center; box-sizing: border-box;">0</span>
 
                 <!-- Notification Dropdown Panel -->
                 <div id="teacherNotifDropdown"
@@ -2882,7 +2882,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchTeacherLiveNotifications();
-            setInterval(fetchTeacherLiveNotifications, 8000);
+            setInterval(fetchTeacherLiveNotifications, 5000);
             window.addEventListener('focus', fetchTeacherLiveNotifications);
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) fetchTeacherLiveNotifications();

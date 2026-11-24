@@ -845,7 +845,7 @@ class ECCDReportAPIView(APIView):
         
         # 2. Compute Raw Scores per Domain
         domains = ECCDDomain.objects.all().order_by('order')
-        scores = ECCDMilestoneScore.objects.filter(assessment=assessment, teacher_score=1)
+        scores = ECCDMilestoneScore.objects.filter(assessment=assessment, teacher_score__gte=1)
         
         domain_results = []
         sum_scaled = 0
@@ -920,7 +920,7 @@ class ECCDOverallReportAPIView(APIView):
         for d in domains:
             milestones = ECCDMilestone.objects.filter(domain=d)
             # Find all unique milestones achieved by this child in ANY assessment period
-            scores = ECCDMilestoneScore.objects.filter(assessment__in=assessments, teacher_score=1, milestone__in=milestones)
+            scores = ECCDMilestoneScore.objects.filter(assessment__in=assessments, teacher_score__gte=1, milestone__in=milestones)
             raw_score = scores.values('milestone').distinct().count()
             
             scaled_score = 0

@@ -1147,15 +1147,14 @@ class Command(BaseCommand):
                 assessments_to_score.append((a2, "2nd", idx))
 
                 # 3rd Period Evaluation (Year-End - April 6, 2027, ~3 weeks before end of School Year)
-                # Keep first 4 pupils in Draft status so teachers can test live scoring, and finalize the remaining 78 pupils
-                is_draft_3rd = (idx <= 4)
+                # All pupils have their 3rd evaluation completed and finalized for year-end readiness
                 a3 = ECCDAssessment.objects.create(
                     child=ch,
                     school_year=active_sy,
                     teacher=teacher_profile,
                     assessment_period="3rd",
                     assessment_date=datetime.date(2027, 4, 6),
-                    status="Draft" if is_draft_3rd else "Finalized",
+                    status="Finalized",
                     remarks="Year-End 3rd assessment evaluated as of April 6, 2027 (3 weeks before school year end). Demonstrates comprehensive kindergarten readiness in cognitive and social competencies.",
                     strengths="Confident counting 1 to 20, phonetic letter recognition, independent self-help, cooperative peer play.",
                     concerns="Sustained pencil grip stamina for extended writing worksheets.",
@@ -1178,6 +1177,16 @@ class Command(BaseCommand):
                     }
                 )
 
+                # M-CHAT-R 20-Question Screening Results
+                mchat_data = {}
+                is_autism_risk = (idx == 1) # small risk profile for watchlist child
+                for q_num in range(1, 21):
+                    # Questions 2, 5, 12 are reverse questions (OO = risk, HINDI = normal)
+                    if q_num in [2, 5, 12]:
+                        mchat_data[f"q_{q_num}"] = "OO" if (is_autism_risk and q_num == 2) else "HINDI"
+                    else:
+                        mchat_data[f"q_{q_num}"] = "HINDI" if (is_autism_risk and q_num in [7, 14]) else "OO"
+
                 # ECCDBookletRecord
                 ECCDBookletRecord.objects.update_or_create(
                     child=ch,
@@ -1196,26 +1205,43 @@ class Command(BaseCommand):
                             "hearing": "Normal",
                             "vision": "Normal",
                             "allergies": ch.allergies or "None",
+                            "dental": "Normal",
+                            "deworming": "Completed"
                         },
+                        "eye_vision": {
+                            "left_eye": "20/20 (Passed)",
+                            "right_eye": "20/20 (Passed)",
+                            "symptoms": "None",
+                            "status": "Normal"
+                        },
+                        "growth_chart_data": {
+                            "1st_eval": {"date": "2026-08-18", "weight": f"{ch.weight or 15.0} kg", "height": f"{ch.height or 98.0} cm", "status": "Normal"},
+                            "2nd_eval": {"date": "2026-12-11", "weight": f"{round((ch.weight or 15.0) + 0.8, 1)} kg", "height": f"{round((ch.height or 98.0) + 2.5, 1)} cm", "status": "Normal"},
+                            "3rd_eval": {"date": "2027-04-06", "weight": f"{round((ch.weight or 15.0) + 1.5, 1)} kg", "height": f"{round((ch.height or 98.0) + 5.0, 1)} cm", "status": "Normal"}
+                        },
+                        "mchat_r": mchat_data,
                         "examiner_notes": {
-                            "1st_period": "Baseline evaluation completed successfully at center opening.",
-                            "2nd_period": "Mid-year checkup noted steady cognitive and motor advancements.",
+                            "1st_period": "Baseline evaluation completed successfully at center opening. Child is adapting to morning routines.",
+                            "2nd_period": "Mid-year checkup noted steady cognitive and motor advancements across activities.",
                             "3rd_period": "Year-End 3rd assessment completed 3 weeks prior to commencement. Child exhibits high school-readiness competencies."
                         }
                     }
                 )
 
-            # Generate Scores for all milestones
+            # Generate Scores for all milestones (1 = Checked/Demonstrated, 0 = Line/Not Yet Observed)
             scores_batch = []
             for assess, period, ch_idx in assessments_to_score:
+                is_wl = (ch_idx in [1, 2])
                 for m in milestones:
                     m_hash = (ch_idx * 31 + m.id * 17) % 100
                     if period == "1st":
-                        score = 2 if m_hash < 35 else (1 if m_hash < 88 else 0)
-                    elif period == "2nd":  # 2nd period: noticeable advancement
-                        score = 2 if m_hash < 72 else (1 if m_hash < 95 else 0)
-                    else:  # 3rd period: high mastery demonstrating School Ready developmental progression
-                        score = 2 if m_hash < 91 else (1 if m_hash < 98 else 0)
+                        threshold = 60 if is_wl else 82
+                    elif period == "2nd":
+                        threshold = 72 if is_wl else 93
+                    else:  # 3rd period
+                        threshold = 78 if is_wl else 98
+
+                    score = 1 if m_hash < threshold else 0
 
                     scores_batch.append(
                         ECCDMilestoneScore(

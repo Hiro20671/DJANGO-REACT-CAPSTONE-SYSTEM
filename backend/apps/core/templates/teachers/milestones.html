@@ -1652,7 +1652,7 @@ async function renderOverview() {
     pageChildren.forEach(c => {
         const cAss = allAss.filter(a => a.child === c.id);
         const cAssIds = cAss.map(a => a.id);
-        const cSco = allSco.filter(s => cAssIds.includes(s.assessment) && s.teacher_score === 1);
+        const cSco = allSco.filter(s => cAssIds.includes(s.assessment) && s.teacher_score >= 1);
         
         // Count all milestones achieved across all periods (3 periods total)
         const totalBoxes = totalPossibleMilestones * 3;
@@ -1735,7 +1735,7 @@ function renderDomainCards() {
         let scored = 0;
         if (currentAssessments.length > 0) {
             dMilestones.forEach(m => {
-                const s = currentScores.filter(sc => sc.milestone === m.id && sc.teacher_score === 1);
+                const s = currentScores.filter(sc => sc.milestone === m.id && sc.teacher_score >= 1);
                 scored += s.length;
             });
         }
@@ -1856,19 +1856,19 @@ function renderAssessmentTable() {
             <td style="text-align:center; vertical-align:middle;">
                 <div class="score-selector" id="sel_group_${ast1}_${m.id}">
                     <button type="button" class="sel-btn sel-line ${scoreVal1 === 0 ? 'active' : ''}" onclick="setScoreBtn('${ast1}', ${m.id}, 0)" ${disabled1}>−</button>
-                    <button type="button" class="sel-btn sel-check ${scoreVal1 === 1 ? 'active' : ''}" onclick="setScoreBtn('${ast1}', ${m.id}, 1)" ${disabled1}><i class="fa-solid fa-check"></i></button>
+                    <button type="button" class="sel-btn sel-check ${scoreVal1 >= 1 ? 'active' : ''}" onclick="setScoreBtn('${ast1}', ${m.id}, 1)" ${disabled1}><i class="fa-solid fa-check"></i></button>
                 </div>
             </td>
             <td style="text-align:center; vertical-align:middle;">
                 <div class="score-selector" id="sel_group_${ast2}_${m.id}">
                     <button type="button" class="sel-btn sel-line ${scoreVal2 === 0 ? 'active' : ''}" onclick="setScoreBtn('${ast2}', ${m.id}, 0)" ${disabled2}>−</button>
-                    <button type="button" class="sel-btn sel-check ${scoreVal2 === 1 ? 'active' : ''}" onclick="setScoreBtn('${ast2}', ${m.id}, 1)" ${disabled2}><i class="fa-solid fa-check"></i></button>
+                    <button type="button" class="sel-btn sel-check ${scoreVal2 >= 1 ? 'active' : ''}" onclick="setScoreBtn('${ast2}', ${m.id}, 1)" ${disabled2}><i class="fa-solid fa-check"></i></button>
                 </div>
             </td>
             <td style="text-align:center; vertical-align:middle;">
                 <div class="score-selector" id="sel_group_${ast3}_${m.id}">
                     <button type="button" class="sel-btn sel-line ${scoreVal3 === 0 ? 'active' : ''}" onclick="setScoreBtn('${ast3}', ${m.id}, 0)" ${disabled3}>−</button>
-                    <button type="button" class="sel-btn sel-check ${scoreVal3 === 1 ? 'active' : ''}" onclick="setScoreBtn('${ast3}', ${m.id}, 1)" ${disabled3}><i class="fa-solid fa-check"></i></button>
+                    <button type="button" class="sel-btn sel-check ${scoreVal3 >= 1 ? 'active' : ''}" onclick="setScoreBtn('${ast3}', ${m.id}, 1)" ${disabled3}><i class="fa-solid fa-check"></i></button>
                 </div>
             </td>
             <td>
