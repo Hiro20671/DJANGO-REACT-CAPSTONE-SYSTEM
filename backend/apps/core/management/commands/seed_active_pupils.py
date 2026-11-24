@@ -672,10 +672,10 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("=" * 80))
         self.stdout.write(self.style.NOTICE("  BMV3 CHILD DEVELOPMENT CENTER - ACTIVE SCHOOL YEAR SEEDING"))
         self.stdout.write(self.style.NOTICE("  School Year: 2026-2027 (July 6, 2026 to April 30, 2027)"))
-        self.stdout.write(self.style.NOTICE("  Current Date Snapshot: November 3, 2026 (Tuesday)"))
+        self.stdout.write(self.style.NOTICE("  Current Date Snapshot: April 9, 2027 (~3 weeks before end of School Year)"))
         self.stdout.write(self.style.NOTICE("=" * 80))
 
-        today = datetime.date(2026, 11, 3)
+        today = datetime.date(2027, 4, 9)
         sy_start = datetime.date(2026, 7, 6)   # First Monday of July 2026
         sy_end = datetime.date(2027, 4, 30)    # Last Friday of April 2027
 
@@ -708,7 +708,7 @@ class Command(BaseCommand):
                     "end_date": sy_end,
                     "eccd_1st_start": sy_start,
                     "eccd_1st_end": datetime.date(2026, 8, 7),
-                    "eccd_2nd_start": today,
+                    "eccd_2nd_start": datetime.date(2026, 11, 2),
                     "eccd_2nd_end": datetime.date(2026, 12, 4),
                     "eccd_3rd_start": datetime.date(2027, 4, 5),
                     "eccd_3rd_end": sy_end,
@@ -719,7 +719,7 @@ class Command(BaseCommand):
             active_sy.end_date = sy_end
             active_sy.eccd_1st_start = sy_start
             active_sy.eccd_1st_end = datetime.date(2026, 8, 7)
-            active_sy.eccd_2nd_start = today
+            active_sy.eccd_2nd_start = datetime.date(2026, 11, 2)
             active_sy.eccd_2nd_end = datetime.date(2026, 12, 4)
             active_sy.eccd_3rd_start = datetime.date(2027, 4, 5)
             active_sy.eccd_3rd_end = sy_end
@@ -907,12 +907,21 @@ class Command(BaseCommand):
                 except Exception as e:
                     self.stdout.write(self.style.WARNING(f"  Could not write CSV {cp}: {e}"))
 
-            # 5. Seed Attendance Records (July 6, 2026 to November 3, 2026)
-            self.stdout.write(self.style.NOTICE("[3/8] Generating Daily Attendance & Dropoff/Pickup Data (July 6 to Nov 3)..."))
+            # 5. Seed Attendance Records (July 6, 2026 to April 9, 2027)
+            self.stdout.write(self.style.NOTICE("[3/8] Generating Daily Attendance & Dropoff/Pickup Data (July 6, 2026 to April 9, 2027)..."))
             holidays = {
                 datetime.date(2026, 8, 21): "Ninoy Aquino Day",
                 datetime.date(2026, 8, 31): "National Heroes Day",
                 datetime.date(2026, 11, 2): "All Souls Day",
+                datetime.date(2026, 11, 30): "Bonifacio Day",
+                datetime.date(2026, 12, 24): "Christmas Eve",
+                datetime.date(2026, 12, 25): "Christmas Day",
+                datetime.date(2026, 12, 30): "Rizal Day",
+                datetime.date(2026, 12, 31): "New Year's Eve",
+                datetime.date(2027, 1, 1): "New Year's Day",
+                datetime.date(2027, 2, 25): "EDSA People Power Revolution Anniversary",
+                datetime.date(2027, 4, 1): "Maundy Thursday",
+                datetime.date(2027, 4, 2): "Good Friday",
             }
             # Record NoClassDays
             for h_date, h_reason in holidays.items():
@@ -1059,14 +1068,20 @@ class Command(BaseCommand):
             NutritionRecord.objects.bulk_create(nutrition_batch, batch_size=1000)
             self.stdout.write(self.style.SUCCESS(f"  [OK] Created {len(nutrition_batch)} nutrition records across {len(nutrition_days)} feeding days."))
 
-            # 7. Seed Monthly BMI Records (July to October - End of Month)
-            self.stdout.write(self.style.NOTICE("[5/8] Generating Monthly BMI Records (July to October - End of Month)..."))
+            # 7. Seed Monthly BMI Records (July 2026 to April 2027)
+            self.stdout.write(self.style.NOTICE("[5/8] Generating Monthly BMI Records (July 2026 to April 2027)..."))
             bmi_batch = []
             bmi_months = [
-                ("Jul", datetime.date(2026, 7, 31), -0.6, -1.8),
-                ("Aug", datetime.date(2026, 8, 31), -0.4, -1.2),
-                ("Sep", datetime.date(2026, 9, 30), -0.2, -0.6),
-                ("Oct", datetime.date(2026, 10, 31), 0.0, 0.0),
+                ("Jul", datetime.date(2026, 7, 31), -1.2, -3.2),
+                ("Aug", datetime.date(2026, 8, 31), -1.0, -2.8),
+                ("Sep", datetime.date(2026, 9, 30), -0.8, -2.2),
+                ("Oct", datetime.date(2026, 10, 31), -0.6, -1.6),
+                ("Nov", datetime.date(2026, 11, 30), -0.5, -1.2),
+                ("Dec", datetime.date(2026, 12, 18), -0.3, -0.8),
+                ("Jan", datetime.date(2027, 1, 30), -0.2, -0.5),
+                ("Feb", datetime.date(2027, 2, 28), -0.1, -0.2),
+                ("Mar", datetime.date(2027, 3, 31), 0.0, 0.0),
+                ("Apr", datetime.date(2027, 4, 9), +0.1, +0.3),
             ]
 
             for ch in enrolled_children:
@@ -1122,14 +1137,31 @@ class Command(BaseCommand):
                     school_year=active_sy,
                     teacher=teacher_profile,
                     assessment_period="2nd",
-                    assessment_date=today,
-                    status="Draft",
-                    remarks="Mid-year assessment in progress as of November 3, 2026. Significant growth in self-help and language skills.",
+                    assessment_date=datetime.date(2026, 11, 3),
+                    status="Finalized",
+                    remarks="Mid-year assessment completed. Significant growth in self-help and expressive language skills.",
                     strengths="Independent handwashing, speaks in clear complete sentences, counts 1 to 10 reliably.",
                     concerns="Needs gentle reminders to sustain focus during sedentary listening tasks.",
                     follow_up_action="Integrate physical movement breaks between structured activities."
                 )
                 assessments_to_score.append((a2, "2nd", idx))
+
+                # 3rd Period Evaluation (Year-End - April 6, 2027, ~3 weeks before end of School Year)
+                # Keep first 4 pupils in Draft status so teachers can test live scoring, and finalize the remaining 78 pupils
+                is_draft_3rd = (idx <= 4)
+                a3 = ECCDAssessment.objects.create(
+                    child=ch,
+                    school_year=active_sy,
+                    teacher=teacher_profile,
+                    assessment_period="3rd",
+                    assessment_date=datetime.date(2027, 4, 6),
+                    status="Draft" if is_draft_3rd else "Finalized",
+                    remarks="Year-End 3rd assessment evaluated as of April 6, 2027 (3 weeks before school year end). Demonstrates comprehensive kindergarten readiness in cognitive and social competencies.",
+                    strengths="Confident counting 1 to 20, phonetic letter recognition, independent self-help, cooperative peer play.",
+                    concerns="Sustained pencil grip stamina for extended writing worksheets.",
+                    follow_up_action="Gradual transition into formal primary kindergarten routines."
+                )
+                assessments_to_score.append((a3, "3rd", idx))
 
                 # Simple MilestoneRecord
                 MilestoneRecord.objects.update_or_create(
@@ -1166,8 +1198,9 @@ class Command(BaseCommand):
                             "allergies": ch.allergies or "None",
                         },
                         "examiner_notes": {
-                            "1st_period": "Baseline evaluation completed successfully.",
-                            "2nd_period": "Mid-year checkup currently underway as of Nov 3.",
+                            "1st_period": "Baseline evaluation completed successfully at center opening.",
+                            "2nd_period": "Mid-year checkup noted steady cognitive and motor advancements.",
+                            "3rd_period": "Year-End 3rd assessment completed 3 weeks prior to commencement. Child exhibits high school-readiness competencies."
                         }
                     }
                 )
@@ -1179,8 +1212,10 @@ class Command(BaseCommand):
                     m_hash = (ch_idx * 31 + m.id * 17) % 100
                     if period == "1st":
                         score = 2 if m_hash < 35 else (1 if m_hash < 88 else 0)
-                    else:  # 2nd period: noticeable advancement
-                        score = 2 if m_hash < 75 else (1 if m_hash < 96 else 0)
+                    elif period == "2nd":  # 2nd period: noticeable advancement
+                        score = 2 if m_hash < 72 else (1 if m_hash < 95 else 0)
+                    else:  # 3rd period: high mastery demonstrating School Ready developmental progression
+                        score = 2 if m_hash < 91 else (1 if m_hash < 98 else 0)
 
                     scores_batch.append(
                         ECCDMilestoneScore(
@@ -1203,6 +1238,12 @@ class Command(BaseCommand):
                 ("Buwan ng Wika Cultural Day", "Filipino cultural songs, traditional parlor games, and folk costume presentation.", datetime.date(2026, 8, 28)),
                 ("Sensory Science & Nature Walk", "Hands-on leaf printing, tactile texture sorting, and garden exploration.", datetime.date(2026, 9, 22)),
                 ("Global Handwashing & Oral Hygiene Workshop", "City Health team demonstration of proper 7-step handwashing and dental care.", datetime.date(2026, 10, 15)),
+                ("Children's Month & Rights Celebration", "Creative art mural, puppet theater, and child rights awareness storytelling.", datetime.date(2026, 11, 20)),
+                ("Christmas Fellowship & Toy Giving", "Holiday gift exchange, singing festive Filipino carols, and sharing gratitude circle.", datetime.date(2026, 12, 18)),
+                ("New Year Math & Shape Quest", "Scavenger hunt finding geometrical shapes and counting colorful daycare blocks.", datetime.date(2027, 1, 22)),
+                ("Arts & Social Storytelling Festival", "Dramatic pretend play, dress-up community helpers, and character empathy circle.", datetime.date(2027, 2, 19)),
+                ("Early Science & Water Play Day", "Sink or float water experiments, soap bubble measuring, and outdoor physical games.", datetime.date(2027, 3, 19)),
+                ("Kindergarten Transition Readiness Workshop", "Primary school classroom simulation, bag organizing, and independence drills.", datetime.date(2027, 4, 8)),
             ]
             completions_batch = []
             for act_name, act_desc, act_date in activities_data:

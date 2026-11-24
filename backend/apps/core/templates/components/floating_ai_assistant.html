@@ -1,0 +1,560 @@
+<!-- ============================================================== -->
+<!-- FLOATING AI ASSISTANT BOT / CHAT HEAD WIDGET                   -->
+<!-- Works across all Teacher and Parent pages                      -->
+<!-- Context-aware: explains the current feature & answers DB queries-->
+<!-- ============================================================== -->
+
+<style>
+    /* Floating Bot Trigger Button */
+    .floating-ai-head-btn {
+        position: fixed;
+        bottom: 26px;
+        right: 28px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: #ffffff;
+        border: 2.5px solid #ffffff;
+        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.42), 0 2px 8px rgba(0,0,0,0.12);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        z-index: 2100;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+        outline: none;
+        overflow: visible !important;
+    }
+
+    .floating-ai-head-btn:hover {
+        transform: scale(1.08) translateY(-2px);
+        box-shadow: 0 14px 34px rgba(37, 99, 235, 0.55), 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .floating-ai-head-btn:active {
+        transform: scale(0.96);
+    }
+
+    /* Subtle Pulsing Beacon Ring */
+    .floating-ai-beacon {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        border-radius: 50%;
+        border: 2px solid #60a5fa;
+        animation: aiBeaconPulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        pointer-events: none;
+    }
+
+    @keyframes aiBeaconPulse {
+        0% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.22); opacity: 0; }
+        100% { transform: scale(1); opacity: 0; }
+    }
+
+    /* Floating Pill Hint */
+    .floating-ai-tooltip {
+        position: absolute;
+        right: 64px;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 5px 11px;
+        border-radius: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        border: 1px solid rgba(255,255,255,0.12);
+        animation: tooltipFloat 3s ease-in-out infinite;
+        letter-spacing: 0.2px;
+    }
+
+    @keyframes tooltipFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    /* Chat Drawer Container */
+    .floating-ai-drawer {
+        position: fixed;
+        bottom: 92px;
+        right: 28px;
+        width: 395px;
+        max-width: calc(100vw - 32px);
+        height: 540px;
+        max-height: calc(100vh - 120px);
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-color, #cbd5e1);
+        border-radius: 20px;
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.22), 0 4px 14px rgba(0,0,0,0.08);
+        z-index: 2150;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Montserrat', sans-serif;
+        animation: aiDrawerSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .floating-ai-drawer.active {
+        display: flex;
+    }
+
+    @keyframes aiDrawerSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Drawer Header */
+    .floating-ai-header {
+        background: linear-gradient(135deg, #091e42 0%, #1e40af 100%);
+        color: #ffffff;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .floating-ai-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .floating-ai-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #93c5fd;
+    }
+
+    .floating-ai-title {
+        font-size: 0.92rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .floating-ai-subtitle {
+        font-size: 0.70rem;
+        opacity: 0.85;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .floating-ai-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #10b981;
+        display: inline-block;
+    }
+
+    .floating-ai-close-btn {
+        background: rgba(255,255,255,0.16);
+        border: none;
+        color: #ffffff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background 0.15s;
+    }
+
+    .floating-ai-close-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    /* Page Context Tag Banner */
+    .floating-ai-context-banner {
+        background: #eff6ff;
+        border-bottom: 1px solid #dbeafe;
+        padding: 8px 14px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #1e40af;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    /* Chat Messages Body */
+    .floating-ai-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--bg-body, #f8fafc);
+    }
+
+    .floating-ai-bubble {
+        max-width: 86%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 0.84rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .floating-ai-bubble.bot {
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #0f172a);
+        align-self: flex-start;
+        border: 1px solid var(--border-color, #e2e8f0);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .floating-ai-bubble.user {
+        background: #2563eb;
+        color: #ffffff;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+    }
+
+    /* Preset Quick Prompt Pills */
+    .floating-ai-pills {
+        padding: 8px 14px 4px 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        background: var(--bg-card, #ffffff);
+        border-top: 1px solid var(--border-color, #e2e8f0);
+    }
+
+    .floating-ai-pill-btn {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: left;
+    }
+
+    .floating-ai-pill-btn:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+    }
+
+    /* Input Footer */
+    .floating-ai-footer {
+        padding: 10px 14px;
+        background: var(--bg-card, #ffffff);
+        border-top: 1px solid var(--border-color, #e2e8f0);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .floating-ai-input {
+        flex: 1;
+        border: 1px solid var(--border-color, #cbd5e1);
+        border-radius: 20px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        outline: none;
+        background: var(--bg-body, #ffffff);
+        color: var(--text-primary, #0f172a);
+        transition: border-color 0.2s;
+    }
+
+    .floating-ai-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    .floating-ai-send-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.92rem;
+        transition: all 0.15s;
+        flex-shrink: 0;
+    }
+
+    .floating-ai-send-btn:hover {
+        background: #1d4ed8;
+        transform: scale(1.05);
+    }
+
+    /* Mobile Responsive Adaptation */
+    @media (max-width: 768px) {
+        .floating-ai-head-btn {
+            bottom: 82px !important;
+            right: 18px !important;
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 1.2rem !important;
+        }
+
+        .floating-ai-tooltip {
+            display: none !important;
+        }
+
+        .floating-ai-drawer {
+            bottom: 140px !important;
+            right: 12px !important;
+            left: 12px !important;
+            width: auto !important;
+            max-width: calc(100vw - 24px) !important;
+            height: 480px !important;
+        }
+    }
+</style>
+
+<!-- Floating Action Button / Chat Head -->
+<button type="button" class="floating-ai-head-btn" id="floatingAiBtn" onclick="toggleFloatingAiDrawer()" aria-label="Open AI Insights Assistant" title="Ask BMV3 AI Insights">
+    <div class="floating-ai-beacon"></div>
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+    <span class="floating-ai-tooltip" id="floatingAiTooltip">Ask AI Assistant ✨</span>
+</button>
+
+<!-- Floating AI Drawer Window -->
+<div class="floating-ai-drawer" id="floatingAiDrawer">
+    <div class="floating-ai-header">
+        <div class="floating-ai-header-left">
+            <div class="floating-ai-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+                <div class="floating-ai-title">BMV3 AI Copilot</div>
+                <div class="floating-ai-subtitle">
+                    <span class="floating-ai-status-dot"></span>
+                    <span>Context-Aware Daycare Intelligence</span>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="floating-ai-close-btn" onclick="toggleFloatingAiDrawer()" title="Close Assistant">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Active Feature Indicator -->
+    <div class="floating-ai-context-banner">
+        <span style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-location-dot" style="color: #2563eb;"></i>
+            <span id="floatingAiCurrentFeature">Detecting active feature...</span>
+        </span>
+        <span style="font-size: 0.68rem; background: rgba(37,99,235,0.12); padding: 2px 6px; border-radius: 6px;">Live</span>
+    </div>
+
+    <!-- Chat Messages History Body -->
+    <div class="floating-ai-body" id="floatingAiBody">
+        <div class="floating-ai-bubble bot">
+            <div style="font-weight: 700; color: #1e40af; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-robot"></i>
+                <span id="floatingAiGreeting">Hello! How can I assist you today?</span>
+            </div>
+            <div id="floatingAiWelcomeText" style="color: var(--text-secondary, #475569); font-size: 0.82rem;">
+                I am your BMV3 AI Assistant. You can ask me how to use this feature, what tools are available, or ask any question about students, attendance, ECCD domains, or nutrition in English or Tagalog.
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Quick Prompt Pills -->
+    <div class="floating-ai-pills" id="floatingAiPills">
+        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('How do I use this feature?')">
+            💡 How do I use this feature?
+        </button>
+        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('What can I do on this page?')">
+            📋 What can I do here?
+        </button>
+        <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('Paano gamitin ang feature na ito?')">
+            🇵🇭 Paano gamitin ito?
+        </button>
+    </div>
+
+    <!-- Input Box -->
+    <div class="floating-ai-footer">
+        <input type="text" id="floatingAiInput" class="floating-ai-input" placeholder="Ask AI anything (English / Tagalog)..." onkeypress="handleFloatingAiKey(event)">
+        <button type="button" class="floating-ai-send-btn" id="floatingAiSendBtn" onclick="submitFloatingAiQuery()" aria-label="Send Query">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const drawer = document.getElementById('floatingAiDrawer');
+        const featureLabel = document.getElementById('floatingAiCurrentFeature');
+        const pillsContainer = document.getElementById('floatingAiPills');
+        const bodyEl = document.getElementById('floatingAiBody');
+        const inputEl = document.getElementById('floatingAiInput');
+
+        // Detect current feature based on URL
+        function detectCurrentFeature() {
+            const p = window.location.pathname;
+            let featureName = "Daycare Portal Overview";
+            let customPills = [
+                { text: "💡 How do I use this feature?", q: "How do I use this feature?" },
+                { text: "📋 What can I do here?", q: "What can I do here?" },
+                { text: "🇵🇭 Paano gamitin ito?", q: "Paano gamitin ang feature na ito?" }
+            ];
+
+            if (p.includes('/dropoff-pickup/')) {
+                featureName = "Drop-Off & Pick-Up QR Gate";
+                customPills.push({ text: "📲 How does QR link to Attendance?", q: "How does the drop-off QR scanner automatically record attendance?" });
+            } else if (p.includes('/attendance/')) {
+                featureName = "Attendance Calendar & Records";
+                customPills.push({ text: "📅 How to declare No Class?", q: "How do I declare a No Class day and check student logs in the popup?" });
+            } else if (p.includes('/analytics/')) {
+                featureName = "Analytics & Early-Warning AI";
+                customPills.push({ text: "🧮 100% DRI Formula?", q: "How is the 100% DRI formula calculated?" });
+                customPills.push({ text: "🚨 Who are at-risk?", q: "Sino ang mga at-risk students at bakit?" });
+            } else if (p.includes('/milestones/') || p.includes('/eccd-booklet/')) {
+                featureName = "ECCD 7-Domain Booklet";
+                customPills.push({ text: "📊 3rd Assessment status?", q: "How do 1st, 2nd, and 3rd assessment period scorings work?" });
+            } else if (p.includes('/nutrition/')) {
+                featureName = "Nutrition & Supplementary Feeding";
+                customPills.push({ text: "🍲 Foods eaten vs refused?", q: "Anong pagkain ang kinakain vs tinatanggihan ng mga bata?" });
+            } else if (p.includes('/activities/')) {
+                featureName = "Daily Learning Activities";
+                customPills.push({ text: "📝 How to log task completion?", q: "How do I create activities and track student completions?" });
+            } else if (p.includes('/engagement/')) {
+                featureName = "Parent-Teacher Engagement Chat";
+                customPills.push({ text: "💬 Real-time chat & digests?", q: "How do I chat with parents and send performance digests?" });
+            } else if (p.includes('/parent/')) {
+                featureName = "Parent Guardian Portal";
+                customPills.push({ text: "📲 Offline QR Pass?", q: "How do I download and use my offline QR pass for drop-off?" });
+            }
+
+            if (featureLabel) featureLabel.innerText = featureName;
+
+            if (pillsContainer) {
+                pillsContainer.innerHTML = customPills.map(item => `
+                    <button type="button" class="floating-ai-pill-btn" onclick="sendFloatingAiQuickPrompt('${item.q.replace(/'/g, "\\'")}')">
+                        ${item.text}
+                    </button>
+                `).join('');
+            }
+        }
+
+        window.toggleFloatingAiDrawer = function() {
+            if (!drawer) return;
+            const isOpening = !drawer.classList.contains('active');
+            drawer.classList.toggle('active');
+            if (isOpening) {
+                detectCurrentFeature();
+                setTimeout(() => { if (inputEl) inputEl.focus(); }, 150);
+            }
+        };
+
+        window.sendFloatingAiQuickPrompt = function(questionText) {
+            if (inputEl) {
+                inputEl.value = questionText;
+                submitFloatingAiQuery();
+            }
+        };
+
+        window.handleFloatingAiKey = function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitFloatingAiQuery();
+            }
+        };
+
+        window.submitFloatingAiQuery = async function() {
+            if (!inputEl || !bodyEl) return;
+            const q = (inputEl.value || '').trim();
+            if (!q) return;
+
+            // Append user message
+            const userBubble = document.createElement('div');
+            userBubble.className = 'floating-ai-bubble user';
+            userBubble.textContent = q;
+            bodyEl.appendChild(userBubble);
+            inputEl.value = '';
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+
+            // Append loading message
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'floating-ai-bubble bot';
+            loadingBubble.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#2563eb; margin-right:6px;"></i> Sinusuri ang feature at database ng BMV3...`;
+            bodyEl.appendChild(loadingBubble);
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+
+            try {
+                // Get CSRF cookie
+                let csrf = '';
+                const cookies = document.cookie ? document.cookie.split(';') : [];
+                for (let c of cookies) {
+                    const [k, v] = c.trim().split('=');
+                    if (k === 'csrftoken') { csrf = v; break; }
+                }
+
+                const res = await fetch('/api/ai-insights/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrf
+                    },
+                    body: JSON.stringify({
+                        question: q,
+                        current_page: window.location.pathname
+                    })
+                });
+
+                const data = await res.json();
+                let ans = data.answer || "Paumanhin, walang naipong datos para sa katanungang ito.";
+
+                // Format markdown headers, bold, bullet points
+                ans = ans
+                    .replace(/#### (.*?)\n/g, '<h5 style="margin: 8px 0 4px 0; font-size: 0.88rem; color: #091e42;">$1</h5>')
+                    .replace(/### (.*?)\n/g, '<h4 style="margin: 6px 0 6px 0; font-size: 0.95rem; color: #1e40af;">$1</h4>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code style="background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-weight: 700;">$1</code>')
+                    .replace(/\n\n/g, '<br><br>')
+                    .replace(/\n- /g, '<br>• ');
+
+                loadingBubble.innerHTML = `
+                    <div style="font-weight: 700; color: #1e40af; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-robot"></i> BMV3 Assistant:
+                    </div>
+                    <div>${ans}</div>
+                `;
+                bodyEl.scrollTop = bodyEl.scrollHeight;
+            } catch (err) {
+                loadingBubble.innerHTML = `<span style="color:#ef4444;">Nagkaroon ng problema sa pagkonekta sa AI server. Pakisubukang muli.</span>`;
+            }
+        };
+
+        // Initialize feature detection
+        document.addEventListener('DOMContentLoaded', detectCurrentFeature);
+    })();
+</script>

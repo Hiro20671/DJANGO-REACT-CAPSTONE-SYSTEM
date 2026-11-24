@@ -2652,13 +2652,18 @@ class AIInsightsAPIView(APIView):
     def post(self, request):
         from .analytics_engine import get_full_analytics_data, answer_ai_query
         question = request.data.get('question', '')
+        current_page = request.data.get('current_page') or request.data.get('page') or ''
         school_year_id = request.data.get('school_year') or request.query_params.get('school_year')
+        profile = getattr(request.user, 'userprofile', None)
+        is_teacher = bool(request.user.is_superuser or (profile and profile.is_teacher))
+        is_parent = not is_teacher
         data = get_full_analytics_data(school_year_id=school_year_id)
-        answer = answer_ai_query(question, data)
+        answer = answer_ai_query(question, data, current_page=current_page, is_parent=is_parent)
         return Response({
             'status': 'success',
             'question': question,
-            'answer': answer
+            'answer': answer,
+            'current_page': current_page
         })
 
 

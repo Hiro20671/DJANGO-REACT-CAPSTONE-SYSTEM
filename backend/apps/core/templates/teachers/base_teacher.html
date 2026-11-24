@@ -35,7 +35,7 @@
             document.documentElement.classList.add('dark-mode');
         }
 
-        window.getCookie = function(name) {
+        window.getCookie = function (name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
@@ -51,7 +51,7 @@
         };
 
         // --- TIME TRAVEL ARCHIVE MODE CORE ---
-        (function() {
+        (function () {
             let archiveId = sessionStorage.getItem('bmv3_archive_year_id') || localStorage.getItem('bmv3_archive_year_id');
             let archiveName = sessionStorage.getItem('bmv3_archive_year_name') || localStorage.getItem('bmv3_archive_year_name');
 
@@ -64,11 +64,11 @@
 
                 // 1. Intercept Global Fetch for historical isolation and read-only protection
                 const originalFetch = window.fetch;
-                window.fetch = async function() {
+                window.fetch = async function () {
                     let args = arguments;
                     if (typeof args[0] === 'string' && args[0].startsWith('/api/')) {
                         let method = (args[1] && args[1].method) ? args[1].method.toUpperCase() : 'GET';
-                        
+
                         // Enforce read-only backend mutation protection in archive mode (exempt OTP, password change, and utility translation)
                         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && !args[0].includes('verify-otp') && !args[0].includes('request-password') && !args[0].includes('translate')) {
                             alert("Action disabled: Archived school years are in Read-Only mode.");
@@ -113,7 +113,7 @@
                         </button>
                     `;
                     let mainContent = document.querySelector('.main-content');
-                    if(mainContent) {
+                    if (mainContent) {
                         mainContent.insertBefore(banner, mainContent.firstChild);
                     }
 
@@ -133,7 +133,7 @@
                 });
             }
 
-            window.exitArchiveMode = function() {
+            window.exitArchiveMode = function () {
                 sessionStorage.removeItem('bmv3_archive_year_id');
                 sessionStorage.removeItem('bmv3_archive_year_name');
                 localStorage.removeItem('bmv3_archive_year_id');
@@ -156,28 +156,29 @@
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
-            
+
             --primary: #1e40af;
             --primary-hover: #1d4ed8;
             --accent-green: #10b981;
             --accent-green-hover: #059669;
             --accent-amber: #f59e0b;
             --accent-coral: #f97316;
-            
+
             --input-bg: #ffffff;
             --input-border: #cbd5e1;
             --input-text: #0f172a;
-            
+
             --btn-neutral-bg: #f1f5f9;
             --btn-neutral-text: #334155;
             --btn-neutral-border: #e2e8f0;
-            
+
             --chart-bg: #ffffff;
             --chart-grid: #f1f5f9;
             --chart-text: #64748b;
         }
 
-        html.dark-mode, .dark-mode {
+        html.dark-mode,
+        .dark-mode {
             /* Premium deep midnight slate theme */
             --bg-body: #0a0f1d;
             --bg-sidebar: #060b14;
@@ -187,22 +188,22 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            
+
             --primary: #3b82f6;
             --primary-hover: #60a5fa;
             --accent-green: #10b981;
             --accent-green-hover: #34d399;
             --accent-amber: #f59e0b;
             --accent-coral: #fb923c;
-            
+
             --input-bg: #0d1527;
             --input-border: #1e293b;
             --input-text: #f8fafc;
-            
+
             --btn-neutral-bg: #1e293b;
             --btn-neutral-text: #cbd5e1;
             --btn-neutral-border: #334155;
-            
+
             --chart-bg: #111a2e;
             --chart-grid: #1e293b;
             --chart-text: #94a3b8;
@@ -413,11 +414,16 @@
             border: none;
         }
 
-        .card-blue h3, .card-blue .chart-title, .card-blue .kpi-title, .card-blue .kpi-value {
+        .card-blue h3,
+        .card-blue .chart-title,
+        .card-blue .kpi-title,
+        .card-blue .kpi-value {
             color: #ffffff !important;
         }
 
-        .card-blue .kpi-subtitle, .card-blue .chart-subtitle, .card-blue p {
+        .card-blue .kpi-subtitle,
+        .card-blue .chart-subtitle,
+        .card-blue p {
             color: rgba(255, 255, 255, 0.85) !important;
         }
 
@@ -537,14 +543,21 @@
             font-weight: 600;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             border-bottom: 2px solid #8FB977;
             animation: slideDown 0.4s ease-out;
         }
+
         @keyframes slideDown {
-            from { transform: translateY(-100%); }
-            to { transform: translateY(0); }
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
         }
+
         .pwa-btn-install {
             background: #8FB977;
             color: white;
@@ -556,24 +569,27 @@
             cursor: pointer;
             margin-left: 15px;
             transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
             display: inline-flex;
             align-items: center;
             gap: 5px;
         }
+
         .pwa-btn-install:hover {
             background: #7fa669;
             transform: translateY(-1px);
         }
+
         .pwa-btn-close {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.2rem;
             cursor: pointer;
             margin-left: 15px;
             transition: color 0.2s;
         }
+
         .pwa-btn-close:hover {
             color: white;
         }
@@ -666,10 +682,12 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
+
         .sidebar-backdrop.active {
             display: block;
             opacity: 1;
         }
+
         .mobile-sidebar-close {
             display: none;
         }
@@ -678,17 +696,22 @@
             .mobile-sidebar-close {
                 display: inline-flex !important;
             }
-            html, body {
+
+            html,
+            body {
                 width: 100% !important;
                 max-width: 100vw !important;
                 overflow-x: hidden !important;
             }
+
             .mobile-bottom-nav {
                 display: flex !important;
             }
+
             body {
                 padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
             }
+
             .main-content {
                 padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px)) !important;
             }
@@ -701,25 +724,65 @@
             border-top-color: rgba(255, 255, 255, 0.08);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
         }
+
         html.dark-mode .nav-tab {
             color: #aaa;
         }
+
         html.dark-mode .nav-tab:hover {
             color: #fff;
         }
+
         html.dark-mode .nav-tab.active {
             color: #8FB977;
         }
 
         /* --- Responsive Design Utilities --- */
-        .resp-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-        .resp-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .resp-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .resp-grid-2-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .resp-grid-dob { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
-        .resp-grid-2-ratio { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 15px; }
-        .resp-flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .resp-mobile-tabs { display: none !important; }
+        .resp-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .resp-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .resp-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .resp-grid-2-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .resp-grid-dob {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+
+        .resp-grid-2-ratio {
+            display: grid;
+            grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+            gap: 15px;
+        }
+
+        .resp-flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resp-mobile-tabs {
+            display: none !important;
+        }
 
         /* --- Responsive Design --- */
         .table-responsive {
@@ -733,27 +796,33 @@
             .sidebar {
                 width: 220px !important;
             }
+
             .main-content {
                 margin-left: 220px !important;
                 width: calc(100% - 220px) !important;
                 padding: 20px !important;
             }
+
             .resp-grid-4 {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 14px !important;
             }
+
             .resp-grid-3 {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 14px !important;
             }
+
             .resp-grid-2-ratio {
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
             }
+
             .kpi-row {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 14px !important;
             }
+
             .grid-container {
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 15px !important;
@@ -793,7 +862,7 @@
                 color: var(--text-primary, #0f172a) !important;
                 font-size: 1.2rem !important;
                 cursor: pointer !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
                 margin-left: auto !important;
             }
 
@@ -827,28 +896,59 @@
                 padding: 15px;
                 transition: margin-left 0.3s, width 0.3s;
             }
-            
+
             /* Responsive layout utility overrides */
-            .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
-            .resp-grid-3 { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .resp-grid-2 { grid-template-columns: 1fr !important; gap: 14px !important; }
-            .resp-grid-2-form { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .resp-grid-dob { grid-template-columns: 1fr !important; gap: 12px !important; }
-            .resp-grid-2-ratio { grid-template-columns: 1fr !important; gap: 14px !important; }
-            .resp-flex-between { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
-            
+            .resp-grid-4 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+
+            .resp-grid-3 {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            .resp-grid-2 {
+                grid-template-columns: 1fr !important;
+                gap: 14px !important;
+            }
+
+            .resp-grid-2-form {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            .resp-grid-dob {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            .resp-grid-2-ratio {
+                grid-template-columns: 1fr !important;
+                gap: 14px !important;
+            }
+
+            .resp-flex-between {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 14px !important;
+            }
+
             /* Responsive pill tabs for mobile scrolling */
-            .tabs, .resp-mobile-tabs { 
-                display: flex !important; 
-                gap: 8px !important; 
-                margin-bottom: 20px !important; 
-                width: 100% !important; 
-                overflow-x: auto !important; 
-                -webkit-overflow-scrolling: touch !important; 
-                padding-bottom: 8px !important; 
+            .tabs,
+            .resp-mobile-tabs {
+                display: flex !important;
+                gap: 8px !important;
+                margin-bottom: 20px !important;
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                padding-bottom: 8px !important;
                 border-bottom: 1px solid var(--border-color, #eee) !important;
             }
-            .tab, .resp-mobile-tab-btn {
+
+            .tab,
+            .resp-mobile-tab-btn {
                 flex: 1 !important;
                 min-width: max-content !important;
                 padding: 8px 16px !important;
@@ -864,39 +964,75 @@
                 transition: all 0.2s ease !important;
                 font-family: 'Montserrat', sans-serif !important;
             }
-            .tab.active, .resp-mobile-tab-btn.active {
+
+            .tab.active,
+            .resp-mobile-tab-btn.active {
                 background: #043263 !important;
                 color: #ffffff !important;
                 border-color: #043263 !important;
                 box-shadow: 0 4px 6px rgba(4, 50, 99, 0.15) !important;
             }
-            html.dark-mode .tab.active, .dark-mode .tab.active,
-            html.dark-mode .resp-mobile-tab-btn.active, .dark-mode .resp-mobile-tab-btn.active {
+
+            html.dark-mode .tab.active,
+            .dark-mode .tab.active,
+            html.dark-mode .resp-mobile-tab-btn.active,
+            .dark-mode .resp-mobile-tab-btn.active {
                 background: #3b82f6 !important;
                 border-color: #3b82f6 !important;
                 color: #ffffff !important;
                 box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25) !important;
             }
-            .page-header h2 { font-size: 1.5rem; line-height: 1.25; }
+
+            .page-header h2 {
+                font-size: 1.5rem;
+                line-height: 1.25;
+            }
 
             /* Global feature layout overrides for mobile */
-            .kpi-row, .status-grid, .auto-grid, .meal-grid, .intake-grid, .mtype-grid, 
-            .summary-container, .overview-footer, .directory-grid, .perf-grid, 
-            .stat-blocks, .cards-container {
+            .kpi-row,
+            .status-grid,
+            .auto-grid,
+            .meal-grid,
+            .intake-grid,
+            .mtype-grid,
+            .summary-container,
+            .overview-footer,
+            .directory-grid,
+            .perf-grid,
+            .stat-blocks,
+            .cards-container {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 14px !important;
             }
 
-            .student-header, .panel-header {
+            .student-header,
+            .panel-header {
                 flex-direction: column !important;
                 align-items: flex-start !important;
                 gap: 10px !important;
             }
 
-            .btn-send, .btn-action, .btn-primary { width: 100% !important; text-align: center !important; }
-            .modal-content { width: 95% !important; max-width: 95vw !important; padding: 20px !important; }
-            .kpi-card, .auto-card, .card, .status-box { width: 100% !important; box-sizing: border-box; }
+            .btn-send,
+            .btn-action,
+            .btn-primary {
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            .modal-content {
+                width: 95% !important;
+                max-width: 95vw !important;
+                padding: 20px !important;
+            }
+
+            .kpi-card,
+            .auto-card,
+            .card,
+            .status-box {
+                width: 100% !important;
+                box-sizing: border-box;
+            }
 
             /* Fluid Table Scrolling & Mobile Touch Handling */
             .table-responsive,
@@ -919,25 +1055,28 @@
             div[style*="overflow-x: auto"]::-webkit-scrollbar {
                 height: 6px !important;
             }
+
             .table-responsive::-webkit-scrollbar-track,
             div[style*="overflow-x: auto"]::-webkit-scrollbar-track {
                 background: #f1f5f9 !important;
                 border-radius: 4px !important;
             }
+
             .table-responsive::-webkit-scrollbar-thumb,
             div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb {
                 background: #94a3b8 !important;
                 border-radius: 4px !important;
             }
+
             .table-responsive::-webkit-scrollbar-thumb:hover,
             div[style*="overflow-x: auto"]::-webkit-scrollbar-thumb:hover {
                 background: #64748b !important;
             }
 
             /* Ensure tables inside responsive containers retain readable column widths on phones */
-            .table-responsive > table,
-            .table-scrollable > table,
-            div[style*="overflow-x: auto"] > table,
+            .table-responsive>table,
+            .table-scrollable>table,
+            div[style*="overflow-x: auto"]>table,
             table.analytics-table,
             table.dash-table,
             table.assess-table,
@@ -952,34 +1091,64 @@
             .resp-grid-4 {
                 grid-template-columns: 1fr !important;
             }
+
             .main-content {
                 padding: 12px !important;
             }
+
             .mobile-bottom-nav {
                 height: 60px !important;
                 padding: 0 4px !important;
             }
+
             .nav-tab {
                 font-size: 0.62rem !important;
                 gap: 2px !important;
             }
+
             .nav-tab i {
                 font-size: 1.15rem !important;
             }
         }
 
         /* --- Dark Mode Styles --- */
-        html.dark-mode body, .dark-mode body { background-color: var(--bg-body); color: var(--text-primary); }
-        html.dark-mode .top-nav-right, .dark-mode .top-nav-right { background-color: var(--bg-body); }
-        html.dark-mode .sidebar, .dark-mode .sidebar { background-color: var(--bg-sidebar); }
-        html.dark-mode .sidebar-header, .dark-mode .sidebar-header { border-bottom-color: var(--border-color); }
-        html.dark-mode .menu-item, .dark-mode .menu-item { color: var(--text-secondary); }
-        html.dark-mode .menu-item:hover, .dark-mode .menu-item:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
-        html.dark-mode .card, 
-        html.dark-mode .settings-panel, 
-        html.dark-mode .settings-sidebar, 
-        html.dark-mode .content-section, 
-        html.dark-mode .summary-card, 
+        html.dark-mode body,
+        .dark-mode body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .top-nav-right,
+        .dark-mode .top-nav-right {
+            background-color: var(--bg-body);
+        }
+
+        html.dark-mode .sidebar,
+        .dark-mode .sidebar {
+            background-color: var(--bg-sidebar);
+        }
+
+        html.dark-mode .sidebar-header,
+        .dark-mode .sidebar-header {
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .menu-item,
+        .dark-mode .menu-item {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .menu-item:hover,
+        .dark-mode .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .card,
+        html.dark-mode .settings-panel,
+        html.dark-mode .settings-sidebar,
+        html.dark-mode .content-section,
+        html.dark-mode .summary-card,
         html.dark-mode .kpi-card,
         html.dark-mode .student-card,
         html.dark-mode .behavior-section,
@@ -989,13 +1158,13 @@
         html.dark-mode .meal-block,
         html.dark-mode .box-nut,
         html.dark-mode .type-btn,
-        html.dark-mode .form-group input, 
+        html.dark-mode .form-group input,
         html.dark-mode .form-group select,
-        .dark-mode .card, 
-        .dark-mode .settings-panel, 
-        .dark-mode .settings-sidebar, 
-        .dark-mode .content-section, 
-        .dark-mode .summary-card, 
+        .dark-mode .card,
+        .dark-mode .settings-panel,
+        .dark-mode .settings-sidebar,
+        .dark-mode .content-section,
+        .dark-mode .summary-card,
         .dark-mode .kpi-card,
         .dark-mode .student-card,
         .dark-mode .behavior-section,
@@ -1005,151 +1174,349 @@
         .dark-mode .meal-block,
         .dark-mode .box-nut,
         .dark-mode .type-btn,
-        .dark-mode .form-group input, 
-        .dark-mode .form-group select { 
-            background-color: var(--bg-card) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-primary) !important; 
+        .dark-mode .form-group input,
+        .dark-mode .form-group select {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
         }
-        html.dark-mode .page-header h2, html.dark-mode .panel-header h3, .dark-mode .page-header h2, .dark-mode .panel-header h3 { color: var(--text-primary); }
-        html.dark-mode .page-header p, html.dark-mode .panel-header p, .dark-mode .page-header p, .dark-mode .panel-header p { color: var(--text-secondary); }
-        html.dark-mode .burger-menu span, .dark-mode .burger-menu span { background-color: var(--text-primary); }
-        html.dark-mode .dropdown-menu, .dark-mode .dropdown-menu { background-color: var(--bg-card); border-color: var(--border-color); }
-        html.dark-mode .dropdown-item, .dark-mode .dropdown-item { color: var(--text-secondary); border-bottom-color: var(--border-color); }
-        html.dark-mode .dropdown-item:hover, .dark-mode .dropdown-item:hover { background-color: rgba(255,255,255,0.05); color: #4a90e2; }
-        html.dark-mode .modal-container, .dark-mode .modal-container { background-color: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
-        html.dark-mode .modal-header, .dark-mode .modal-header { border-bottom-color: var(--border-color); }
-        html.dark-mode .modal-header h3, .dark-mode .modal-header h3 { color: var(--text-primary); }
-        html.dark-mode .list-item, html.dark-mode .archive-box, html.dark-mode .archived-student-item, .dark-mode .list-item, .dark-mode .archive-box, .dark-mode .archived-student-item { border-color: var(--border-color) !important; background-color: var(--bg-card) !important; }
-        html.dark-mode .item-name, html.dark-mode .year-title, .dark-mode .item-name, .dark-mode .year-title { color: var(--text-primary); }
-        html.dark-mode .btn-action, html.dark-mode .form-group input, html.dark-mode .form-group select, html.dark-mode .scanner-help, .dark-mode .btn-action, .dark-mode .btn-action, .dark-mode .form-group input, .dark-mode .form-group select, .dark-mode .scanner-help { background-color: var(--input-bg) !important; border-color: var(--input-border) !important; color: var(--input-text) !important; }
-        html.dark-mode .settings-menu-item:hover, .dark-mode .settings-menu-item:hover { background-color: rgba(255,255,255,0.05); }
-        html.dark-mode .settings-menu-item.active, .dark-mode .settings-menu-item.active { background-color: #2a3b4c; }
-        html.dark-mode .kpi-title, .dark-mode .kpi-title { color: var(--text-secondary); }
-        html.dark-mode .kpi-value, .dark-mode .kpi-value { color: var(--text-primary); }
-        html.dark-mode .chart-title, .dark-mode .chart-title { color: var(--text-primary); }
-        html.dark-mode .status-pill, .dark-mode .status-pill { background-color: var(--input-bg); border-color: var(--border-color); }
-        html.dark-mode .status-pill-title, .dark-mode .status-pill-title { color: var(--text-primary); }
+
+        html.dark-mode .page-header h2,
+        html.dark-mode .panel-header h3,
+        .dark-mode .page-header h2,
+        .dark-mode .panel-header h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .page-header p,
+        html.dark-mode .panel-header p,
+        .dark-mode .page-header p,
+        .dark-mode .panel-header p {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .burger-menu span,
+        .dark-mode .burger-menu span {
+            background-color: var(--text-primary);
+        }
+
+        html.dark-mode .dropdown-menu,
+        .dark-mode .dropdown-menu {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .dropdown-item,
+        .dark-mode .dropdown-item {
+            color: var(--text-secondary);
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .dropdown-item:hover,
+        .dark-mode .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #4a90e2;
+        }
+
+        html.dark-mode .modal-container,
+        .dark-mode .modal-container {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        html.dark-mode .modal-header,
+        .dark-mode .modal-header {
+            border-bottom-color: var(--border-color);
+        }
+
+        html.dark-mode .modal-header h3,
+        .dark-mode .modal-header h3 {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .list-item,
+        html.dark-mode .archive-box,
+        html.dark-mode .archived-student-item,
+        .dark-mode .list-item,
+        .dark-mode .archive-box,
+        .dark-mode .archived-student-item {
+            border-color: var(--border-color) !important;
+            background-color: var(--bg-card) !important;
+        }
+
+        html.dark-mode .item-name,
+        html.dark-mode .year-title,
+        .dark-mode .item-name,
+        .dark-mode .year-title {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .btn-action,
+        html.dark-mode .form-group input,
+        html.dark-mode .form-group select,
+        html.dark-mode .scanner-help,
+        .dark-mode .btn-action,
+        .dark-mode .btn-action,
+        .dark-mode .form-group input,
+        .dark-mode .form-group select,
+        .dark-mode .scanner-help {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--input-text) !important;
+        }
+
+        html.dark-mode .settings-menu-item:hover,
+        .dark-mode .settings-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        html.dark-mode .settings-menu-item.active,
+        .dark-mode .settings-menu-item.active {
+            background-color: #2a3b4c;
+        }
+
+        html.dark-mode .kpi-title,
+        .dark-mode .kpi-title {
+            color: var(--text-secondary);
+        }
+
+        html.dark-mode .kpi-value,
+        .dark-mode .kpi-value {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .chart-title,
+        .dark-mode .chart-title {
+            color: var(--text-primary);
+        }
+
+        html.dark-mode .status-pill,
+        .dark-mode .status-pill {
+            background-color: var(--input-bg);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .status-pill-title,
+        .dark-mode .status-pill-title {
+            color: var(--text-primary);
+        }
 
         /* Global overrides for tables, inputs, and tabs in dark mode */
-        html.dark-mode table, .dark-mode table { border-color: var(--border-color) !important; }
-        html.dark-mode th, .dark-mode th { background-color: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; }
-        html.dark-mode td, .dark-mode td { border-color: var(--border-color) !important; color: var(--text-secondary) !important; }
-        html.dark-mode tr, .dark-mode tr { border-color: var(--border-color) !important; }
-        html.dark-mode tr:hover, .dark-mode tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
-        html.dark-mode input, html.dark-mode select, html.dark-mode textarea, .dark-mode input, .dark-mode select, .dark-mode textarea {
+        html.dark-mode table,
+        .dark-mode table {
+            border-color: var(--border-color) !important;
+        }
+
+        html.dark-mode th,
+        .dark-mode th {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        html.dark-mode td,
+        .dark-mode td {
+            border-color: var(--border-color) !important;
+            color: var(--text-secondary) !important;
+        }
+
+        html.dark-mode tr,
+        .dark-mode tr {
+            border-color: var(--border-color) !important;
+        }
+
+        html.dark-mode tr:hover,
+        .dark-mode tr:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        html.dark-mode input,
+        html.dark-mode select,
+        html.dark-mode textarea,
+        .dark-mode input,
+        .dark-mode select,
+        .dark-mode textarea {
             background-color: var(--input-bg) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
-        html.dark-mode input:disabled, html.dark-mode select:disabled, html.dark-mode textarea:disabled, .dark-mode input:disabled, .dark-mode select:disabled, .dark-mode textarea:disabled {
+
+        html.dark-mode input:disabled,
+        html.dark-mode select:disabled,
+        html.dark-mode textarea:disabled,
+        .dark-mode input:disabled,
+        .dark-mode select:disabled,
+        .dark-mode textarea:disabled {
             opacity: 0.5 !important;
         }
-        html.dark-mode .tabs, html.dark-mode .sub-tabs, html.dark-mode .tab, html.dark-mode .sub-tab, .dark-mode .tabs, .dark-mode .sub-tabs, .dark-mode .tab, .dark-mode .sub-tab {
+
+        html.dark-mode .tabs,
+        html.dark-mode .sub-tabs,
+        html.dark-mode .tab,
+        html.dark-mode .sub-tab,
+        .dark-mode .tabs,
+        .dark-mode .sub-tabs,
+        .dark-mode .tab,
+        .dark-mode .sub-tab {
             border-bottom-color: var(--border-color) !important;
         }
 
         /* Global Feature-Specific Dark Mode Overrides */
-        html.dark-mode .table-responsive, .dark-mode .table-responsive {
+        html.dark-mode .table-responsive,
+        .dark-mode .table-responsive {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
         }
-        html.dark-mode .assess-table tr, .dark-mode .assess-table tr {
+
+        html.dark-mode .assess-table tr,
+        .dark-mode .assess-table tr {
             border-bottom-color: var(--border-color) !important;
         }
-        html.dark-mode .assess-table th, .dark-mode .assess-table th {
+
+        html.dark-mode .assess-table th,
+        .dark-mode .assess-table th {
             background-color: var(--input-bg) !important;
             color: var(--text-primary) !important;
             border-bottom-color: var(--border-color) !important;
         }
-        html.dark-mode .assess-table td, .dark-mode .assess-table td {
+
+        html.dark-mode .assess-table td,
+        .dark-mode .assess-table td {
             color: var(--text-secondary) !important;
         }
-        html.dark-mode .assess-table td span.pill, .dark-mode .assess-table td span.pill {
+
+        html.dark-mode .assess-table td span.pill,
+        .dark-mode .assess-table td span.pill {
             background-color: var(--input-bg) !important;
             color: var(--text-secondary) !important;
         }
-        html.dark-mode .domain-card, .dark-mode .domain-card {
+
+        html.dark-mode .domain-card,
+        .dark-mode .domain-card {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
         }
-        html.dark-mode .domain-card *, .dark-mode .domain-card * {
+
+        html.dark-mode .domain-card *,
+        .dark-mode .domain-card * {
             color: var(--text-secondary) !important;
         }
-        html.dark-mode .domain-card .domain-title, .dark-mode .domain-card .domain-title {
+
+        html.dark-mode .domain-card .domain-title,
+        .dark-mode .domain-card .domain-title {
             color: var(--text-primary) !important;
         }
-        html.dark-mode .domain-card div[style*="background: #f1f5f9"], .dark-mode .domain-card div[style*="background: #f1f5f9"] {
+
+        html.dark-mode .domain-card div[style*="background: #f1f5f9"],
+        .dark-mode .domain-card div[style*="background: #f1f5f9"] {
             background-color: var(--input-bg) !important;
         }
-        html.dark-mode #assessmentPhaseCards > div, .dark-mode #assessmentPhaseCards > div {
-            background-color: var(--bg-card) !important;
-            border-color: var(--border-color) !important;
-            color: var(--text-primary) !important;
-        }
-        html.dark-mode #assessmentPhaseCards > div *, .dark-mode #assessmentPhaseCards > div * {
-            color: var(--text-secondary) !important;
-        }
-        html.dark-mode #assessmentPhaseCards > div span, .dark-mode #assessmentPhaseCards > div span {
-            color: var(--text-primary) !important;
-        }
-        html.dark-mode #assessmentPhaseCards > div input[type="date"], .dark-mode #assessmentPhaseCards > div input[type="date"] {
-            background-color: var(--input-bg) !important;
-            color: var(--text-primary) !important;
-            border-color: var(--border-color) !important;
-        }
-        html.dark-mode #assessmentPhaseCards > div div[style*="background:#f1f5f9"], .dark-mode #assessmentPhaseCards > div div[style*="background:#f1f5f9"] {
-            background-color: var(--input-bg) !important;
-        }
-        html.dark-mode #bmiPhaseCards > div, .dark-mode #bmiPhaseCards > div {
+
+        html.dark-mode #assessmentPhaseCards>div,
+        .dark-mode #assessmentPhaseCards>div {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
-        html.dark-mode #bmiPhaseCards > div *, .dark-mode #bmiPhaseCards > div * {
+
+        html.dark-mode #assessmentPhaseCards>div *,
+        .dark-mode #assessmentPhaseCards>div * {
             color: var(--text-secondary) !important;
         }
-        html.dark-mode #bmiPhaseCards > div span, .dark-mode #bmiPhaseCards > div span {
+
+        html.dark-mode #assessmentPhaseCards>div span,
+        .dark-mode #assessmentPhaseCards>div span {
             color: var(--text-primary) !important;
         }
-        html.dark-mode #bmiPhaseCards > div input, .dark-mode #bmiPhaseCards > div input {
+
+        html.dark-mode #assessmentPhaseCards>div input[type="date"],
+        .dark-mode #assessmentPhaseCards>div input[type="date"] {
             background-color: var(--input-bg) !important;
             color: var(--text-primary) !important;
             border-color: var(--border-color) !important;
         }
-        html.dark-mode div[style*="background:#fff"], .dark-mode div[style*="background:#fff"],
-        html.dark-mode div[style*="background: #fff"], .dark-mode div[style*="background: #fff"],
-        html.dark-mode div[style*="background:white"], .dark-mode div[style*="background:white"],
-        html.dark-mode div[style*="background: white"], .dark-mode div[style*="background: white"] {
+
+        html.dark-mode #assessmentPhaseCards>div div[style*="background:#f1f5f9"],
+        .dark-mode #assessmentPhaseCards>div div[style*="background:#f1f5f9"] {
+            background-color: var(--input-bg) !important;
+        }
+
+        html.dark-mode #bmiPhaseCards>div,
+        .dark-mode #bmiPhaseCards>div {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
-        html.dark-mode div[style*="background:#f8fafc"], .dark-mode div[style*="background:#f8fafc"],
-        html.dark-mode div[style*="background: #f8fafc"], .dark-mode div[style*="background: #f8fafc"] {
+
+        html.dark-mode #bmiPhaseCards>div *,
+        .dark-mode #bmiPhaseCards>div * {
+            color: var(--text-secondary) !important;
+        }
+
+        html.dark-mode #bmiPhaseCards>div span,
+        .dark-mode #bmiPhaseCards>div span {
+            color: var(--text-primary) !important;
+        }
+
+        html.dark-mode #bmiPhaseCards>div input,
+        .dark-mode #bmiPhaseCards>div input {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        html.dark-mode div[style*="background:#fff"],
+        .dark-mode div[style*="background:#fff"],
+        html.dark-mode div[style*="background: #fff"],
+        .dark-mode div[style*="background: #fff"],
+        html.dark-mode div[style*="background:white"],
+        .dark-mode div[style*="background:white"],
+        html.dark-mode div[style*="background: white"],
+        .dark-mode div[style*="background: white"] {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+
+        html.dark-mode div[style*="background:#f8fafc"],
+        .dark-mode div[style*="background:#f8fafc"],
+        html.dark-mode div[style*="background: #f8fafc"],
+        .dark-mode div[style*="background: #f8fafc"] {
             background-color: var(--input-bg) !important;
         }
-        html.dark-mode .cell-white, .dark-mode .cell-white {
+
+        html.dark-mode .cell-white,
+        .dark-mode .cell-white {
             background-color: var(--input-bg) !important;
             color: var(--text-primary) !important;
         }
-        html.dark-mode #parentRequestsAlertSection, .dark-mode #parentRequestsAlertSection {
+
+        html.dark-mode #parentRequestsAlertSection,
+        .dark-mode #parentRequestsAlertSection {
             background-color: #2c1d0f !important;
             border-color: #4a341e !important;
         }
-        html.dark-mode #dateConfigAlertSection, .dark-mode #dateConfigAlertSection {
+
+        html.dark-mode #dateConfigAlertSection,
+        .dark-mode #dateConfigAlertSection {
             background-color: #2c1d0f !important;
             border-color: #4a341e !important;
         }
-        
+
         /* Attendance Calendar Cells */
-        html.dark-mode .cal-cell, .dark-mode .cal-cell {
+        html.dark-mode .cal-cell,
+        .dark-mode .cal-cell {
             color: var(--text-primary) !important;
         }
-        html.dark-mode .cell-grey, .dark-mode .cell-grey {
+
+        html.dark-mode .cell-grey,
+        .dark-mode .cell-grey {
             color: transparent !important;
         }
-        html.dark-mode .cell-green, .dark-mode .cell-green {
+
+        html.dark-mode .cell-green,
+        .dark-mode .cell-green {
             color: #111 !important;
         }
 
@@ -1207,6 +1574,7 @@
             background-color: #2c1d0f !important;
             border-color: #e74a3b !important;
         }
+
         html.dark-mode .msg-item.urgent:hover,
         .dark-mode .msg-item.urgent:hover {
             background-color: #3b2818 !important;
@@ -1252,6 +1620,7 @@
         .dark-mode .chat-bubble {
             box-shadow: none !important;
         }
+
         html.dark-mode .chat-bubble[style*="background-color: #e2e3e5"],
         html.dark-mode .chat-bubble[style*="background-color:#e2e3e5"],
         .dark-mode .chat-bubble[style*="background-color: #e2e3e5"],
@@ -1259,6 +1628,7 @@
             background-color: var(--input-bg) !important;
             color: var(--text-primary) !important;
         }
+
         html.dark-mode .chat-bubble[style*="background-color: #d2f4ea"],
         html.dark-mode .chat-bubble[style*="background-color:#d2f4ea"],
         .dark-mode .chat-bubble[style*="background-color: #d2f4ea"],
@@ -1321,105 +1691,172 @@
         }
 
         /* --- Additional Teacher Dark Mode Overrides --- */
-        html.dark-mode .qr-container, .dark-mode .qr-container {
+        html.dark-mode .qr-container,
+        .dark-mode .qr-container {
             background-color: white !important;
             color: #000 !important;
         }
-        html.dark-mode .qr-container *, .dark-mode .qr-container * {
+
+        html.dark-mode .qr-container *,
+        .dark-mode .qr-container * {
             color: #000 !important;
         }
 
         /* Standardizing Cards and Sections */
-        html.dark-mode .stat-box, .dark-mode .stat-box,
-        html.dark-mode .history-card, .dark-mode .history-card,
-        html.dark-mode .history-item, .dark-mode .history-item,
-        html.dark-mode .summary-card, .dark-mode .summary-card,
-        html.dark-mode .content-section, .dark-mode .content-section,
-        html.dark-mode .list-item, .dark-mode .list-item,
-        html.dark-mode #modal-guardians-body, .dark-mode #modal-guardians-body,
-        html.dark-mode #childRecordModalBody, .dark-mode #childRecordModalBody {
+        html.dark-mode .stat-box,
+        .dark-mode .stat-box,
+        html.dark-mode .history-card,
+        .dark-mode .history-card,
+        html.dark-mode .history-item,
+        .dark-mode .history-item,
+        html.dark-mode .summary-card,
+        .dark-mode .summary-card,
+        html.dark-mode .content-section,
+        .dark-mode .content-section,
+        html.dark-mode .list-item,
+        .dark-mode .list-item,
+        html.dark-mode #modal-guardians-body,
+        .dark-mode #modal-guardians-body,
+        html.dark-mode #childRecordModalBody,
+        .dark-mode #childRecordModalBody {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
 
         /* Card text element colors */
-        html.dark-mode .stat-label, .dark-mode .stat-label,
-        html.dark-mode .history-header, .dark-mode .history-header,
-        html.dark-mode .history-date, .dark-mode .history-date {
+        html.dark-mode .stat-label,
+        .dark-mode .stat-label,
+        html.dark-mode .history-header,
+        .dark-mode .history-header,
+        html.dark-mode .history-date,
+        .dark-mode .history-date {
             color: var(--text-primary) !important;
         }
-        html.dark-mode .stat-sub, .dark-mode .stat-sub,
-        html.dark-mode .history-sub, .dark-mode .history-sub,
-        html.dark-mode .history-time, .dark-mode .history-time,
-        html.dark-mode .history-guardian, .dark-mode .history-guardian {
+
+        html.dark-mode .stat-sub,
+        .dark-mode .stat-sub,
+        html.dark-mode .history-sub,
+        .dark-mode .history-sub,
+        html.dark-mode .history-time,
+        .dark-mode .history-time,
+        html.dark-mode .history-guardian,
+        .dark-mode .history-guardian {
             color: var(--text-secondary) !important;
         }
 
         /* Inline background color wildcard overrides */
-        html.dark-mode *[style*="background:#fff"]:not(.qr-container), html.dark-mode *[style*="background: #fff"]:not(.qr-container),
-        html.dark-mode *[style*="background:white"]:not(.qr-container), html.dark-mode *[style*="background: white"]:not(.qr-container),
-        html.dark-mode *[style*="background-color:#fff"]:not(.qr-container), html.dark-mode *[style*="background-color: #fff"]:not(.qr-container),
-        html.dark-mode *[style*="background-color:white"]:not(.qr-container), html.dark-mode *[style*="background-color: white"]:not(.qr-container),
-        .dark-mode *[style*="background:#fff"]:not(.qr-container), .dark-mode *[style*="background: #fff"]:not(.qr-container),
-        .dark-mode *[style*="background:white"]:not(.qr-container), .dark-mode *[style*="background: white"]:not(.qr-container),
-        .dark-mode *[style*="background-color:#fff"]:not(.qr-container), .dark-mode *[style*="background-color: #fff"]:not(.qr-container),
-        .dark-mode *[style*="background-color:white"]:not(.qr-container), .dark-mode *[style*="background-color: white"]:not(.qr-container) {
+        html.dark-mode *[style*="background:#fff"]:not(.qr-container),
+        html.dark-mode *[style*="background: #fff"]:not(.qr-container),
+        html.dark-mode *[style*="background:white"]:not(.qr-container),
+        html.dark-mode *[style*="background: white"]:not(.qr-container),
+        html.dark-mode *[style*="background-color:#fff"]:not(.qr-container),
+        html.dark-mode *[style*="background-color: #fff"]:not(.qr-container),
+        html.dark-mode *[style*="background-color:white"]:not(.qr-container),
+        html.dark-mode *[style*="background-color: white"]:not(.qr-container),
+        .dark-mode *[style*="background:#fff"]:not(.qr-container),
+        .dark-mode *[style*="background: #fff"]:not(.qr-container),
+        .dark-mode *[style*="background:white"]:not(.qr-container),
+        .dark-mode *[style*="background: white"]:not(.qr-container),
+        .dark-mode *[style*="background-color:#fff"]:not(.qr-container),
+        .dark-mode *[style*="background-color: #fff"]:not(.qr-container),
+        .dark-mode *[style*="background-color:white"]:not(.qr-container),
+        .dark-mode *[style*="background-color: white"]:not(.qr-container) {
             background-color: var(--bg-card) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
 
-        html.dark-mode *[style*="background:#f9f9f9"], html.dark-mode *[style*="background: #f9f9f9"],
-        html.dark-mode *[style*="background-color:#f9f9f9"], html.dark-mode *[style*="background-color: #f9f9f9"],
-        html.dark-mode *[style*="background:#fafafa"], html.dark-mode *[style*="background: #fafafa"],
-        html.dark-mode *[style*="background-color:#fafafa"], html.dark-mode *[style*="background-color: #fafafa"],
-        html.dark-mode *[style*="background:#f8fafc"], html.dark-mode *[style*="background: #f8fafc"],
-        html.dark-mode *[style*="background-color:#f8fafc"], html.dark-mode *[style*="background-color: #f8fafc"],
-        html.dark-mode *[style*="background:#f1f5f9"], html.dark-mode *[style*="background: #f1f5f9"],
-        html.dark-mode *[style*="background-color:#f1f5f9"], html.dark-mode *[style*="background-color: #f1f5f9"],
-        html.dark-mode *[style*="background:#f8f9fa"], html.dark-mode *[style*="background: #f8f9fa"],
-        html.dark-mode *[style*="background-color:#f8f9fa"], html.dark-mode *[style*="background-color: #f8f9fa"],
-        html.dark-mode *[style*="background:#fcfcfc"], html.dark-mode *[style*="background: #fcfcfc"],
-        html.dark-mode *[style*="background-color:#fcfcfc"], html.dark-mode *[style*="background-color: #fcfcfc"],
-        .dark-mode *[style*="background:#f9f9f9"], .dark-mode *[style*="background: #f9f9f9"],
-        .dark-mode *[style*="background-color:#f9f9f9"], .dark-mode *[style*="background-color: #f9f9f9"],
-        .dark-mode *[style*="background:#fafafa"], .dark-mode *[style*="background: #fafafa"],
-        .dark-mode *[style*="background-color:#fafafa"], .dark-mode *[style*="background-color: #fafafa"],
-        .dark-mode *[style*="background:#f8fafc"], .dark-mode *[style*="background: #f8fafc"],
-        .dark-mode *[style*="background-color:#f8fafc"], .dark-mode *[style*="background-color: #f8fafc"],
-        .dark-mode *[style*="background:#f1f5f9"], .dark-mode *[style*="background: #f1f5f9"],
-        .dark-mode *[style*="background-color:#f1f5f9"], .dark-mode *[style*="background-color: #f1f5f9"],
-        .dark-mode *[style*="background:#f8f9fa"], .dark-mode *[style*="background: #f8f9fa"],
-        .dark-mode *[style*="background-color:#f8f9fa"], .dark-mode *[style*="background-color: #f8f9fa"],
-        .dark-mode *[style*="background:#fcfcfc"], .dark-mode *[style*="background: #fcfcfc"],
-        .dark-mode *[style*="background-color:#fcfcfc"], .dark-mode *[style*="background-color: #fcfcfc"] {
+        html.dark-mode *[style*="background:#f9f9f9"],
+        html.dark-mode *[style*="background: #f9f9f9"],
+        html.dark-mode *[style*="background-color:#f9f9f9"],
+        html.dark-mode *[style*="background-color: #f9f9f9"],
+        html.dark-mode *[style*="background:#fafafa"],
+        html.dark-mode *[style*="background: #fafafa"],
+        html.dark-mode *[style*="background-color:#fafafa"],
+        html.dark-mode *[style*="background-color: #fafafa"],
+        html.dark-mode *[style*="background:#f8fafc"],
+        html.dark-mode *[style*="background: #f8fafc"],
+        html.dark-mode *[style*="background-color:#f8fafc"],
+        html.dark-mode *[style*="background-color: #f8fafc"],
+        html.dark-mode *[style*="background:#f1f5f9"],
+        html.dark-mode *[style*="background: #f1f5f9"],
+        html.dark-mode *[style*="background-color:#f1f5f9"],
+        html.dark-mode *[style*="background-color: #f1f5f9"],
+        html.dark-mode *[style*="background:#f8f9fa"],
+        html.dark-mode *[style*="background: #f8f9fa"],
+        html.dark-mode *[style*="background-color:#f8f9fa"],
+        html.dark-mode *[style*="background-color: #f8f9fa"],
+        html.dark-mode *[style*="background:#fcfcfc"],
+        html.dark-mode *[style*="background: #fcfcfc"],
+        html.dark-mode *[style*="background-color:#fcfcfc"],
+        html.dark-mode *[style*="background-color: #fcfcfc"],
+        .dark-mode *[style*="background:#f9f9f9"],
+        .dark-mode *[style*="background: #f9f9f9"],
+        .dark-mode *[style*="background-color:#f9f9f9"],
+        .dark-mode *[style*="background-color: #f9f9f9"],
+        .dark-mode *[style*="background:#fafafa"],
+        .dark-mode *[style*="background: #fafafa"],
+        .dark-mode *[style*="background-color:#fafafa"],
+        .dark-mode *[style*="background-color: #fafafa"],
+        .dark-mode *[style*="background:#f8fafc"],
+        .dark-mode *[style*="background: #f8fafc"],
+        .dark-mode *[style*="background-color:#f8fafc"],
+        .dark-mode *[style*="background-color: #f8fafc"],
+        .dark-mode *[style*="background:#f1f5f9"],
+        .dark-mode *[style*="background: #f1f5f9"],
+        .dark-mode *[style*="background-color:#f1f5f9"],
+        .dark-mode *[style*="background-color: #f1f5f9"],
+        .dark-mode *[style*="background:#f8f9fa"],
+        .dark-mode *[style*="background: #f8f9fa"],
+        .dark-mode *[style*="background-color:#f8f9fa"],
+        .dark-mode *[style*="background-color: #f8f9fa"],
+        .dark-mode *[style*="background:#fcfcfc"],
+        .dark-mode *[style*="background: #fcfcfc"],
+        .dark-mode *[style*="background-color:#fcfcfc"],
+        .dark-mode *[style*="background-color: #fcfcfc"] {
             background-color: var(--input-bg) !important;
             border-color: var(--border-color) !important;
             color: var(--text-primary) !important;
         }
 
         /* Near-black inline text color wildcard overrides */
-        html.dark-mode *[style*="color:#333"], html.dark-mode *[style*="color: #333"],
-        html.dark-mode *[style*="color:#111"], html.dark-mode *[style*="color: #111"],
-        html.dark-mode *[style*="color:#000"], html.dark-mode *[style*="color: #000"],
-        html.dark-mode *[style*="color:black"], html.dark-mode *[style*="color: black"],
-        .dark-mode *[style*="color:#333"], .dark-mode *[style*="color: #333"],
-        .dark-mode *[style*="color:#111"], .dark-mode *[style*="color: #111"],
-        .dark-mode *[style*="color:#000"], .dark-mode *[style*="color: #000"],
-        .dark-mode *[style*="color:black"], .dark-mode *[style*="color: black"] {
+        html.dark-mode *[style*="color:#333"],
+        html.dark-mode *[style*="color: #333"],
+        html.dark-mode *[style*="color:#111"],
+        html.dark-mode *[style*="color: #111"],
+        html.dark-mode *[style*="color:#000"],
+        html.dark-mode *[style*="color: #000"],
+        html.dark-mode *[style*="color:black"],
+        html.dark-mode *[style*="color: black"],
+        .dark-mode *[style*="color:#333"],
+        .dark-mode *[style*="color: #333"],
+        .dark-mode *[style*="color:#111"],
+        .dark-mode *[style*="color: #111"],
+        .dark-mode *[style*="color:#000"],
+        .dark-mode *[style*="color: #000"],
+        .dark-mode *[style*="color:black"],
+        .dark-mode *[style*="color: black"] {
             color: var(--text-primary) !important;
         }
 
         /* Muted inline text color wildcard overrides */
-        html.dark-mode *[style*="color:#777"], html.dark-mode *[style*="color: #777"],
-        html.dark-mode *[style*="color:#666"], html.dark-mode *[style*="color: #666"],
-        html.dark-mode *[style*="color:#888"], html.dark-mode *[style*="color: #888"],
-        html.dark-mode *[style*="color:#555"], html.dark-mode *[style*="color: #555"],
-        .dark-mode *[style*="color:#777"], .dark-mode *[style*="color: #777"],
-        .dark-mode *[style*="color:#666"], .dark-mode *[style*="color: #666"],
-        .dark-mode *[style*="color:#888"], .dark-mode *[style*="color: #888"],
-        .dark-mode *[style*="color:#555"], .dark-mode *[style*="color: #555"] {
+        html.dark-mode *[style*="color:#777"],
+        html.dark-mode *[style*="color: #777"],
+        html.dark-mode *[style*="color:#666"],
+        html.dark-mode *[style*="color: #666"],
+        html.dark-mode *[style*="color:#888"],
+        html.dark-mode *[style*="color: #888"],
+        html.dark-mode *[style*="color:#555"],
+        html.dark-mode *[style*="color: #555"],
+        .dark-mode *[style*="color:#777"],
+        .dark-mode *[style*="color: #777"],
+        .dark-mode *[style*="color:#666"],
+        .dark-mode *[style*="color: #666"],
+        .dark-mode *[style*="color:#888"],
+        .dark-mode *[style*="color: #888"],
+        .dark-mode *[style*="color:#555"],
+        .dark-mode *[style*="color: #555"] {
             color: var(--text-secondary) !important;
         }
     </style>
@@ -1429,7 +1866,8 @@
 
     <!-- PWA Install Banner -->
     <div id="pwa-install-banner">
-        <span><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i> Install the BMV3 Child Care Web App for a faster mobile experience!</span>
+        <span><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i> Install the BMV3 Child Care Web
+            App for a faster mobile experience!</span>
         <div style="display: flex; align-items: center;">
             <button class="pwa-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> Install</button>
             <button class="pwa-btn-close" id="pwaCloseBtn"><i class="fa-solid fa-xmark"></i></button>
@@ -1450,7 +1888,8 @@
                     <span>Teacher</span>
                 </div>
             </div>
-            <button type="button" class="mobile-sidebar-close" onclick="closeSidebarDrawer()" aria-label="Close menu" style="display: none; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1.15rem; cursor: pointer; align-items: center; justify-content: center;">
+            <button type="button" class="mobile-sidebar-close" onclick="closeSidebarDrawer()" aria-label="Close menu"
+                style="display: none; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1.15rem; cursor: pointer; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -1516,7 +1955,9 @@
         </div>
 
         <div class="sidebar-footer">
-            <p style="text-align: center; font-size: 0.68rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.35; margin: 0;">BMV3 Child Care MS &bull; v1.0.0 &copy; 2026</p>
+            <p
+                style="text-align: center; font-size: 0.68rem; color: rgba(255,255,255,0.6); font-weight: 600; line-height: 1.35; margin: 0;">
+                BMV3 Child Care MS &bull; v1.0.0 &copy; 2026</p>
         </div>
     </nav>
 
@@ -1525,51 +1966,76 @@
             <div class="ambient-blob ambient-blob-1"></div>
             <div class="ambient-blob ambient-blob-2"></div>
         </div>
-        <div class="top-nav-right" style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200;">
+        <div class="top-nav-right"
+            style="display: flex; align-items: center; gap: 14px; position: relative; z-index: 1200;">
             <!-- System Language Switcher (EN / TL) - Placed on the LEFT of mobile header -->
-            <div class="sys-lang-pill" style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
-                <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')" style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Switch portal to English">
+            <div class="sys-lang-pill"
+                style="display: inline-flex; align-items: center; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 20px; padding: 2px 4px; gap: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+                <button type="button" id="sysLangBtnEn" onclick="window.setSystemLanguage('en')"
+                    style="border: none; background: #2563eb; color: #ffffff; padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;"
+                    title="Switch portal to English">
                     🇺🇸 EN
                 </button>
-                <button type="button" id="sysLangBtnTl" onclick="window.setSystemLanguage('tl')" style="border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;" title="Ilipat ang sistema sa Tagalog / Filipino">
+                <button type="button" id="sysLangBtnTl" onclick="window.setSystemLanguage('tl')"
+                    style="border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 4px 9px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.74rem; transition: all 0.2s;"
+                    title="Ilipat ang sistema sa Tagalog / Filipino">
                     🇵🇭 TL
                 </button>
             </div>
 
             <!-- Real-Time Notification Bell for Teacher - Placed on the RIGHT only -->
-            <div style="position: relative;" id="teacherNotifWrapper">
-                <button type="button" id="teacherNotifBellBtn" onclick="toggleTeacherNotifDropdown(event)" style="position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s;" title="Real-Time Notifications">
+            <div style="position: relative; display: inline-flex; align-items: center; overflow: visible !important;"
+                id="teacherNotifWrapper">
+                <button type="button" id="teacherNotifBellBtn" onclick="toggleTeacherNotifDropdown(event)"
+                    style="position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color, #cbd5e1); background: var(--bg-card, #ffffff); color: var(--text-primary, #0f172a); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: all 0.2s; overflow: visible !important;"
+                    title="Real-Time Notifications">
                     <i class="fa-solid fa-bell"></i>
-                    <span id="teacherNotifBadge" style="display: none; position: absolute; top: -4px; right: -4px; background: #ef4444; color: #ffffff; font-size: 0.68rem; font-weight: 800; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 4px rgba(239,68,68,0.4);">0</span>
                 </button>
+                <span id="teacherNotifBadge"
+                    style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: #ffffff; font-size: 0.70rem; font-weight: 800; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(239,68,68,0.5); pointer-events: none; z-index: 20; line-height: 1;">0</span>
 
                 <!-- Notification Dropdown Panel -->
-                <div id="teacherNotifDropdown" style="display: none; position: absolute; top: 48px; right: 0; width: 370px; max-width: 92vw; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 16px; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18); z-index: 9999; overflow: hidden; font-family: 'Montserrat', sans-serif;">
-                    <div style="padding: 14px 18px; background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.92rem;">
+                <div id="teacherNotifDropdown"
+                    style="display: none; position: absolute; top: 48px; right: 0; width: 370px; max-width: 92vw; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 16px; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18); z-index: 9999; overflow: hidden; font-family: 'Montserrat', sans-serif;">
+                    <div
+                        style="padding: 14px 18px; background: linear-gradient(135deg, #091e42 0%, #1e40af 100%); color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+                        <div
+                            style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.92rem;">
                             <i class="fa-solid fa-bell" style="color: #60a5fa;"></i>
                             <span>Center Notifications</span>
                         </div>
-                        <button type="button" onclick="markAllTeacherNotifsRead(event)" style="background: rgba(255,255,255,0.18); color: #ffffff; border: none; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">
+                        <button type="button" onclick="markAllTeacherNotifsRead(event)"
+                            style="background: rgba(255,255,255,0.18); color: #ffffff; border: none; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">
                             Mark all read
                         </button>
                     </div>
-                    <div id="teacherNotifList" style="max-height: 360px; overflow-y: auto; divide-y: 1px solid #f1f5f9;">
-                        <div style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">Loading notifications...</div>
+                    <div id="teacherNotifList"
+                        style="max-height: 360px; overflow-y: auto; divide-y: 1px solid #f1f5f9;">
+                        <div style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">Loading
+                            notifications...</div>
                     </div>
-                    <div style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
-                        <a href="{% url 'teacher_engagement' %}" style="color: #2563eb; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-comments"></i> Open Parent Chat</a>
-                        <a href="{% url 'teacher_attendance' %}" style="color: #059669; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-calendar-check"></i> Attendance Logs</a>
+                    <div
+                        style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                        <a href="{% url 'teacher_engagement' %}"
+                            style="color: #2563eb; font-weight: 700; text-decoration: none;"><i
+                                class="fa-solid fa-comments"></i> Open Parent Chat</a>
+                        <a href="{% url 'teacher_attendance' %}"
+                            style="color: #059669; font-weight: 700; text-decoration: none;"><i
+                                class="fa-solid fa-calendar-check"></i> Attendance Logs</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Inline Feature Hub Switcher Cards when inside a grouped module -->
-        {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name == 'teacher_attendance' %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
-            <a href="{% url 'teacher_dropoff_pickup' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+        {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name ==
+        'teacher_attendance' %}
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_dropoff_pickup' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <div
+                    style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
                     <i class="fa-solid fa-qrcode"></i>
                 </div>
                 <div>
@@ -1577,20 +2043,27 @@
                     <div style="font-size: 0.78rem; opacity: 0.85;">Scan parent QR pass & auto-record attendance</div>
                 </div>
             </a>
-            <a href="{% url 'teacher_attendance' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_attendance' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+            <a href="{% url 'teacher_attendance' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_attendance' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <div
+                    style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_attendance' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_attendance' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
                     <i class="fa-solid fa-calendar-days"></i>
                 </div>
                 <div>
                     <div style="font-weight: 800; font-size: 0.95rem;">Attendance Calendar & History</div>
-                    <div style="font-size: 0.78rem; opacity: 0.85;">Click any date to inspect attendance popup & No-Class days</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Click any date to inspect attendance popup &
+                        No-Class days</div>
                 </div>
             </a>
         </div>
-        {% elif request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name == 'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
-            <a href="{% url 'teacher_milestones' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_milestones' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+        {% elif request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name ==
+        'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_milestones' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_milestones' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div
+                    style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_milestones' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_milestones' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
@@ -1598,8 +2071,10 @@
                     <div style="font-size: 0.74rem; opacity: 0.85;">7-Domain checklist & scores</div>
                 </div>
             </a>
-            <a href="{% url 'teacher_activities' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_activities' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}rgba(255,255,255,0.2){% else %}#f5f3ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}#7c3aed{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+            <a href="{% url 'teacher_activities' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_activities' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div
+                    style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_activities' %}rgba(255,255,255,0.2){% else %}#f5f3ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_activities' %}#ffffff{% else %}#7c3aed{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
                     <i class="fa-solid fa-list-check"></i>
                 </div>
                 <div>
@@ -1607,8 +2082,10 @@
                     <div style="font-size: 0.74rem; opacity: 0.85;">Classroom learning tasks</div>
                 </div>
             </a>
-            <a href="{% url 'teacher_nutrition' %}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_nutrition' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+            <a href="{% url 'teacher_nutrition' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_nutrition' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div
+                    style="width: 42px; height: 42px; border-radius: 10px; background: {% if request.resolver_match.url_name == 'teacher_nutrition' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_nutrition' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
                     <i class="fa-solid fa-apple-whole"></i>
                 </div>
                 <div>
@@ -1617,19 +2094,26 @@
                 </div>
             </a>
         </div>
-        {% elif request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name == 'teacher_engagement' %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
-            <a href="{% url 'teacher_children' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_children' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_children' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_children' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+        {% elif request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name ==
+        'teacher_engagement' %}
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
+            <a href="{% url 'teacher_children' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_children' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_children' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div
+                    style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_children' %}rgba(255,255,255,0.2){% else %}#eff6ff{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_children' %}#ffffff{% else %}#2563eb{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                     <i class="fa-solid fa-children"></i>
                 </div>
                 <div>
                     <div style="font-weight: 800; font-size: 0.95rem;">Children Directory</div>
-                    <div style="font-size: 0.78rem; opacity: 0.85;">Enrolled pupil profiles, shifts & guardian accounts</div>
+                    <div style="font-size: 0.78rem; opacity: 0.85;">Enrolled pupil profiles, shifts & guardian accounts
+                    </div>
                 </div>
             </a>
-            <a href="{% url 'teacher_engagement' %}" style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_engagement' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+            <a href="{% url 'teacher_engagement' %}"
+                style="text-decoration: none; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}linear-gradient(135deg, #091e42 0%, #1e40af 100%){% else %}var(--bg-card, #ffffff){% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}var(--text-primary, #0f172a){% endif %}; border: 2px solid {% if request.resolver_match.url_name == 'teacher_engagement' %}#2563eb{% else %}var(--border-color, #e2e8f0){% endif %}; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div
+                    style="width: 44px; height: 44px; border-radius: 12px; background: {% if request.resolver_match.url_name == 'teacher_engagement' %}rgba(255,255,255,0.2){% else %}#ecfdf5{% endif %}; color: {% if request.resolver_match.url_name == 'teacher_engagement' %}#ffffff{% else %}#10b981{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                     <i class="fa-solid fa-comments"></i>
                 </div>
                 <div>
@@ -1650,15 +2134,18 @@
             <i class="fa-solid fa-house"></i>
             <span>Home</span>
         </a>
-        <a href="{% url 'teacher_dashboard' %}" class="nav-tab {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+        <a href="{% url 'teacher_dashboard' %}"
+            class="nav-tab {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
             <i class="fa-solid fa-chart-pie"></i>
             <span>Stats</span>
         </a>
-        <a href="{% url 'teacher_attendance' %}" class="nav-tab {% if request.resolver_match.url_name == 'teacher_attendance' %}active{% endif %}">
+        <a href="{% url 'teacher_attendance' %}"
+            class="nav-tab {% if request.resolver_match.url_name == 'teacher_attendance' %}active{% endif %}">
             <i class="fa-solid fa-calendar-check"></i>
             <span>Check-In</span>
         </a>
-        <a href="{% url 'teacher_engagement' %}" class="nav-tab {% if request.resolver_match.url_name == 'teacher_engagement' %}active{% endif %}">
+        <a href="{% url 'teacher_engagement' %}"
+            class="nav-tab {% if request.resolver_match.url_name == 'teacher_engagement' %}active{% endif %}">
             <i class="fa-solid fa-comments"></i>
             <span>Parent Chat</span>
         </a>
@@ -1669,12 +2156,16 @@
     </div>
 
     <!-- GLOBAL MODAL: GENERATE PARENT ACCOUNT VIA BREVO SMTP -->
-    <div class="modal-overlay" id="globalGenerateParentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
-        <div style="background:#ffffff; width:95%; max-width:540px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid #e2e8f0;">
+    <div class="modal-overlay" id="globalGenerateParentModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+        <div
+            style="background:#ffffff; width:95%; max-width:540px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid #e2e8f0;">
             <!-- Header -->
-            <div style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center;">
+            <div
+                style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h3 style="margin:0; font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:10px;">
+                    <h3
+                        style="margin:0; font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:10px;">
                         <i class="fa-solid fa-user-plus" style="color:#60a5fa;"></i>
                         Generate Parent Account
                     </h3>
@@ -1682,16 +2173,20 @@
                         Direct SMTP Dispatch via Brevo relay to parent email
                     </p>
                 </div>
-                <button type="button" onclick="closeGenerateParentAccountModal()" style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1; padding:4px;">
+                <button type="button" onclick="closeGenerateParentAccountModal()"
+                    style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1; padding:4px;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <!-- Form Body -->
             <div style="padding:24px;" id="generateParentFormBody">
-                <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:0.84rem; color:#0369a1; line-height:1.45;">
+                <div
+                    style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:0.84rem; color:#0369a1; line-height:1.45;">
                     <i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>
-                    When a parent approaches you to enroll a child, enter their full name and email below. The system will automatically email login credentials via <strong>Brevo SMTP</strong> so the parent can log in, set their password, and enroll their child.
+                    When a parent approaches you to enroll a child, enter their full name and email below. The system
+                    will automatically email login credentials via <strong>Brevo SMTP</strong> so the parent can log in,
+                    set their password, and enroll their child.
                 </div>
 
                 <div style="margin-bottom:16px;">
@@ -1700,22 +2195,29 @@
                             Parent / Guardian Full Name <span style="color:#ef4444;">*</span>
                         </label>
                     </div>
-                    <input type="text" id="genParentFullName" class="form-control" placeholder="e.g. Maria Santos" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
+                    <input type="text" id="genParentFullName" class="form-control" placeholder="e.g. Maria Santos"
+                        style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
                 </div>
 
                 <div style="margin-bottom:16px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
                         <label style="font-weight:700; font-size:0.86rem; color:#1e293b; margin:0;">
                             Parent Email Address <span style="font-weight:400; color:#64748b;">(Optional)</span>
                         </label>
-                        <label style="font-size:0.78rem; color:#475569; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-                            <input type="checkbox" id="chkParentNoEmail" onchange="toggleParentNoEmail(this)" style="accent-color:#2563eb;">
+                        <label
+                            style="font-size:0.78rem; color:#475569; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="chkParentNoEmail" onchange="toggleParentNoEmail(this)"
+                                style="accent-color:#2563eb;">
                             <span>Parent has no email address</span>
                         </label>
                     </div>
-                    <input type="email" id="genParentEmail" class="form-control" placeholder="e.g. maria.santos@gmail.com (Leave blank if no email)" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
+                    <input type="email" id="genParentEmail" class="form-control"
+                        placeholder="e.g. maria.santos@gmail.com (Leave blank if no email)"
+                        style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
                     <div style="font-size:0.75rem; color:#64748b; margin-top:4px;" id="genParentEmailHelp">
-                        If an email is provided, credentials will be sent automatically via Brevo SMTP relay. If left blank, offline credentials will be generated directly on-screen.
+                        If an email is provided, credentials will be sent automatically via Brevo SMTP relay. If left
+                        blank, offline credentials will be generated directly on-screen.
                     </div>
                 </div>
 
@@ -1723,7 +2225,8 @@
                     <label style="display:block; font-weight:700; font-size:0.86rem; color:#1e293b; margin-bottom:6px;">
                         Link to Enrolled Pupil <span style="font-weight:400; color:#64748b;">(Optional)</span>
                     </label>
-                    <select id="genParentChildSelect" class="form-control" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.9rem; outline:none; box-sizing:border-box; background:#ffffff;">
+                    <select id="genParentChildSelect" class="form-control"
+                        style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.9rem; outline:none; box-sizing:border-box; background:#ffffff;">
                         <option value="">-- No enrolled pupil yet (Parent will enroll child after login) --</option>
                     </select>
                     <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">
@@ -1731,13 +2234,17 @@
                     </div>
                 </div>
 
-                <div id="genParentErrorAlert" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:16px;"></div>
+                <div id="genParentErrorAlert"
+                    style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:16px;">
+                </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" onclick="closeGenerateParentAccountModal()" style="padding:10px 18px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
+                    <button type="button" onclick="closeGenerateParentAccountModal()"
+                        style="padding:10px 18px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
                         Cancel
                     </button>
-                    <button type="button" id="btnSubmitGenParent" onclick="submitGenerateParentAccount()" style="padding:10px 22px; border-radius:8px; border:none; background:linear-gradient(135deg, #1e40af, #3b82f6); color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(30,64,175,0.25);">
+                    <button type="button" id="btnSubmitGenParent" onclick="submitGenerateParentAccount()"
+                        style="padding:10px 22px; border-radius:8px; border:none; background:linear-gradient(135deg, #1e40af, #3b82f6); color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(30,64,175,0.25);">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Generate Parent Account</span>
                     </button>
@@ -1747,54 +2254,72 @@
             <!-- Success Result View (Visible after generation) -->
             <div style="padding:24px; display:none;" id="generateParentResultBody">
                 <div style="text-align:center; margin-bottom:18px;">
-                    <div style="width:58px; height:58px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:1.8rem; display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                    <div
+                        style="width:58px; height:58px; border-radius:50%; background:#dcfce7; color:#16a34a; font-size:1.8rem; display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
                         <i class="fa-solid fa-check"></i>
                     </div>
-                    <h4 style="margin:0 0 6px 0; font-size:1.35rem; font-weight:800; color:#0f172a;">Parent Account Created Successfully!</h4>
-                    <p style="margin:0; font-size:0.86rem; color:#64748b;">Credentials are active. The parent can log in immediately.</p>
+                    <h4 style="margin:0 0 6px 0; font-size:1.35rem; font-weight:800; color:#0f172a;">Parent Account
+                        Created Successfully!</h4>
+                    <p style="margin:0; font-size:0.86rem; color:#64748b;">Credentials are active. The parent can log in
+                        immediately.</p>
                 </div>
 
                 <!-- Snapshot / Photo Prompt -->
-                <div style="background:#eff6ff; border:1px dashed #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:18px; text-align:center; font-size:0.85rem; color:#1e40af; font-weight:600;">
-                    📸 <strong>Photo Tip:</strong> The parent can take a picture of this screen with their mobile phone or write down these credentials.
+                <div
+                    style="background:#eff6ff; border:1px dashed #3b82f6; border-radius:10px; padding:10px 14px; margin-bottom:18px; text-align:center; font-size:0.85rem; color:#1e40af; font-weight:600;">
+                    📸 <strong>Photo Tip:</strong> The parent can take a picture of this screen with their mobile phone
+                    or write down these credentials.
                 </div>
 
                 <!-- Prominent Username Box -->
-                <div style="background:#f8fafc; border:2px solid #3b82f6; border-radius:10px; padding:14px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+                <div
+                    style="background:#f8fafc; border:2px solid #3b82f6; border-radius:10px; padding:14px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-size:0.74rem; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px;">Username</div>
+                        <div
+                            style="font-size:0.74rem; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px;">
+                            Username</div>
                         <div style="font-size:1.35rem; font-weight:900; color:#0f172a;" id="genResultUsername">--</div>
                     </div>
-                    <button type="button" onclick="copyGenParentField('genResultUsername')" style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#2563eb; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <button type="button" onclick="copyGenParentField('genResultUsername')"
+                        style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#2563eb; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                         <i class="fa-regular fa-copy"></i> <span>Copy</span>
                     </button>
                 </div>
 
                 <!-- Prominent Temporary Password Box -->
-                <div style="background:#fff7ed; border:2px solid #f97316; border-radius:10px; padding:14px 18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div
+                    style="background:#fff7ed; border:2px solid #f97316; border-radius:10px; padding:14px 18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="font-size:0.74rem; font-weight:800; color:#c2410c; text-transform:uppercase; letter-spacing:0.5px;">Temporary Password</div>
+                        <div
+                            style="font-size:0.74rem; font-weight:800; color:#c2410c; text-transform:uppercase; letter-spacing:0.5px;">
+                            Temporary Password</div>
                         <div style="font-size:1.35rem; font-weight:900; color:#ea580c;" id="genResultPassword">--</div>
                     </div>
-                    <button type="button" onclick="copyGenParentField('genResultPassword')" style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#ea580c; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <button type="button" onclick="copyGenParentField('genResultPassword')"
+                        style="background:#ffffff; border:1px solid #cbd5e1; padding:7px 14px; border-radius:6px; font-weight:700; font-size:0.82rem; color:#ea580c; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                         <i class="fa-regular fa-copy"></i> <span>Copy</span>
                     </button>
                 </div>
 
-                <div style="font-size:0.82rem; color:#64748b; margin-bottom:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <div
+                    style="font-size:0.82rem; color:#64748b; margin-bottom:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                     <span><strong>Parent:</strong> <span id="genResultFullName" style="color:#0f172a;">--</span></span>
-                    <span><strong>Linked Pupil:</strong> <span id="genResultChildName" style="color:#0f172a;">None</span></span>
+                    <span><strong>Linked Pupil:</strong> <span id="genResultChildName"
+                            style="color:#0f172a;">None</span></span>
                 </div>
 
-                <div id="genResultBrevoStatus" style="border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                <div id="genResultBrevoStatus"
+                    style="border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
                     <!-- Dispatched via Brevo status banner -->
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" onclick="resetGenerateParentModal()" style="padding:10px 16px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
+                    <button type="button" onclick="resetGenerateParentModal()"
+                        style="padding:10px 16px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#475569; font-weight:700; font-size:0.88rem; cursor:pointer;">
                         Generate Another
                     </button>
-                    <button type="button" onclick="closeGenerateParentAccountModal()" style="padding:10px 22px; border-radius:8px; border:none; background:#10b981; color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer;">
+                    <button type="button" onclick="closeGenerateParentAccountModal()"
+                        style="padding:10px 22px; border-radius:8px; border:none; background:#10b981; color:#ffffff; font-weight:700; font-size:0.9rem; cursor:pointer;">
                         Done
                     </button>
                 </div>
@@ -1805,7 +2330,7 @@
     <script>
         let _cachedChildrenForParentGen = [];
 
-        window.toggleParentNoEmail = function(chk) {
+        window.toggleParentNoEmail = function (chk) {
             const emailInput = document.getElementById('genParentEmail');
             if (chk.checked) {
                 emailInput.value = '';
@@ -1817,10 +2342,10 @@
             }
         };
 
-        window.openGenerateParentAccountModal = async function(preselectedChildId = null) {
+        window.openGenerateParentAccountModal = async function (preselectedChildId = null) {
             const modal = document.getElementById('globalGenerateParentModal');
             if (!modal) return;
-            
+
             document.getElementById('generateParentFormBody').style.display = 'block';
             document.getElementById('generateParentResultBody').style.display = 'none';
             document.getElementById('genParentFullName').value = '';
@@ -1837,7 +2362,7 @@
                 if (!c) return;
                 const guardianName = (c.mother_first_name ? (c.mother_first_name + ' ' + (c.mother_last_name || '')).trim() :
                     (c.father_first_name ? (c.father_first_name + ' ' + (c.father_last_name || '')).trim() :
-                    (c.other_guardian_first_name ? (c.other_guardian_first_name + ' ' + (c.other_guardian_last_name || '')).trim() : '')));
+                        (c.other_guardian_first_name ? (c.other_guardian_first_name + ' ' + (c.other_guardian_last_name || '')).trim() : '')));
                 const guardianEmail = c.mother_email || c.father_email || c.other_guardian_email || c.email || '';
                 if (guardianName && !document.getElementById('genParentFullName').value) {
                     document.getElementById('genParentFullName').value = guardianName;
@@ -1847,7 +2372,7 @@
                 }
             }
 
-            childSelect.onchange = function() {
+            childSelect.onchange = function () {
                 const selId = childSelect.value;
                 const found = _cachedChildrenForParentGen.find(x => x.id == selId);
                 if (found) fillGuardianForChild(found);
@@ -1870,17 +2395,17 @@
                         if (match) fillGuardianForChild(match);
                     }
                 }
-            } catch(e) { console.error('Error fetching children for select:', e); }
+            } catch (e) { console.error('Error fetching children for select:', e); }
 
             modal.style.display = 'flex';
         };
 
-        window.closeGenerateParentAccountModal = function() {
+        window.closeGenerateParentAccountModal = function () {
             const modal = document.getElementById('globalGenerateParentModal');
             if (modal) modal.style.display = 'none';
         };
 
-        window.resetGenerateParentModal = function() {
+        window.resetGenerateParentModal = function () {
             document.getElementById('generateParentFormBody').style.display = 'block';
             document.getElementById('generateParentResultBody').style.display = 'none';
             document.getElementById('genParentFullName').value = '';
@@ -1892,7 +2417,7 @@
             document.getElementById('genParentErrorAlert').style.display = 'none';
         };
 
-        window.copyGenParentField = function(elementId) {
+        window.copyGenParentField = function (elementId) {
             const text = document.getElementById(elementId).innerText;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text);
@@ -1900,7 +2425,7 @@
             }
         };
 
-        window.submitGenerateParentAccount = async function() {
+        window.submitGenerateParentAccount = async function () {
             const fullName = document.getElementById('genParentFullName').value.trim();
             const emailInput = document.getElementById('genParentEmail');
             const noEmailChk = document.getElementById('chkParentNoEmail');
@@ -2043,13 +2568,13 @@
 
 
         // Load dynamic teacher profile icon and name
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             {% if request.user.userprofile.profile_pic %}
-                let avatarElem = document.getElementById('sidebar-avatar');
-                if(avatarElem) {
-                    avatarElem.innerHTML = `<img src="{{ request.user.userprofile.profile_pic.url }}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
-                    avatarElem.style.border = 'none';
-                }
+            let avatarElem = document.getElementById('sidebar-avatar');
+            if (avatarElem) {
+                avatarElem.innerHTML = `<img src="{{ request.user.userprofile.profile_pic.url }}" style="width:100%; height:100%; border-radius:8px; object-fit:cover;">`;
+                avatarElem.style.border = 'none';
+            }
             {% endif %}
         });
 
@@ -2102,18 +2627,27 @@
     </script>
 
     <!-- COMBINED FEATURE HUB MODAL (2-Card / 3-Card Module Selector) -->
-    <div id="featureHubModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:99998; align-items:center; justify-content:center; padding:20px;">
-        <div style="background:var(--bg-card, #ffffff); width:100%; max-width:760px; border-radius:20px; box-shadow:0 24px 48px rgba(0,0,0,0.28); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid var(--border-color, #e2e8f0); animation:fadeIn 0.2s ease;">
-            <div style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 26px; display:flex; justify-content:space-between; align-items:center;">
+    <div id="featureHubModal" class="modal-overlay"
+        style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:99998; align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:var(--bg-card, #ffffff); width:100%; max-width:760px; border-radius:20px; box-shadow:0 24px 48px rgba(0,0,0,0.28); overflow:hidden; font-family:'Montserrat', sans-serif; border:1px solid var(--border-color, #e2e8f0); animation:fadeIn 0.2s ease;">
+            <div
+                style="background:linear-gradient(135deg, #091e42 0%, #1e40af 100%); color:#ffffff; padding:20px 26px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <h3 id="featureHubModalTitle" style="margin:0; font-size:1.3rem; font-weight:800; display:flex; align-items:center; gap:10px;">Select Module</h3>
-                    <p id="featureHubModalSubtitle" style="margin:4px 0 0 0; font-size:0.84rem; color:rgba(255,255,255,0.85);">Click a feature card below to open the workspace</p>
+                    <h3 id="featureHubModalTitle"
+                        style="margin:0; font-size:1.3rem; font-weight:800; display:flex; align-items:center; gap:10px;">
+                        Select Module</h3>
+                    <p id="featureHubModalSubtitle"
+                        style="margin:4px 0 0 0; font-size:0.84rem; color:rgba(255,255,255,0.85);">Click a feature card
+                        below to open the workspace</p>
                 </div>
-                <button type="button" onclick="closeFeatureHubModal()" style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.18); border:none; color:#ffffff; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <button type="button" onclick="closeFeatureHubModal()"
+                    style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.18); border:none; color:#ffffff; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div id="featureHubCardsGrid" style="padding:26px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; background:var(--bg-body, #f8fafc);">
+            <div id="featureHubCardsGrid"
+                style="padding:26px; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; background:var(--bg-body, #f8fafc);">
                 <!-- Populated dynamically -->
             </div>
         </div>
@@ -2205,7 +2739,7 @@
             }
         };
 
-        window.openFeatureHubModal = function(groupKey) {
+        window.openFeatureHubModal = function (groupKey) {
             const grp = FEATURE_HUB_GROUPS[groupKey];
             const modal = document.getElementById('featureHubModal');
             if (!grp || !modal) return;
@@ -2233,7 +2767,7 @@
             modal.style.display = 'flex';
         };
 
-        window.closeFeatureHubModal = function() {
+        window.closeFeatureHubModal = function () {
             const modal = document.getElementById('featureHubModal');
             if (modal) modal.style.display = 'none';
         };
@@ -2241,7 +2775,7 @@
         // --- 2. REAL-TIME TEACHER NOTIFICATION BELL ENGINE ---
         let _teacherNotifsCache = [];
 
-        window.toggleTeacherNotifDropdown = function(e) {
+        window.toggleTeacherNotifDropdown = function (e) {
             if (e) e.stopPropagation();
             const dd = document.getElementById('teacherNotifDropdown');
             if (!dd) return;
@@ -2252,7 +2786,7 @@
             }
         };
 
-        window.markAllTeacherNotifsRead = function(e) {
+        window.markAllTeacherNotifsRead = function (e) {
             if (e) e.stopPropagation();
             const readIds = _teacherNotifsCache.map(n => n.id);
             localStorage.setItem('bmv3_teacher_read_notifs', JSON.stringify(readIds));
@@ -2287,7 +2821,7 @@
                             }
                         });
                     });
-                } catch (err) {}
+                } catch (err) { }
 
                 _teacherNotifsCache = apiNotifs.slice(0, 15);
                 renderTeacherNotificationsList();
@@ -2304,7 +2838,7 @@
             let readIds = [];
             try {
                 readIds = JSON.parse(localStorage.getItem('bmv3_teacher_read_notifs') || '[]');
-            } catch (e) {}
+            } catch (e) { }
 
             const unreadCount = _teacherNotifsCache.filter(n => !readIds.includes(n.id)).length;
             if (unreadCount > 0) {
@@ -2339,19 +2873,23 @@
             }).join('');
         }
 
-        window.markSingleTeacherNotifRead = function(id) {
+        window.markSingleTeacherNotifRead = function (id) {
             try {
                 let readIds = JSON.parse(localStorage.getItem('bmv3_teacher_read_notifs') || '[]');
                 if (!readIds.includes(id)) {
                     readIds.push(id);
                     localStorage.setItem('bmv3_teacher_read_notifs', JSON.stringify(readIds));
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchTeacherLiveNotifications();
-            setInterval(fetchTeacherLiveNotifications, 12000);
+            setInterval(fetchTeacherLiveNotifications, 8000);
+            window.addEventListener('focus', fetchTeacherLiveNotifications);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) fetchTeacherLiveNotifications();
+            });
         });
 
         // --- 3. GLOBAL MODAL BACKDROP DISMISSAL (Click blurred background to close any popup) ---
@@ -2395,6 +2933,7 @@
         });
     </script>
     <script src="{% static 'core/js/system_translator.js' %}"></script>
+    {% include 'components/floating_ai_assistant.html' %}
 </body>
 
 </html>

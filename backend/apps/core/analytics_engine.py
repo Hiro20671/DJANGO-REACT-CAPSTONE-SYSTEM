@@ -1265,15 +1265,277 @@ def _call_external_llm(question, context_summary):
     return None
 
 
-def answer_ai_query(question, analytics_data):
+def get_feature_explanation(current_page, question, is_parent=False):
+    """
+    Returns an evidence-based, user-friendly step-by-step feature guide
+    for both Teacher and Parent views based on the active screen and query.
+    """
+    p = (current_page or "").lower()
+    q_low = (question or "").lower()
+    is_tl = any(w in q_low for w in ['paano', 'ano', 'bakit', 'saan', 'tulong', 'gamitin', 'magulang', 'guro'])
+
+    # 1. Drop-Off & Pick-Up Management
+    if 'dropoff' in p or 'pickup' in p or 'gate' in p or any(w in q_low for w in ['dropoff', 'drop-off', 'pickup', 'pick-up', 'qr scan', 'token']):
+        if is_parent:
+            if is_tl:
+                return (
+                    "### 📲 Gabay sa Drop-Off & Pick-Up Pass (Para sa Magulang)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Digital ID QR Code Pass:** Ang natatanging secure QR code pass na ipinapakita sa daycare gate scanner sa oras ng hatid o sundo.\n"
+                    "- **Authorization Token:** Natatanging security code para sa inyong pamilya.\n"
+                    "- **Download QR Pass (Offline PNG):** Pindutan para i-download ang QR code bilang image sa gallery ng iyong telepono. Magagamit mo pa rin ito kahit walang Wi-Fi o mobile data sa gate!\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. I-click ang berdeng **Download QR Pass (Offline PNG)** upang mai-save ang pass sa iyong cellphone.\n"
+                    "2. Pagdating sa daycare center tuwing umaga o hapon, buksan ang larawan at ipakita sa camera ng teacher.\n"
+                    "3. Kapag na-scan ng guro, awtomatikong mamarkahan ang iyong anak bilang **Present** sa attendance!"
+                )
+            return (
+                "### 📲 Parent Digital ID Pass & Gate Access Guide\n\n"
+                "**What this feature has:**\n"
+                "- **Digital ID Pass (QR Code):** A secure guardian QR code presented at the center gate for swift drop-off and pickup clearance.\n"
+                "- **Authorization Token:** Unique alphanumeric code assigned to your parent account.\n"
+                "- **Download QR Pass (Offline PNG):** Allows you to save your gate pass directly to your phone gallery. You can scan at the gate even with **no Wi-Fi or cellular data**!\n\n"
+                "**How to use it:**\n"
+                "1. Click **Download QR Pass (Offline PNG)** to save your pass image to your device.\n"
+                "2. When arriving at the center, present the QR pass to the teacher's scanner.\n"
+                "3. Once scanned, your child's attendance is automatically recorded as **Present** with the exact timestamp."
+            )
+        else:
+            if is_tl:
+                return (
+                    "### 🚗 Gabay sa Drop-Off & Pick-Up Management (Para sa Guro)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Smart QR Code Authorization Scanner:** Agarang pag-scan ng QR pass ng magulang gamit ang camera o handheld scanner.\n"
+                    "- **Manual Token Input:** Alternatibong pag-type ng authorization code kung sakaling walang camera.\n"
+                    "- **Koneksyon sa Attendance:** Kapag na-scan ang QR sa drop-off bago o sa tamang oras, awtomatikong magiging **Present** ang mag-aaral. Kapag lumampas ng 15 minuto pagkatapos ng simula ng klase, mamarkahan ito bilang **Late**.\n"
+                    "- **Currently Checked In Roster:** Listahan ng mga batang aktwal na nasa loob ng daycare center ngayon.\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. Piliin kung **Drop-Off** (hatid) o **Pick-Up** (sundo) sa dropdown.\n"
+                    "2. I-click ang **Scan QR Code** o i-type ang code sa kahon at i-click ang **Verify**.\n"
+                    "3. Makikita ang larawan at pangalan ng awtorisadong guardian. Awtomatikong magla-log ang attendance!"
+                )
+            return (
+                "### 🚗 Drop-Off & Pick-Up Management Guide (Teacher Portal)\n\n"
+                "**What this feature has:**\n"
+                "- **Smart QR Code Authorization Scanner:** Rapid scanning of parent digital ID passes to verify authorized guardians.\n"
+                "- **Manual Token Entry:** Fallback manual verification (`BMV3-XXXX`) if webcam is unavailable.\n"
+                "- **Automated Attendance Link:** Scanning the parent's pass at drop-off automatically logs the child as **Present**. If arriving >15 minutes after class shift starts, it is flagged as **Late**.\n"
+                "- **Live Checked-In Pupil Roster:** Real-time list of children currently inside the center with drop-off timestamps.\n\n"
+                "**How to use it:**\n"
+                "1. Select **Drop-Off** (arrival) or **Pick-Up** (departure) from the dropdown.\n"
+                "2. Click **Scan QR Code** or enter the manual code and click **Verify**.\n"
+                "3. The system confirms guardian clearance and syncs attendance instantly."
+            )
+
+    # 2. Attendance Feature
+    if 'attendance' in p or any(w in q_low for w in ['attendance', 'calendar', 'present', 'absent', 'late', 'no class', 'holiday']):
+        if is_parent:
+            if is_tl:
+                return (
+                    "### 📅 Gabay sa Attendance (Para sa Magulang)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Attendance Consistency Graph:** Buwanang tsart na nagpapakita ng porsyento ng pagpasok ng iyong anak.\n"
+                    "- **Attendance History Records:** Talaan ng bawat araw kung kailan Present, Late, o Absent ang bata kasama ang mga naitalang dahilan.\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. Tingnan ang porsyento ng attendance sa itaas upang matiyak na nasa normal bounds ang pagpasok.\n"
+                    "2. Gamitin ang buwanang picker upang balikan ang nakaraang mga linggo at buwan."
+                )
+            return (
+                "### 📅 Parent Attendance Tracking Guide\n\n"
+                "**What this feature has:**\n"
+                "- **Monthly Attendance Trajectory Graph:** Visual graph displaying your child's attendance rate across months.\n"
+                "- **Past Attendance Records Check:** Complete history table indicating exact dates, statuses (Present, Late, Absent), and logged notes.\n\n"
+                "**How to use it:**\n"
+                "1. Review your child's cumulative attendance percentage to ensure steady development readiness.\n"
+                "2. Browse past months to inspect daily presence logs."
+            )
+        else:
+            if is_tl:
+                return (
+                    "### 📅 Gabay sa Attendance Calendar & Register (Para sa Guro)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Interactive Monthly Calendar:** Berde = Class Day, Madilim = No Class/Holiday, Puti = Open Date.\n"
+                    "- **Daily Attendance Register Popup Modal:** I-click ang anumang petsa sa kalendaryo upang lumabas ang popup modal na naglalaman ng buong listahan ng mag-aaral (Present, Late, Absent) na may pagination at shift filter.\n"
+                    "- **Declare No Class Day:** Malaking button sa loob ng modal upang magdeklara ng holiday o class suspension, na magpapadala rin ng email abiso sa mga magulang.\n"
+                    "- **Attendance Decision Support Advisory:** Awtomatikong nagbibigay-babala kapag may batang lumampas sa 3 magkakasunod na pagliban.\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. I-click ang kahit anong araw sa kalendaryo upang mabuksan ang listahan ng mga bata.\n"
+                    "2. Kung may holiday o bagyo, i-click ang **Declare No Class Day**."
+                )
+            return (
+                "### 📅 Attendance Calendar & Register Guide (Teacher Portal)\n\n"
+                "**What this feature has:**\n"
+                "- **Monthly Calendar Grid:** Color-coded (Green = Class Day, Dark = No Class/Suspension, White = Open Date).\n"
+                "- **Daily Attendance Register Popup Modal:** Clicking any date immediately opens a popup modal with the full student cohort, shift filters, and paginated records.\n"
+                "- **Declare No Class Day Button:** Prominent button to mark center suspensions or national holidays, sending automated email alerts to parents.\n"
+                "- **Decision Support Advisory:** Monitors absence streaks and recommends early intervention dialogues.\n\n"
+                "**How to use it:**\n"
+                "1. Click on any date in the calendar to open the student attendance popup.\n"
+                "2. Use the **Declare No Class** button to log suspensions and keep parents notified."
+            )
+
+    # 3. Analytics & Early-Warning AI Suite
+    if 'analytics' in p or any(w in q_low for w in ['analytics', 'risk', 'watchlist', 'dri', 'readiness', 'progression', 'dossier']):
+        if is_tl:
+            return (
+                "### 📊 Gabay sa Analytics & AI Insights Suite\n\n"
+                "**Ano ang mayroon sa feature na ito:**\n"
+                "- **100% Weighted DRI Formula:** Attendance (25%) + Nutrition (25%) + Learning/ECCD (30%) + Social/Behavior (20%).\n"
+                "- **Risk Radar & Early-Warning Watchlist:** High Risk (<50% DRI), Moderate Risk (50-80% DRI), Low Risk (>80% DRI).\n"
+                "- **ECCD 7-Domain Mastery Bar Graph:** Pataas na bar chart na nagpapakita ng aktwal na porsyento ng bawat domain.\n"
+                "- **Assessment Period Progression Bar Chart:** Pataas na progression mula 1st Period (Baseline) patungong 2nd Period (Mid-Year) at 3rd Period (Year-End).\n"
+                "- **Nutritional Food Intake Correlation:** Pagsusuri kung aling pagkain ang kinakain vs tinatanggihan ng mga bata.\n"
+                "- **Intelligent Dossier Generator:** Paggawa ng buong printable student assessment dossier.\n\n"
+                "**Paano gamitin:**\n"
+                "1. Gamitin ang shift filter upang suriin ang Morning vs Afternoon performance.\n"
+                "2. I-click ang **Generate Dossier** para sa opisyal na ulat.\n"
+                "3. Magtanong sa AI assistant para sa agarang pagsusuri ng kahit sinong mag-aaral."
+            )
+        return (
+            "### 📊 Analytics & AI Insights Suite Guide\n\n"
+            "**What this feature has:**\n"
+            "- **100% Weighted DRI Formula:** Attendance (25%) + Nutrition (25%) + Learning/ECCD (30%) + Social/Behavior (20%).\n"
+            "- **Early-Warning Risk Watchlist:** High Risk (<50% DRI), Moderate Risk (50–80% DRI), Low Risk (≥80% DRI).\n"
+            "- **Philippine ECCD 7-Domain Mastery Bar Graph:** Upward-directed bars representing domain competencies.\n"
+            "- **Assessment Period Progression Bar Graph:** Clear growth trajectory comparing 1st (Baseline), 2nd (Mid-Year), and 3rd (Year-End) assessments.\n"
+            "- **Dietary Correlation Engine:** Links meal acceptance with developmental stamina and focus.\n"
+            "- **Printable Analytical Dossier:** Generates comprehensive child developmental portfolios.\n\n"
+            "**How to use it:**\n"
+            "1. Switch tabs to explore each analytics pillar.\n"
+            "2. Click **Generate Dossier** to print official reports.\n"
+            "3. Use the AI Assistant to query student performance profiles."
+        )
+
+    # 4. ECCD Booklet & Milestones
+    if 'milestone' in p or 'eccd' in p or any(w in q_low for w in ['eccd', 'domain', 'checklist', 'booklet', 'assessment', 'gross motor', 'cognitive']):
+        if is_parent:
+            if is_tl:
+                return (
+                    "### 📖 Gabay sa ECCD Booklet (Para sa Magulang)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **7 Developmental Domains:** Gross Motor, Fine Motor, Self-Help, Receptive Language, Expressive Language, Cognitive, at Social-Emotional.\n"
+                    "- **1st Assessment Checklist:** Dito maaaring makita at masagutan ng magulang ang baseline assessment ng kanilang anak.\n"
+                    "- Ang 2nd at 3rd assessment ay nakalaan para sa propesyonal na obserbasyon ng daycare teacher.\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. Basahin ang mga checklist items para sa 1st assessment.\n"
+                    "2. Piliin kung kaya na o sinisimulan pa lang gawin ng bata sa bahay."
+                )
+            return (
+                "### 📖 Parent ECCD Booklet Guide\n\n"
+                "**What this feature has:**\n"
+                "- **Philippine ECCD 7 Domains:** Gross Motor, Fine Motor, Self-Help, Receptive & Expressive Language, Cognitive, Social-Emotional.\n"
+                "- **1st Assessment Viewing & Responses:** Parents review and submit baseline developmental milestones for their child.\n"
+                "- 2nd and 3rd assessments are evaluated by the teacher during center activities.\n\n"
+                "**How to use it:**\n"
+                "1. Review the 1st assessment milestone checklist.\n"
+                "2. Monitor your child's standard score development."
+            )
+        else:
+            if is_tl:
+                return (
+                    "### 📖 Gabay sa ECCD Booklet & Milestones (Para sa Guro)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **7-Domain Checklist Scoring:** 0 = Not yet, 1 = Developing, 2 = Mastered.\n"
+                    "- **Assessment Periods:** 1st Period (Baseline), 2nd Period (Mid-Year), 3rd Period (Year-End Final).\n"
+                    "- **Awtomatikong Standard Score & Interpretation:** School Ready (≥80), Developing (65–79), Needs Support (<65).\n"
+                    "- **M-CHAT-R & Socio-Demographics:** Pagsusuri sa autism indicators at impormasyon ng pamilya.\n\n"
+                    "**Paano gamitin:**\n"
+                    "1. I-click ang **Open Booklet** sa tapat ng pangalan ng mag-aaral.\n"
+                    "2. Piliin ang assessment period at i-save ang mga puntos."
+                )
+            return (
+                "### 📖 ECCD Checklist & Scoring Suite Guide (Teacher Portal)\n\n"
+                "**What this feature has:**\n"
+                "- **7 Developmental Domains Checklist:** Scored with 0 (Not yet), 1 (Developing), 2 (Mastered).\n"
+                "- **Period Tracking:** 1st Period (Baseline), 2nd Period (Mid-Year), 3rd Period (Year-End).\n"
+                "- **Raw Score to Scaled & Standard Scores:** Automatic developmental interpretation (School Ready, Developing, Needs Support).\n"
+                "- **M-CHAT-R & Clinical Notes:** Early detection screening and pedagogical recommendations.\n\n"
+                "**How to use it:**\n"
+                "1. Click **Open Booklet** next to any child's name in the cohort table.\n"
+                "2. Fill in the domain milestone observations and click Save."
+            )
+
+    # 5. Nutrition & Feeding Management
+    if 'nutrition' in p or any(w in q_low for w in ['nutrition', 'feeding', 'meal', 'snack', 'bmi', 'allergy']):
+        if is_parent:
+            if is_tl:
+                return (
+                    "### 🍲 Gabay sa Nutrition & Feeding (Para sa Magulang)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Araw-araw na Feeding Logs:** Makikita kung anong merienda ang inihain sa daycare at kung naubos ba ito ng iyong anak.\n"
+                    "- **Allergy Alert Watch:** Nakatala ang mga pagkaing bawal sa iyong anak upang maiwasan sa feeding program.\n"
+                    "- **BMI Records:** Pagsubaybay sa timbang at tangkad."
+                )
+            return (
+                "### 🍲 Parent Nutrition & Feeding Guide\n\n"
+                "**What this feature has:**\n"
+                "- **Daily Feeding Logs:** Real-time visibility into what daycare snack was served and whether your child finished it.\n"
+                "- **Allergy Safety Registry:** Displays registered dietary allergies ensuring safe supplementary food preparation.\n"
+                "- **Child Growth & BMI Records:** Tracks height, weight, and nutritional status over time."
+            )
+        else:
+            if is_tl:
+                return (
+                    "### 🍲 Gabay sa Nutrition & Feeding Program (Para sa Guro)\n\n"
+                    "**Ano ang mayroon sa feature na ito:**\n"
+                    "- **Supplementary Feeding Logger:** I-record ang merienda ng Morning at Afternoon shifts (Finished, Some Left, Not Eaten).\n"
+                    "- **Food Acceptance vs Rejection:** Tukuyin kung aling pagkain ang madalas iwanan upang maibagay ang menu.\n"
+                    "- **Registered Allergy Alerts:** Makikita ang mga allergy ng bata tulad ng itlog, gatas, o mani.\n"
+                    "- **BMI Growth Tracking:** Normal, Underweight, o Overweight."
+                )
+            return (
+                "### 🍲 Supplementary Nutrition & Feeding Guide (Teacher Portal)\n\n"
+                "**What this feature has:**\n"
+                "- **Feeding Intake Logger:** Records daily morning and afternoon snack portions (Finished, Some Left, Not Eaten).\n"
+                "- **Dietary Rejection Analysis:** Highlights meals with high refusal rates to help optimize nutritious daycare menus.\n"
+                "- **Allergy Safety Alerts:** Flags children with documented food allergies before meal distribution.\n"
+                "- **BMI Health Index:** Calculates nutritional status across underweight, normal, and overweight categories."
+            )
+
+    # Default overview guide
+    if is_tl:
+        return (
+            "### 🌟 Pangkalahatang Gabay sa BMV3 Child Care Management System\n\n"
+            "Maligayang pagdating sa BMV3 Child Care Portal. Ang sistemang ito ay may mga sumusunod na pangunahing feature:\n"
+            "- **Drop-Off & Pick-Up:** Mabilis at ligtas na QR gate pass scanning para sa hatid at sundo.\n"
+            "- **Attendance:** Kalendaryo ng pagdalo na may mabilisang register popup modal.\n"
+            "- **ECCD Booklet:** 7 developmental domains checklist para sa 1st, 2nd, at 3rd assessments.\n"
+            "- **Nutrition & Feeding:** Araw-araw na pagtatala ng pagkain at BMI.\n"
+            "- **Analytics & AI:** 100% weighted DRI at early-warning risk radar.\n\n"
+            "Mag-type lamang ng kahit anong katanungan tungkol sa mga mag-aaral o feature!"
+        )
+    return (
+        "### 🌟 BMV3 Child Care Management System Overview\n\n"
+        "Welcome to the BMV3 Portal. Key integrated capabilities include:\n"
+        "- **Drop-Off & Pick-Up:** Rapid QR gate verification linked to attendance tracking.\n"
+        "- **Attendance Management:** Calendar navigation with single-click pupil register popups.\n"
+        "- **ECCD Booklet:** Comprehensive 7-domain checklist spanning 1st, 2nd, and 3rd assessments.\n"
+        "- **Nutrition & Meals:** Supplementary feeding intake and BMI health tracking.\n"
+        "- **Analytics Suite:** 100% weighted DRI formula and early-warning risk monitoring.\n\n"
+        "Feel free to ask any question about students, attendance rates, or system features!"
+    )
+
+
+def answer_ai_query(question, analytics_data, current_page="", is_parent=False):
     """
     Answers ANY custom question (in English or Tagalog) about students, attendance, shifts,
     ECCD domains, food/nutrition, allergies, DRI, risk scores, or interventions using live DB data.
+    Also provides context-aware feature explanations and walkthroughs.
     """
     q = (question or "").strip()
     q_low = q.lower()
     total = analytics_data.get('total_children', 0)
     sy_name = analytics_data.get('school_year', {}).get('name', '2026-2027')
+
+    # Check if the user is asking HOW TO USE the current feature, what tools are available, or how to download/use passes
+    is_feature_help = any(k in q_low for k in [
+        'how to use', 'how do i use', 'how can i use', 'how does this work', 'how do we use',
+        'what can i do', 'what is this feature', 'instructions', 'explain this feature', 'feature guide',
+        'download qr', 'qr pass', 'download my qr', 'offline pass', 'offline qr',
+        'paano gamitin', 'ano ang pwede', 'ano ang feature', 'paano ito gamitin', 'ano ito', 'gamitin ang feature', 'tulong'
+    ])
+    if is_feature_help:
+        return get_feature_explanation(current_page, q, is_parent=is_parent)
 
     if total == 0:
         return (
