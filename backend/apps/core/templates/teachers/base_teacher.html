@@ -2028,8 +2028,7 @@
         </div>
 
         <!-- Inline Feature Hub Switcher Cards when inside a grouped module -->
-        {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name ==
-        'teacher_attendance' %}
+        {% if request.resolver_match.url_name == 'teacher_dropoff_pickup' or request.resolver_match.url_name == 'teacher_attendance' %}
         <div
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
             <a href="{% url 'teacher_dropoff_pickup' %}"
@@ -2056,8 +2055,7 @@
                 </div>
             </a>
         </div>
-        {% elif request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name ==
-        'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}
+        {% elif request.resolver_match.url_name == 'teacher_milestones' or request.resolver_match.url_name == 'teacher_activities' or request.resolver_match.url_name == 'teacher_nutrition' %}
         <div
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
             <a href="{% url 'teacher_milestones' %}"
@@ -2094,8 +2092,7 @@
                 </div>
             </a>
         </div>
-        {% elif request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name ==
-        'teacher_engagement' %}
+        {% elif request.resolver_match.url_name == 'teacher_children' or request.resolver_match.url_name == 'teacher_engagement' %}
         <div
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 22px;">
             <a href="{% url 'teacher_children' %}"
