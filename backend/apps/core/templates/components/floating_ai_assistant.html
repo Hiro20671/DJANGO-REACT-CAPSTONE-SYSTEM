@@ -381,7 +381,7 @@
                 <span id="floatingAiGreeting">Hello! How can I assist you today?</span>
             </div>
             <div id="floatingAiWelcomeText" style="color: var(--text-secondary, #475569); font-size: 0.82rem;">
-                I am your BMV3 AI Assistant. You can ask me how to use this feature, what tools are available, or ask any question about students, attendance, ECCD domains, or nutrition in English or Tagalog.
+                I am your BMV3 AI Assistant. You can ask me what any daycare term means (like <i>Readiness</i>, <i>Risk Level</i>, <i>ECCD</i>, <i>Trends</i>, or <i>Feeding</i>), how to use this feature, or any question about attendance and meals in simple, non-technical English or Tagalog!
             </div>
         </div>
     </div>
@@ -436,34 +436,48 @@
             let featureName = "Daycare Portal Overview";
             let customPills = [
                 { text: "💡 How do I use this feature?", q: "How do I use this feature?" },
+                { text: "🌟 What does Readiness mean?", q: "What does readiness mean?" },
+                { text: "💛 What is Risk Level?", q: "What does risk level mean?" },
                 { text: "📋 What can I do here?", q: "What can I do here?" },
-                { text: "🇵🇭 Paano gamitin ito?", q: "Paano gamitin ang feature na ito?" }
+                { text: "🇵🇭 Ano ang Readiness?", q: "Ano ang ibig sabihin ng readiness?" }
             ];
 
             if (p.includes('/dropoff-pickup/')) {
                 featureName = "Drop-Off & Pick-Up QR Gate";
+                customPills.push({ text: "📲 What is QR Pass & Token?", q: "What does the Digital ID QR Pass and Authorization Token mean?" });
                 customPills.push({ text: "📲 How does QR link to Attendance?", q: "How does the drop-off QR scanner automatically record attendance?" });
             } else if (p.includes('/attendance/')) {
                 featureName = "Attendance Calendar & Records";
+                customPills.push({ text: "📈 What does Trend mean?", q: "What does attendance trend mean?" });
                 customPills.push({ text: "📅 How to declare No Class?", q: "How do I declare a No Class day and check student logs in the popup?" });
             } else if (p.includes('/analytics/')) {
                 featureName = "Analytics & Early-Warning AI";
+                customPills.push({ text: "🌟 What is Readiness (DRI)?", q: "What does readiness mean?" });
+                customPills.push({ text: "💛 What is Risk Level?", q: "What does risk level mean?" });
                 customPills.push({ text: "🧮 100% DRI Formula?", q: "How is the 100% DRI formula calculated?" });
                 customPills.push({ text: "🚨 Who are at-risk?", q: "Sino ang mga at-risk students at bakit?" });
             } else if (p.includes('/milestones/') || p.includes('/eccd-booklet/')) {
                 featureName = "ECCD 7-Domain Booklet";
+                customPills.push({ text: "📚 What is ECCD?", q: "What does ECCD mean?" });
+                customPills.push({ text: "🎯 What is Baseline (1st Assessment)?", q: "What does baseline mean?" });
                 customPills.push({ text: "📊 3rd Assessment status?", q: "How do 1st, 2nd, and 3rd assessment period scorings work?" });
             } else if (p.includes('/nutrition/')) {
                 featureName = "Nutrition & Supplementary Feeding";
+                customPills.push({ text: "🍲 What is Supplementary Feeding?", q: "What does supplementary feeding mean?" });
+                customPills.push({ text: "⚖️ What is BMI?", q: "What does BMI mean for my child?" });
                 customPills.push({ text: "🍲 Foods eaten vs refused?", q: "Anong pagkain ang kinakain vs tinatanggihan ng mga bata?" });
             } else if (p.includes('/activities/')) {
                 featureName = "Daily Learning Activities";
+                customPills.push({ text: "🏃 What is Gross & Fine Motor?", q: "What does gross motor and fine motor mean?" });
                 customPills.push({ text: "📝 How to log task completion?", q: "How do I create activities and track student completions?" });
             } else if (p.includes('/engagement/')) {
                 featureName = "Parent-Teacher Engagement Chat";
+                customPills.push({ text: "🛠️ What is an Intervention?", q: "What does intervention mean?" });
                 customPills.push({ text: "💬 Real-time chat & digests?", q: "How do I chat with parents and send performance digests?" });
             } else if (p.includes('/parent/')) {
                 featureName = "Parent Guardian Portal";
+                customPills.push({ text: "🌟 What is Readiness?", q: "What does readiness mean for my child?" });
+                customPills.push({ text: "📲 What is Authorization Token?", q: "What is the authorization token and digital ID pass?" });
                 customPills.push({ text: "📲 Offline QR Pass?", q: "How do I download and use my offline QR pass for drop-off?" });
             }
 

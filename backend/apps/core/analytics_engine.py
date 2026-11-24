@@ -1516,6 +1516,463 @@ def get_feature_explanation(current_page, question, is_parent=False):
     )
 
 
+def get_friendly_concept_definition(question, is_parent=False):
+    """
+    Returns an intuitive, non-technical explanation of daycare terms
+    (Readiness, Risk, ECCD domains, Baseline, Trends, Feeding, BMI, Digital Passes, Interventions).
+    Designed specifically for parents and teachers with ZERO computer or IT jargon.
+    Supports both English and Tagalog.
+    """
+    import re
+    q = (question or "").strip()
+    q_low = q.lower()
+    clean_q = re.sub(r'[^a-zA-Z0-9\s]', ' ', q_low)
+    tokens = clean_q.split()
+
+    # If the user is asking for a list or roster of names, do NOT intercept as concept definition
+    is_asking_for_list = any(w in tokens for w in ['who', 'sino', 'list', 'listahan', 'names', 'pangalan', 'sinong', 'which'])
+    if is_asking_for_list:
+        return None
+
+    # Check for definition inquiry intent (or short standalone queries like "readiness", "risk level")
+    is_def_intent = any(k in q_low for k in [
+        'what is', 'what are', 'what does', 'what do', 'meaning', 'mean', 'means',
+        'define', 'definition', 'explain', 'ano ang', 'anong', 'ibig sabihin', 'kahulugan',
+        'paliwanag', 'bakit tinatawag', 'concept', 'ano ba ang', 'how does', 'why do we'
+    ]) or len(tokens) <= 3
+
+    if not is_def_intent:
+        return None
+
+    is_tl = any(w in q_low for w in [
+        'ano', 'anong', 'ibig sabihin', 'kahulugan', 'paliwanag', 'bakit', 'paano',
+        'magulang', 'guro', 'bata', 'pagkain', 'timbang', 'pasok', 'aralin', 'tinatawag', 'handa'
+    ])
+
+    # 1. Specific ECCD Domains
+    if 'gross motor' in q_low or 'malalaking kilos' in q_low:
+        if is_tl:
+            return (
+                "### 🏃 Ano ang Ibig Sabihin ng \"Gross Motor\":\n\n"
+                "Ang **Gross Motor** ay ang kakayahan ng bata sa **malalaking paggalaw ng katawan** tulad ng:\n"
+                "- Pagtakbo nang mabilis nang hindi nadadapa\n"
+                "- Pagtalon gamit ang dalawang paa o isang paa\n"
+                "- Pag-akyat sa hagdan nang salitan ang mga paa\n"
+                "- Pagsipa at pagsalo ng bola\n\n"
+                "Ito ang pundasyon ng pisikal na lakas, balanse, at sigla ng inyong anak sa laro at silid-aralan!"
+            )
+        return (
+            "### 🏃 What \"Gross Motor\" Means in Simple Words:\n\n"
+            "**Gross Motor** refers to your child's ability to use their **large body muscles** for coordination and movement:\n"
+            "- Running smoothly without tripping or losing balance\n"
+            "- Hopping, skipping, and jumping on one or two feet\n"
+            "- Walking up and down stairs safely\n"
+            "- Kicking and catching a soft playground ball\n\n"
+            "It builds the physical strength, confidence, and stamina your child needs to play and stay active every day!"
+        )
+
+    if 'fine motor' in q_low or 'maliit na kilos' in q_low:
+        if is_tl:
+            return (
+                "### ✏️ Ano ang Ibig Sabihin ng \"Fine Motor\":\n\n"
+                "Ang **Fine Motor** ay ang kakayahan ng bata sa **maliliit at maseselang kilos ng mga daliri at kamay**:\n"
+                "- Tamang paghawak sa krayola at lapis (tripod grip)\n"
+                "- Pagguhit ng tuwid na linya, bilog, at simpleng hugis\n"
+                "- Pagtuhog ng malalaking beads sa tali\n"
+                "- Pagpunit at pagtupi ng papel, at paggamit ng pambatang gunting\n\n"
+                "Ang kasanayang ito ang naghahanda sa bata upang matutong magsulat sa Kindergarten!"
+            )
+        return (
+            "### ✏️ What \"Fine Motor\" Means in Simple Words:\n\n"
+            "**Fine Motor** refers to how well your child controls their **hands and fingers** for detailed tasks:\n"
+            "- Holding a crayon with fingers (tripod grasp) rather than a fist\n"
+            "- Drawing straight lines, circles, and simple figures\n"
+            "- Stringing large beads on a shoelace\n"
+            "- Folding paper and using child-safe safety scissors\n\n"
+            "This skill is the crucial foundation that helps your child learn to write neatly in kindergarten!"
+        )
+
+    if 'receptive language' in q_low or 'receptive' in q_low:
+        if is_tl:
+            return (
+                "### 👂 Ano ang Ibig Sabihin ng \"Receptive Language\":\n\n"
+                "Ang **Receptive Language** ay ang kakayahan ng bata na **makinig, umunawa, at sumunod sa sinasabi** ng iba:\n"
+                "- Pagturo sa tamang larawan kapag tinanong (hal. \"Nasaan ang aso?\")\n"
+                "- Pagsunod sa simpleng utos (hal. \"Pakidala ang laruan kay Nanay\")\n"
+                "- Pakikinig sa maikling kwento nang may interes\n\n"
+                "Ipinapakita nito na nauunawaan ng bata ang mga salitang naririnig niya sa paligid."
+            )
+        return (
+            "### 👂 What \"Receptive Language\" Means in Simple Words:\n\n"
+            "**Receptive Language** is your child's ability to **listen, understand, and follow spoken words**:\n"
+            "- Pointing to the correct picture when asked (e.g., \"Where is the puppy?\")\n"
+            "- Following simple 1-step or 2-step requests (e.g., \"Pick up the ball and put it in the box\")\n"
+            "- Listening attentively to short bedtime stories\n\n"
+            "It shows how well your child absorbs and makes sense of the language spoken around them."
+        )
+
+    if 'expressive language' in q_low or 'expressive' in q_low:
+        if is_tl:
+            return (
+                "### 🗣️ Ano ang Ibig Sabihin ng \"Expressive Language\":\n\n"
+                "Ang **Expressive Language** ay ang kakayahan ng bata na **magsalita at magpahayag ng kanyang naiisip at nararamdaman**:\n"
+                "- Pagsasabi ng kanyang buong pangalan at edad\n"
+                "- Paggamit ng 3 hanggang 5 salita sa isang pangungusap (hal. \"Gusto ko ng gatas, Nanay\")\n"
+                "- Pag-awit ng mga pambatang tula at kanta\n"
+                "- Pagsasabi kung siya ay nagugutom, nasasaktan, o natutuwa\n\n"
+                "Nakatutulong ito upang malayang makipag-usap ang bata sa guro at mga kalaro."
+            )
+        return (
+            "### 🗣️ What \"Expressive Language\" Means in Simple Words:\n\n"
+            "**Expressive Language** is your child's ability to **speak, communicate, and express thoughts and feelings**:\n"
+            "- Telling someone their first name and age\n"
+            "- Speaking in 3 to 5-word complete sentences (e.g., \"I want to play with blocks\")\n"
+            "- Singing nursery rhymes and asking curious questions\n"
+            "- Expressing emotions clearly (telling someone when they are hungry, tired, or excited)\n\n"
+            "It empowers your child to share their thoughts and make friends easily."
+        )
+
+    if 'cognitive' in q_low:
+        if is_tl:
+            return (
+                "### 🧩 Ano ang Ibig Sabihin ng \"Cognitive Domain\":\n\n"
+                "Ang **Cognitive** ay ang kakayahan ng bata sa **pag-iisip, pagmamasid, at paglutas ng simpleng suliranin**:\n"
+                "- Pagtukoy at paghihiwalay ng mga kulay (pula, asul, dilaw) at hugis\n"
+                "- Pagbilang ng 1 hanggang 10 gamit ang mga tunay na bagay\n"
+                "- Pagbuo ng 3 hanggang 5 pirasong puzzle\n"
+                "- Pag-alaala sa mga pangalan ng pamilya at hayop\n\n"
+                "Ito ang naghahasa sa talas ng pag-iisip at kuryosidad ng bata sa agham at matematika."
+            )
+        return (
+            "### 🧩 What \"Cognitive Domain\" Means in Simple Words:\n\n"
+            "**Cognitive** refers to your child's **thinking, observing, and problem-solving skills**:\n"
+            "- Sorting objects by color (red, blue, yellow) and shape\n"
+            "- Counting 1 to 10 using fingers or toy blocks\n"
+            "- Putting together a 4-to-6 piece picture puzzle\n"
+            "- Recognizing cause and effect (e.g., what happens when blocks are stacked too high)\n\n"
+            "It lays the foundation for future math, science, and curiosity about how the world works."
+        )
+
+    if 'social-emotional' in q_low or 'social emotional' in q_low:
+        if is_tl:
+            return (
+                "### 🤝 Ano ang Ibig Sabihin ng \"Social-Emotional Domain\":\n\n"
+                "Ang **Social-Emotional** ay ang kakayahan ng bata sa **pakikipagkaibigan at pagkontrol sa sariling damdamin**:\n"
+                "- Pagbabahagi ng laruan at paghihintay sa sariling turn\n"
+                "- Pagpapakita ng awa o pag-aliw sa umiiyak na kaklase\n"
+                "- Pagsasabi ng \"Salamat\", \"Paki\", at \"Paumanhin\"\n"
+                "- Masayang paglalaro kasama ang iba nang walang away\n\n"
+                "Ito ang susi upang maging magalang, masayahin, at may empatiya ang inyong anak."
+            )
+        return (
+            "### 🤝 What \"Social-Emotional Domain\" Means in Simple Words:\n\n"
+            "**Social-Emotional** refers to your child's ability to **connect with friends and handle feelings**:\n"
+            "- Sharing toys and taking turns during games\n"
+            "- Showing empathy (like comforting a classmate who is crying)\n"
+            "- Using polite words (\"please\", \"thank you\", \"excuse me\")\n"
+            "- Coping with small disappointments without long tantrums\n\n"
+            "It builds warmth, kindness, and strong social confidence for life."
+        )
+
+    if 'self-help' in q_low or 'self help' in q_low:
+        if is_tl:
+            return (
+                "### 🧼 Ano ang Ibig Sabihin ng \"Self-Help Domain\":\n\n"
+                "Ang **Self-Help** ay ang kakayahan ng bata sa **pangangalaga sa sarili nang may kalayaan**:\n"
+                "- Paghuhugas at pagpapatuyo ng kamay bago at pagkatapos kumain\n"
+                "- Pagkain nang mag-isa gamit ang kutsara nang hindi masyadong natatapon\n"
+                "- Pagsusuot ng sariling sapatos at pagbutones ng damit\n"
+                "- Pagsasabi sa guro kapag kailangang umihi o mag-banyo\n\n"
+                "Nakatutulong ito upang maging responsable at may tiwala sa sarili ang bata."
+            )
+        return (
+            "### 🧼 What \"Self-Help Domain\" Means in Simple Words:\n\n"
+            "**Self-Help** refers to your child's **independence in personal daily habits**:\n"
+            "- Washing and drying hands before meals and after bathroom trips\n"
+            "- Feeding themselves with a spoon neatly\n"
+            "- Putting on shoes, pulling up pants, and fastening velcro or buttons\n"
+            "- Telling the teacher when they need to use the restroom\n\n"
+            "It fosters healthy self-esteem, self-reliance, and pride in doing things on their own."
+        )
+
+    # 2. Readiness / DRI (Development Readiness Index)
+    if any(k in q_low for k in ['readiness', 'dri', 'school ready', 'developing', 'needs support', 'handa', 'paghahanda']):
+        if is_tl:
+            return (
+                "### 🌟 Ano ang Ibig Sabihin ng \"Readiness\" (Paghahanda para sa Paaralan):\n\n"
+                "Ang **Readiness** ay simpleng pagsusuri: **\"Gaano na kahanda ang inyong anak na pumasok sa Kindergarten?\"**\n\n"
+                "Sa ating daycare, tinitingnan natin ang apat na pang-araw-araw na gawi ng bata:\n"
+                "1. 🎒 **Pagpasok sa Klase (Attendance):** Regular na pagpasok upang masanay sa tamang oras at hindi mahuli sa mga aralin.\n"
+                "2. 🍲 **Masustansyang Pagkain (Nutrition):** Pag-ubos sa inihandang feeding meals upang maging malakas, masigla, at alerto.\n"
+                "3. 🎨 **Kasanayan sa Pagkatuto (ECCD Learning):** Paghawak ng krayola, pagguhit, pagbilang, pakikinig sa kwento, at pagsasalita.\n"
+                "4. 🤝 **Pakikitungo sa Kalaro (Social & Behavior):** Pagbabahagi ng laruan, pakikipagkaibigan, at pagsunod sa mga patakaran sa silid-aralan.\n\n"
+                "---\n\n"
+                "#### 🏆 Ang 3 Antas ng Paghahanda:\n"
+                "- 🟢 **School Ready (81% pataas):** Napakahusay! Handa na ang bata para sa kindergarten.\n"
+                "- 🟡 **Developing (50% hanggang 80%):** Patuloy na natututo ngunit kailangan pa ng kaunting pagsasanay sa ilang gawain.\n"
+                "- 🔴 **Needs Support (Mababa sa 50%):** Nangangailangan ng dagdag na gabay, pagmamahal, at tulong mula sa guro at magulang upang makahabol nang maayos."
+            )
+        return (
+            "### 🌟 What \"Readiness\" (DRI) Means in Simple Words:\n\n"
+            "**Readiness** simply means: **\"Is your child prepared, healthy, and confident to enter Kindergarten?\"**\n\n"
+            "In our daycare center, every child's readiness is guided by four healthy daily habits:\n"
+            "1. 🎒 **Coming to Class (Attendance):** Coming to daycare regularly so they build good routines and never miss fun morning circle time.\n"
+            "2. 🍲 **Eating Nutritious Meals (Nutrition):** Eating the daily daycare warm snacks to stay energized, strong, and focused during activities.\n"
+            "3. 🎨 **Learning Basic Skills (ECCD & Tasks):** Holding crayons, drawing shapes, recognizing colors, counting numbers, and listening to stories.\n"
+            "4. 🤝 **Playing Well with Others (Social & Behavior):** Sharing toys, taking turns, saying \"please\" and \"thank you\", and making happy friendships.\n\n"
+            "---\n\n"
+            "#### 🏆 The 3 Readiness Levels:\n"
+            "- 🟢 **School Ready (81% to 100%):** Wonderful job! The child has mastered almost all age-appropriate skills and is ready to enter kindergarten with flying colors!\n"
+            "- 🟡 **Developing (50% to 80%):** The child is learning steadily step by step, but needs a little more practice in one or two areas (like speaking up or finishing meals).\n"
+            "- 🔴 **Needs Support (Below 50%):** The child needs extra patience, gentle guidance, and loving attention from both teachers and parents to help them catch up happily."
+        )
+
+    # 3. Risk Level / At-Risk / Watchlist
+    if any(k in q_low for k in ['risk', 'at-risk', 'peligro', 'watchlist']):
+        if is_tl:
+            return (
+                "### 💛 Ano ang Ibig Sabihin ng \"Risk Level\" (Antas ng Paggabay):\n\n"
+                "Sa ating daycare, ang **\"Risk\" ay HINDI nangangahulugang may sakit, panganib, o may maling ginawa ang bata!**\n\n"
+                "Ito ay simpleng paalala lamang sa guro at magulang: **\"Gaano karaming dagdag na tulong o paggabay ang kailangan ng bata ngayon upang hindi siya maiwan?\"**\n\n"
+                "- 🟢 **Low Risk (Maayos ang Takbo):**\n"
+                "  Masigla at regular na pumapasok ang bata, magana kumain, at mabilis matuto. Ipagpatuloy lang ang pagpuri at paggabay sa kanya!\n"
+                "- 🟡 **Moderate Risk (Kailangan ng Kaunting Pagsasanay):**\n"
+                "  Maayos naman ang bata, ngunit may isa o dalawang bagay na kailangan ng kaunting tulong — tulad ng pagiging mahiyain, mapiling kumain, o paghabol sa mga araw na lumiban.\n"
+                "- 🔴 **High Risk (Nangangailangan ng Espesyal na Pagtutulungan):**\n"
+                "  Nahihirapan ang bata sa ilang mahahalagang gawain o madalas lumiban sa klase. Magtutulungan ang guro at magulang sa isang masusing plano ng pag-alalay upang masayang makasabay ang bata."
+            )
+        return (
+            "### 💛 What \"Risk Level\" Means in Simple Words:\n\n"
+            "In our daycare center, **\"Risk\" does NOT mean disease, danger, or that a child did anything wrong!**\n\n"
+            "Instead, **Risk Level** simply answers: **\"How much extra help or loving attention does this child need right now from the teacher and parents?\"**\n\n"
+            "- 🟢 **Low Risk (Doing Great):**\n"
+            "  The child is attending class happily, eating well, and mastering new skills on schedule. Keep praising and encouraging them!\n"
+            "- 🟡 **Moderate Risk (Needs a Little Guided Practice):**\n"
+            "  The child is doing fine overall, but needs a little extra encouragement in one area — such as overcoming shyness, eating green vegetables, or catching up after a few absences.\n"
+            "- 🔴 **High Risk (Needs Loving One-on-One Support):**\n"
+            "  The child is having difficulty in several areas (like frequent absences, refusing snacks, or struggling with fine motor skills). The teacher and parents partner closely to give the child extra one-on-one attention and fun activities to help them catch up."
+        )
+
+    # 4. ECCD Checklist in general
+    if any(k in q_low for k in ['eccd', 'checklist', 'domain']):
+        if is_tl:
+            return (
+                "### 📚 Ano ang Ibig Sabihin ng \"ECCD\" (Early Childhood Care and Development):\n\n"
+                "Ang **ECCD** ay ang opisyal na checklist sa Pilipinas upang subaybayan ang paglaki at pag-unlad ng mga batang 3 hanggang 4 na taong gulang sa **7 mahahalagang kakayahan**:\n\n"
+                "1. 🏃 **Gross Motor (Malalaking Kilos):** Pagtakbo, pagtalon sa isang paa, pag-akyat, at pagsipa ng bola.\n"
+                "2. ✏️ **Fine Motor (Kilos ng Kamay at Daliri):** Tamang paghawak ng krayola, pagtuhog ng beads, pagguhit, at pagtupi ng papel.\n"
+                "3. 🧼 **Self-Help (Pangangalaga sa Sarili):** Paghuhugas ng kamay gamit ang sabon, pagbutones ng damit, pagsusuot ng sapatos, at sariling pagkain.\n"
+                "4. 👂 **Receptive Language (Pakikinig at Pag-unawa):** Pag-unawa sa sinasabi ng matatanda, pagtuturo sa larawan, at pagsunod sa panuto.\n"
+                "5. 🗣️ **Expressive Language (Pagsasalita):** Pagsasabi ng buong pangalan, pag-awit, pagtatanong, at pakikipag-usap.\n"
+                "6. 🧩 **Cognitive (Pag-iisip at Paglutas ng Suliranin):** Pagtukoy sa kulay at hugis, pagbilang ng 1 hanggang 10, at pagbuo ng puzzle.\n"
+                "7. 🤝 **Social-Emotional (Pakikipagkapwa at Damdamin):** Pagbabahagi ng laruan, pakikipagkaibigan, at pag-aliw sa kalaro."
+            )
+        return (
+            "### 📚 What \"ECCD\" Means in Simple Words:\n\n"
+            "**ECCD** stands for **Early Childhood Care and Development**.\n\n"
+            "It is the official child-friendly checklist used across Philippine daycare centers to observe and celebrate how 3-to-4-year-old children grow across **7 key life skills**:\n\n"
+            "1. 🏃 **Gross Motor:** Big movements — running, hopping on one foot, climbing, and kicking a ball.\n"
+            "2. ✏️ **Fine Motor:** Small finger skills — gripping crayons correctly, stringing beads, drawing lines, and folding paper.\n"
+            "3. 🧼 **Self-Help:** Independence in daily habits — washing hands with soap, buttoning clothes, putting on shoes, and eating with a spoon.\n"
+            "4. 👂 **Receptive Language:** Listening and understanding — pointing to named pictures, following simple instructions, and enjoying storybooks.\n"
+            "5. 🗣️ **Expressive Language:** Talking and communication — saying their full name, singing nursery rhymes, asking \"why?\", and talking in sentences.\n"
+            "6. 🧩 **Cognitive:** Thinking and problem-solving — sorting colors and shapes, counting 1 to 10, solving simple puzzles, and remembering familiar things.\n"
+            "7. 🤝 **Social-Emotional:** Getting along with others — sharing toys, taking turns, showing affection, and comforting friends."
+        )
+
+    # 5. Assessment Periods / Baseline
+    if any(k in q_low for k in ['baseline', '1st assessment', 'first assessment', '2nd assessment', 'second assessment', '3rd assessment', 'third assessment', 'midline', 'endline']):
+        if is_tl:
+            return (
+                "### 🎯 Ano ang Ibig Sabihin ng 3 Panahon ng Assessment (Pagsusuri):\n\n"
+                "Sa buong taon sa daycare, sinusuri ang bawat bata nang **3 beses** upang maitala ang kanilang pag-unlad:\n\n"
+                "1. 🏁 **1st Assessment (Baseline — Simula ng Taong-Aralan):**\n"
+                "   - Ginagawa sa pagsisimula ng klase upang malaman kung ano na ang mga likas na kakayahan ng bata. Maaari itong sagutan ng magulang kasama ang guro!\n"
+                "2. 🌟 **2nd Assessment (Midline — Gitna ng Taon):**\n"
+                "   - Ginagawa sa kalagitnaan ng taon upang makita kung ano-ano ang mga bagong natutunan ng bata sa silid-aralan.\n"
+                "3. 🎓 **3rd Assessment (Endline — Pagtatapos ng Taon):**\n"
+                "   - Ginagawa mga tatlong linggo bago matapos ang taong-aralan upang kumpirmahin na handang-handa na ang bata sa pagtatapos patungong Kindergarten!"
+            )
+        return (
+            "### 🎯 What the 3 Assessment Periods Mean:\n\n"
+            "Throughout the daycare school year, each child is evaluated **3 times** to track and celebrate their progress:\n\n"
+            "1. 🏁 **1st Assessment (Baseline — Opening of School Year):**\n"
+            "   - Conducted right after enrollment when the child enters daycare.\n"
+            "   - It captures what the child already knows and does naturally before classes begin. Parents are encouraged to help answer this first checklist!\n"
+            "2. 🌟 **2nd Assessment (Midline — Middle of School Year):**\n"
+            "   - Conducted midway through the school year.\n"
+            "   - It shows how much the child has progressed with classroom activities, songs, and socialization.\n"
+            "3. 🎓 **3rd Assessment (Endline — Near Graduation):**\n"
+            "   - Conducted about 3 weeks before the school year ends.\n"
+            "   - It verifies that the child has mastered foundational skills and is officially ready to graduate to Kindergarten!"
+        )
+
+    # 6. Trend / Trajectory
+    if any(k in q_low for k in ['trend', 'trajectory', 'delta']):
+        if is_tl:
+            return (
+                "### 📈 Ano ang Ibig Sabihin ng \"Trend\" (Direksyon ng Pag-unlad):\n\n"
+                "Ang **Trend** ay nagpapakita kung: **\"Papataas ba, matatag, o pansamantalang bumababa ang pag-unlad ng inyong anak?\"**\n\n"
+                "- ↗️ **Improving (Papataas):**\n"
+                "  Magandang balita! Mabilis na natututo ang bata, mas masigla, at mas madalas pumasok kaysa noong nakaraang buwan.\n"
+                "- ➡️ **Stable (Matatag):**\n"
+                "  Tuluy-tuloy at maganda ang pang-araw-araw na gawi ng bata linggo-linggo.\n"
+                "- ↘️ **Declining (Bumababa):**\n"
+                "  Pansamantalang pagbaba sa sigla o pagpasok (karaniwang dahil sa sipon, ubo, o sunod-sunod na pagliban). Maagang paalala ito upang maalalayan agad ng guro at magulang."
+            )
+        return (
+            "### 📈 What \"Trend\" Means in Simple Words:\n\n"
+            "**Trend** simply tells you: **\"Is your child's progress moving upward, staying steady, or dipping down?\"**\n\n"
+            "- ↗️ **Improving (Upward):**\n"
+            "  Wonderful progress! The child is gaining new skills, attending class more consistently, or eating better than last month.\n"
+            "- ➡️ **Stable (Steady):**\n"
+            "  Consistent and dependable! The child is maintaining good routines and performing reliably every week.\n"
+            "- ↘️ **Declining (Dipping):**\n"
+            "  A temporary dip (often caused by cough, colds, missed school days, or change in routine). It is a friendly early reminder for parents and teachers to give a little extra care before it becomes a habit."
+        )
+
+    # 7. Supplementary Feeding
+    if any(k in q_low for k in ['supplementary feeding', 'feeding', 'nutrition']):
+        if is_tl:
+            return (
+                "### 🍲 Ano ang Ibig Sabihin ng \"Supplementary Feeding\":\n\n"
+                "Ang **Supplementary Feeding** ay ang araw-araw na masustansyang mainit na pagkain at meryenda (tulad ng champorado, itlog, gatas, at masustansyang biskwit) na inihahain sa daycare.\n\n"
+                "**Bakit ito mahalaga sa bata:**\n"
+                "- Ang batang busog ay may sapat na lakas upang tumalon, kumanta, makinig sa kwento, at makipaglaro.\n"
+                "- Araw-araw, itinatala kung **Naubos**, may **Natira**, o **Hindi Kinain** ng bata ang pagkain upang masubaybayan ang kanyang gana at kalusugan.\n"
+                "- Kapag mapili sa pagkain ang bata, madaling magtutulungan ang guro at magulang upang masanay siyang kumain ng gulay at masustansyang ulam nang masaya."
+            )
+        return (
+            "### 🍲 What \"Supplementary Feeding\" Means in Simple Words:\n\n"
+            "**Supplementary Feeding** is the daily nutritious warm meal or snack (like hearty porridge, boiled eggs, milk, and fortified biscuits) prepared at the daycare center.\n\n"
+            "**Why it matters for your child:**\n"
+            "- A well-fed child has plenty of energy to jump, sing, listen attentively, and play happily with friends.\n"
+            "- Every day, the teacher checks whether the child **Finished** their snack, had **Some Left**, or **Refused** it.\n"
+            "- If a child is picky with certain vegetables or soups, teachers and parents can team up with fun, stress-free ways to introduce healthy foods at home!"
+        )
+
+    # 8. BMI / Weight Status
+    if any(k in q_low for k in ['bmi', 'body mass index', 'underweight', 'wasted', 'overweight', 'timbang']):
+        if is_tl:
+            return (
+                "### ⚖️ Ano ang Ibig Sabihin ng \"BMI\" (Pagsukat ng Kalusugan at Timbang):\n\n"
+                "Ang **BMI** (Body Mass Index) ay simpleng pagsusuri sa **timbang at tangkad** ng bata upang matiyak na malusog at malakas ang kanyang pangangatawan para sa kanyang edad:\n\n"
+                "- 🟢 **Normal Weight (Wastong Timbang):** Tamang-tama ang bigat ng bata para sa kanyang tangkad at edad.\n"
+                "- 🟡 **Underweight (Mababang Timbang):** Medyo magaan ang bata para sa kanyang tangkad. Makatutulong ang dagdag na gatas, itlog, kanin, at masustansyang meryenda upang lumakas ang kanyang resistensya.\n"
+                "- 🟣 **Overweight (Sobra sa Timbang):** Mas mabigat kaysa karaniwan. Makatutulong ang mas maraming laro sa labas, pag-inom ng tubig, at sariwang prutas upang manatiling masigla."
+            )
+        return (
+            "### ⚖️ What \"BMI\" (Body Mass Index) Means in Simple Words:\n\n"
+            "**BMI** is a simple health measurement comparing your child's **weight and height** to make sure their body is growing strong and healthy for their age:\n\n"
+            "- 🟢 **Normal Weight:** The child has a healthy balance of height and weight. They are growing right on target!\n"
+            "- 🟡 **Underweight / Wasted:** The child weighs a bit less than expected for their height. Extra nutritious meals, milk, and protein-rich snacks will help them build strength and stamina.\n"
+            "- 🟣 **Overweight:** The child weighs more than expected for their height. Encouraging plenty of outdoor active play, drinking lots of clean water, and offering fresh fruits will help keep them agile and healthy."
+        )
+
+    # 9. Digital ID Pass & Authorization Token
+    if any(k in q_low for k in ['token', 'authorization token', 'digital id', 'qr pass', 'qr code']):
+        if is_tl:
+            return (
+                "### 📲 Ano ang Ibig Sabihin ng \"Digital ID Pass\" at \"Authorization Token\":\n\n"
+                "Ang **Digital ID Pass** ay ang ligtas na electronic gate pass ng inyong anak sa inyong cellphone upang matiyak ang kaligtasan ng bata:\n\n"
+                "- 🔲 **QR Code Pass:**\n"
+                "  Sa paghahatid (Drop-off) o pagsundo (Pick-up), i-scan ng guro ang QR code na ito sa gate. Agad nitong kinukumpirma na ikaw ang awtorisadong guardian at awtomatikong itinatala ang attendance ng bata.\n"
+                "- 🔑 **Authorization Token (hal. `BMV3-49A7E1C8`):**\n"
+                "  Ito ay natatanging lihim na safety code ng inyong pamilya. Kung naubusan ng baterya ang cellphone o nasira ang screen, sabihin lamang ang code na ito sa guro upang ligtas at madaling makapasok.\n"
+                "- 💾 **Offline Pass:**\n"
+                "  Maaari mong i-download ang larawan ng QR pass sa gallery ng cellphone upang magamit mo ito kahit walang Wi-Fi o mobile data sa gate!"
+            )
+        return (
+            "### 📲 What the \"Digital ID Pass\" & \"Authorization Token\" Mean:\n\n"
+            "Your **Digital ID Pass** is your child's safe, personal electronic gate pass on your phone:\n\n"
+            "- 🔲 **QR Code Pass:**\n"
+            "  When dropping off or picking up your child, the teacher scans this QR code at the gate. It confirms in seconds that you are the child's authorized guardian and logs your child's attendance instantly.\n"
+            "- 🔑 **Authorization Token (e.g., `BMV3-49A7E1C8`):**\n"
+            "  This is a unique, confidential security code given to your family. If your phone battery dies, your screen cracks, or you have no phone with you, you can simply tell this code to the teacher to verify who you are safely.\n"
+            "- 💾 **Offline Pass (Download PNG):**\n"
+            "  You can save the QR pass as a photo in your phone gallery. You can use it at the school gate even with **no Wi-Fi and no mobile data**!"
+        )
+
+    # 10. Intervention / Action Plan
+    if any(k in q_low for k in ['intervention', 'action plan', 'aksyon', 'plano']):
+        if is_tl:
+            return (
+                "### 🛠️ Ano ang Ibig Sabihin ng \"Intervention\" (Plano ng Pag-alalay):\n\n"
+                "Ang **Intervention** ay isang **masaya at nakatutok na plano ng pagtulong** na inihahanda ng guro upang alalayan ang bata sa mga bagay na medyo nahihirapan siya.\n\n"
+                "- **HINDI ito parusa at walang masamang kahulugan!**\n"
+                "- Halimbawa: kung nahihirapang humawak ng krayola ang bata, maghahanda ang guro ng masayang laro gamit ang clay, buhangin, o finger painting.\n"
+                "- Kung mahiyain magsalita ang bata, bibigyan siya ng masayahing kalaro sa oras ng kwentuhan.\n"
+                "- Ibinabahagi ng guro ang mga simpleng gawain sa magulang upang pareho ang suportang nararamdaman ng bata sa bahay at sa paaralan!"
+            )
+        return (
+            "### 🛠️ What \"Intervention\" Means in Simple Words:\n\n"
+            "An **Intervention** is simply a **friendly, loving support plan** prepared by the teacher to help a child overcome a small hurdle.\n\n"
+            "- **It is NEVER a punishment or negative label!**\n"
+            "- For example: if a child is having trouble holding crayons, the teacher prepares fun playdough, squishy balls, and finger-painting games.\n"
+            "- If a child is shy or speaks softly, the teacher pairs them with a cheerful buddy during puppet play.\n"
+            "- The teacher shares these easy tips with parents so the child gets the exact same warm encouragement at home and in school!"
+        )
+
+    # 11. M-CHAT-R Screening
+    if any(k in q_low for k in ['m-chat', 'mchat', 'screening']):
+        if is_tl:
+            return (
+                "### 🧩 Ano ang Ibig Sabihin ng \"M-CHAT-R\":\n\n"
+                "Ang **M-CHAT-R** ay isang checklist na may 20 simpleng tanong para sa mga paslit upang masuri ang kanilang pakikipagkapwa at komunikasyon.\n"
+                "- Tinitingnan nito kung lumilingon ang bata kapag tinatawag ang pangalan, ngumingiti kapag nginitian, at nagtuturo ng mga bagay sa paligid.\n"
+                "- Nakatutulong ito upang maagang mabigyan ng kaukulang tulong ang bata kung may kailangan siyang pagsasanay sa pananalita o pakikinig."
+            )
+        return (
+            "### 🧩 What \"M-CHAT-R\" Means in Simple Words:\n\n"
+            "**M-CHAT-R** is a 20-question developmental screening checklist used worldwide to check early communication and sensory milestones.\n"
+            "- It observes everyday toddler behaviors like pointing to airplanes, responding to their name, and smiling back.\n"
+            "- It helps teachers and parents catch speech, hearing, or sensory needs early while children are young and their minds are growing fast!"
+        )
+
+    # 12. Allergies
+    if any(k in q_low for k in ['allergy', 'allergies', 'allerhiya']):
+        if is_tl:
+            return (
+                "### ⚠️ Ano ang Ibig Sabihin ng \"Allergies\" (Reaksyon sa Pagkain):\n\n"
+                "Ito ay ang talaan ng mga pagkain (tulad ng hipon, mani, o itlog), gamot, o alikabok na maaaring magdulot ng pangangati, pantal, o hirap sa paghinga sa bata.\n"
+                "- Tinitiyak ng guro at tagapagluto sa daycare na ligtas ang bawat inihahain at walang makakain ang bata na magdudulot ng allergy sa kanya."
+            )
+        return (
+            "### ⚠️ What \"Registered Allergies\" Means in Simple Words:\n\n"
+            "This is a safety list kept by teachers and daycare staff to protect children from foods, medicines, or triggers (like seafood, peanuts, dairy, or dust) that could make them sick.\n"
+            "- Whenever snacks are served, the teacher checks this list to make sure no child receives food that causes itching, rashes, or tummy upset."
+        )
+
+    # 13. General Definition Fallback
+    if is_tl:
+        return (
+            "### 💡 Gabay sa mga Karaniwang Termino sa Daycare:\n\n"
+            "Narito ang mga mahahalagang konsepto sa ating daycare system na maaari mong itanong:\n"
+            "- 🌟 **Readiness (DRI):** Paghahanda ng bata para sa Kindergarten (School Ready, Developing, Needs Support)\n"
+            "- 💛 **Risk Level:** Gaano karaming dagdag na gabay ang kailangan ng bata (Low, Moderate, High)\n"
+            "- 📚 **ECCD Domains:** 7 kasanayan sa paglaki (Gross Motor, Fine Motor, Language, Cognitive, atbp.)\n"
+            "- 🎯 **Assessment Periods:** 1st (Baseline), 2nd (Gitna ng Taon), at 3rd (Pagtatapos)\n"
+            "- 📈 **Trend:** Direksyon ng pag-unlad ng bata (Pataas, Matatag, o Bumababa)\n"
+            "- 🍲 **Supplementary Feeding:** Araw-araw na masustansyang mainit na pagkain sa daycare\n"
+            "- ⚖️ **BMI:** Wastong timbang at tangkad ng bata\n"
+            "- 📲 **Digital ID Pass:** Secure QR code at backup token sa paghatid at sundo\n\n"
+            "Maaari kang mag-type halimbawa ng: *\"Ano ang ibig sabihin ng readiness?\"* o *\"Ano ang gross motor?\"*"
+        )
+    return (
+        "### 💡 Simple Guide to Daycare Terms:\n\n"
+        "Here are key concepts you can ask about anytime in simple everyday words:\n"
+        "- 🌟 **Readiness (DRI):** How prepared your child is for Kindergarten (School Ready, Developing, Needs Support)\n"
+        "- 💛 **Risk Level:** How much extra help and loving attention the child needs (Low, Moderate, High)\n"
+        "- 📚 **ECCD Domains:** 7 areas of growth (Gross Motor, Fine Motor, Language, Cognitive, etc.)\n"
+        "- 🎯 **Assessment Periods:** 1st (Baseline), 2nd (Midline), and 3rd (Endline near graduation)\n"
+        "- 📈 **Trend:** Growth trajectory over time (Improving, Stable, or Declining)\n"
+        "- 🍲 **Supplementary Feeding:** Daily nutritious hot meals and snacks served at the center\n"
+        "- ⚖️ **BMI:** Healthy balance of weight and height for your child's age\n"
+        "- 📲 **Digital ID Pass & Token:** Safe gate pass for authorized drop-off and pickup\n\n"
+        "Feel free to ask: *\"What does readiness mean?\"*, *\"What is gross motor?\"*, or *\"What is risk level?\"*"
+    )
+
+
 def answer_ai_query(question, analytics_data, current_page="", is_parent=False):
     """
     Answers ANY custom question (in English or Tagalog) about students, attendance, shifts,
@@ -1599,13 +2056,18 @@ def answer_ai_query(question, analytics_data, current_page="", is_parent=False):
         reply += f"- **Recommended Action ({st['recommendations'][0]['priority']}):** {st['recommendations'][0]['action']}\n"
         return reply
 
+    # Check for friendly concept definitions (Zero IT jargon, plain English & Tagalog definitions for daycare concepts)
+    concept_def = get_friendly_concept_definition(q, is_parent=is_parent)
+    if concept_def:
+        return concept_def
+
     # Check if asking about HOW percentages / formulas / DRI / risk are calculated
-    if any(k in q_low for k in ['formula', 'calculate', 'computed', 'paano', 'how do we get', 'percent', 'dri', 'threshold', '100%']):
+    if any(k in q_low for k in ['formula', 'calculate', 'computed', 'paano', 'how do we get', 'percent', 'threshold', '100%']):
         s_shift = dri_data.get('shift_breakdown', {})
         m_s = s_shift.get('morning', {})
         a_s = s_shift.get('afternoon', {})
         reply = "### 🧮 100% Weighted Analytics Formula & Classification Thresholds\n\n"
-        reply += "Every pupil's **Development Readiness Index (DRI)** is calculated on a **0%–100% scale** from 4 real database pillars:\n\n"
+        reply += "Every pupil's **Development Readiness Index (DRI)** is calculated on a **0%–100% scale** from 4 core childhood development pillars:\n\n"
         reply += "- **Attendance (25%):** `Present Days ÷ Total Class Days × 25%`\n"
         reply += "- **Nutrition & Health (25%):** `(80% Meal Intake Rate + 20% BMI Status) × 25%`\n"
         reply += "- **Learning & ECCD (30%):** `(70% ECCD 7-Domain Mastery + 30% Activity Completion) × 30%`\n"
@@ -1703,8 +2165,8 @@ def answer_ai_query(question, analytics_data, current_page="", is_parent=False):
     # Comprehensive Open-Ended Answer for any other question
     top_food = food_list[0]['food_item'] if food_list else 'Champorado & Milk'
     low_food = sorted(food_list, key=lambda x: x['not_eaten_count'], reverse=True)[0]['food_item'] if food_list else 'Steamed Pechay'
-    reply = f"### 💡 BMV3 Classroom Data Insights for: *\"{q}\"*\n\n"
-    reply += f"Here is the live database breakdown for **School Year {sy_name}** ({total} pupils — {analytics_data.get('morning_count')} Morning, {analytics_data.get('afternoon_count')} Afternoon):\n\n"
+    reply = f"### 💡 BMV3 Classroom Insights for: *\"{q}\"*\n\n"
+    reply += f"Here is the live classroom summary for **School Year {sy_name}** ({total} pupils — {analytics_data.get('morning_count')} Morning, {analytics_data.get('afternoon_count')} Afternoon):\n\n"
     reply += f"- **Overall Class Readiness (DRI):** `{summary.get('class_dri')}%` (Projected Year-End: `{analytics_data.get('predictive_trends', {}).get('projected_class_dri')}%`)\n"
     reply += f"- **Readiness Tiers (100% Scale):** `{ len(low_kids) }` School Ready (`81–100%`), `{ len(mod_kids) }` Developing (`50–80%`), `{ len(high_kids) }` Needs Support (`<50%`)\n"
     reply += f"- **Attendance Rate:** `{att.get('overall_rate')}%` (Morning AM: `{att.get('morning_rate')}%`, Afternoon PM: `{att.get('afternoon_rate')}%`)\n"
